@@ -7897,10 +7897,10 @@ public:
 	}
 #endif //!_WIN32_WCE
 
-	void MaximizeBand(int nBand)
+	void MaximizeBand(int nBand, BOOL bIdeal = FALSE)
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
-		::SendMessage(m_hWnd, RB_MAXIMIZEBAND, nBand, 0L);
+		::SendMessage(m_hWnd, RB_MAXIMIZEBAND, nBand, bIdeal);
 	}
 
 	void MinimizeBand(int nBand)
