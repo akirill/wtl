@@ -3157,7 +3157,9 @@ public:
 				}
 			}
 		}
-#endif // _WIN32_WCE
+#else // CE specific
+		bAddGripper;   // avoid level 4 warning
+#endif //_WIN32_WCE
 
 		// Get min track position if requested
 		if(bUseMinTrackSize)

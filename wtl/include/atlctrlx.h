@@ -273,6 +273,7 @@ public:
 // Message map and handlers
 	BEGIN_MSG_MAP(CBitmapButtonImpl)
 		MESSAGE_HANDLER(WM_CREATE, OnCreate)
+		MESSAGE_HANDLER(WM_DESTROY, OnDestroy)
 		MESSAGE_RANGE_HANDLER(WM_MOUSEFIRST, WM_MOUSELAST, OnMouseMessage)
 		MESSAGE_HANDLER(WM_ERASEBKGND, OnEraseBackground)
 		MESSAGE_HANDLER(WM_PAINT, OnPaint)
@@ -295,6 +296,17 @@ public:
 	LRESULT OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
 	{
 		Init();
+		bHandled = FALSE;
+		return 1;
+	}
+
+	LRESULT OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
+	{
+		if(m_tip.IsWindow())
+		{
+			m_tip.DestroyWindow();
+			m_tip.m_hWnd = NULL;
+		}
 		bHandled = FALSE;
 		return 1;
 	}
@@ -1077,6 +1089,7 @@ public:
 	BEGIN_MSG_MAP(CHyperLinkImpl)
 		MESSAGE_HANDLER(WM_CREATE, OnCreate)
 #ifndef _WIN32_WCE
+		MESSAGE_HANDLER(WM_DESTROY, OnDestroy)
 		MESSAGE_RANGE_HANDLER(WM_MOUSEFIRST, WM_MOUSELAST, OnMouseMessage)
 #endif //!_WIN32_WCE
 		MESSAGE_HANDLER(WM_ERASEBKGND, OnEraseBackground)
@@ -1109,6 +1122,17 @@ public:
 	}
 
 #ifndef _WIN32_WCE
+	LRESULT OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
+	{
+		if(m_tip.IsWindow())
+		{
+			m_tip.DestroyWindow();
+			m_tip.m_hWnd = NULL;
+		}
+		bHandled = FALSE;
+		return 1;
+	}
+
 	LRESULT OnMouseMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 	{
 		MSG msg = { m_hWnd, uMsg, wParam, lParam };
@@ -3276,28 +3300,28 @@ public:
 		return pInfo->bDescending ? -nRet : nRet;
 	}
 #else
-   // Compare mantissas, ignore sign and scale
-    static int CompareMantissas(const DECIMAL& decLeft, const DECIMAL& decRight)
-    {
-        if (decLeft.Hi32 < decRight.Hi32)
-        {
-            return -1;
-        }
-        if (decLeft.Hi32 > decRight.Hi32)
-        {
-            return 1;
-        }
-        // Here, decLeft.Hi32 == decRight.Hi32
-        if (decLeft.Lo64 < decRight.Lo64)
-        {
-            return -1;
-        }
-        if (decLeft.Lo64 > decRight.Lo64)
-        {
-            return 1;
-        }
-        return 0;
-    }
+	// Compare mantissas, ignore sign and scale
+	static int CompareMantissas(const DECIMAL& decLeft, const DECIMAL& decRight)
+	{
+		if (decLeft.Hi32 < decRight.Hi32)
+		{
+			return -1;
+		}
+		if (decLeft.Hi32 > decRight.Hi32)
+		{
+			return 1;
+		}
+		// Here, decLeft.Hi32 == decRight.Hi32
+		if (decLeft.Lo64 < decRight.Lo64)
+		{
+			return -1;
+		}
+		if (decLeft.Lo64 > decRight.Lo64)
+		{
+			return 1;
+		}
+		return 0;
+	}
 
 	// return values: VARCMP_LT, VARCMP_EQ, VARCMP_GT, VARCMP_NULL
 	static HRESULT VarDecCmp(const DECIMAL* pdecLeft, const DECIMAL* pdecRight)
@@ -3390,7 +3414,7 @@ public:
 				break;
 			}
 			temp.Hi32 = static_cast<ULONG>(product);
-			temp.scale += scaleDiff;
+			temp.scale = (BYTE)(temp.scale + scaleDiff);
 		}
 		if (temp.scale < pdecRight->scale)
 		{
