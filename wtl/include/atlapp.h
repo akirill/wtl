@@ -56,6 +56,9 @@
   #include <atlresce.h>
 #endif //_WIN32_WCE
 
+// We need to disable this warning because of template class arguments
+#pragma warning(disable: 4127)
+
 
 ///////////////////////////////////////////////////////////////////////////////
 // WTL version number
@@ -897,7 +900,7 @@ public:
 
 	void MonitorShutdown()
 	{
-		while(1)
+		for(;;)
 		{
 			::WaitForSingleObject(m_hEventShutdown, INFINITE);
 			DWORD dwWait = 0;
