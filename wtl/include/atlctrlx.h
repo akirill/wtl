@@ -3279,6 +3279,146 @@ public:
 		nRet--;
 		return pInfo->bDescending ? -nRet : nRet;
 	}
+#else
+   // Compare mantissas, ignore sign and scale
+    static int CompareMantissas(const DECIMAL& decLeft, const DECIMAL& decRight)
+    {
+        if (decLeft.Hi32 < decRight.Hi32)
+        {
+            return -1;
+        }
+        if (decLeft.Hi32 > decRight.Hi32)
+        {
+            return 1;
+        }
+        // Here, decLeft.Hi32 == decRight.Hi32
+        if (decLeft.Lo64 < decRight.Lo64)
+        {
+            return -1;
+        }
+        if (decLeft.Lo64 > decRight.Lo64)
+        {
+            return 1;
+        }
+        return 0;
+    }
+
+	// return values: VARCMP_LT, VARCMP_EQ, VARCMP_GT, VARCMP_NULL
+	static HRESULT VarDecCmp(const DECIMAL* pdecLeft, const DECIMAL* pdecRight)
+	{
+		static const ULONG powersOfTen[] =
+		{
+			10ul,
+			100ul,
+			1000ul,
+			10000ul,
+			100000ul,
+			1000000ul,
+			10000000ul,
+			100000000ul,
+			1000000000ul
+		};
+		static const int largestPower = sizeof(powersOfTen) / sizeof(powersOfTen[0]);
+		if (!pdecLeft || !pdecRight)
+		{
+			return VARCMP_NULL;
+		}
+		
+		// Degenerate case - at least one comparand is of the form
+		// [+-]0*10^N (denormalized zero)
+		bool bLeftZero = (!pdecLeft->Lo64 && !pdecLeft->Hi32);
+		bool bRightZero = (!pdecRight->Lo64 && !pdecRight->Hi32);
+		if (bLeftZero && bRightZero)
+		{
+			return VARCMP_EQ;
+		}
+		bool bLeftNeg = ((pdecLeft->sign & DECIMAL_NEG) != 0);
+		bool bRightNeg = ((pdecRight->sign & DECIMAL_NEG) != 0);
+		if (bLeftZero)
+		{
+			return (bRightNeg ? VARCMP_GT : VARCMP_LT);
+		}
+		// This also covers the case where the comparands have different signs
+		if (bRightZero || bLeftNeg != bRightNeg)
+		{
+			return (bLeftNeg ? VARCMP_LT : VARCMP_GT);
+		}
+
+		// Here both comparands have the same sign and need to be compared
+		// on mantissa and scale. The result is obvious when
+		// 1. Scales are equal (then compare mantissas)
+		// 2. A number with smaller scale is also the one with larger mantissa
+		//    (then this number is obviously larger)
+		// In the remaining case, we would multiply the number with smaller
+		// scale by 10 and simultaneously increment its scale (which amounts to
+		// adding trailing zeros after decimal point), until the numbers fall under
+		// one of the two cases above
+		DECIMAL temp;
+		bool bInvert = bLeftNeg; // the final result needs to be inverted
+		if (pdecLeft->scale < pdecRight->scale)
+		{
+			temp = *pdecLeft;
+		}
+		else
+		{
+			temp = *pdecRight;
+			pdecRight = pdecLeft;
+			bInvert = !bInvert;
+		}
+
+		// Now temp is the number with smaller (or equal) scale, and
+		// we can modify it freely without touching original parameters
+		int comp;
+		while ((comp = CompareMantissas(temp, *pdecRight)) < 0 &&
+			temp.scale < pdecRight->scale)
+		{
+			// Multiply by an appropriate power of 10
+			int scaleDiff = pdecRight->scale - temp.scale;
+			if (scaleDiff > largestPower)
+			{
+				// Keep the multiplier representable in 32bit
+				scaleDiff = largestPower;
+			}
+			DWORDLONG power = powersOfTen[scaleDiff - 1];
+			// Multiply temp's mantissa by power
+			DWORDLONG product = temp.Lo32 * power;
+			ULONG carry = static_cast<ULONG>(product >> 32);
+			temp.Lo32  = static_cast<ULONG>(product);
+			product = temp.Mid32 * power + carry;
+			carry = static_cast<ULONG>(product >> 32);
+			temp.Mid32 = static_cast<ULONG>(product);
+			product = temp.Hi32 * power + carry;
+			if (static_cast<ULONG>(product >> 32))
+			{
+				// Multiplication overflowed - pdecLeft is clearly larger
+				break;
+			}
+			temp.Hi32 = static_cast<ULONG>(product);
+			temp.scale += scaleDiff;
+		}
+		if (temp.scale < pdecRight->scale)
+		{
+			comp = 1;
+		}
+		if (bInvert)
+		{
+			comp = -comp;
+		}
+		return (comp > 0 ? VARCMP_GT : comp < 0 ? VARCMP_LT : VARCMP_EQ);
+	}
+
+	static int CALLBACK LVCompareDecimal(LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort)
+	{
+		ATLASSERT(lParam1 != NULL && lParam2 != NULL && lParamSort != NULL);
+
+		LVCompareParam* pParam1 = (LVCompareParam*)lParam1;
+		LVCompareParam* pParam2 = (LVCompareParam*)lParam2;
+		LVSortInfo* pInfo = (LVSortInfo*)lParamSort;
+		
+		int nRet = (int)VarDecCmp(&pParam1->decValue, &pParam2->decValue);
+		nRet--;
+		return pInfo->bDescending ? -nRet : nRet;
+	}
 #endif //!_WIN32_WCE
 
 	BEGIN_MSG_MAP(CSortListViewImpl)
