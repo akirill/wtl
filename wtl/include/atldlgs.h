@@ -2242,12 +2242,20 @@ public:
 	PROPSHEETHEADER m_psh;
 	ATL::CSimpleArray<HPROPSHEETPAGE> m_arrPages;
 
+#if defined(_AYGSHELL_H_) || defined(__AYGSHELL_H__) // PPC specific
+	static wchar_t m_szTitle[];
+	static wchar_t m_szLink[];
+#endif // defined(_AYGSHELL_H_) || defined(__AYGSHELL_H__) 
+
 // Construction/Destruction
 	CPropertySheetImpl(ATL::_U_STRINGorID title = (LPCTSTR)NULL, UINT uStartPage = 0, HWND hWndParent = NULL)
 	{
 		memset(&m_psh, 0, sizeof(PROPSHEETHEADER));
 		m_psh.dwSize = sizeof(PROPSHEETHEADER);
 		m_psh.dwFlags = PSH_USECALLBACK;
+#if defined(_AYGSHELL_H_) || defined(__AYGSHELL_H__) // PPC specific
+		m_psh.dwFlags |= PSH_MAXIMIZE;
+#endif // defined(_AYGSHELL_H_) || defined(__AYGSHELL_H__)
 #if (_ATL_VER >= 0x0700)
 		m_psh.hInstance = ATL::_AtlBaseModule.GetResourceInstance();
 #else //!(_ATL_VER >= 0x0700)
@@ -2271,7 +2279,7 @@ public:
 	}
 
 // Callback function and overrideables
-	static int CALLBACK PropSheetCallback(HWND hWnd, UINT uMsg, LPARAM /*lParam*/)
+	static int CALLBACK PropSheetCallback(HWND hWnd, UINT uMsg, LPARAM lParam)
 	{
 		if(uMsg == PSCB_INITIALIZED)
 		{
@@ -2288,6 +2296,23 @@ public:
 
 			pT->OnSheetInitialized();
 		}
+#if defined(_AYGSHELL_H_) || defined(__AYGSHELL_H__) // PPC specific
+		else
+		switch ( uMsg )
+		{
+		case PSCB_GETVERSION :
+			return COMCTL32_VERSION;
+
+		case PSCB_GETTITLE :
+			wcscpy( (LPTSTR)lParam, m_szTitle);
+			break;
+
+		case PSCB_GETLINKTEXT:
+			wcscpy( (LPTSTR)lParam, m_szLink);
+			break;
+		}
+#endif // defined(_AYGSHELL_H_) || defined(__AYGSHELL_H__) 
+
 
 		return 0;
 	}
@@ -2408,6 +2433,7 @@ public:
 
 	}
 
+#if !defined(_AYGSHELL_H_) && !defined(__AYGSHELL_H__) 
 	void SetTitle(LPCTSTR lpszText, UINT nStyle = 0)
 	{
 		ATLASSERT((nStyle & ~PSH_PROPTITLE) == 0);   // only PSH_PROPTITLE is valid
@@ -2426,6 +2452,20 @@ public:
 			TBase::SetTitle(lpszText, nStyle);
 		}
 	}
+
+#else // PPC Specific
+	void SetTitle(LPCTSTR lpszText, UINT nStyle = 0)
+	{
+		ATLASSERT(lpszText != NULL);
+		wcscpy( m_szTitle, lpszText);
+	}
+
+	void SetLinkText(LPCTSTR lpszText, UINT nStyle = 0)
+	{
+		ATLASSERT(lpszText != NULL);
+		wcscpy( m_szLink, lpszText);
+	}
+#endif // defined(_AYGSHELL_H_) || defined(__AYGSHELL_H__) 
 
 	void SetWizardMode()
 	{
@@ -2570,6 +2610,22 @@ public:
 	}
 };
 
+#if defined(_AYGSHELL_H_) || defined(__AYGSHELL_H__) // PPC static variables
+
+#ifndef PROPSHEET_TITLE_SIZE
+	#define PROPSHEET_TITLE_SIZE 32
+#endif // PROPSHEET_TITLE_SIZE
+#ifndef PROPSHEET_LINK_SIZE
+	#define PROPSHEET_LINK_SIZE 128
+#endif // PROPSHEET_LINK_SIZE
+
+template < class T, class TBase >
+wchar_t CPropertySheetImpl<T,TBase>::m_szTitle[PROPSHEET_TITLE_SIZE];
+template < class T, class TBase>
+wchar_t CPropertySheetImpl<T,TBase>::m_szLink[PROPSHEET_LINK_SIZE];
+
+#endif // defined(_AYGSHELL_H_) || defined(__AYGSHELL_H__)
+
 // for non-customized sheets
 class CPropertySheet : public CPropertySheetImpl<CPropertySheet>
 {
@@ -2581,6 +2637,7 @@ public:
 	BEGIN_MSG_MAP(CPropertySheet)
 		MESSAGE_HANDLER(WM_COMMAND, CPropertySheetImpl<CPropertySheet>::OnCommand)
 	END_MSG_MAP()
+
 };
 
 
