@@ -54,6 +54,9 @@ namespace WTL
 #if (WINVER >= 0x0500)
 #define SCRL_SMOOTHSCROLL	0x00000008
 #endif //(WINVER >= 0x0500)
+#define SCRL_DISABLENOSCROLLV	0x00000010
+#define SCRL_DISABLENOSCROLLH	0x00000020
+#define SCRL_DISABLENOSCROLL	(SCRL_DISABLENOSCROLLV | SCRL_DISABLENOSCROLLH)
 
 
 template <class T>
@@ -125,13 +128,17 @@ public:
 		m_ptOffset.x = x;
 		m_ptOffset.y = y;
 
-		SCROLLINFO si = { 0 };
-		si.cbSize = sizeof(si);
-		si.fMask = SIF_POS;
+		SCROLLINFO si = { sizeof(SCROLLINFO) };
 
+		si.fMask = SIF_POS;
+		if((m_dwExtendedStyle & SCRL_DISABLENOSCROLLH) != 0)
+			si.fMask |= SIF_DISABLENOSCROLL;
 		si.nPos = m_ptOffset.x;
 		pT->SetScrollInfo(SB_HORZ, &si, bRedraw);
 
+		si.fMask = SIF_POS;
+		if((m_dwExtendedStyle & SCRL_DISABLENOSCROLLV) != 0)
+			si.fMask |= SIF_DISABLENOSCROLL;
 		si.nPos = m_ptOffset.y;
 		pT->SetScrollInfo(SB_VERT, &si, bRedraw);
 
@@ -156,8 +163,14 @@ public:
 		ATLASSERT(::IsWindow(pT->m_hWnd));
 
 		// reset current range to prevent scroll bar problems
-		SCROLLINFO si = { sizeof(si), SIF_RANGE, 0, 0 };
+		SCROLLINFO si = { sizeof(SCROLLINFO) };
+		si.fMask = SIF_RANGE;
+		if((m_dwExtendedStyle & SCRL_DISABLENOSCROLLH) != 0)
+			si.fMask |= SIF_DISABLENOSCROLL;
 		pT->SetScrollInfo(SB_HORZ, &si, FALSE);
+		si.fMask = SIF_RANGE;
+		if((m_dwExtendedStyle & SCRL_DISABLENOSCROLLV) != 0)
+			si.fMask |= SIF_DISABLENOSCROLL;
 		pT->SetScrollInfo(SB_VERT, &si, FALSE);
 
 		m_sizeAll.cx = cx;
@@ -166,14 +179,19 @@ public:
 		m_ptOffset.x = 0;
 		m_ptOffset.y = 0;
 
-		si.fMask = SIF_PAGE | SIF_RANGE | SIF_POS;
 		si.nMin = 0;
 
+		si.fMask = SIF_PAGE | SIF_RANGE | SIF_POS;
+		if((m_dwExtendedStyle & SCRL_DISABLENOSCROLLH) != 0)
+			si.fMask |= SIF_DISABLENOSCROLL;
 		si.nMax = m_sizeAll.cx - 1;
 		si.nPage = m_sizeClient.cx;
 		si.nPos = m_ptOffset.x;
 		pT->SetScrollInfo(SB_HORZ, &si, bRedraw);
 
+		si.fMask = SIF_PAGE | SIF_RANGE | SIF_POS;
+		if((m_dwExtendedStyle & SCRL_DISABLENOSCROLLV) != 0)
+			si.fMask |= SIF_DISABLENOSCROLL;
 		si.nMax = m_sizeAll.cy - 1;
 		si.nPage = m_sizeClient.cy;
 		si.nPos = m_ptOffset.y;
@@ -424,14 +442,18 @@ public:
 		m_sizeClient.cx = GET_X_LPARAM(lParam);
 		m_sizeClient.cy = GET_Y_LPARAM(lParam);
 
-		SCROLLINFO si = { 0 };
-		si.cbSize = sizeof(si);
-		si.fMask = SIF_PAGE | SIF_POS;
+		SCROLLINFO si = { sizeof(SCROLLINFO) };
 
+		si.fMask = SIF_PAGE | SIF_POS;
+		if((m_dwExtendedStyle & SCRL_DISABLENOSCROLLH) != 0)
+			si.fMask |= SIF_DISABLENOSCROLL;
 		si.nPage = m_sizeClient.cx;
 		si.nPos = m_ptOffset.x;
 		pT->SetScrollInfo(SB_HORZ, &si, FALSE);
 
+		si.fMask = SIF_PAGE | SIF_POS;
+		if((m_dwExtendedStyle & SCRL_DISABLENOSCROLLV) != 0)
+			si.fMask |= SIF_DISABLENOSCROLL;
 		si.nPage = m_sizeClient.cy;
 		si.nPos = m_ptOffset.y;
 		pT->SetScrollInfo(SB_VERT, &si, FALSE);
@@ -639,9 +661,7 @@ public:
 			// else fall through
 		case SB_THUMBPOSITION:
 			{
-				SCROLLINFO si = { 0 };
-				si.cbSize = sizeof(SCROLLINFO);
-				si.fMask = SIF_TRACKPOS;
+				SCROLLINFO si = { sizeof(SCROLLINFO), SIF_TRACKPOS };
 				if(pT->GetScrollInfo(nType, &si))
 				{
 					cxyScroll = cxyOffset - si.nTrackPos;
