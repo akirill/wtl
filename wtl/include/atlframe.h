@@ -37,6 +37,7 @@
 // COwnerDraw<T>
 // CUpdateUIBase
 // CUpdateUI<T>
+// CDynamicUpdateUI<T>
 // CDialogResize<T>
 //
 // Global functions:
@@ -2825,6 +2826,144 @@ public:
 
 		if(m_pUIData != NULL)
 			memset(m_pUIData, 0, sizeof(_AtlUpdateUIData) * nCount);
+	}
+};
+
+
+///////////////////////////////////////////////////////////////////////////////
+// CDynamicUpdateUI - allows update elements to dynamically added and removed
+//                    in addition to a static update UI map
+
+template <class T>
+class CDynamicUpdateUI : public CUpdateUIBase
+{
+public:
+// Data members
+	CSimpleArray<_AtlUpdateUIMap> m_arrUIMap;     // copy of the static UI data
+	CSimpleArray<_AtlUpdateUIData> m_arrUIData;   // instance UI data
+
+// Constructor/destructor
+	CDynamicUpdateUI()
+	{
+		T* pT = static_cast<T*>(this);
+		pT;
+		const _AtlUpdateUIMap* pMap = pT->GetUpdateUIMap();
+		ATLASSERT(pMap != NULL);
+
+		for(;;)
+		{
+			BOOL bRet = m_arrUIMap.Add(*(_AtlUpdateUIMap*)pMap);
+			ATLASSERT(bRet);
+
+			if(bRet != FALSE)
+			{
+				_AtlUpdateUIData data = { 0, NULL };
+				bRet = m_arrUIData.Add(data);
+				ATLASSERT(bRet);
+			}
+
+			if(pMap->m_nID == (WORD)-1)
+				break;
+
+			pMap++;
+		}
+
+		ATLASSERT(m_arrUIMap.GetSize() == m_arrUIData.GetSize());
+
+#ifdef _DEBUG
+		// check for duplicates (debug only)
+		for(int i = 0; i < m_arrUIMap.GetSize(); i++)
+		{
+			for(int j = 0; j < m_arrUIMap.GetSize(); j++)
+			{
+				// shouldn't have duplicates in the update UI map
+				if(i != j)
+					ATLASSERT(m_arrUIMap[j].m_nID != m_arrUIMap[i].m_nID);
+			}
+		}
+#endif //_DEBUG
+
+		// Set internal data pointers to point to the new data arrays
+		m_pUIMap = m_arrUIMap.m_aT;
+		m_pUIData = m_arrUIData.m_aT;
+	}
+
+	~CDynamicUpdateUI()
+	{
+		for(int i = 0; i < m_arrUIData.GetSize(); i++)
+		{
+			if((m_arrUIData[i].m_wState & UPDUI_TEXT) != 0)
+				free(m_arrUIData[i].m_lpData);
+		}
+
+		// Reset internal data pointers (memory will be released by CSimpleArray d-tor)
+		m_pUIMap = NULL;
+		m_pUIData = NULL;
+	}
+
+// Methods for dynamically adding and removing update elements
+	bool UIAddUpdateElement(WORD nID, WORD wType)
+	{
+		// check for duplicates
+		for(int i = 0; i < m_arrUIMap.GetSize(); i++)
+		{
+			// shouldn't have duplicates in the update UI map
+			ATLASSERT(m_arrUIMap[i].m_nID != nID);
+			if(m_arrUIMap[i].m_nID == nID)
+				return false;
+		}
+
+		bool bRetVal = false;
+
+		// Add new end element
+		_AtlUpdateUIMap uumEnd = { (WORD)-1, 0 };
+		BOOL bRet = m_arrUIMap.Add(uumEnd);
+		ATLASSERT(bRet);
+
+		if(bRet != FALSE)
+		{
+			_AtlUpdateUIData uud = { 0, NULL };
+			bRet = m_arrUIData.Add(uud);
+			ATLASSERT(bRet);
+
+			// Set new data to the previous end element
+			if(bRet != FALSE)
+			{
+				int nSize = m_arrUIMap.GetSize();
+				_AtlUpdateUIMap uum = { nID, wType };
+				m_arrUIMap.SetAtIndex(nSize - 2, uum);
+				m_arrUIData.SetAtIndex(nSize - 2, uud);
+
+				// Set internal data pointers again, just in case that memory moved
+				m_pUIMap = m_arrUIMap.m_aT;
+				m_pUIData = m_arrUIData.m_aT;
+
+				bRetVal = true;
+			}
+		}
+
+		return bRetVal;
+	}
+
+	bool UIRemoveUpdateElement(WORD nID)
+	{
+		bool bRetVal = false;
+
+		for(int i = 0; i < m_arrUIMap.GetSize(); i++)
+		{
+			if(m_arrUIMap[i].m_nID == nID)
+			{
+				BOOL bRet = m_arrUIMap.RemoveAt(i);
+				ATLASSERT(bRet);
+				bRet = m_arrUIData.RemoveAt(i);
+				ATLASSERT(bRet);
+
+				bRetVal = true;
+				break;
+			}
+		}
+
+		return bRetVal;
 	}
 };
 
