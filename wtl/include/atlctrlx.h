@@ -2698,12 +2698,10 @@ enum
 	LVCOLSORT_TEXTNOCASE,
 	LVCOLSORT_LONG,
 	LVCOLSORT_DOUBLE,
+	LVCOLSORT_DECIMAL,
 	LVCOLSORT_DATETIME,
 	LVCOLSORT_DATE,
 	LVCOLSORT_TIME,
-#if !defined(_WIN32_WCE) && !defined(_ATL_MIN_CRT)
-	LVCOLSORT_INT64,
-#endif //!defined(_WIN32_WCE) && !defined(_ATL_MIN_CRT)
 	LVCOLSORT_CUSTOM,
 	LVCOLSORT_LAST = LVCOLSORT_CUSTOM
 };
@@ -2734,13 +2732,11 @@ public:
 		{
 			long lValue;
 			double dblValue;
+			DECIMAL decValue;
 			LPCTSTR pszValue;
-#if !defined(_WIN32_WCE) && !defined(_ATL_MIN_CRT)
-			__int64 nValue;
-#endif//!defined(_WIN32_WCE) && !defined(_ATL_MIN_CRT)
 		};
 	};
-
+	
 	// passed to LVCompare functions as the lParamSort parameter
 	struct LVSortInfo
 	{
@@ -2959,6 +2955,19 @@ public:
 				}
 			}
 			break;
+		case LVCOLSORT_DECIMAL:
+			{
+				pFunc = (PFNLVCOMPARE)pT->LVCompareDecimal;
+				for(int i = 0; i < nCount; i++)
+				{
+					pParam[i].iItem = i;
+					pParam[i].dwItemData = pT->GetItemData(i);
+					pT->GetItemText(i, iCol, pszTemp, pT->m_cchCmpTextMax);
+					pT->StrToDecimal(pszTemp, &pParam[i].decValue);
+					pT->SetItemData(i, (DWORD_PTR)&pParam[i]);
+				}
+			}
+			break;
 		case LVCOLSORT_DATETIME:
 		case LVCOLSORT_DATE:
 		case LVCOLSORT_TIME:
@@ -2979,21 +2988,6 @@ public:
 				}
 			}
 			break;
-#if !defined(_WIN32_WCE) && !defined(_ATL_MIN_CRT)
-		case LVCOLSORT_INT64:
-			{
-				pFunc = (PFNLVCOMPARE)pT->LVCompareInt64;
-				for(int i = 0; i < nCount; i++)
-				{
-					pParam[i].iItem = i;
-					pParam[i].dwItemData = pT->GetItemData(i);
-					pT->GetItemText(i, iCol, pszTemp, pT->m_cchCmpTextMax);
-					pParam[i].nValue = pT->StrToInt64(pszTemp);
-					pT->SetItemData(i, (DWORD_PTR)&pParam[i]);
-				}
-			}
-			break;
-#endif//!defined(_WIN32_WCE) && !defined(_ATL_MIN_CRT)
 		default:
 			ATLTRACE2(atlTraceUI, 0, _T("Unknown value for sort type in CSortListViewImpl::DoSortItems()\n"));
 			break;
@@ -3175,30 +3169,25 @@ public:
 		return dblRet;
 	}
 
-#if !defined(_WIN32_WCE) && !defined(_ATL_MIN_CRT)
-	__int64 StrToInt64(LPCTSTR lpstr)
+	bool StrToDecimal(LPCTSTR lpstr, DECIMAL* pDecimal)
 	{
 		ATLASSERT(lpstr != NULL);
-		if(lpstr == NULL || lpstr[0] == _T('\0'))
-			return 0;
-		
-		TCHAR szTemp[m_cchCmpTextMax];
-		int nlen = ::lstrlen(lpstr);
-		int iTemp = 0;
+		ATLASSERT(pDecimal != NULL);
+		if(lpstr == NULL || pDecimal == NULL)
+			return false;
 
-		// remove formatting
-		for(int i = 0; i < nlen; i++)
+		USES_CONVERSION;
+		HRESULT hRet = E_FAIL;
+		if (FAILED(hRet = ::VarDecFromStr((LPOLESTR)T2COLE(lpstr), LANG_USER_DEFAULT, LOCALE_NOUSEROVERRIDE, pDecimal)))
 		{
-			if(_istdigit(lpstr[i]) || lpstr[i] == _T('-'))
-			{
-				szTemp[iTemp] = lpstr[i];
-				iTemp++;
-			}
+			ATLTRACE2(atlTraceUI, 0, _T("VarDecFromStr failed with result of 0x%8.8X\n"), hRet);
+			pDecimal->Lo64 = 0;
+			pDecimal->Hi32 = 0;
+			pDecimal->signscale = 0;
+			return false;
 		}
-		szTemp[iTemp] = _T('\0');
-		return _ttoi64(szTemp);
+		return true;
 	}
-#endif//!defined(_WIN32_WCE) && !defined(_ATL_MIN_CRT)
 
 //Overrideable PFNLVCOMPARE functions
 	static int CALLBACK LVCompareText(LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort)
@@ -3269,8 +3258,7 @@ public:
 		return pInfo->bDescending ? -nRet : nRet;
 	}
 
-#if !defined(_WIN32_WCE) && !defined(_ATL_MIN_CRT)
-	static int CALLBACK LVCompareInt64(LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort)
+	static int CALLBACK LVCompareDecimal(LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort)
 	{
 		ATLASSERT(lParam1 != NULL && lParam2 != NULL && lParamSort != NULL);
 
@@ -3278,14 +3266,10 @@ public:
 		LVCompareParam* pParam2 = (LVCompareParam*)lParam2;
 		LVSortInfo* pInfo = (LVSortInfo*)lParamSort;
 		
-		int nRet = 0;
-		if(pParam1->nValue > pParam2->nValue)
-			nRet = 1;
-		else if(pParam1->nValue < pParam2->nValue)
-			nRet = -1;
+		int nRet = (int)::VarDecCmp(&pParam1->decValue, &pParam2->decValue);
+		nRet--;
 		return pInfo->bDescending ? -nRet : nRet;
 	}
-#endif//!defined(_WIN32_WCE) && !defined(_ATL_MIN_CRT)
 
 	BEGIN_MSG_MAP(CSortListViewImpl)
 		MESSAGE_HANDLER(LVM_INSERTCOLUMN, OnInsertColumn)
