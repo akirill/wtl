@@ -250,7 +250,7 @@ public:
 	UINT GetButtonStyle() const
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
-		return (UINT)::GetWindowLong(m_hWnd, GWL_STYLE) & 0xff;
+		return (UINT)::GetWindowLong(m_hWnd, GWL_STYLE) & 0xFFFF;
 	}
 
 	void SetButtonStyle(UINT nStyle, BOOL bRedraw = TRUE)
