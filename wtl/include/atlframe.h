@@ -2689,39 +2689,38 @@ public:
 		mii.fMask = MIIM_STATE;
 		mii.wID = nID;
 
-		if(pUIData->m_wState & UPDUI_DISABLED)
 #ifndef _WIN32_WCE
+		if((pUIData->m_wState & UPDUI_DISABLED) != 0)
 			mii.fState |= MFS_DISABLED | MFS_GRAYED;
-#else // CE specific
-			mii.fState &= ~MFS_ENABLED;
-#endif //_WIN32_WCE
 		else
 			mii.fState |= MFS_ENABLED;
 
-#ifndef _WIN32_WCE
-		if(pUIData->m_wState & UPDUI_CHECKED)
+		if((pUIData->m_wState & UPDUI_CHECKED) != 0)
 			mii.fState |= MFS_CHECKED;
 		else
 			mii.fState |= MFS_UNCHECKED;
-#else // CE specific
-		UINT uCheck = 0;
 
-		if(pUIData->m_wState & UPDUI_CHECKED)
+		if((pUIData->m_wState & UPDUI_DEFAULT) != 0)
+			mii.fState |= MFS_DEFAULT;
+#else // CE specific
+		// ::SetMenuItemInfo() can't disable or check menu items
+		// on Windows CE, so we have to do that directly
+		UINT uEnable = MF_BYCOMMAND;
+		if((pUIData->m_wState & UPDUI_DISABLED) != 0)
+			uEnable |= MF_GRAYED;
+		else
+			uEnable |= MF_ENABLED;
+		::EnableMenuItem(hMenu, nID, uEnable);
+
+		UINT uCheck = MF_BYCOMMAND;
+		if((pUIData->m_wState & UPDUI_CHECKED) != 0)
 			uCheck |= MF_CHECKED;
 		else
 			uCheck |= MF_UNCHECKED;
-
-		// SetMenuItemInfo can not set the check mark bitmaps
-		// Have to use CheckMenuItem instead
 		::CheckMenuItem(hMenu, nID, uCheck);
 #endif //_WIN32_WCE
 
-#ifndef _WIN32_WCE
-		if(pUIData->m_wState & UPDUI_DEFAULT)
-			mii.fState |= MFS_DEFAULT;
-#endif //!_WIN32_WCE
-
-		if(pUIData->m_wState & UPDUI_TEXT)
+		if((pUIData->m_wState & UPDUI_TEXT) != 0)
 		{
 			CMenuItemInfo miiNow;
 			miiNow.fMask = MIIM_TYPE;
