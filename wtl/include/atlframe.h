@@ -2149,6 +2149,7 @@ public:
 	{
 		HWND m_hWnd;
 		WORD m_wType;
+
 		bool operator ==(const _AtlUpdateUIElement& e) const
 		{ return (m_hWnd == e.m_hWnd && m_wType == e.m_wType); }
 	};
@@ -2158,6 +2159,9 @@ public:
 	{
 		WORD m_nID;
 		WORD m_wType;
+
+		bool operator ==(const _AtlUpdateUIMap& e) const
+		{ return (m_nID == e.m_nID && m_wType == e.m_wType); }
 	};
 
 	// instance data
@@ -2165,6 +2169,9 @@ public:
 	{
 		WORD m_wState;
 		void* m_lpData;
+
+		bool operator ==(const _AtlUpdateUIData& e) const
+		{ return (m_wState == e.m_wState && m_lpData == e.m_lpData); }
 	};
 
 	ATL::CSimpleArray<_AtlUpdateUIElement> m_UIElements;   // elements data
@@ -2839,8 +2846,8 @@ class CDynamicUpdateUI : public CUpdateUIBase
 {
 public:
 // Data members
-	CSimpleArray<_AtlUpdateUIMap> m_arrUIMap;     // copy of the static UI data
-	CSimpleArray<_AtlUpdateUIData> m_arrUIData;   // instance UI data
+	ATL::CSimpleArray<_AtlUpdateUIMap> m_arrUIMap;     // copy of the static UI data
+	ATL::CSimpleArray<_AtlUpdateUIData> m_arrUIData;   // instance UI data
 
 // Constructor/destructor
 	CDynamicUpdateUI()
