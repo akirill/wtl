@@ -817,7 +817,10 @@ public:
 
 		BOOL bRet = ::SHCreateMenuBar(&mbi);
 		if(bRet)
+		{
 			m_hWndCECommandBar = mbi.hwndMB;
+			UpdateLayout();
+		}
 
 		return bRet;
 	}
@@ -827,6 +830,22 @@ public:
 	void UpdateLayout(BOOL bResizeBars = TRUE)
 	{
 		RECT rect = { 0 };
+
+#if defined(_AYGSHELL_H_) || defined(__AYGSHELL_H__) // PPC MenuBar specific
+		
+		if (m_hWndCECommandBar != NULL)
+		{
+			GetWindowRect(&rect);
+			RECT rectMB;
+			ATLASSERT( ::IsWindow(m_hWndCECommandBar));
+			::GetWindowRect(m_hWndCECommandBar, &rectMB);
+			int bottom = ::GetWindowLong(m_hWndCECommandBar, GWL_STYLE) & WS_VISIBLE ? rectMB.top : rectMB.bottom;
+			if ( bottom != rect.bottom )
+				::MoveWindow( m_hWnd, rect.left, rect.top, 
+					rect.right - rect.left, bottom - rect.top, false);
+		}
+#endif //defined(_AYGSHELL_H_) || defined(__AYGSHELL_H__)
+
 		GetClientRect(&rect);
 
 		// position bars and offset their dimensions
