@@ -2369,6 +2369,9 @@ public:
 		MESSAGE_HANDLER(WM_SETFOCUS, OnSetFocus)
 		MESSAGE_HANDLER(WM_ERASEBKGND, OnEraseBackground)
 		MESSAGE_HANDLER(WM_PAINT, OnPaint)
+#ifndef _WIN32_WCE
+		MESSAGE_HANDLER(WM_PRINTCLIENT, OnPaint)
+#endif //!_WIN32_WCE
 		MESSAGE_HANDLER(WM_NOTIFY, OnNotify)
 		MESSAGE_HANDLER(WM_COMMAND, OnCommand)
 		FORWARD_NOTIFICATIONS()
@@ -2404,15 +2407,24 @@ public:
 		return 1;   // no background needed
 	}
 
-	LRESULT OnPaint(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+	LRESULT OnPaint(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 	{
-		CPaintDC dc(m_hWnd);
-
 		T* pT = static_cast<T*>(this);
-		pT->DrawPaneTitle(dc.m_hDC);
+		if(wParam != NULL)
+		{
+			pT->DrawPaneTitle((HDC)wParam);
 
-		if(m_wndClient.m_hWnd == NULL)   // no client window
-			pT->DrawPane(dc.m_hDC);
+			if(m_wndClient.m_hWnd == NULL)   // no client window
+				pT->DrawPane((HDC)wParam);
+		}
+		else
+		{
+			CPaintDC dc(m_hWnd);
+			pT->DrawPaneTitle(dc.m_hDC);
+
+			if(m_wndClient.m_hWnd == NULL)   // no client window
+				pT->DrawPane(dc.m_hDC);
+		}
 
 		return 0;
 	}

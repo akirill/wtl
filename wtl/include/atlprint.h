@@ -852,6 +852,7 @@ public:
 	BEGIN_MSG_MAP(CPrintPreviewWindowImpl)
 		MESSAGE_HANDLER(WM_ERASEBKGND, OnEraseBkgnd)
 		MESSAGE_HANDLER(WM_PAINT, OnPaint)
+		MESSAGE_HANDLER(WM_PRINTCLIENT, OnPaint)
 	END_MSG_MAP()
 
 	LRESULT OnEraseBkgnd(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
@@ -859,19 +860,39 @@ public:
 		return 1;   // no need for the background
 	}
 
-	LRESULT OnPaint(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+	LRESULT OnPaint(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 	{
 		T* pT = static_cast<T*>(this);
-		CPaintDC dc(m_hWnd);
-		RECT rcClient;
+		RECT rc = { 0 };
+
+		if(wParam != NULL)
+		{
+			pT->DoPrePaint((HDC)wParam, rc);
+			pT->DoPaint((HDC)wParam, rc);
+		}
+		else
+		{
+			CPaintDC dc(m_hWnd);
+			pT->DoPrePaint(dc.m_hDC, rc);
+			pT->DoPaint(dc.m_hDC, rc);
+		}
+
+		return 0;
+	}
+
+// Painting helper
+	void DoPrePaint(CDCHandle dc, RECT& rc)
+	{
+		RECT rcClient = { 0 };
 		GetClientRect(&rcClient);
 		RECT rcArea = rcClient;
+		T* pT = static_cast<T*>(this);
+		pT; // avoid level 4 warning
 		::InflateRect(&rcArea, -pT->m_cxOffset, -pT->m_cyOffset);
 		if (rcArea.left > rcArea.right)
 			rcArea.right = rcArea.left;
 		if (rcArea.top > rcArea.bottom)
 			rcArea.bottom = rcArea.top;
-		RECT rc;
 		GetPageRect(rcArea, &rc);
 		CRgn rgn1, rgn2;
 		rgn1.CreateRectRgnIndirect(&rc);
@@ -881,8 +902,6 @@ public:
 		dc.FillRect(&rcClient, COLOR_BTNSHADOW);
 		dc.SelectClipRgn(NULL);
 		dc.FillRect(&rc, (HBRUSH)::GetStockObject(WHITE_BRUSH));
-		pT->DoPaint(dc.m_hDC, rc);
-		return 0;
 	}
 
 // Implementation - data
@@ -940,6 +959,7 @@ public:
 		MESSAGE_HANDLER(WM_SIZE, OnSize)
 		MESSAGE_HANDLER(WM_ERASEBKGND, OnEraseBkgnd)
 		MESSAGE_HANDLER(WM_PAINT, OnPaint)
+		MESSAGE_HANDLER(WM_PRINTCLIENT, OnPaint)
 	ALT_MSG_MAP(1)
 		COMMAND_ID_HANDLER(ID_SCROLL_UP, CScrollImpl< T >::OnScrollUp)
 		COMMAND_ID_HANDLER(ID_SCROLL_DOWN, CScrollImpl< T >::OnScrollDown)
@@ -982,20 +1002,45 @@ public:
 		return 1;
 	}
 
-	LRESULT OnPaint(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+	LRESULT OnPaint(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 	{
 		T* pT = static_cast<T*>(this);
-		CPaintDC dc(pT->m_hWnd);
+		RECT rc = { 0 };
+
+		if(wParam != NULL)
+		{
+			pT->DoPrePaint((HDC)wParam, rc);
+			pT->DoPaint((HDC)wParam, rc);
+		}
+		else
+		{
+			CPaintDC dc(pT->m_hWnd);
+			pT->DoPrePaint(dc.m_hDC, rc);
+			pT->DoPaint(dc.m_hDC, rc);
+		}
+
+		return 0;
+	}
+
+	// Painting helpers
+	void DoPaint(CDCHandle dc)
+	{
+		// this one is not used
+	}
+
+	void DoPrePaint(CDCHandle dc, RECT& rc)
+	{
 		PrepareDC(dc.m_hDC);
 		RECT rcClient;
 		GetClientRect(&rcClient);
 		RECT rcArea = rcClient;
+		T* pT = static_cast<T*>(this);
+		pT; // avoid level 4 warning
 		::InflateRect(&rcArea, -pT->m_cxOffset, -pT->m_cyOffset);
 		if (rcArea.left > rcArea.right)
 			rcArea.right = rcArea.left;
 		if (rcArea.top > rcArea.bottom)
 			rcArea.bottom = rcArea.top;
-		RECT rc = { 0 };
 		GetPageRect(rcArea, &rc);
 		HBRUSH hbrOld = dc.SelectBrush(::GetSysColorBrush(COLOR_BTNSHADOW));
 		dc.PatBlt(rcClient.left, rcClient.top, rc.left - rcClient.left, rcClient.bottom - rcClient.top, PATCOPY);
@@ -1008,14 +1053,6 @@ public:
 		dc.PatBlt(rc.right, rc.top + 4, 4, rc.bottom - rc.top, PATCOPY);
 		dc.PatBlt(rc.left + 4, rc.bottom, rc.right - rc.left, 4, PATCOPY);
 		dc.SelectBrush(hbrOld);
-		pT->DoPaint(dc.m_hDC, rc);
-		return 0;
-	}
-
-	// Painting helpers
-	void DoPaint(CDCHandle dc)
-	{
-		// this one is not used
 	}
 
 	void DoPaint(CDCHandle dc, RECT& rc)
