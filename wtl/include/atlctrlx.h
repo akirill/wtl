@@ -2698,7 +2698,9 @@ enum
 	LVCOLSORT_TEXTNOCASE,
 	LVCOLSORT_LONG,
 	LVCOLSORT_DOUBLE,
+#ifndef _WIN32_WCE
 	LVCOLSORT_DECIMAL,
+#endif //!_WIN32_WCE
 	LVCOLSORT_DATETIME,
 	LVCOLSORT_DATE,
 	LVCOLSORT_TIME,
@@ -2955,6 +2957,7 @@ public:
 				}
 			}
 			break;
+#ifndef _WIN32_WCE
 		case LVCOLSORT_DECIMAL:
 			{
 				pFunc = (PFNLVCOMPARE)pT->LVCompareDecimal;
@@ -2968,6 +2971,7 @@ public:
 				}
 			}
 			break;
+#endif //!_WIN32_WCE
 		case LVCOLSORT_DATETIME:
 		case LVCOLSORT_DATE:
 		case LVCOLSORT_TIME:
@@ -3038,7 +3042,11 @@ public:
 					if(!m_bmSort[i].IsNull())
 						m_bmSort[i].DeleteObject();
 					m_bmSort[i] = (HBITMAP)::LoadImage(hShell, MAKEINTRESOURCE(m_nShellSortUpID + i), 
+#ifndef _WIN32_WCE
 						IMAGE_BITMAP, 0, 0, LR_LOADMAP3DCOLORS);
+#else // CE specific
+						IMAGE_BITMAP, 0, 0, 0);
+#endif //_WIN32_WCE
 					if(m_bmSort[i].IsNull())
 					{
 						bSuccess = false;
@@ -3258,6 +3266,7 @@ public:
 		return pInfo->bDescending ? -nRet : nRet;
 	}
 
+#ifndef _WIN32_WCE
 	static int CALLBACK LVCompareDecimal(LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort)
 	{
 		ATLASSERT(lParam1 != NULL && lParam2 != NULL && lParamSort != NULL);
@@ -3270,6 +3279,7 @@ public:
 		nRet--;
 		return pInfo->bDescending ? -nRet : nRet;
 	}
+#endif //!_WIN32_WCE
 
 	BEGIN_MSG_MAP(CSortListViewImpl)
 		MESSAGE_HANDLER(LVM_INSERTCOLUMN, OnInsertColumn)
