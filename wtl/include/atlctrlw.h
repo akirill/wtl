@@ -1856,7 +1856,7 @@ public:
 		bHandled = FALSE;
 		T* pT = static_cast<T*>(this);
 
-		if(wParam == VK_ESCAPE)
+		if(wParam == VK_ESCAPE && m_stackMenuWnd.GetSize() <= 1)
 		{
 			if(m_bMenuActive && !m_bContextMenu)
 			{
