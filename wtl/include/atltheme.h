@@ -291,7 +291,14 @@ public:
 		return ::GetThemePosition(m_hTheme, nPartID, nStateID, nPropID, pPoint);
 	}
 
+	// deprecated
 	HRESULT GetThemeFont(int nPartID, HDC hDC, int nStateID, int nPropID, LOGFONT* pFont) const
+	{
+		ATLASSERT(m_hTheme != NULL);
+		return ::GetThemeFont(m_hTheme, hDC, nPartID, nStateID, nPropID, pFont);
+	}
+
+	HRESULT GetThemeFont(HDC hDC, int nPartID, int nStateID, int nPropID, LOGFONT* pFont) const
 	{
 		ATLASSERT(m_hTheme != NULL);
 		return ::GetThemeFont(m_hTheme, hDC, nPartID, nStateID, nPropID, pFont);
