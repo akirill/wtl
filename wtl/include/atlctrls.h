@@ -5392,7 +5392,7 @@ public:
 	}
 
 	BOOL InsertButton(int nIndex, int iCommand, BYTE Style, BYTE State, int iBitmap, 
-		int iString, DWORD_PTR lParam)
+		INT_PTR iString, DWORD_PTR lParam)
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
 		TBBUTTON tbb = { 0 };
@@ -5408,15 +5408,7 @@ public:
 	BOOL InsertButton(int nIndex, int iCommand, BYTE Style, BYTE State, int iBitmap, 
 		LPCTSTR lpszItem, DWORD_PTR lParam)
 	{
-		ATLASSERT(::IsWindow(m_hWnd));
-		TBBUTTON tbb = { 0 };
-		tbb.fsStyle = Style;
-		tbb.fsState = State;
-		tbb.idCommand = iCommand;
-		tbb.iBitmap = iBitmap;
-		tbb.iString = (int) lpszItem;
-		tbb.dwData = lParam;
-		return (BOOL)::SendMessage(m_hWnd, TB_INSERTBUTTON, nIndex, (LPARAM)&tbb);
+		return InsertButton(nIndex, iCommand, Style, State, iBitmap, (INT_PTR)lpszItem, lParam);
 	}
 
 	BOOL DeleteButton(int nIndex)
@@ -6525,7 +6517,7 @@ public:
 	int GetRangeLimit(BOOL bLowLimit) const
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
-		return (int)::SendMessage(m_hWnd, PBM_GETRANGE, bLimit, (LPARAM)NULL);
+		return (int)::SendMessage(m_hWnd, PBM_GETRANGE, bLowLimit, (LPARAM)NULL);
 	}
 
 	DWORD SetRange32(int nMin, int nMax)
@@ -8367,7 +8359,7 @@ public:
 	}
 
 // Non-functional
-	int AddString(LPCTSTR lpszItem)
+	int AddString(LPCTSTR /*lpszItem*/)
 	{
 		ATLASSERT(FALSE);  // Not available in CComboBoxEx; use InsertItem
 		return 0;
