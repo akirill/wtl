@@ -837,7 +837,10 @@ public:
 		if(m_hWndToolBar != NULL && ((DWORD)::GetWindowLong(m_hWndToolBar, GWL_STYLE) & WS_VISIBLE))
 		{
 			if(bResizeBars)
+			{
 				::SendMessage(m_hWndToolBar, WM_SIZE, 0, 0);
+				::InvalidateRect(m_hWndToolBar, NULL, FALSE);
+			}
 			RECT rectTB = { 0 };
 			::GetWindowRect(m_hWndToolBar, &rectTB);
 			rect.top += rectTB.bottom - rectTB.top;
