@@ -2508,7 +2508,6 @@ public:
 // Implementation - Hook procs
 	static LRESULT CALLBACK CreateHookProc(int nCode, WPARAM wParam, LPARAM lParam)
 	{
-		LRESULT lRet = 0;
 		const int cchClassName = 7;
 		TCHAR szClassName[cchClassName] = { 0 };
 
@@ -2537,11 +2536,8 @@ public:
 				s_pCurrentBar->m_stackMenuWnd.Pop();
 			}
 		}
-		else if(nCode < 0)
-		{
-			lRet = ::CallNextHookEx(s_hCreateHook, nCode, wParam, lParam);
-		}
-		return lRet;
+
+		return ::CallNextHookEx(s_hCreateHook, nCode, wParam, lParam);
 	}
 
 	static LRESULT CALLBACK MessageHookProc(int nCode, WPARAM wParam, LPARAM lParam)
