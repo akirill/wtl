@@ -2698,9 +2698,7 @@ enum
 	LVCOLSORT_TEXTNOCASE,
 	LVCOLSORT_LONG,
 	LVCOLSORT_DOUBLE,
-#ifndef _WIN32_WCE
 	LVCOLSORT_DECIMAL,
-#endif //!_WIN32_WCE
 	LVCOLSORT_DATETIME,
 	LVCOLSORT_DATE,
 	LVCOLSORT_TIME,
@@ -2957,7 +2955,6 @@ public:
 				}
 			}
 			break;
-#ifndef _WIN32_WCE
 		case LVCOLSORT_DECIMAL:
 			{
 				pFunc = (PFNLVCOMPARE)pT->LVCompareDecimal;
@@ -2971,7 +2968,6 @@ public:
 				}
 			}
 			break;
-#endif //!_WIN32_WCE
 		case LVCOLSORT_DATETIME:
 		case LVCOLSORT_DATE:
 		case LVCOLSORT_TIME:
