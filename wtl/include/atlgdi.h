@@ -417,12 +417,18 @@ public:
 	}
 #endif //!_WIN32_WCE
 
-	HFONT CreatePointFont(int nPointSize, LPCTSTR lpszFaceName, HDC hDC = NULL)
+	HFONT CreatePointFont(int nPointSize, LPCTSTR lpszFaceName, HDC hDC = NULL, bool bBold = false, bool bItalic = false)
 	{
 		LOGFONT logFont = { 0 };
 		logFont.lfCharSet = DEFAULT_CHARSET;
 		logFont.lfHeight = nPointSize;
 		lstrcpyn(logFont.lfFaceName, lpszFaceName, sizeof(logFont.lfFaceName) / sizeof(TCHAR));
+
+		if(bBold)
+			logFont.lfWeight = FW_BOLD;
+		if(bItalic)
+			logFont.lfItalic = (BYTE)TRUE;
+
 		return CreatePointFontIndirect(&logFont, hDC);
 	}
 
