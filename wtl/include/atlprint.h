@@ -267,7 +267,7 @@ public:
 		return h;
 	}
 
-	HDC CreatePrinterDC(const DEVMODE* pdm = NULL)
+	HDC CreatePrinterDC(const DEVMODE* pdm = NULL) const
 	{
 		CPrinterInfo<5> pinfo5;
 		CPrinterInfo<2> pinfo2;
@@ -283,7 +283,7 @@ public:
 		return hDC;
 	}
 
-	HDC CreatePrinterIC(const DEVMODE* pdm = NULL)
+	HDC CreatePrinterIC(const DEVMODE* pdm = NULL) const
 	{
 		CPrinterInfo<5> pinfo5;
 		CPrinterInfo<2> pinfo2;
@@ -764,10 +764,10 @@ public:
 		int y2 = pmh->szlDevice.cy;
 		int y1p = MulDiv(x1, y2, x2);
 		int x1p = MulDiv(y1, x2, y2);
-		ATLASSERT( (x1p <= x1) || (y1p <= y1));
+		ATLASSERT((x1p <= x1) || (y1p <= y1));
 		if (x1p <= x1)
 		{
-			prc->left = rc.left + (x1 - x1p)/2;
+			prc->left = rc.left + (x1 - x1p) / 2;
 			prc->right = prc->left + x1p;
 			prc->top = rc.top;
 			prc->bottom = rc.bottom;
@@ -776,7 +776,7 @@ public:
 		{
 			prc->left = rc.left;
 			prc->right = rc.right;
-			prc->top = rc.top + (y1 - y1p)/2;
+			prc->top = rc.top + (y1 - y1p) / 2;
 			prc->bottom = prc->top + y1p;
 		}
 	}

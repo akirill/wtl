@@ -3538,7 +3538,7 @@ public:
 		// we hope that if we are not in a rebar, nCount will be 0
 		int nCount = (int)::SendMessage(GetParent(), RB_GETBANDCOUNT, 0, 0L);
 		for(int i = 0; i < nCount; i++)
-		{ 
+		{
 			REBARBANDINFO rbi = { sizeof(REBARBANDINFO), RBBIM_CHILD | RBBIM_CHILDSIZE | RBBIM_IDEALSIZE };
 			::SendMessage(GetParent(), RB_GETBANDINFO, i, (LPARAM)&rbi);
 			if(rbi.hwndChild == m_hWnd)
@@ -3608,7 +3608,7 @@ public:
 			int nCount = (int)::SendMessage(GetParent(), RB_GETBANDCOUNT, 0, 0L);
 			int cxDiff = (m_bChildMaximized ? 1 : -1) * (m_cxLeft + m_cxRight);
 			for(int i = 0; i < nCount; i++)
-			{ 
+			{
 #if (_WIN32_IE >= 0x0500)
 				REBARBANDINFO rbi = { sizeof(REBARBANDINFO), RBBIM_CHILD | RBBIM_CHILDSIZE | RBBIM_IDEALSIZE | RBBIM_STYLE };
 				::SendMessage(GetParent(), RB_GETBANDINFO, i, (LPARAM)&rbi);

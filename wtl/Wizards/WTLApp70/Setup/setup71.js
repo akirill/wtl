@@ -29,7 +29,7 @@ function main()
 	if(strValue == null || strValue == "")
 		strValue = ".";
 
-	var strSourceFolder = strValue + "\\" + "Files";
+	var strSourceFolder = FileSys.BuildPath(strValue, "Files");
 	if(bDebug)
 		WScript.Echo("Source: " + strSourceFolder);
 
@@ -50,7 +50,7 @@ function main()
 		return;
 	}
 
-	var strDestFolder = strValue + "\\vcprojects";
+	var strDestFolder = FileSys.BuildPath(strValue, "vcprojects");
 	if(bDebug)
 		WScript.Echo("Destination: " + strDestFolder);
 	if(!FileSys.FolderExists(strDestFolder))
@@ -59,17 +59,15 @@ function main()
 		return;
 	}
 
-	var strSrc = "";
-	var strDest = "";
-
 	// Copy files
 	try
 	{
-		strSrc = strSourceFolder + "\\WTLApp70.ico";
-		strDest = strDestFolder + "\\WTLApp71.ico";
+		var strSrc = FileSys.BuildPath(strSourceFolder, "WTLAppWiz.ico");
+		var strDest = FileSys.BuildPath(strDestFolder, "WTLAppWiz.ico");
 		FileSys.CopyFile(strSrc, strDest);
-		strSrc = strSourceFolder + "\\WTLApp71.vsdir";
-		strDest = strDestFolder + "\\";
+
+		strSrc = FileSys.BuildPath(strSourceFolder, "WTLAppWiz.vsdir");
+		strDest = FileSys.BuildPath(strDestFolder, "WTLAppWiz.vsdir");
 		FileSys.CopyFile(strSrc, strDest);
 	}
 	catch(e)
@@ -81,11 +79,11 @@ function main()
 		return;
 	}
 
-	// Read and write WTLApp71.vsz, replace path when found
+	// Read and write WTLAppWiz.vsz, add engine version and replace path when found
 	try
 	{
-		strSrc = strSourceFolder + "\\WTLApp71.vsz";
-		strDest = strDestFolder + "\\WTLApp71.vsz";
+		var strSrc = FileSys.BuildPath(strSourceFolder, "WTLAppWiz.vsz");
+		var strDest = FileSys.BuildPath(strDestFolder, "WTLAppWiz.vsz");
 
 		var ForReading = 1;
 		var fileSrc = FileSys.OpenTextFile(strSrc, ForReading);
@@ -106,7 +104,9 @@ function main()
 		while(!fileSrc.AtEndOfStream)
 		{
 			var strLine = fileSrc.ReadLine();
-			if(strLine.indexOf("ABSOLUTE_PATH") != -1)
+			if(strLine.indexOf("Wizard=VsWizard.VsWizardEngine") != -1)
+				strLine += ".7.1";
+			else if(strLine.indexOf("ABSOLUTE_PATH") != -1)
 				strLine = "Param=\"ABSOLUTE_PATH = " + strSourceFolder + "\"";
 			fileDest.WriteLine(strLine);
 		}
@@ -119,7 +119,68 @@ function main()
 		var strError = "no info";
 		if(e.description.length != 0)
 			strError = e.description;
-		WScript.Echo("ERROR: Cannot read and write WTLApp71.vsz (" + strError + ")");
+		WScript.Echo("ERROR: Cannot read and write WTLAppWiz.vsz (" + strError + ")");
+		return;
+	}
+
+	// Create WTL folder
+	var strDestWTLFolder = "";
+	try
+	{
+		strDestWTLFolder = FileSys.BuildPath(strDestFolder, "WTL");
+		if(!FileSys.FolderExists(strDestWTLFolder))
+			FileSys.CreateFolder(strDestWTLFolder);
+		if(bDebug)
+			WScript.Echo("WTL Folder: " + strDestWTLFolder);
+	}
+	catch(e)
+	{
+		var strError = "no info";
+		if(e.description.length != 0)
+			strError = e.description;
+		WScript.Echo("ERROR: Cannot create WTL folder (" + strError + ")");
+		return;
+	}
+
+	// Read and write additional WTLAppWiz.vsdir, add path to the wizard location
+	try
+	{
+		var strSrc = FileSys.BuildPath(strSourceFolder, "WTLAppWiz.vsdir");
+		var strDest = FileSys.BuildPath(strDestWTLFolder, "WTLAppWiz.vsdir");
+
+		var ForReading = 1;
+		var fileSrc = FileSys.OpenTextFile(strSrc, ForReading);
+		if(fileSrc == null)
+		{
+			WScript.Echo("ERROR: Cannot open source file " + strSrc);
+			return;
+		}
+
+		var ForWriting = 2;
+		var fileDest = FileSys.OpenTextFile(strDest, ForWriting, true);
+		if(fileDest == null)
+		{
+			WScript.Echo("ERROR: Cannot open destination file" + strDest);
+			return;
+		}
+
+		while(!fileSrc.AtEndOfStream)
+		{
+			var strLine = fileSrc.ReadLine();
+			if(strLine.indexOf("WTLAppWiz.vsz|") != -1)
+				strLine = "..\\" + strLine;
+			fileDest.WriteLine(strLine);
+		}
+
+		fileSrc.Close();
+		fileDest.Close();
+	}
+	catch(e)
+	{
+		var strError = "no info";
+		if(e.description.length != 0)
+			strError = e.description;
+		WScript.Echo("ERROR: Cannot read and write WTL\\WTLAppWiz.vsdir (" + strError + ")");
 		return;
 	}
 

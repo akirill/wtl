@@ -9,7 +9,7 @@
 // the terms of this license. You must not remove this notice, or
 // any other, from this software.
 
-// Setup program for the WTL App Wizard for VC++ 7.0
+// Setup program for the Windows CE WTL App Wizard for VC++ 8.0 (Whidbey) Beta1
 
 main();
 
@@ -39,14 +39,14 @@ function main()
 		return;
 	}
 
-	var strVC7Key = "HKLM\\Software\\Microsoft\\VisualStudio\\7.0\\Setup\\VC\\ProductDir";
+	var strVC8Key = "HKLM\\Software\\Microsoft\\VisualStudio\\8.0\\Setup\\VC\\ProductDir";
 	try
 	{
-		strValue = WSShell.RegRead(strVC7Key);
+		strValue = WSShell.RegRead(strVC8Key);
 	}
 	catch(e)
 	{
-		WScript.Echo("ERROR: Cannot find where Visual Studio 7.0 is installed.");
+		WScript.Echo("ERROR: Cannot find where Visual Studio 8.0 is installed.");
 		return;
 	}
 
@@ -62,12 +62,12 @@ function main()
 	// Copy files
 	try
 	{
-		var strSrc = FileSys.BuildPath(strSourceFolder, "WTLAppWiz.ico");
-		var strDest = FileSys.BuildPath(strDestFolder, "WTLAppWiz.ico");
+		var strSrc = FileSys.BuildPath(strSourceFolder, "WTLAppWizCE.ico");
+		var strDest = FileSys.BuildPath(strDestFolder, "WTLAppWizCE.ico");
 		FileSys.CopyFile(strSrc, strDest);
 
-		strSrc = FileSys.BuildPath(strSourceFolder, "WTLAppWiz.vsdir");
-		strDest = FileSys.BuildPath(strDestFolder, "WTLAppWiz.vsdir");
+		strSrc = FileSys.BuildPath(strSourceFolder, "WTLAppWizCE.vsdir");
+		strDest = FileSys.BuildPath(strDestFolder, "WTLAppWizCE.vsdir");
 		FileSys.CopyFile(strSrc, strDest);
 	}
 	catch(e)
@@ -79,11 +79,11 @@ function main()
 		return;
 	}
 
-	// Read and write WTLAppWiz.vsz, replace path when found
+	// Read and write WTLAppWiz.vsz, add engine version and replace path when found
 	try
 	{
-		var strSrc = FileSys.BuildPath(strSourceFolder, "WTLAppWiz.vsz");
-		var strDest = FileSys.BuildPath(strDestFolder, "WTLAppWiz.vsz");
+		var strSrc = FileSys.BuildPath(strSourceFolder, "WTLAppWizCE.vsz");
+		var strDest = FileSys.BuildPath(strDestFolder, "WTLAppWizCE.vsz");
 
 		var ForReading = 1;
 		var fileSrc = FileSys.OpenTextFile(strSrc, ForReading);
@@ -104,7 +104,9 @@ function main()
 		while(!fileSrc.AtEndOfStream)
 		{
 			var strLine = fileSrc.ReadLine();
-			if(strLine.indexOf("ABSOLUTE_PATH") != -1)
+			if(strLine.indexOf("Wizard=VsWizard.VsWizardEngine") != -1)
+				strLine += ".8.0";
+			else if(strLine.indexOf("ABSOLUTE_PATH") != -1)
 				strLine = "Param=\"ABSOLUTE_PATH = " + strSourceFolder + "\"";
 			fileDest.WriteLine(strLine);
 		}
@@ -117,7 +119,68 @@ function main()
 		var strError = "no info";
 		if(e.description.length != 0)
 			strError = e.description;
-		WScript.Echo("ERROR: Cannot read and write WTLAppWiz.vsz (" + strError + ")");
+		WScript.Echo("ERROR: Cannot read and write WTLAppWizCE.vsz (" + strError + ")");
+		return;
+	}
+
+	// Create WTL folder
+	var strDestWTLFolder = "";
+	try
+	{
+		strDestWTLFolder = FileSys.BuildPath(strDestFolder, "WTL");
+		if(!FileSys.FolderExists(strDestWTLFolder))
+			FileSys.CreateFolder(strDestWTLFolder);
+		if(bDebug)
+			WScript.Echo("WTL Folder: " + strDestWTLFolder);
+	}
+	catch(e)
+	{
+		var strError = "no info";
+		if(e.description.length != 0)
+			strError = e.description;
+		WScript.Echo("ERROR: Cannot create WTL folder (" + strError + ")");
+		return;
+	}
+
+	// Read and write additional WTLAppWiz.vsdir, add path to the wizard location
+	try
+	{
+		var strSrc = FileSys.BuildPath(strSourceFolder, "WTLAppWizCE.vsdir");
+		var strDest = FileSys.BuildPath(strDestWTLFolder, "WTLAppWizCE.vsdir");
+
+		var ForReading = 1;
+		var fileSrc = FileSys.OpenTextFile(strSrc, ForReading);
+		if(fileSrc == null)
+		{
+			WScript.Echo("ERROR: Cannot open source file " + strSrc);
+			return;
+		}
+
+		var ForWriting = 2;
+		var fileDest = FileSys.OpenTextFile(strDest, ForWriting, true);
+		if(fileDest == null)
+		{
+			WScript.Echo("ERROR: Cannot open destination file" + strDest);
+			return;
+		}
+
+		while(!fileSrc.AtEndOfStream)
+		{
+			var strLine = fileSrc.ReadLine();
+			if(strLine.indexOf("WTLAppWizCE.vsz|") != -1)
+				strLine = "..\\" + strLine;
+			fileDest.WriteLine(strLine);
+		}
+
+		fileSrc.Close();
+		fileDest.Close();
+	}
+	catch(e)
+	{
+		var strError = "no info";
+		if(e.description.length != 0)
+			strError = e.description;
+		WScript.Echo("ERROR: Cannot read and write WTL\\WTLAppWizCE.vsdir (" + strError + ")");
 		return;
 	}
 

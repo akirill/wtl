@@ -90,7 +90,7 @@
 
 #ifdef lstrlenW
   #undef lstrlenW
-  #define lstrlenW (int)wcslen
+  #define lstrlenW (int)::wcslen
 #endif //lstrlenW
 
 #define lstrlenA (int)strlen
@@ -111,9 +111,10 @@
   #undef TrackPopupMenu
 #endif // TrackPopupMenu
 
-// This get's ORed in a constant and will have no effect.
-// Defining it does reduced the number of #ifdefs required for CE.
+// These get's OR-ed in a constant and will have no effect.
+// Defining them reduces the number of #ifdefs required for CE.
 #define LR_DEFAULTSIZE      0
+#define LR_LOADFROMFILE     0
 
 #define DECLARE_WND_CLASS_EX(WndClassName, style, bkgnd) \
 static CWndClassInfo& GetWndClassInfo() \
@@ -156,6 +157,28 @@ extern "C" void WINAPI ListView_SetItemSpacing(HWND hwndLV, int iHeight);
   #define WHEEL_PAGESCROLL                (UINT_MAX)
   #define WHEEL_DELTA                     120
 #endif //(_WIN32_WCE < 400)
+
+#if (_ATL_VER >= 0x0800)
+  #ifndef SetWindowLongPtrW
+    inline LONG_PTR tmp_SetWindowLongPtrW( HWND hWnd, int nIndex, LONG_PTR dwNewLong )
+    {
+	return( ::SetWindowLongW( hWnd, nIndex, LONG( dwNewLong ) ) );
+    }
+    #define SetWindowLongPtrW tmp_SetWindowLongPtrW
+  #endif
+
+  #ifndef GetWindowLongPtrW
+    inline LONG_PTR tmp_GetWindowLongPtrW( HWND hWnd, int nIndex )
+    {
+	return( ::GetWindowLongW( hWnd, nIndex ) );
+    }
+    #define GetWindowLongPtrW tmp_GetWindowLongPtrW
+  #endif
+
+  #ifndef LongToPtr
+    #define LongToPtr(x) ((void*)x)
+  #endif
+#endif (_ATL_VER >= 0x0800)
 
 #endif //_WIN32_WCE
 

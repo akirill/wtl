@@ -960,19 +960,19 @@ protected:
 
 // Helpers to avoid CRT startup code
 #ifdef _ATL_MIN_CRT
-	static TCHAR* _cstrchr(const TCHAR* p, TCHAR ch)
+	static const TCHAR* _cstrchr(const TCHAR* p, TCHAR ch)
 	{
-		//strchr for '\0' should succeed
+		// strchr for '\0' should succeed
 		while (*p != 0)
 		{
 			if (*p == ch)
 				break;
 			p = ::CharNext(p);
 		}
-		return (TCHAR*)((*p == ch) ? p : NULL);
+		return (*p == ch) ? p : NULL;
 	}
 
-	static TCHAR* _cstrrchr(const TCHAR* p, TCHAR ch)
+	static const TCHAR* _cstrrchr(const TCHAR* p, TCHAR ch)
 	{
 		const TCHAR* lpsz = NULL;
 		while (*p != 0)
@@ -981,12 +981,12 @@ protected:
 				lpsz = p;
 			p = ::CharNext(p);
 		}
-		return (TCHAR*)lpsz;
+		return lpsz;
 	}
 
 	static TCHAR* _cstrrev(TCHAR* pStr)
 	{
-		// Optimize NULL, zero-length, and single-char case.
+		// optimize NULL, zero-length, and single-char case
 		if ((pStr == NULL) || (pStr[0] == '\0') || (pStr[1] == '\0'))
 			return pStr;
 
@@ -1015,10 +1015,10 @@ protected:
 			q++;
 			p--;
 		}
-		return (TCHAR*)pStr;
+		return pStr;
 	}
 
-	static TCHAR* _cstrstr(const TCHAR* pStr, const TCHAR* pCharSet)
+	static const TCHAR* _cstrstr(const TCHAR* pStr, const TCHAR* pCharSet)
 	{
 		int nLen = lstrlen(pCharSet);
 		if (nLen == 0)
@@ -1035,16 +1035,16 @@ protected:
 			}
 			pCur = ::CharNext(pCur);
 		}
-		return (TCHAR*) pRet;
+		return pRet;
 	}
 
 	static int _cstrspn(const TCHAR* pStr, const TCHAR* pCharSet)
 	{
 		int nRet = 0;
-		TCHAR* p = (TCHAR*)pStr;
+		const TCHAR* p = pStr;
 		while (*p != 0)
 		{
-			TCHAR* pNext = ::CharNext(p);
+			const TCHAR* pNext = ::CharNext(p);
 			if(pNext > p + 1)
 			{
 				if(_cstrchr_db(pCharSet, *p, *(p + 1)) == NULL)
@@ -1086,10 +1086,10 @@ protected:
 		return nRet;
 	}
 
-	static TCHAR* _cstrpbrk(const TCHAR* p, const TCHAR* lpszCharSet)
+	static const TCHAR* _cstrpbrk(const TCHAR* p, const TCHAR* lpszCharSet)
 	{
 		int n = _cstrcspn(p, lpszCharSet);
-		return (p[n] != 0) ? (TCHAR*)&p[n] : NULL;
+		return (p[n] != 0) ? &p[n] : NULL;
 	}
 
 	static int _cstrisdigit(TCHAR ch)
@@ -1120,49 +1120,50 @@ protected:
 	{
 		int nRet = CompareString(GetThreadLocale(), 0, pstrOne, -1, pstrOther, -1);
 		ATLASSERT(nRet != 0);
-		return nRet - 2;  // Convert to strcmp convention.  This really is documented.
+		return nRet - 2;   // convert to strcmp convention
 	}
 
 	static int _cstrcolli(const TCHAR* pstrOne, const TCHAR* pstrOther)
 	{
 		int nRet = CompareString(GetThreadLocale(), NORM_IGNORECASE, pstrOne, -1, pstrOther, -1);
 		ATLASSERT(nRet != 0);
-		return nRet - 2;  // Convert to strcmp convention.  This really is documented.
+		return nRet - 2;   // convert to strcmp convention
 	}
 
 	static int _cstrtoi(const TCHAR* nptr)
 	{
-		int c;              /* current char */
-		int total;          /* current total */
-		int sign;           /* if '-', then negative, otherwise positive */
+		int c;       // current char
+		int total;   // current total
+		int sign;    // if '-', then negative, otherwise positive
 
-		while ( _cstrisspace(*nptr) )
+		while (_cstrisspace(*nptr))
 			++nptr;
 
 		c = (int)(_TUCHAR)*nptr++;
-		sign = c;           /* save sign indication */
+		sign = c;   // save sign indication
 		if (c == _T('-') || c == _T('+'))
-			c = (int)(_TUCHAR)*nptr++;    /* skip sign */
+			c = (int)(_TUCHAR)*nptr++;   // skip sign
 
 		total = 0;
 
-		while (_cstrisdigit((TCHAR)c)) {
-			total = 10 * total + (c - '0');     /* accumulate digit */
-			c = (int)(_TUCHAR)*nptr++;    /* get next char */
+		while (_cstrisdigit((TCHAR)c))
+		{
+			total = 10 * total + (c - '0');   // accumulate digit
+			c = (int)(_TUCHAR)*nptr++;        // get next char
 		}
 
 		if (sign == '-')
 			return -total;
 		else
-			return total;   /* return result, negated if necessary */
+			return total;   // return result, negated if necessary
 	}
 #else //!_ATL_MIN_CRT
-	static TCHAR* _cstrchr(const TCHAR* p, TCHAR ch)
+	static const TCHAR* _cstrchr(const TCHAR* p, TCHAR ch)
 	{
 		return _tcschr(p, ch);
 	}
 
-	static TCHAR* _cstrrchr(const TCHAR* p, TCHAR ch)
+	static const TCHAR* _cstrrchr(const TCHAR* p, TCHAR ch)
 	{
 		return _tcsrchr(p, ch);
 	}
@@ -1172,7 +1173,7 @@ protected:
 		return _tcsrev(pStr);
 	}
 
-	static TCHAR* _cstrstr(const TCHAR* pStr, const TCHAR* pCharSet)
+	static const TCHAR* _cstrstr(const TCHAR* pStr, const TCHAR* pCharSet)
 	{
 		return _tcsstr(pStr, pCharSet);
 	}
@@ -1187,7 +1188,7 @@ protected:
 		return (int)_tcscspn(pStr, pCharSet);
 	}
 
-	static TCHAR* _cstrpbrk(const TCHAR* p, const TCHAR* lpszCharSet)
+	static const TCHAR* _cstrpbrk(const TCHAR* p, const TCHAR* lpszCharSet)
 	{
 		return _tcspbrk(p, lpszCharSet);
 	}
@@ -1230,7 +1231,7 @@ protected:
 	}
 #endif //!_ATL_MIN_CRT
 
-	static TCHAR* _cstrchr_db(const TCHAR* p, TCHAR ch1, TCHAR ch2)
+	static const TCHAR* _cstrchr_db(const TCHAR* p, TCHAR ch1, TCHAR ch2)
 	{
 		const TCHAR* lpsz = NULL;
 		while (*p != 0)
@@ -1242,7 +1243,7 @@ protected:
 			}
 			p = ::CharNext(p);
 		}
-		return (TCHAR*)lpsz;
+		return lpsz;
 	}
 };
 
@@ -1866,7 +1867,7 @@ inline int CString::Find(TCHAR ch, int nStart) const
 		return -1;
 
 	// find first single character
-	LPTSTR lpsz = _cstrchr(m_pchData + nStart, (_TUCHAR)ch);
+	LPCTSTR lpsz = _cstrchr(m_pchData + nStart, (_TUCHAR)ch);
 
 	// return -1 if not found and index otherwise
 	return (lpsz == NULL) ? -1 : (int)(lpsz - m_pchData);
@@ -1875,7 +1876,7 @@ inline int CString::Find(TCHAR ch, int nStart) const
 inline int CString::FindOneOf(LPCTSTR lpszCharSet) const
 {
 	ATLASSERT(_IsValidString(lpszCharSet));
-	LPTSTR lpsz = _cstrpbrk(m_pchData, lpszCharSet);
+	LPCTSTR lpsz = _cstrpbrk(m_pchData, lpszCharSet);
 	return (lpsz == NULL) ? -1 : (int)(lpsz - m_pchData);
 }
 
@@ -2061,7 +2062,7 @@ inline CString CString::SpanExcluding(LPCTSTR lpszCharSet) const
 inline int CString::ReverseFind(TCHAR ch) const
 {
 	// find last single character
-	LPTSTR lpsz = _cstrrchr(m_pchData, (_TUCHAR)ch);
+	LPCTSTR lpsz = _cstrrchr(m_pchData, (_TUCHAR)ch);
 
 	// return -1 if not found, distance from beginning otherwise
 	return (lpsz == NULL) ? -1 : (int)(lpsz - m_pchData);
@@ -2082,7 +2083,7 @@ inline int CString::Find(LPCTSTR lpszSub, int nStart) const
 		return -1;
 
 	// find first matching substring
-	LPTSTR lpsz = _cstrstr(m_pchData + nStart, lpszSub);
+	LPCTSTR lpsz = _cstrstr(m_pchData + nStart, lpszSub);
 
 	// return -1 for not found, distance from beginning otherwise
 	return (lpsz == NULL) ? -1 : (int)(lpsz - m_pchData);
@@ -2354,7 +2355,7 @@ inline BOOL CString::FormatV(LPCTSTR lpszFormat, va_list argList)
 					pszTemp = (LPTSTR)_alloca(max(nWidth, 312 + nPrecision + 6));
 
 					f = va_arg(argList, double);
-					_stprintf(pszTemp, _T( "%*.*f" ), nWidth, nPrecision + 6, f);
+					_stprintf(pszTemp, _T("%*.*f"), nWidth, nPrecision + 6, f);
 					nItemLen = _tcslen(pszTemp);
 				}
 				break;
@@ -2763,7 +2764,7 @@ inline int CString::Replace(LPCTSTR lpszOld, LPCTSTR lpszNew)
 	LPTSTR lpszTarget;
 	while (lpszStart < lpszEnd)
 	{
-		while ((lpszTarget = _cstrstr(lpszStart, lpszOld)) != NULL)
+		while ((lpszTarget = (TCHAR*)_cstrstr(lpszStart, lpszOld)) != NULL)
 		{
 			nCount++;
 			lpszStart = lpszTarget + nSourceLen;
@@ -2796,7 +2797,7 @@ inline int CString::Replace(LPCTSTR lpszOld, LPCTSTR lpszNew)
 		// loop again to actually do the work
 		while (lpszStart < lpszEnd)
 		{
-			while ( (lpszTarget = _cstrstr(lpszStart, lpszOld)) != NULL)
+			while ((lpszTarget = (TCHAR*)_cstrstr(lpszStart, lpszOld)) != NULL)
 			{
 				int nBalance = nOldLength - ((int)(DWORD_PTR)(lpszTarget - m_pchData) + nSourceLen);
 				memmove(lpszTarget + nReplacementLen, lpszTarget + nSourceLen, nBalance * sizeof(TCHAR));
@@ -3271,8 +3272,6 @@ public:
 ///////////////////////////////////////////////////////////////////////////////
 // CFindFile - file search helper class
 
-#ifndef _WIN32_WCE
-
 class CFindFile
 {
 public:
@@ -3352,6 +3351,7 @@ public:
 		return bRet;
 	}
 
+#ifndef _WIN32_WCE
 	BOOL GetFileTitle(LPTSTR lpstrFileTitle, int cchLength) const
 	{
 		ATLASSERT(m_hFind != NULL);
@@ -3360,11 +3360,16 @@ public:
 		if(!GetFileName(szBuff, MAX_PATH))
 			return FALSE;
 		TCHAR szNameBuff[_MAX_FNAME] = { 0 };
+#ifdef _SECURE_ATL
+		_tsplitpath_s(szBuff, NULL, 0, NULL, 0, szNameBuff, _MAX_FNAME, NULL, 0);
+#else
 		_tsplitpath(szBuff, NULL, NULL, szNameBuff, NULL);
+#endif
 		if(lstrlen(szNameBuff) >= cchLength)
 			return FALSE;
 		return (lstrcpy(lpstrFileTitle, szNameBuff) != NULL);
 	}
+#endif //!_WIN32_WCE
 
 	BOOL GetFileURL(LPTSTR lpstrFileURL, int cchLength) const
 	{
@@ -3412,6 +3417,7 @@ public:
 		return strResult;
 	}
 
+#ifndef _WIN32_WCE
 	_CSTRING_NS::CString GetFileTitle() const
 	{
 		ATLASSERT(m_hFind != NULL);
@@ -3419,10 +3425,15 @@ public:
 		_CSTRING_NS::CString strFullName = GetFileName();
 		_CSTRING_NS::CString strResult;
 
+#ifdef _SECURE_ATL
+		_tsplitpath_s(strFullName, NULL, 0, NULL, 0, strResult.GetBuffer(MAX_PATH), MAX_PATH, NULL, 0);
+#else
 		_tsplitpath(strFullName, NULL, NULL, strResult.GetBuffer(MAX_PATH), NULL);
+#endif
 		strResult.ReleaseBuffer();
 		return strResult;
 	}
+#endif //!_WIN32_WCE
 
 	_CSTRING_NS::CString GetFileURL() const
 	{
@@ -3564,7 +3575,11 @@ public:
 		if(m_hFind == INVALID_HANDLE_VALUE)
 			return FALSE;
 
+#ifndef _WIN32_WCE
 		LPCTSTR pstr = _tfullpath(m_lpszRoot, pstrName, MAX_PATH);
+#else // CE specific
+		LPCTSTR pstr = lstrcpyn(m_lpszRoot, pstrName, MAX_PATH);
+#endif //_WIN32_WCE
 
 		// passed name isn't a valid path but was found by the API
 		ATLASSERT(pstr != NULL);
@@ -3627,8 +3642,6 @@ public:
 		}
 	}
 };
-
-#endif //!_WIN32_WCE
 
 
 ///////////////////////////////////////////////////////////////////////////////

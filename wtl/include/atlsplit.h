@@ -18,10 +18,6 @@
 	#error ATL requires C++ compilation (use a .cpp suffix)
 #endif
 
-#ifdef _WIN32_WCE
-	#error atlsplit.h is not supported on Windows CE
-#endif
-
 #ifndef __ATLAPP_H__
 	#error atlsplit.h requires atlapp.h to be included first
 #endif
@@ -407,7 +403,9 @@ public:
 	BEGIN_MSG_MAP(CSplitterImpl)
 		MESSAGE_HANDLER(WM_CREATE, OnCreate)
 		MESSAGE_HANDLER(WM_PAINT, OnPaint)
+#ifndef _WIN32_WCE
 		MESSAGE_HANDLER(WM_PRINTCLIENT, OnPaint)
+#endif //!_WIN32_WCE
 		if(IsInteractive())
 		{
 			MESSAGE_HANDLER(WM_SETCURSOR, OnSetCursor)
@@ -418,7 +416,9 @@ public:
 			MESSAGE_HANDLER(WM_CAPTURECHANGED, OnCaptureChanged)
 		}
 		MESSAGE_HANDLER(WM_SETFOCUS, OnSetFocus)
+#ifndef _WIN32_WCE
 		MESSAGE_HANDLER(WM_MOUSEACTIVATE, OnMouseActivate)
+#endif //!_WIN32_WCE
 		MESSAGE_HANDLER(WM_SETTINGCHANGE, OnSettingChange)
 	END_MSG_MAP()
 
@@ -559,6 +559,7 @@ public:
 		return 1;
 	}
 
+#ifndef _WIN32_WCE
 	LRESULT OnMouseActivate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/)
 	{
 		T* pT = static_cast<T*>(this);
@@ -580,6 +581,7 @@ public:
 		}
 		return lRet;
 	}
+#endif //!_WIN32_WCE
 
 	LRESULT OnSettingChange(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 	{
@@ -738,7 +740,11 @@ public:
 
 	void GetSystemSettings(bool bUpdate)
 	{
+#ifndef _WIN32_WCE
 		m_cxySplitBar = ::GetSystemMetrics(t_bVertical ? SM_CXSIZEFRAME : SM_CYSIZEFRAME);
+#else // CE specific
+		m_cxySplitBar = 2 * ::GetSystemMetrics(t_bVertical ? SM_CXEDGE : SM_CYEDGE);
+#endif //_WIN32_WCE
 
 		T* pT = static_cast<T*>(this);
 		if((pT->GetExStyle() & WS_EX_CLIENTEDGE))
@@ -752,7 +758,9 @@ public:
 			m_cxyMin = 2 * ::GetSystemMetrics(t_bVertical ? SM_CXEDGE : SM_CYEDGE);
 		}
 
+#ifndef _WIN32_WCE
 		::SystemParametersInfo(SPI_GETDRAGFULLWINDOWS, 0, &m_bFullDrag, 0);
+#endif //!_WIN32_WCE
 
 		if(bUpdate)
 			UpdateSplitterLayout();

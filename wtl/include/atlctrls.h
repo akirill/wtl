@@ -4024,7 +4024,7 @@ public:
 	}
 
 	HTREEITEM InsertItem(LPCTSTR lpszItem, HTREEITEM hParent, HTREEITEM hInsertAfter)
-	{ 
+	{
 		ATLASSERT(::IsWindow(m_hWnd));
 		return InsertItem(TVIF_TEXT, lpszItem, 0, 0, 0, 0, 0, hParent, hInsertAfter);
 	}
@@ -4066,7 +4066,7 @@ public:
 	}
 
 	HTREEITEM GetNextItem(HTREEITEM hItem, UINT nCode) const
-	{ 
+	{
 		ATLASSERT(::IsWindow(m_hWnd)); 
 		return (HTREEITEM)::SendMessage(m_hWnd, TVM_GETNEXTITEM, nCode, (LPARAM)hItem);
 	}
@@ -4383,13 +4383,13 @@ public:
 	}
 
 	CTreeItemT<TBase> InsertItem(LPCTSTR lpszItem, HTREEITEM hParent, HTREEITEM hInsertAfter)
-	{ 
+	{
 		ATLASSERT(::IsWindow(m_hWnd));
 		return InsertItem(TVIF_TEXT, lpszItem, 0, 0, 0, 0, 0, hParent, hInsertAfter);
 	}
 
 	CTreeItemT<TBase> GetNextItem(HTREEITEM hItem, UINT nCode)
-	{ 
+	{
 		ATLASSERT(::IsWindow(m_hWnd)); 
 		HTREEITEM hTreeItem = (HTREEITEM)::SendMessage(m_hWnd, TVM_GETNEXTITEM, nCode, (LPARAM)hItem);
 		return CTreeItemT<TBase>(hTreeItem, this);
