@@ -46,7 +46,9 @@
 // CMultiPaneStatusBarCtrl
 // CPaneContainerImpl<T, TBase, TWinTraits>
 // CPaneContainer
-
+// CSortListViewImpl<T>
+// CSortListViewCtrlImpl<T, TBase, TWinTraits>
+// CSortListViewCtrl
 
 namespace WTL
 {
@@ -2668,6 +2670,586 @@ class CPaneContainer : public CPaneContainerImpl<CPaneContainer>
 {
 public:
 	DECLARE_WND_CLASS_EX(_T("WTL_PaneContainer"), 0, -1)
+};
+
+///////////////////////////////////////////////////////////////////////////////
+// CSortListViewCtrl - implements sorting for a listview control
+
+// notification sent to parent when sort column is changed by user clicking header.  
+#define SLVN_SORTCHANGED	(LVN_FIRST-201)
+
+// A LPNMSORTLISTVIEW is sent with the SLVN_SORTCHANGED notification
+typedef struct tagNMSORTLISTVIEW {
+    NMHDR hdr;
+    int iNewSortColumn;
+    int iOldSortColumn;
+} NMSORTLISTVIEW, *LPNMSORTLISTVIEW;
+
+// Column sort types. Can be set on a per-column basis with the SetColumnSortType method.
+enum
+{
+	LVCOLSORT_NONE,
+	LVCOLSORT_TEXT, //default
+	LVCOLSORT_TEXTNOCASE,
+	LVCOLSORT_LONG,
+	LVCOLSORT_DOUBLE,
+	LVCOLSORT_DATETIME,
+	LVCOLSORT_DATE,
+	LVCOLSORT_TIME,
+	LVCOLSORT_CUSTOM,
+	LVCOLSORT_LAST = LVCOLSORT_CUSTOM
+};
+
+template <class T>
+class CSortListViewImpl
+{
+public:
+	
+	enum
+	{
+		m_cchCmpTextMax = 32, //overrideable
+		m_cxSortImage = 16,
+		m_cySortImage = 15,
+		m_cxSortArrow = 11,
+		m_cySortArrow = 6,
+		m_iSortUp = 0,  // index of sort bitmaps
+		m_iSortDown = 1
+	};
+
+	// passed to LVCompare functions as lParam1 and lParam2 
+	struct LVCompareParam
+	{
+		int iItem;
+		DWORD_PTR dwItemData;
+		union
+		{
+			long lValue;
+			double dblValue;
+			LPCTSTR pszValue;
+		};
+	};
+
+	// passed to LVCompare functions as the lParamSort parameter
+	struct LVSortInfo
+	{
+		T* pT;
+		int iSortCol;
+		bool bDescending;
+	};
+
+	bool m_bSortDescending;
+	bool m_bCommCtrl6;
+	int m_iSortColumn;
+	CBitmap m_bmSort[2];
+	int m_fmtOldSortCol;
+	HBITMAP m_hbmOldSortCol;
+	ATL::CSimpleArray<WORD> m_arrColSortType;
+	
+	CSortListViewImpl():
+		m_iSortColumn(-1), 
+		m_bSortDescending(false),
+		m_fmtOldSortCol(0),
+		m_hbmOldSortCol(NULL)
+	{
+		DWORD dwMajor = 0;
+		DWORD dwMinor = 0;
+		HRESULT hRet = AtlGetCommCtrlVersion(&dwMajor, &dwMinor);
+		m_bCommCtrl6 = SUCCEEDED(hRet) && dwMajor >= 6;
+	}
+	
+// Attributes
+	void SetSortColumn(int iCol)
+	{
+		T* pT = static_cast<T*>(this);
+		ATLASSERT(::IsWindow(pT->m_hWnd));
+		CHeaderCtrl header = pT->GetHeader();
+		ATLASSERT(header.m_hWnd != NULL);
+		ATLASSERT(iCol >= -1 && iCol < m_arrColSortType.GetSize());
+
+		int iOldSortCol = m_iSortColumn;
+		m_iSortColumn = iCol;
+		if(m_bCommCtrl6)
+		{
+#ifndef HDF_SORTUP
+			const int HDF_SORTUP = 0x0400;	
+#endif //HDF_SORTUP
+#ifndef HDF_SORTDOWN
+			const int HDF_SORTDOWN = 0x0200;	
+#endif //HDF_SORTDOWN
+			const int nMask = HDF_SORTUP | HDF_SORTDOWN;
+			HDITEM hditem = {HDI_FORMAT};
+			if(iOldSortCol != iCol && iOldSortCol >= 0 && header.GetItem(iOldSortCol, &hditem))
+			{
+				hditem.fmt &= ~nMask;
+				header.SetItem(iOldSortCol, &hditem);
+			}
+			if(iCol >= 0 && header.GetItem(iCol, &hditem))
+			{
+				hditem.fmt &= ~nMask;
+				hditem.fmt |= m_bSortDescending ? HDF_SORTDOWN : HDF_SORTUP;
+				header.SetItem(iCol, &hditem);
+			}
+			return;
+		}
+
+		if(m_bmSort[m_iSortUp].IsNull())
+			CreateSortBitmaps();
+
+		// restore previous sort column's bitmap, if any, and format
+		HDITEM hditem = {HDI_BITMAP | HDI_FORMAT};
+		if(iOldSortCol != iCol && iOldSortCol >= 0)
+		{
+			hditem.hbm = m_hbmOldSortCol;
+			hditem.fmt = m_fmtOldSortCol;
+			header.SetItem(iOldSortCol, &hditem);
+		}
+
+		// save new sort column's bitmap and format, and add our sort bitmap
+		if(iCol >= 0 && header.GetItem(iCol, &hditem))
+		{
+			if(iOldSortCol != iCol)
+			{
+				m_fmtOldSortCol = hditem.fmt;
+				m_hbmOldSortCol = hditem.hbm;
+			}
+			hditem.fmt &= ~HDF_IMAGE;
+			hditem.fmt |= HDF_BITMAP | HDF_BITMAP_ON_RIGHT;
+			int i = m_bSortDescending ? m_iSortDown : m_iSortUp;
+			hditem.hbm = m_bmSort[i];
+			header.SetItem(iCol, &hditem);
+		}
+	}
+
+	int GetSortColumn(){return m_iSortColumn;}
+
+	void SetColumnSortType(int iCol, WORD wType)
+	{
+		ATLASSERT(iCol >= 0 && iCol < m_arrColSortType.GetSize());
+		ATLASSERT(wType >= LVCOLSORT_NONE && wType <= LVCOLSORT_LAST);
+		m_arrColSortType[iCol] = wType;
+	}
+
+	WORD GetColumnSortType(int iCol)
+	{
+		ATLASSERT((iCol >= 0) && iCol < m_arrColSortType.GetSize());
+		return m_arrColSortType[iCol];
+	}
+
+	int GetColumnCount()
+	{
+		T* pT = static_cast<T*>(this);
+		ATLASSERT(::IsWindow(pT->m_hWnd));
+		CHeaderCtrl header = pT->GetHeader();
+		return header.m_hWnd != NULL ? header.GetItemCount() : 0;
+	}
+
+	bool IsSortDescending(){return m_bSortDescending;}
+
+// Operations
+	BOOL DoSortItems(int iCol, bool bDescending = false)
+	{
+		T* pT = static_cast<T*>(this);
+		ATLASSERT(::IsWindow(pT->m_hWnd));
+		ATLASSERT(iCol >= 0 && iCol < m_arrColSortType.GetSize());
+
+		WORD wType = m_arrColSortType[iCol];
+		if(wType == LVCOLSORT_NONE)
+			return FALSE;
+
+		int nCount = pT->GetItemCount();
+		if(nCount < 2)
+		{
+			m_bSortDescending = bDescending;
+			SetSortColumn(iCol);
+			return TRUE;
+		}
+
+		CWaitCursor waitCursor;
+
+		LVCompareParam* pParam = NULL;
+		ATLTRY(pParam = new LVCompareParam[nCount]);
+		PFNLVCOMPARE pFunc = NULL;
+		TCHAR pszTemp[pT->m_cchCmpTextMax];
+		bool bStrValue = false;
+
+		switch(wType)
+		{
+		case LVCOLSORT_TEXT:
+			pFunc = (PFNLVCOMPARE)pT->LVCompareText;
+		case LVCOLSORT_TEXTNOCASE:
+			if(pFunc == NULL) pFunc = (PFNLVCOMPARE)pT->LVCompareTextNoCase;
+		case LVCOLSORT_CUSTOM:
+			if(pFunc == NULL) pFunc = (PFNLVCOMPARE)pT->LVCompareCustom;
+
+			for(int i = 0; i < nCount; i++)
+			{
+				pParam[i].iItem = i;
+				pParam[i].dwItemData = pT->GetItemData(i);
+				pParam[i].pszValue = new TCHAR[pT->m_cchCmpTextMax];
+				pT->GetItemText(i, iCol, (LPTSTR)pParam[i].pszValue, pT->m_cchCmpTextMax);
+				pT->SetItemData(i, (DWORD_PTR)&pParam[i]);
+			}
+			bStrValue = true;
+			break;
+
+		case LVCOLSORT_LONG:
+			pFunc = (PFNLVCOMPARE)pT->LVCompareLong;
+			for(int i = 0; i < nCount; i++)
+			{
+				pParam[i].iItem = i;
+				pParam[i].dwItemData = pT->GetItemData(i);
+				pT->GetItemText(i, iCol, pszTemp, pT->m_cchCmpTextMax);
+				pParam[i].lValue = pT->StrToLong(pszTemp);
+				pT->SetItemData(i, (DWORD_PTR)&pParam[i]);
+			}
+			break;
+
+		case LVCOLSORT_DOUBLE:
+			pFunc = (PFNLVCOMPARE)pT->LVCompareDouble;
+			for(int i = 0; i < nCount; i++)
+			{
+				pParam[i].iItem = i;
+				pParam[i].dwItemData = pT->GetItemData(i);
+				pT->GetItemText(i, iCol, pszTemp, pT->m_cchCmpTextMax);
+				pParam[i].dblValue = pT->StrToDouble(pszTemp);
+				pT->SetItemData(i, (DWORD_PTR)&pParam[i]);
+			}
+			break;
+
+		case LVCOLSORT_DATETIME:
+		case LVCOLSORT_DATE:
+		case LVCOLSORT_TIME:
+			{
+				pFunc = (PFNLVCOMPARE)pT->LVCompareDouble;
+				DWORD dwFlags = LOCALE_NOUSEROVERRIDE;
+				if(wType == LVCOLSORT_DATE)
+					dwFlags |= VAR_DATEVALUEONLY;
+				else if(wType == LVCOLSORT_TIME)
+					dwFlags |= VAR_TIMEVALUEONLY;
+				for(int i = 0; i < nCount; i++)
+				{
+					pParam[i].iItem = i;
+					pParam[i].dwItemData = pT->GetItemData(i);
+					pT->GetItemText(i, iCol, pszTemp, pT->m_cchCmpTextMax);
+					pParam[i].dblValue = pT->DateStrToDouble(pszTemp, dwFlags);
+					pT->SetItemData(i, (DWORD_PTR)&pParam[i]);
+				}
+			}
+			break;
+		} //switch(wType)
+
+		ATLASSERT(pFunc != NULL);
+		LVSortInfo lvsi = {pT, iCol, bDescending};
+		BOOL bRet = (BOOL)pT->DefWindowProc(LVM_SORTITEMS, (WPARAM)&lvsi, (LPARAM)pFunc);
+		for(int i = 0; i < nCount; i++)
+		{
+			DWORD_PTR dwItemData = pT->GetItemData(i);
+			LVCompareParam* p = (LVCompareParam*)dwItemData;
+			ATLASSERT(p);
+			if(bStrValue)
+				delete [] p->pszValue;
+			pT->SetItemData(i, p->dwItemData);
+		}
+		delete [] pParam;
+
+		if(bRet)
+		{
+			m_bSortDescending = bDescending;
+			SetSortColumn(iCol);
+		}
+		return bRet;
+	}
+
+	void CreateSortBitmaps()
+	{
+		T* pT = static_cast<T*>(this);
+		for(int i = m_iSortUp; i <= m_iSortDown; i++)
+		{
+			if(!m_bmSort[i].IsNull())
+				m_bmSort[i].DeleteObject();
+
+			CDC dcMem;
+			CClientDC dc(::GetDesktopWindow());
+			dcMem.CreateCompatibleDC(dc.m_hDC);
+			m_bmSort[i].CreateCompatibleBitmap(dc.m_hDC, m_cxSortImage, m_cySortImage);
+			HBITMAP hbmOld = dcMem.SelectBitmap(m_bmSort[i]);
+			RECT rc = {0,0,m_cxSortImage, m_cySortImage};
+			pT->DrawSortBitmap(dcMem.m_hDC, i, &rc);
+			dcMem.SelectBitmap(hbmOld);
+			dcMem.DeleteDC();
+		}
+	}
+
+	void NotifyParentSortChanged(int iNewSortCol, int iOldSortCol)
+	{
+		T* pT = static_cast<T*>(this);
+		int nID = pT->GetDlgCtrlID();
+		NMSORTLISTVIEW nm = {{pT->m_hWnd, nID, SLVN_SORTCHANGED}, iNewSortCol, iOldSortCol};
+		::SendMessage(pT->GetParent(), WM_NOTIFY, (WPARAM)nID, (LPARAM)&nm);
+	}
+
+// Overrideables
+	int CompareItemsCustom(LVCompareParam* pItem1, LVCompareParam* pItem2, int iSortCol)
+	{
+		// pItem1 and pItem2 contain valid iItem, dwItemData, and pszValue members.
+		// If item1 > item2 return 1, if item1 < item2 return -1, else return 0.
+		return 0;
+	}
+
+	void DrawSortBitmap(CDCHandle dc, int iBitmap, LPRECT prc)
+	{
+		dc.FillRect(prc, ::GetSysColorBrush(COLOR_BTNFACE));	
+		HBRUSH hbrOld = dc.SelectBrush(::GetSysColorBrush(COLOR_BTNSHADOW));
+		CPen pen;
+		pen.CreatePen(PS_SOLID, 0, ::GetSysColor(COLOR_BTNSHADOW));
+		HPEN hpenOld = dc.SelectPen(pen);
+		POINT ptOrg = {(m_cxSortImage - m_cxSortArrow)/2, (m_cySortImage - m_cySortArrow)/2};
+		if(iBitmap == m_iSortUp)
+		{
+			POINT pts[3] = {{ptOrg.x + m_cxSortArrow / 2, ptOrg.y},
+				{ptOrg.x, ptOrg.y + m_cySortArrow - 1}, 
+				{ptOrg.x + m_cxSortArrow - 1, ptOrg.y + m_cySortArrow - 1}};
+			dc.Polygon(pts, 3);
+		}
+		else
+		{
+			POINT pts[3] = {{ptOrg.x, ptOrg.y},
+				{ptOrg.x + m_cxSortArrow / 2, ptOrg.y + m_cySortArrow - 1},
+				{ptOrg.x + m_cxSortArrow - 1, ptOrg.y}};
+			dc.Polygon(pts, 3);
+		}
+		dc.SelectBrush(hbrOld);
+		dc.SelectPen(hpenOld);
+	}
+
+	double DateStrToDouble(LPCTSTR lpstr, DWORD dwFlags)
+	{
+		ATLASSERT(lpstr != NULL);
+		if(lpstr == NULL || lpstr[0] == _T('\0'))
+			return 0;
+
+		USES_CONVERSION;
+		SCODE sc;
+		DATE dRet;
+		if (FAILED(sc = VarDateFromStr((LPOLESTR)T2COLE(lpstr), LANG_USER_DEFAULT, dwFlags, &dRet)))
+		{
+			ATLTRACE2(atlTraceUI, 0, _T("VarDateFromStr failed with result of 0x%8.8X\n"), sc);
+			dRet = 0;
+		}
+		return dRet;
+	}
+
+	long StrToLong(LPCTSTR lpstr)
+	{
+		ATLASSERT(lpstr != NULL);
+		if(lpstr == NULL || lpstr[0] == _T('\0'))
+			return 0;
+		
+		USES_CONVERSION;
+		SCODE sc;
+		long lRet;
+		if (FAILED(sc = VarI4FromStr((LPOLESTR)T2COLE(lpstr), LANG_USER_DEFAULT, LOCALE_NOUSEROVERRIDE, &lRet)))
+		{
+			ATLTRACE2(atlTraceUI, 0, _T("VarI4FromStr failed with result of 0x%8.8X\n"), sc);
+			lRet = 0;
+		}
+		return lRet;
+	}
+
+	double StrToDouble(LPCTSTR lpstr)
+	{
+		ATLASSERT(lpstr != NULL);
+		if(lpstr == NULL || lpstr[0] == _T('\0'))
+			return 0;
+
+		USES_CONVERSION;
+		SCODE sc;
+		double dblRet;
+		if (FAILED(sc = VarR8FromStr((LPOLESTR)T2COLE(lpstr), LANG_USER_DEFAULT, LOCALE_NOUSEROVERRIDE, &dblRet)))
+		{
+			ATLTRACE2(atlTraceUI, 0, _T("VarR8FromStr failed with result of 0x%8.8X\n"), sc);
+			dblRet = 0;
+		}
+		return dblRet;
+	}
+
+//Overrideable PFNLVCOMPARE functions
+	static int CALLBACK LVCompareText(LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort)
+	{
+		ATLASSERT(lParam1 != NULL && lParam2 != NULL && lParamSort != NULL);
+
+		LVCompareParam* pParam1 = (LVCompareParam*)lParam1;
+		LVCompareParam* pParam2 = (LVCompareParam*)lParam2;
+		LVSortInfo* pInfo = (LVSortInfo*)lParamSort;
+		
+		int	nRet = lstrcmp(pParam1->pszValue, pParam2->pszValue);
+		return pInfo->bDescending ? -nRet : nRet;
+	}
+
+	static int CALLBACK LVCompareTextNoCase(LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort)
+	{
+		ATLASSERT(lParam1 != NULL && lParam2 != NULL && lParamSort != NULL);
+
+		LVCompareParam* pParam1 = (LVCompareParam*)lParam1;
+		LVCompareParam* pParam2 = (LVCompareParam*)lParam2;
+		LVSortInfo* pInfo = (LVSortInfo*)lParamSort;
+		
+		int	nRet = lstrcmpi(pParam1->pszValue, pParam2->pszValue);
+		return pInfo->bDescending ? -nRet : nRet;
+	}
+
+	static int CALLBACK LVCompareLong(LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort)
+	{
+		ATLASSERT(lParam1 != NULL && lParam2 != NULL && lParamSort != NULL);
+
+		LVCompareParam* pParam1 = (LVCompareParam*)lParam1;
+		LVCompareParam* pParam2 = (LVCompareParam*)lParam2;
+		LVSortInfo* pInfo = (LVSortInfo*)lParamSort;
+		
+		int nRet = 0;
+		if(pParam1->lValue > pParam2->lValue)
+			nRet = 1;
+		else if(pParam1->lValue < pParam2->lValue)
+			nRet = -1;
+		return pInfo->bDescending ? -nRet : nRet;
+	}
+
+	static int CALLBACK LVCompareDouble(LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort)
+	{
+		ATLASSERT(lParam1 != NULL && lParam2 != NULL && lParamSort != NULL);
+
+		LVCompareParam* pParam1 = (LVCompareParam*)lParam1;
+		LVCompareParam* pParam2 = (LVCompareParam*)lParam2;
+		LVSortInfo* pInfo = (LVSortInfo*)lParamSort;
+		
+		int nRet = 0;
+		if(pParam1->dblValue > pParam2->dblValue)
+			nRet = 1;
+		else if(pParam1->dblValue < pParam2->dblValue)
+			nRet = -1;
+		return pInfo->bDescending ? -nRet : nRet;
+	}
+
+	static int CALLBACK LVCompareCustom(LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort)
+	{
+		ATLASSERT(lParam1 != NULL && lParam2 != NULL && lParamSort != NULL);
+
+		LVCompareParam* pParam1 = (LVCompareParam*)lParam1;
+		LVCompareParam* pParam2 = (LVCompareParam*)lParam2;
+		LVSortInfo* pInfo = (LVSortInfo*)lParamSort;
+		
+		int nRet = pInfo->pT->CompareItemsCustom(pParam1, pParam2, pInfo->iSortCol);
+		return pInfo->bDescending ? -nRet : nRet;
+	}
+
+	BEGIN_MSG_MAP(CSortListViewImpl)
+		MESSAGE_HANDLER(LVM_INSERTCOLUMN, OnInsertColumn)
+		MESSAGE_HANDLER(LVM_DELETECOLUMN, OnDeleteColumn)
+		NOTIFY_CODE_HANDLER(HDN_ITEMCLICKA, OnHeaderItemClick)
+		NOTIFY_CODE_HANDLER(HDN_ITEMCLICKW, OnHeaderItemClick)
+		MESSAGE_HANDLER(WM_SETTINGCHANGE, OnSettingChange)
+	END_MSG_MAP()
+
+	LRESULT OnInsertColumn(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/)	
+	{
+		T* pT = static_cast<T*>(this);
+		LRESULT lRet = pT->DefWindowProc(uMsg, wParam, lParam);
+		if(lRet == -1)
+			return -1;
+
+		m_arrColSortType.Add(0);
+		int nCount = m_arrColSortType.GetSize();
+		ATLASSERT(nCount == GetColumnCount());
+
+		for(int i = nCount - 1; i > lRet; i--)
+			m_arrColSortType[i] = m_arrColSortType[i - 1];
+		m_arrColSortType[lRet] = LVCOLSORT_TEXT;
+
+		if(lRet <= m_iSortColumn)
+			m_iSortColumn++;
+
+		return lRet;
+	}
+
+	LRESULT OnDeleteColumn(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/)	
+	{
+		T* pT = static_cast<T*>(this);
+		LRESULT lRet = pT->DefWindowProc(uMsg, wParam, lParam);
+		if(lRet == -1)
+			return -1;
+
+		int iCol = (int)wParam; 
+		if(m_iSortColumn == iCol)
+			m_iSortColumn = -1;
+		else if(m_iSortColumn > iCol)
+			m_iSortColumn--;
+		m_arrColSortType.RemoveAt(iCol);
+
+		return lRet;
+	}
+
+	LRESULT OnHeaderItemClick(int /*idCtrl*/, LPNMHDR pnmh, BOOL& bHandled)
+	{
+		LPNMHEADER p = (LPNMHEADER)pnmh;
+		if(p->iButton == 0)
+		{
+			int iOld = m_iSortColumn;
+			bool bDescending = (m_iSortColumn == p->iItem) ? !m_bSortDescending : false;
+			if(DoSortItems(p->iItem, bDescending))
+				NotifyParentSortChanged(p->iItem, iOld);				
+		}
+		bHandled = FALSE;
+		return 0;
+	}
+
+	LRESULT OnSettingChange(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& bHandled)
+	{
+		if(wParam == SPI_SETNONCLIENTMETRICS)
+			GetSystemSettings();
+		bHandled = FALSE;
+		return 0;
+	}
+
+	void GetSystemSettings()
+	{
+		if(!m_bCommCtrl6 && !m_bmSort[m_iSortUp].IsNull())
+		{
+			CreateSortBitmaps();
+			if(m_iSortColumn != -1)
+				SetSortColumn(m_iSortColumn);
+		}
+	}
+
+};
+
+typedef CWinTraits<WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | LVS_REPORT | LVS_SHOWSELALWAYS , WS_EX_CLIENTEDGE>   CSortListViewCtrlTraits;
+
+template <class T, class TBase = CListViewCtrl, class TWinTraits = CSortListViewCtrlTraits>
+class ATL_NO_VTABLE CSortListViewCtrlImpl: public ATL::CWindowImpl<T, TBase, TWinTraits>, 
+	public CSortListViewImpl<T>
+{
+public:
+	DECLARE_WND_SUPERCLASS(NULL, TBase::GetWndClassName())
+
+	BOOL SortItems(int iCol, bool bDescending = false)
+	{
+		return DoSortItems(iCol, bDescending);
+	}
+		
+	BEGIN_MSG_MAP(CSortListViewCtrlImpl)
+		MESSAGE_HANDLER(LVM_INSERTCOLUMN, CSortListViewImpl<T>::OnInsertColumn)
+		MESSAGE_HANDLER(LVM_DELETECOLUMN, CSortListViewImpl<T>::OnDeleteColumn)
+		NOTIFY_CODE_HANDLER(HDN_ITEMCLICKA, CSortListViewImpl<T>::OnHeaderItemClick)
+		NOTIFY_CODE_HANDLER(HDN_ITEMCLICKW, CSortListViewImpl<T>::OnHeaderItemClick)
+		MESSAGE_HANDLER(WM_SETTINGCHANGE, CSortListViewImpl<T>::OnSettingChange)
+	END_MSG_MAP()
+
+};
+
+class CSortListViewCtrl : public CSortListViewCtrlImpl<CSortListViewCtrl>
+{
+public:
+	DECLARE_WND_SUPERCLASS(_T("WTL_SortListViewCtrl"), GetWndClassName())
 };
 
 }; //namespace WTL
