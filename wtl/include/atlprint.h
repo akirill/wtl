@@ -43,7 +43,8 @@
 // CPrintPreview
 // CPrintPreviewWindowImpl<T, TBase, TWinTraits>
 // CPrintPreviewWindow
-
+// CZoomPrintPreviewWindowImpl<T, TBase, TWinTraits>
+// CZoomPrintPreviewWindow
 
 namespace WTL
 {
@@ -890,6 +891,144 @@ class CPrintPreviewWindow : public CPrintPreviewWindowImpl<CPrintPreviewWindow>
 public:
 	DECLARE_WND_CLASS_EX(_T("WTL_PrintPreview"), CS_VREDRAW | CS_HREDRAW, -1)
 };
+
+#ifdef __ATLSCRL_H__
+///////////////////////////////////////////////////////////////////////////////
+// CZoomPrintPreviewWindowImpl - Implements print preview window with zooming
+
+template <class T, class TBase = ATL::CWindow, class TWinTraits = ATL::CControlWinTraits>
+class ATL_NO_VTABLE CZoomPrintPreviewWindowImpl : public CPrintPreviewWindowImpl< T, TBase, TWinTraits >, 
+	public CZoomScrollImpl< T >
+{
+public:
+
+	bool m_bSized;
+
+	CZoomPrintPreviewWindowImpl()  
+	{
+		SetScrollExtendedStyle(SCRL_DISABLENOSCROLL);
+		InitZoom();
+	}
+
+	// should be called to reset data members before recreating window 
+	void InitZoom()
+	{
+		m_bSized = false;	
+		m_nZoomMode = ZOOMMODE_OFF;
+		m_fZoomScaleMin = 1.0;
+		m_fZoomScale = 1.0;
+	}
+
+	BEGIN_MSG_MAP(CZoomPrintPreviewWindowImpl)
+		MESSAGE_HANDLER(WM_SETCURSOR, CZoomScrollImpl< T >::OnSetCursor)
+		MESSAGE_HANDLER(WM_VSCROLL, CScrollImpl< T >::OnVScroll)
+		MESSAGE_HANDLER(WM_HSCROLL, CScrollImpl< T >::OnHScroll)
+		MESSAGE_HANDLER(WM_MOUSEWHEEL, CScrollImpl< T >::OnMouseWheel)
+#if !((_WIN32_WINNT >= 0x0400) || (_WIN32_WINDOWS > 0x0400))
+		MESSAGE_HANDLER(m_uMsgMouseWheel, CScrollImpl< T >::OnMouseWheel)
+#endif //!((_WIN32_WINNT >= 0x0400) || (_WIN32_WINDOWS > 0x0400))
+		MESSAGE_HANDLER(WM_SETTINGCHANGE, CScrollImpl< T >::OnSettingChange)
+		MESSAGE_HANDLER(WM_LBUTTONDOWN, CZoomScrollImpl< T >::OnLButtonDown)
+		MESSAGE_HANDLER(WM_MOUSEMOVE, CZoomScrollImpl< T >::OnMouseMove)
+		MESSAGE_HANDLER(WM_LBUTTONUP, CZoomScrollImpl< T >::OnLButtonUp)
+		MESSAGE_HANDLER(WM_CAPTURECHANGED, CZoomScrollImpl< T >::OnCaptureChanged)
+		MESSAGE_HANDLER(WM_SIZE, OnSize)
+		MESSAGE_HANDLER(WM_ERASEBKGND, OnEraseBkgnd)
+		MESSAGE_HANDLER(WM_PAINT, OnPaint)
+	ALT_MSG_MAP(1)
+		COMMAND_ID_HANDLER(ID_SCROLL_UP, CScrollImpl< T >::OnScrollUp)
+		COMMAND_ID_HANDLER(ID_SCROLL_DOWN, CScrollImpl< T >::OnScrollDown)
+		COMMAND_ID_HANDLER(ID_SCROLL_PAGE_UP, CScrollImpl< T >::OnScrollPageUp)
+		COMMAND_ID_HANDLER(ID_SCROLL_PAGE_DOWN, CScrollImpl< T >::OnScrollPageDown)
+		COMMAND_ID_HANDLER(ID_SCROLL_TOP, CScrollImpl< T >::OnScrollTop)
+		COMMAND_ID_HANDLER(ID_SCROLL_BOTTOM, CScrollImpl< T >::OnScrollBottom)
+		COMMAND_ID_HANDLER(ID_SCROLL_LEFT, CScrollImpl< T >::OnScrollLeft)
+		COMMAND_ID_HANDLER(ID_SCROLL_RIGHT, CScrollImpl< T >::OnScrollRight)
+		COMMAND_ID_HANDLER(ID_SCROLL_PAGE_LEFT, CScrollImpl< T >::OnScrollPageLeft)
+		COMMAND_ID_HANDLER(ID_SCROLL_PAGE_RIGHT, CScrollImpl< T >::OnScrollPageRight)
+		COMMAND_ID_HANDLER(ID_SCROLL_ALL_LEFT, CScrollImpl< T >::OnScrollAllLeft)
+		COMMAND_ID_HANDLER(ID_SCROLL_ALL_RIGHT, CScrollImpl< T >::OnScrollAllRight)
+	END_MSG_MAP()
+	
+	LRESULT OnSize(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+	{
+		T* pT = static_cast<T*>(this);
+		pT;
+
+		SIZE sizeClient = {GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)};
+		POINT ptOffset = m_ptOffset;
+		SIZE sizeAll = m_sizeAll;
+		SetScrollSize(sizeClient);
+		if(sizeAll.cx > 0)
+			ptOffset.x = ::MulDiv(ptOffset.x, m_sizeAll.cx, sizeAll.cx);
+		if(sizeAll.cy > 0)
+			ptOffset.y = ::MulDiv(ptOffset.y, m_sizeAll.cy, sizeAll.cy);
+		SetScrollOffset(ptOffset);
+		CScrollImpl< T >::OnSize(uMsg, wParam, lParam, bHandled);
+		if(!m_bSized)
+		{
+			m_bSized = true;
+			pT->ShowScrollBar(SB_HORZ, TRUE);
+			pT->ShowScrollBar(SB_VERT, TRUE);
+		}
+		return 0;
+	}
+
+	LRESULT OnEraseBkgnd(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+	{
+		return 1;
+	}
+
+	LRESULT OnPaint(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/)
+	{
+		T* pT = static_cast<T*>(this);
+		CPaintDC dc(pT->m_hWnd);
+		PrepareDC(dc.m_hDC);
+		RECT rcClient;
+		GetClientRect(&rcClient);
+		RECT rcArea = rcClient;
+		::InflateRect(&rcArea, -pT->m_cxOffset, -pT->m_cyOffset);
+		if (rcArea.left > rcArea.right)
+			rcArea.right = rcArea.left;
+		if (rcArea.top > rcArea.bottom)
+			rcArea.bottom = rcArea.top;
+		RECT rc;
+		GetPageRect(rcArea, &rc);
+		HBRUSH hbrOld = dc.SelectBrush(::GetSysColorBrush(COLOR_BTNSHADOW));
+		dc.PatBlt(rcClient.left, rcClient.top, rc.left - rcClient.left, rcClient.bottom - rcClient.top, PATCOPY);
+		dc.PatBlt(rc.left, rcClient.top, rc.right - rc.left, rc.top - rcClient.top, PATCOPY);
+		dc.PatBlt(rc.right, rcClient.top, rcClient.right - rc.right, rcClient.bottom - rcClient.top, PATCOPY);
+		dc.PatBlt(rc.left, rc.bottom, rc.right - rc.left, rcClient.bottom - rc.bottom, PATCOPY);
+		dc.SelectBrush((HBRUSH)::GetStockObject(WHITE_BRUSH));
+		dc.PatBlt(rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top, PATCOPY);
+		dc.SelectBrush(::GetSysColorBrush(COLOR_3DDKSHADOW));
+		dc.PatBlt(rc.right, rc.top + 4, 4, rc.bottom - rc.top, PATCOPY);
+		dc.PatBlt(rc.left + 4, rc.bottom, rc.right - rc.left, 4, PATCOPY);
+		dc.SelectBrush(hbrOld);
+		pT->DoPaint(dc.m_hDC, rc);
+		return 0;
+	}
+
+	//Painting helper
+	void DoPaint(CDCHandle dc, RECT& rc)
+	{
+		CEnhMetaFileInfo emfinfo(m_meta);
+		ENHMETAHEADER* pmh = emfinfo.GetEnhMetaFileHeader();
+		int nOffsetX = MulDiv(m_sizeCurPhysOffset.cx, rc.right-rc.left, pmh->szlDevice.cx);
+		int nOffsetY = MulDiv(m_sizeCurPhysOffset.cy, rc.bottom-rc.top, pmh->szlDevice.cy);
+
+		dc.OffsetWindowOrg(-nOffsetX, -nOffsetY);
+		dc.PlayMetaFile(m_meta, &rc);
+	}
+};
+
+class CZoomPrintPreviewWindow : public CZoomPrintPreviewWindowImpl<CZoomPrintPreviewWindow>
+{
+public:
+	DECLARE_WND_CLASS_EX(_T("WTL_ZoomPrintPreview"), CS_VREDRAW | CS_HREDRAW, -1)
+};
+
+#endif //__ATLSCRL_H__
 
 }; //namespace WTL
 
