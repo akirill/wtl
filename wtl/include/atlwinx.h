@@ -56,6 +56,341 @@
 
 
 ///////////////////////////////////////////////////////////////////////////////
+// Macros for parent message map to selectively reflect control messages
+
+#define REFLECT_MESSAGE(msg) \
+	if(uMsg == msg) \
+	{ \
+		bHandled = TRUE; \
+		lResult = ReflectNotifications(uMsg, wParam, lParam, bHandled); \
+		if(bHandled) \
+			return TRUE; \
+	}
+
+#define REFLECT_MESSAGE_RANGE(msgFirst, msgLast) \
+	if(uMsg >= msgFirst && uMsg <= msgLast) \
+	{ \
+		bHandled = TRUE; \
+		lResult = ReflectNotifications(uMsg, wParam, lParam, bHandled); \
+		if(bHandled) \
+			return TRUE; \
+	}
+
+#define REFLECT_COMMAND(id, code) \
+	if(uMsg == WM_COMMAND && id == LOWORD(wParam) && code == HIWORD(wParam)) \
+	{ \
+		bHandled = TRUE; \
+		lResult = ReflectNotifications(uMsg, wParam, lParam, bHandled); \
+		if(bHandled) \
+			return TRUE; \
+	}
+
+#define REFLECT_COMMAND_ID(id) \
+	if(uMsg == WM_COMMAND && id == LOWORD(wParam)) \
+	{ \
+		bHandled = TRUE; \
+		lResult = ReflectNotifications(uMsg, wParam, lParam, bHandled); \
+		if(bHandled) \
+			return TRUE; \
+	}
+
+#define REFLECT_COMMAND_CODE(code) \
+	if(uMsg == WM_COMMAND && code == HIWORD(wParam)) \
+	{ \
+		bHandled = TRUE; \
+		lResult = ReflectNotifications(uMsg, wParam, lParam, bHandled); \
+		if(bHandled) \
+			return TRUE; \
+	}
+
+#define REFLECT_COMMAND_MEMBER(member) \
+	if(uMsg == WM_COMMAND && member == (HWND)lParam) \
+	{ \
+		bHandled = TRUE; \
+		lResult = ReflectNotifications(uMsg, wParam, lParam, bHandled); \
+		if(bHandled) \
+			return TRUE; \
+	}
+
+#define REFLECT_COMMAND_RANGE(idFirst, idLast) \
+	if(uMsg == WM_COMMAND && LOWORD(wParam) >= idFirst  && LOWORD(wParam) <= idLast) \
+	{ \
+		bHandled = TRUE; \
+		lResult = ReflectNotifications(uMsg, wParam, lParam, bHandled); \
+		if(bHandled) \
+			return TRUE; \
+	}
+
+#define REFLECT_COMMAND_RANGE_CODE(idFirst, idLast, code) \
+	if(uMsg == WM_COMMAND && code == HIWORD(wParam) && LOWORD(wParam) >= idFirst  && LOWORD(wParam) <= idLast) \
+	{ \
+		bHandled = TRUE; \
+		lResult = ReflectNotifications(uMsg, wParam, lParam, bHandled); \
+		if(bHandled) \
+			return TRUE; \
+	}
+
+#define REFLECT_COMMAND_RANGE_MEMBER(idFirst, idLast, member) \
+	if(uMsg == WM_COMMAND && member == (HWND)lParam && LOWORD(wParam) >= idFirst  && LOWORD(wParam) <= idLast) \
+	{ \
+		bHandled = TRUE; \
+		lResult = ReflectNotifications(uMsg, wParam, lParam, bHandled); \
+		if(bHandled) \
+			return TRUE; \
+	}
+
+#define REFLECT_NOTIFY(id, cd) \
+	if(uMsg == WM_NOTIFY && id == ((LPNMHDR)lParam)->idFrom && cd == ((LPNMHDR)lParam)->code) \
+	{ \
+		bHandled = TRUE; \
+		lResult = ReflectNotifications(uMsg, wParam, lParam, bHandled); \
+		if(bHandled) \
+			return TRUE; \
+	}
+
+#define REFLECT_NOTIFY_ID(id) \
+	if(uMsg == WM_NOTIFY && id == ((LPNMHDR)lParam)->idFrom) \
+	{ \
+		bHandled = TRUE; \
+		lResult = ReflectNotifications(uMsg, wParam, lParam, bHandled); \
+		if(bHandled) \
+			return TRUE; \
+	}
+
+#define REFLECT_NOTIFY_CODE(cd) \
+	if(uMsg == WM_NOTIFY && cd == ((LPNMHDR)lParam)->code) \
+	{ \
+		bHandled = TRUE; \
+		lResult = ReflectNotifications(uMsg, wParam, lParam, bHandled); \
+		if(bHandled) \
+			return TRUE; \
+	}
+
+#define REFLECT_NOTIFY_MEMBER(member) \
+	if(uMsg == WM_NOTIFY && member == ((LPNMHDR)lParam)->hwndFrom) \
+	{ \
+		bHandled = TRUE; \
+		lResult = ReflectNotifications(uMsg, wParam, lParam, bHandled); \
+		if(bHandled) \
+			return TRUE; \
+	}
+
+#define REFLECT_NOTIFY_RANGE(idFirst, idLast) \
+	if(uMsg == WM_NOTIFY && ((LPNMHDR)lParam)->idFrom >= idFirst && ((LPNMHDR)lParam)->idFrom <= idLast) \
+	{ \
+		bHandled = TRUE; \
+		lResult = ReflectNotifications(uMsg, wParam, lParam, bHandled); \
+		if(bHandled) \
+			return TRUE; \
+	}
+
+#define REFLECT_NOTIFY_RANGE_CODE(idFirst, idLast, cd) \
+	if(uMsg == WM_NOTIFY && cd == ((LPNMHDR)lParam)->code && ((LPNMHDR)lParam)->idFrom >= idFirst && ((LPNMHDR)lParam)->idFrom <= idLast) \
+	{ \
+		bHandled = TRUE; \
+		lResult = ReflectNotifications(uMsg, wParam, lParam, bHandled); \
+		if(bHandled) \
+			return TRUE; \
+	}
+
+#define REFLECT_NOTIFY_RANGE_MEMBER(idFirst, idLast, member) \
+	if(uMsg == WM_NOTIFY && member == ((LPNMHDR)lParam)->hwndFrom && ((LPNMHDR)lParam)->idFrom >= idFirst && ((LPNMHDR)lParam)->idFrom <= idLast) \
+	{ \
+		bHandled = TRUE; \
+		lResult = ReflectNotifications(uMsg, wParam, lParam, bHandled); \
+		if(bHandled) \
+			return TRUE; \
+	}
+
+#define REFLECT_PARENTNOTIFY_CREATEDESTROY_ID(id) \
+	if(uMsg == WM_PARENTNOTIFY && \
+		(LOWORD(wParam) == WM_CREATE || LOWORD(wParam) == WM_DESTROY) && \
+		HIWORD(wParam) == id) \
+	{ \
+		bHandled = TRUE; \
+		lResult = ReflectNotifications(uMsg, wParam, lParam, bHandled); \
+		if(bHandled) \
+			return TRUE; \
+	}
+
+#define REFLECT_PARENTNOTIFY_CREATEDESTROY_MEMBER(member) \
+	if(uMsg == WM_PARENTNOTIFY && \
+		(LOWORD(wParam) == WM_CREATE || LOWORD(wParam) == WM_DESTROY) && \
+		member == (HWND)lParam) \
+	{ \
+		bHandled = TRUE; \
+		lResult = ReflectNotifications(uMsg, wParam, lParam, bHandled); \
+		if(bHandled) \
+			return TRUE; \
+	}
+
+#define REFLECT_DRAWITEM_ID(id) \
+	if(uMsg == WM_DRAWITEM && wParam == id) \
+	{ \
+		bHandled = TRUE; \
+		lResult = ReflectNotifications(uMsg, wParam, lParam, bHandled); \
+		if(bHandled) \
+			return TRUE; \
+	}
+
+#define REFLECT_DRAWITEM_MEMBER(member) \
+	if(uMsg == WM_DRAWITEM && lParam != 0 && \
+		member == ((LPDRAWITEMSTRUCT)lParam)->hwndItem) \
+	{ \
+		bHandled = TRUE; \
+		lResult = ReflectNotifications(uMsg, wParam, lParam, bHandled); \
+		if(bHandled) \
+			return TRUE; \
+	}
+
+#define REFLECT_MEASUREITEM_ID(id) \
+	if(uMsg == WM_MEASUREITEM && wParam == id) \
+	{ \
+		bHandled = TRUE; \
+		lResult = ReflectNotifications(uMsg, wParam, lParam, bHandled); \
+		if(bHandled) \
+			return TRUE; \
+	}
+
+#define REFLECT_MEASUREITEM_MEMBER(member) \
+	if(uMsg == WM_MEASUREITEM && lParam != 0 && \
+		member == ::GetDlgItem(m_hWnd, ((LPMEASUREITEMSTRUCT)lParam)->CtlID)) \
+	{ \
+		bHandled = TRUE; \
+		lResult = ReflectNotifications(uMsg, wParam, lParam, bHandled); \
+		if(bHandled) \
+			return TRUE; \
+	}
+
+#define REFLECT_COMPAREITEM_ID(id) \
+	if(uMsg == WM_COMPAREITEM && wParam == id) \
+	{ \
+		bHandled = TRUE; \
+		lResult = ReflectNotifications(uMsg, wParam, lParam, bHandled); \
+		if(bHandled) \
+			return TRUE; \
+	}
+
+#define REFLECT_COMPAREITEM_MEMBER(member) \
+	if(uMsg == WM_COMPAREITEM && lParam != 0 && \
+		member == ((LPCOMPAREITEMSTRUCT)lParam)->hwndItem) \
+	{ \
+		bHandled = TRUE; \
+		lResult = ReflectNotifications(uMsg, wParam, lParam, bHandled); \
+		if(bHandled) \
+			return TRUE; \
+	}
+
+#define REFLECT_DELETEITEM_ID(id) \
+	if(uMsg == WM_DELETEITEM && wParam == id) \
+	{ \
+		bHandled = TRUE; \
+		lResult = ReflectNotifications(uMsg, wParam, lParam, bHandled); \
+		if(bHandled) \
+			return TRUE; \
+	}
+
+#define REFLECT_DELETEITEM_MEMBER(member) \
+	if(uMsg == WM_DELETEITEM && lParam != 0 && \
+		member == ((LPDELETEITEMSTRUCT)lParam)->hwndItem) \
+	{ \
+		bHandled = TRUE; \
+		lResult = ReflectNotifications(uMsg, wParam, lParam, bHandled); \
+		if(bHandled) \
+			return TRUE; \
+	}
+
+#define REFLECT_CTLCOLOR() \
+	if(uMsg == WM_CTLCOLORMSGBOX || \
+		uMsg == WM_CTLCOLOREDIT || \
+		uMsg == WM_CTLCOLORLISTBOX || \
+		uMsg == WM_CTLCOLORBTN || \
+		uMsg == WM_CTLCOLORDLG || \
+		uMsg == WM_CTLCOLORSCROLLBAR || \
+		uMsg == WM_CTLCOLORSTATIC) \
+	{ \
+		bHandled = TRUE; \
+		lResult = ReflectNotifications(uMsg, wParam, lParam, bHandled); \
+		if(bHandled) \
+			return TRUE; \
+	}
+
+#define REFLECT_CTLCOLOR_ID(id) \
+	if(::GetDlgCtrlID((HWND)lParam) == id && \
+		(uMsg == WM_CTLCOLORMSGBOX || \
+		uMsg == WM_CTLCOLOREDIT || \
+		uMsg == WM_CTLCOLORLISTBOX || \
+		uMsg == WM_CTLCOLORBTN || \
+		uMsg == WM_CTLCOLORDLG || \
+		uMsg == WM_CTLCOLORSCROLLBAR || \
+		uMsg == WM_CTLCOLORSTATIC)) \
+	{ \
+		bHandled = TRUE; \
+		lResult = ReflectNotifications(uMsg, wParam, lParam, bHandled); \
+		if(bHandled) \
+			return TRUE; \
+	}
+
+#define REFLECT_CTLCOLOR_MEMBER(member) \
+	if(member == (HWND)lParam && \
+		(uMsg == WM_CTLCOLORMSGBOX || \
+		uMsg == WM_CTLCOLOREDIT || \
+		uMsg == WM_CTLCOLORLISTBOX || \
+		uMsg == WM_CTLCOLORBTN || \
+		uMsg == WM_CTLCOLORDLG || \
+		uMsg == WM_CTLCOLORSCROLLBAR || \
+		uMsg == WM_CTLCOLORSTATIC)) \
+	{ \
+		bHandled = TRUE; \
+		lResult = ReflectNotifications(uMsg, wParam, lParam, bHandled); \
+		if(bHandled) \
+			return TRUE; \
+	}
+
+#define REFLECT_MESSAGE_LPARAMISHWND_ID(msg, id) \
+	if(uMsg == msg && ::GetDlgCtrlID((HWND)lParam) == id) \
+	{ \
+		bHandled = TRUE; \
+		lResult = ReflectNotifications(uMsg, wParam, lParam, bHandled); \
+		if(bHandled) \
+			return TRUE; \
+	}
+
+#define REFLECT_MESSAGE_LPARAMISHWND_MEMBER(msg, member) \
+	if(uMsg == msg && member == (HWND)lParam) \
+	{ \
+		bHandled = TRUE; \
+		lResult = ReflectNotifications(uMsg, wParam, lParam, bHandled); \
+		if(bHandled) \
+			return TRUE; \
+	}
+
+#define REFLECT_VKEYTOITEM_ID(id)         REFLECT_MESSAGE_LPARAMISHWND_ID(WM_VKEYTOITEM, id)
+#define REFLECT_CHARTOITEM_ID(id)         REFLECT_MESSAGE_LPARAMISHWND_ID(WM_CHARTOITEM, id)
+#define REFLECT_HSCROLL_ID(id)            REFLECT_MESSAGE_LPARAMISHWND_ID(WM_HSCROLL, id)
+#define REFLECT_VSCROLL_ID(id)            REFLECT_MESSAGE_LPARAMISHWND_ID(WM_VSCROLL, id)
+#define REFLECT_CTLCOLORMSGBOX_ID(id)     REFLECT_MESSAGE_LPARAMISHWND_ID(WM_CTLCOLORMSGBOX, id)
+#define REFLECT_CTLCOLOREDIT_ID(id)       REFLECT_MESSAGE_LPARAMISHWND_ID(WM_CTLCOLOREDIT, id)
+#define REFLECT_CTLCOLORLISTBOX_ID(id)    REFLECT_MESSAGE_LPARAMISHWND_ID(WM_CTLCOLORLISTBOX, id)
+#define REFLECT_CTLCOLORBTN_ID(id)        REFLECT_MESSAGE_LPARAMISHWND_ID(WM_CTLCOLORBTN, id)
+#define REFLECT_CTLCOLORDLG_ID(id)        REFLECT_MESSAGE_LPARAMISHWND_ID(WM_CTLCOLORDLG, id)
+#define REFLECT_CTLCOLORSCROLLBAR_ID(id)  REFLECT_MESSAGE_LPARAMISHWND_ID(WM_CTLCOLORSCROLLBAR, id)
+#define REFLECT_CTLCOLORSTATIC_ID(id)     REFLECT_MESSAGE_LPARAMISHWND_ID(WM_CTLCOLORSTATIC, id)
+
+#define REFLECT_VKEYTOITEM_MEMBER(member)        REFLECT_MESSAGE_LPARAMISHWND_MEMBER(WM_VKEYTOITEM, member)
+#define REFLECT_CHARTOITEM_MEMBER(member)        REFLECT_MESSAGE_LPARAMISHWND_MEMBER(WM_CHARTOITEM, member)
+#define REFLECT_HSCROLL_MEMBER(member)           REFLECT_MESSAGE_LPARAMISHWND_MEMBER(WM_HSCROLL, member)
+#define REFLECT_VSCROLL_MEMBER(member)           REFLECT_MESSAGE_LPARAMISHWND_MEMBER(WM_VSCROLL, member)
+#define REFLECT_CTLCOLORMSGBOX_MEMBER(member)    REFLECT_MESSAGE_LPARAMISHWND_MEMBER(WM_CTLCOLORMSGBOX, member)
+#define REFLECT_CTLCOLOREDIT_MEMBER(member)      REFLECT_MESSAGE_LPARAMISHWND_MEMBER(WM_CTLCOLOREDIT, member)
+#define REFLECT_CTLCOLORLISTBOX_MEMBER(member)   REFLECT_MESSAGE_LPARAMISHWND_MEMBER(WM_CTLCOLORLISTBOX, member)
+#define REFLECT_CTLCOLORBTN_MEMBER(member)       REFLECT_MESSAGE_LPARAMISHWND_MEMBER(WM_CTLCOLORBTN, member)
+#define REFLECT_CTLCOLORDLG_MEMBER(member)       REFLECT_MESSAGE_LPARAMISHWND_MEMBER(WM_CTLCOLORDLG, member)
+#define REFLECT_CTLCOLORSCROLLBAR_MEMBER(member) REFLECT_MESSAGE_LPARAMISHWND_MEMBER(WM_CTLCOLORSCROLLBAR, member)
+#define REFLECT_CTLCOLORSTATIC_MEMBER(member)    REFLECT_MESSAGE_LPARAMISHWND_MEMBER(WM_CTLCOLORSTATIC, member)
+
+
+///////////////////////////////////////////////////////////////////////////////
 // Reflected message handler macros for message maps (for ATL 3.0)
 
 #if (_ATL_VER < 0x0700)
