@@ -7964,7 +7964,7 @@ public:
 			BOOL bRet = GetBandInfo(i, &rbbi);
 			ATLASSERT(bRet);
 
-			if((rbbi.fStyle |= RBBS_GRIPPERALWAYS) == 0)
+			if((rbbi.fStyle & RBBS_GRIPPERALWAYS) == 0)
 			{
 				rbbi.fStyle |= RBBS_GRIPPERALWAYS;
 				bRet = SetBandInfo(i, &rbbi);
