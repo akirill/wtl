@@ -330,6 +330,17 @@ extern "C" void WINAPI ListView_SetItemSpacing(HWND hwndLV, int iHeight);
   __if_not_exists(_PSP::_PSP) { struct _PSP { }; }
 #endif
 
+// Define ATLVERIFY macro for ATL3
+#if (_ATL_VER < 0x0700)
+  #ifndef ATLVERIFY
+    #ifdef _DEBUG
+      #define ATLVERIFY(expr) ATLASSERT(expr)
+    #else
+      #define ATLVERIFY(expr) (expr)
+    #endif // DEBUG
+  #endif // ATLVERIFY
+#endif //(_ATL_VER < 0x0700)
+
 
 namespace WTL
 {
