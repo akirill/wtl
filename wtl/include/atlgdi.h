@@ -3059,17 +3059,21 @@ public:
 	{
 		ATLASSERT(m_hDC != NULL);
 
-		::SetBkColor(m_hDC, clr);
-		::ExtTextOut(m_hDC, 0, 0, ETO_OPAQUE, lpRect, NULL, 0, NULL);
+		COLORREF clrOld = ::SetBkColor(m_hDC, clr);
+		ATLASSERT(clrOld != CLR_INVALID);
+		if(clrOld != CLR_INVALID)
+		{
+			::ExtTextOut(m_hDC, 0, 0, ETO_OPAQUE, lpRect, NULL, 0, NULL);
+			::SetBkColor(m_hDC, clrOld);
+		}
 	}
 
 	void FillSolidRect(int x, int y, int cx, int cy, COLORREF clr)
 	{
 		ATLASSERT(m_hDC != NULL);
 
-		::SetBkColor(m_hDC, clr);
 		RECT rect = { x, y, x + cx, y + cy };
-		::ExtTextOut(m_hDC, 0, 0, ETO_OPAQUE, &rect, NULL, 0, NULL);
+		FillSolidRect(&rect, clr);
 	}
 
 	void Draw3dRect(LPCRECT lpRect, COLORREF clrTopLeft, COLORREF clrBottomRight)
