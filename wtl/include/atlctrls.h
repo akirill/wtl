@@ -163,7 +163,19 @@ public:
 		ATLASSERT(::IsWindow(m_hWnd));
 		return (HENHMETAFILE)::SendMessage(m_hWnd, STM_SETIMAGE, IMAGE_ENHMETAFILE, (LPARAM)hMetaFile);
 	}
-#endif //!_WIN32_WCE
+#else // CE specific
+	HICON GetIcon() const
+	{
+		ATLASSERT(::IsWindow(m_hWnd));
+		return (HICON)::SendMessage(m_hWnd, STM_GETIMAGE, IMAGE_ICON, 0L);
+	}
+
+	HICON SetIcon(HICON hIcon)
+	{
+		ATLASSERT(::IsWindow(m_hWnd));
+		return (HICON)::SendMessage(m_hWnd, STM_SETIMAGE, IMAGE_ICON, (LPARAM)hIcon);
+	}
+#endif //_WIN32_WCE
 
 	CBitmapHandle GetBitmap() const
 	{
