@@ -3995,7 +3995,9 @@ public:
 		ATLASSERT(::IsWindow(m_hWnd));
 		return (COLORREF)::SendMessage(m_hWnd, TVM_SETLINECOLOR, 0, (LPARAM)clrNew);
 	}
+#endif //(_WIN32_IE >= 0x0500) && !defined(_WIN32_WCE)
 
+#if (_WIN32_IE >= 0x0400) && !defined(_WIN32_WCE)
 	BOOL GetItem(LPTVITEMEX pItem) const
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
@@ -4007,7 +4009,7 @@ public:
 		ATLASSERT(::IsWindow(m_hWnd));
 		return (BOOL)::SendMessage(m_hWnd, TVM_SETITEM, 0, (LPARAM)pItem);
 	}
-#endif //(_WIN32_IE >= 0x0500) && !defined(_WIN32_WCE)
+#endif //(_WIN32_IE >= 0x0400) && !defined(_WIN32_WCE)
 
 // Operations
 	HTREEITEM InsertItem(LPTVINSERTSTRUCT lpInsertStruct)
