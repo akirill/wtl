@@ -39,7 +39,8 @@
 // CMapScrollImpl<T>
 // CMapScrollWindowImpl<T, TBase, TWinTraits>
 // CFSBWindowT<TBase>
-
+// CZoomScrollImpl<T>
+// CZoomScrollWindowImpl<T, TBase, TWinTraits>
 
 namespace WTL
 {
@@ -1107,6 +1108,542 @@ public:
 typedef CFSBWindowT<ATL::CWindow>   CFSBWindow;
 
 #endif //defined(__ATLCTRLS_H__) && (_WIN32_IE >= 0x0400) && !defined(_WIN32_WCE)
+
+#ifndef _WIN32_WCE
+///////////////////////////////////////////////////////////////////////////////
+// CZoomScrollImpl - Provides zooming and scrolling support to any window
+
+//the zoom modes that can be set with the SetZoomMode method
+enum
+{
+	ZOOMMODE_OFF, 
+	ZOOMMODE_IN, // if left mouse button is clicked or dragged, zoom in on point clicked or rectangle dragged.
+	ZOOMMODE_OUT // if left mouse button clicked, zoom out on point clicked.
+};
+
+// notification to parent that zoom scale changed as a result of user mouse action.
+#define ZSN_ZOOMCHANGED	(NM_FIRST-50) 
+
+template <class T>
+class CZoomScrollImpl : public CScrollImpl< T >
+{
+public:
+
+	enum {m_cxyMinZoomRect = 12}; //min rect size to zoom in on rect.
+
+	SIZE m_sizeLogAll;		
+	SIZE m_sizeLogLine;	
+	SIZE m_sizeLogPage;
+    float m_fZoomScale;
+	float m_fZoomScaleMin;
+	float m_fZoomDelta; // Used in ZOOMMODE_IN and ZOOMMODE_OUT on left-button click.
+	int m_nZoomMode;		
+	RECT m_rcTrack;
+	bool m_bTracking;
+
+// Constructor
+	CZoomScrollImpl():
+		m_fZoomScale(1.0),
+		m_fZoomScaleMin(0.5),
+		m_fZoomDelta(0.5),
+		m_nZoomMode(ZOOMMODE_OFF),
+		m_bTracking(false)
+	{
+		m_sizeLogAll.cx = 0;
+		m_sizeLogAll.cy = 0;
+		m_sizeLogPage.cx = 0;
+		m_sizeLogPage.cy = 0;
+		m_sizeLogLine.cx = 0;
+		m_sizeLogLine.cy = 0;
+		::SetRectEmpty(&m_rcTrack);
+	}
+
+// Attributes & Operations
+
+	// size operations
+	void SetScrollSize(int cxLog, int cyLog, BOOL bRedraw = TRUE)
+	{
+		ATLASSERT(cxLog >= 0 && cyLog >= 0);
+
+		// Set up the defaults
+		if (cxLog == 0 && cyLog == 0)
+		{
+			cxLog = 1;
+			cyLog = 1;
+		}
+
+		m_sizeLogAll.cx = cxLog;
+		m_sizeLogAll.cy = cyLog;
+		SIZE sizeAll = {0};
+		sizeAll.cx = (int) ((float) m_sizeLogAll.cx * m_fZoomScale);
+		sizeAll.cy = (int) ((float) m_sizeLogAll.cy * m_fZoomScale);
+
+		CScrollImpl< T >::SetScrollSize(sizeAll, bRedraw);
+	}
+
+	void SetScrollSize(SIZE sizeLog, BOOL bRedraw = TRUE)
+	{
+		SetScrollSize(sizeLog.cx, sizeLog.cy, bRedraw);
+	}
+
+	void GetScrollSize(SIZE& sizeLog) const
+	{
+		sizeLog = m_sizeLogAll;
+	}
+
+	// line operations
+	void SetScrollLine(int cxLogLine, int cyLogLine)
+	{
+		ATLASSERT(cxLogLine >= 0 && cyLogLine >= 0);
+
+		m_sizeLogLine.cx = cxLogLine;
+		m_sizeLogLine.cy = cyLogLine;
+
+		SIZE sizeLine = {0};
+		sizeLine.cx = (int) ((float) m_sizeLogLine.cx * m_fZoomScale);
+		sizeLine.cy = (int) ((float) m_sizeLogLine.cy * m_fZoomScale);
+		CScrollImpl< T >::SetScrollLine(sizeLine);
+	}
+
+	void SetScrollLine(SIZE sizeLogLine)
+	{
+		SetScrollLine(sizeLogLine.cx, sizeLogLine.cy);
+	}
+
+	void GetScrollLine(SIZE& sizeLogLine) const
+	{
+		sizeLogLine = m_sizeLogLine;
+	}
+
+	// page operations
+	void SetScrollPage(int cxLogPage, int cyLogPage)
+	{
+		ATLASSERT(cxLogPage >= 0 && cyLogPage >= 0);
+
+		m_sizeLogPage.cx = cxLogPage;
+		m_sizeLogPage.cy = cyLogPage;
+
+		SIZE sizePage = {0};
+		sizePage.cx = (int) ((float) m_sizeLogPage.cx * m_fZoomScale);
+		sizePage.cy = (int) ((float) m_sizeLogPage.cy * m_fZoomScale);
+
+		CScrollImpl< T >::SetScrollPage(sizePage);
+	}
+
+	void SetScrollPage(SIZE sizeLogPage)
+	{
+		SetScrollPage(sizeLogPage.cx, sizeLogPage.cy);
+	}
+
+	void GetScrollPage(SIZE& sizeLogPage) const
+	{
+		sizeLogPage = m_sizeLogPage;
+	}
+
+	void SetZoomScale(float fZoomScale)
+	{
+		ATLASSERT(fZoomScale > 0);
+
+		if(fZoomScale > 0 && fZoomScale >= m_fZoomScaleMin)
+			m_fZoomScale = fZoomScale;
+	}
+	float GetZoomScale(){return m_fZoomScale;}
+
+	void SetZoomScaleMin(float fZoomScaleMin)
+	{
+		m_fZoomScaleMin = fZoomScaleMin;
+	}
+	float GetZoomScaleMin(){return m_fZoomScaleMin;}
+
+	void SetZoomDelta(float fZoomDelta)
+	{
+		ATLASSERT(fZoomDelta >= 0);
+
+		if(fZoomDelta >= 0)
+			m_fZoomDelta = fZoomDelta;
+	}
+	float GetZoomDelta(){return m_fZoomDelta;}
+
+	void SetZoomMode(int nZoomMode)
+	{
+		m_nZoomMode = nZoomMode;
+	}
+	int GetZoomMode(){return m_nZoomMode;}
+
+	void Zoom(int x, int y, float fZoomScale)
+	{
+		if(fZoomScale <= 0)
+			return;
+
+		fZoomScale = max(fZoomScale, m_fZoomScaleMin);
+
+		POINT pt = {x, y};
+		if(!PtInDevRect(pt))
+			return;
+		ViewDPtoLP(&pt);
+		Zoom(fZoomScale, FALSE);
+		CenterOnLogicalPoint(pt);
+	}
+
+	void Zoom(POINT pt, float fZoomScale)
+	{
+		Zoom(pt.x, pt.y, fZoomScale);
+	}
+
+	void Zoom(RECT& rc)
+	{
+		RECT rcZoom = rc;
+		NormalizeRect(rcZoom);
+		SIZE size = {rcZoom.right - rcZoom.left, rcZoom.bottom - rcZoom.top};
+		POINT pt = {rcZoom.left + size.cx / 2, rcZoom.top + size.cy / 2};
+		if(size.cx < m_cxyMinZoomRect || size.cy < m_cxyMinZoomRect)
+		{
+			Zoom(pt, m_fZoomScale + m_fZoomDelta);
+			return;
+		}
+
+		ATLASSERT(size.cx > 0 && size.cy > 0);
+		
+		float fScaleH = (float)(m_sizeClient.cx  + 1) / (float) size.cx;
+		float fScaleV = (float) (m_sizeClient.cy + 1) / (float) size.cy;
+		float fZoomScale = min(fScaleH, fScaleV) * m_fZoomScale;
+		Zoom(pt, fZoomScale);		
+	}
+
+	void Zoom(float fZoomScale, BOOL bCenter = TRUE)
+	{
+		if(fZoomScale <= 0)
+			return;
+
+		fZoomScale = max(fZoomScale, m_fZoomScaleMin);
+
+		T* pT = static_cast<T*>(this);
+		pT;
+
+		POINT pt = {0};
+		if(bCenter)
+		{
+			RECT rc;
+			::GetClientRect(pT->m_hWnd, &rc);
+			pt.x = rc.right / 2;
+			pt.y = rc.bottom / 2;
+			ViewDPtoLP(&pt);
+		}
+
+		// Modify the Viewport extent
+		m_fZoomScale = fZoomScale;
+		SIZE sizeAll = {0};
+		sizeAll.cx = (int) ((float) m_sizeLogAll.cx * fZoomScale);
+		sizeAll.cy = (int) ((float) m_sizeLogAll.cy * fZoomScale);
+		
+		//Update scroll bars and window
+		CScrollImpl< T >::SetScrollSize(sizeAll);
+
+		if(bCenter)
+			CenterOnLogicalPoint(pt);
+	}
+
+	//Helper functions
+	void PrepareDC(CDCHandle dc)
+	{
+		ATLASSERT(m_sizeAll.cx >= 0 && m_sizeAll.cy >= 0);
+		dc.SetMapMode(MM_ANISOTROPIC);
+		dc.SetWindowExt(m_sizeLogAll);
+		dc.SetViewportExt(m_sizeAll);
+		dc.SetViewportOrg(-m_ptOffset.x, -m_ptOffset.y);
+	}
+
+	void ViewDPtoLP(LPPOINT lpPoints, int nCount = 1)
+	{
+		ATLASSERT(lpPoints);
+		T* pT = static_cast<T*>(this);
+		ATLASSERT(::IsWindow(pT->m_hWnd));
+
+		CWindowDC dc(pT->m_hWnd);
+		PrepareDC(dc.m_hDC);
+		dc.DPtoLP(lpPoints, nCount);
+	}
+
+	void ViewLPtoDP(LPPOINT lpPoints, int nCount = 1)
+	{
+		ATLASSERT(lpPoints);
+		T* pT = static_cast<T*>(this);
+		ATLASSERT(::IsWindow(pT->m_hWnd));
+	
+		CWindowDC dc(pT->m_hWnd);
+		PrepareDC(dc.m_hDC);
+		dc.LPtoDP(lpPoints, nCount);
+	}
+
+	void ClientToDevice(POINT &pt)
+	{
+		pt.x += m_ptOffset.x;
+		pt.y += m_ptOffset.y;
+	}	 
+
+	void DeviceToClient(POINT &pt)
+	{
+		pt.x -= m_ptOffset.x;
+		pt.y -= m_ptOffset.y;
+	}
+
+	void CenterOnPoint(POINT pt)
+	{
+		T* pT = static_cast<T*>(this);
+		RECT rect;
+		pT->GetClientRect(&rect);
+
+		int xOfs = pt.x - (rect.right / 2) + m_ptOffset.x;
+		if(xOfs < 0)
+			xOfs = 0;
+		else 
+		{
+			int xMax = max(m_sizeAll.cx - rect.right, 0);
+			if(xOfs > xMax)
+				xOfs = xMax;
+		}
+		
+		int yOfs = pt.y - (rect.bottom / 2) + m_ptOffset.y;
+		if(yOfs < 0)
+			yOfs = 0;
+		else 
+		{
+			int yMax = max(m_sizeAll.cy - rect.bottom, 0);
+			if(yOfs > yMax)
+				yOfs = yMax;
+		}
+
+		CScrollImpl< T >::SetScrollOffset(xOfs, yOfs);
+	}
+
+	void CenterOnLogicalPoint(POINT ptLog)
+	{
+		ViewLPtoDP(&ptLog);
+		DeviceToClient(ptLog);
+		CenterOnPoint(ptLog);
+	}
+
+	BOOL PtInDevRect(POINT pt)
+	{
+		RECT rc = {0,0, m_sizeAll.cx, m_sizeAll.cy};
+		::OffsetRect(&rc, -m_ptOffset.x, -m_ptOffset.y);
+		return ::PtInRect(&rc, pt);
+	}
+
+	void NormalizeRect(RECT& rc)
+	{
+		if(rc.left > rc.right) 
+		{
+			int r = rc.right;
+			rc.right = rc.left;
+			rc.left = r;
+		}
+		if (rc.top > rc.bottom)
+		{
+			int b = rc.bottom;
+			rc.bottom = rc.top;
+			rc.top = b;
+		}
+	}
+
+	void DrawTrackRect()
+	{
+		const SIZE sizeLines = {2,2};
+		RECT rc = m_rcTrack;
+		NormalizeRect(rc);
+		if(!::IsRectEmpty(&rc))
+		{
+			T* pT = static_cast<T*>(this);
+			::MapWindowPoints(pT->m_hWnd, NULL, (LPPOINT)&rc, 2);
+			CWindowDC dc(NULL);
+			dc.DrawDragRect(&rc, sizeLines, NULL, sizeLines);
+		}
+	}
+
+	void NotifyParentZoomChanged()
+	{
+		T* pT = static_cast<T*>(this);
+		int nId = pT->GetDlgCtrlID();
+		NMHDR nmhdr = {pT->m_hWnd, nId, ZSN_ZOOMCHANGED};
+		::SendMessage(pT->GetParent(), WM_NOTIFY, (WPARAM)nId, (LPARAM)&nmhdr);
+	}
+
+	BEGIN_MSG_MAP(CZoomScrollImpl)
+		MESSAGE_HANDLER(WM_SETCURSOR, OnSetCursor)
+		MESSAGE_HANDLER(WM_VSCROLL, CScrollImpl< T >::OnVScroll)
+		MESSAGE_HANDLER(WM_HSCROLL, CScrollImpl< T >::OnHScroll)
+		MESSAGE_HANDLER(WM_MOUSEWHEEL, CScrollImpl< T >::OnMouseWheel)
+#if !((_WIN32_WINNT >= 0x0400) || (_WIN32_WINDOWS > 0x0400))
+		MESSAGE_HANDLER(m_uMsgMouseWheel, CScrollImpl< T >::OnMouseWheel)
+#endif //!((_WIN32_WINNT >= 0x0400) || (_WIN32_WINDOWS > 0x0400))
+		MESSAGE_HANDLER(WM_SETTINGCHANGE, CScrollImpl< T >::OnSettingChange)
+		MESSAGE_HANDLER(WM_SIZE, CScrollImpl< T >::OnSize)
+		MESSAGE_HANDLER(WM_PAINT, OnPaint)
+		MESSAGE_HANDLER(WM_PRINTCLIENT, OnPaint)
+		MESSAGE_HANDLER(WM_LBUTTONDOWN, OnLButtonDown)
+		MESSAGE_HANDLER(WM_MOUSEMOVE, OnMouseMove)
+		MESSAGE_HANDLER(WM_LBUTTONUP, OnLButtonUp)
+		MESSAGE_HANDLER(WM_CAPTURECHANGED, OnCaptureChanged)
+	ALT_MSG_MAP(1)
+		COMMAND_ID_HANDLER(ID_SCROLL_UP, CScrollImpl< T >::OnScrollUp)
+		COMMAND_ID_HANDLER(ID_SCROLL_DOWN, CScrollImpl< T >::OnScrollDown)
+		COMMAND_ID_HANDLER(ID_SCROLL_PAGE_UP, CScrollImpl< T >::OnScrollPageUp)
+		COMMAND_ID_HANDLER(ID_SCROLL_PAGE_DOWN, CScrollImpl< T >::OnScrollPageDown)
+		COMMAND_ID_HANDLER(ID_SCROLL_TOP, CScrollImpl< T >::OnScrollTop)
+		COMMAND_ID_HANDLER(ID_SCROLL_BOTTOM, CScrollImpl< T >::OnScrollBottom)
+		COMMAND_ID_HANDLER(ID_SCROLL_LEFT, CScrollImpl< T >::OnScrollLeft)
+		COMMAND_ID_HANDLER(ID_SCROLL_RIGHT, CScrollImpl< T >::OnScrollRight)
+		COMMAND_ID_HANDLER(ID_SCROLL_PAGE_LEFT, CScrollImpl< T >::OnScrollPageLeft)
+		COMMAND_ID_HANDLER(ID_SCROLL_PAGE_RIGHT, CScrollImpl< T >::OnScrollPageRight)
+		COMMAND_ID_HANDLER(ID_SCROLL_ALL_LEFT, CScrollImpl< T >::OnScrollAllLeft)
+		COMMAND_ID_HANDLER(ID_SCROLL_ALL_RIGHT, CScrollImpl< T >::OnScrollAllRight)
+	END_MSG_MAP()
+
+	LRESULT OnPaint(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+	{
+		T* pT = static_cast<T*>(this);
+		ATLASSERT(::IsWindow(pT->m_hWnd));
+		ATLASSERT(m_sizeLogAll.cx >= 0 && m_sizeLogAll.cy >= 0);
+		ATLASSERT(m_sizeAll.cx >= 0 && m_sizeAll.cy >= 0);
+
+		if(wParam != NULL)
+		{
+			CDCHandle dc = (HDC)wParam;
+			PrepareDC(dc);
+			pT->DoPaint(dc);
+		}
+		else
+		{
+			CPaintDC dc(pT->m_hWnd);
+			PrepareDC(dc.m_hDC);
+			pT->DoPaint(dc.m_hDC);
+		}
+		return 0;
+	}
+
+	LRESULT OnLButtonDown(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+	{
+		if(m_nZoomMode == ZOOMMODE_IN && !m_bTracking)
+		{
+			POINT pt = {GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)};
+			if(PtInDevRect(pt))
+			{
+				T* pT = static_cast<T*>(this);
+				pT->SetCapture();
+				m_bTracking = true;
+				::SetRect(&m_rcTrack, pt.x, pt.y, pt.x, pt.y);
+			}	
+		}
+		bHandled = FALSE;
+		return 0;
+	}
+
+	LRESULT OnMouseMove(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+	{
+		if(m_bTracking)
+		{
+			POINT pt = {GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)};
+			if(PtInDevRect(pt))
+			{
+				DrawTrackRect();
+				m_rcTrack.right = pt.x;
+				m_rcTrack.bottom = pt.y;
+				DrawTrackRect();
+			}
+		}
+		bHandled = FALSE;
+		return 0;
+	}
+
+	LRESULT OnLButtonUp(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+	{
+		::ReleaseCapture();
+		if(m_nZoomMode == ZOOMMODE_OUT)
+		{
+			Zoom(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam), m_fZoomScale - m_fZoomDelta);
+			NotifyParentZoomChanged();
+		}
+		bHandled = FALSE;
+		return 0;
+	}
+
+	LRESULT OnCaptureChanged(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+	{
+		if(m_bTracking)
+		{
+			m_bTracking = false;
+			DrawTrackRect();
+			Zoom(m_rcTrack);
+			NotifyParentZoomChanged();
+			::SetRectEmpty(&m_rcTrack);
+		}
+		bHandled = FALSE;
+		return 0;
+	}	
+
+	LRESULT OnSetCursor(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+	{
+		if(LOWORD(lParam) == HTCLIENT && m_nZoomMode != ZOOMMODE_OFF)
+		{
+			T* pT = static_cast<T*>(this);
+			if((HWND)wParam == pT->m_hWnd)
+			{
+				DWORD dwPos = ::GetMessagePos();
+				POINT pt = {GET_X_LPARAM(dwPos), GET_Y_LPARAM(dwPos)};
+				pT->ScreenToClient(&pt);
+				if(PtInDevRect(pt))
+				{
+					::SetCursor(::LoadCursor(NULL, IDC_CROSS));
+					return 1;
+				}
+			}
+		}
+		bHandled = FALSE;
+		return 0;
+	}
+
+};
+
+///////////////////////////////////////////////////////////////////////////////
+// CZoomScrollWindowImpl - Implements scrolling window with zooming
+
+template <class T, class TBase = ATL::CWindow, class TWinTraits = ATL::CControlWinTraits>
+class ATL_NO_VTABLE CZoomScrollWindowImpl : public ATL::CWindowImpl< T, TBase, TWinTraits >, 
+	public CZoomScrollImpl< T >
+{
+public:
+	BEGIN_MSG_MAP(CZoomScrollWindowImpl)
+		MESSAGE_HANDLER(WM_SETCURSOR, CZoomScrollImpl< T >::OnSetCursor)
+		MESSAGE_HANDLER(WM_VSCROLL, CScrollImpl< T >::OnVScroll)
+		MESSAGE_HANDLER(WM_HSCROLL, CScrollImpl< T >::OnHScroll)
+		MESSAGE_HANDLER(WM_MOUSEWHEEL, CScrollImpl< T >::OnMouseWheel)
+#if !((_WIN32_WINNT >= 0x0400) || (_WIN32_WINDOWS > 0x0400))
+		MESSAGE_HANDLER(m_uMsgMouseWheel, CScrollImpl< T >::OnMouseWheel)
+#endif //!((_WIN32_WINNT >= 0x0400) || (_WIN32_WINDOWS > 0x0400))
+		MESSAGE_HANDLER(WM_SETTINGCHANGE, CScrollImpl< T >::OnSettingChange)
+		MESSAGE_HANDLER(WM_SIZE, CScrollImpl< T >::OnSize)
+		MESSAGE_HANDLER(WM_PAINT, CZoomScrollImpl< T >::OnPaint)
+		MESSAGE_HANDLER(WM_PRINTCLIENT, CZoomScrollImpl< T >::OnPaint)
+		MESSAGE_HANDLER(WM_LBUTTONDOWN, CZoomScrollImpl< T >::OnLButtonDown)
+		MESSAGE_HANDLER(WM_MOUSEMOVE, CZoomScrollImpl< T >::OnMouseMove)
+		MESSAGE_HANDLER(WM_LBUTTONUP, CZoomScrollImpl< T >::OnLButtonUp)
+		MESSAGE_HANDLER(WM_CAPTURECHANGED, CZoomScrollImpl< T >::OnCaptureChanged)
+	ALT_MSG_MAP(1)
+		COMMAND_ID_HANDLER(ID_SCROLL_UP, CScrollImpl< T >::OnScrollUp)
+		COMMAND_ID_HANDLER(ID_SCROLL_DOWN, CScrollImpl< T >::OnScrollDown)
+		COMMAND_ID_HANDLER(ID_SCROLL_PAGE_UP, CScrollImpl< T >::OnScrollPageUp)
+		COMMAND_ID_HANDLER(ID_SCROLL_PAGE_DOWN, CScrollImpl< T >::OnScrollPageDown)
+		COMMAND_ID_HANDLER(ID_SCROLL_TOP, CScrollImpl< T >::OnScrollTop)
+		COMMAND_ID_HANDLER(ID_SCROLL_BOTTOM, CScrollImpl< T >::OnScrollBottom)
+		COMMAND_ID_HANDLER(ID_SCROLL_LEFT, CScrollImpl< T >::OnScrollLeft)
+		COMMAND_ID_HANDLER(ID_SCROLL_RIGHT, CScrollImpl< T >::OnScrollRight)
+		COMMAND_ID_HANDLER(ID_SCROLL_PAGE_LEFT, CScrollImpl< T >::OnScrollPageLeft)
+		COMMAND_ID_HANDLER(ID_SCROLL_PAGE_RIGHT, CScrollImpl< T >::OnScrollPageRight)
+		COMMAND_ID_HANDLER(ID_SCROLL_ALL_LEFT, CScrollImpl< T >::OnScrollAllLeft)
+		COMMAND_ID_HANDLER(ID_SCROLL_ALL_RIGHT, CScrollImpl< T >::OnScrollAllRight)
+	END_MSG_MAP()
+};
+#endif //!_WIN32_WCE
 
 }; //namespace WTL
 
