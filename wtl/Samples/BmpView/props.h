@@ -204,6 +204,7 @@ public:
 	{
 		// Special - remove unused buttons, move Close button, center wizard
 		CPropertySheetWindow sheet = GetPropertySheet();
+#if !defined(_AYGSHELL_H_) && !defined(__AYGSHELL_H__) // PPC specific
 		sheet.CancelToClose();
 		RECT rect;
 		CButton btnCancel = sheet.GetDlgItem(IDCANCEL);
@@ -215,6 +216,7 @@ public:
 		sheet.CenterWindow(GetPropertySheet().GetParent());
 
 		sheet.ModifyStyleEx(WS_EX_CONTEXTHELP, 0);
+#endif // (_AYGSHELL_H_) || defined(__AYGSHELL_H__) // PPC specific
 
 		// get and display bitmap prperties
 		SetDlgItemText(IDC_TYPE, _T("Windows 3.x Bitmap (BMP)"));
@@ -222,7 +224,11 @@ public:
 
 		if(m_lpstrFilePath != NULL)
 		{
+#ifndef _WIN32_WCE 
 			HANDLE hFile = ::CreateFile(m_lpstrFilePath, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL | FILE_FLAG_SEQUENTIAL_SCAN, NULL);
+#else
+			HANDLE hFile = ::CreateFile(m_lpstrFilePath, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+#endif // _WIN32_WCE
 			ATLASSERT(hFile != INVALID_HANDLE_VALUE);
 			if(hFile != INVALID_HANDLE_VALUE)
 			{
