@@ -871,6 +871,7 @@ public:
 		MESSAGE_HANDLER(WM_MENUCHAR, OnParentMenuChar)
 		MESSAGE_HANDLER(CBRM_TRACKPOPUPMENU, OnParentAPITrackPopupMenu)
 		MESSAGE_HANDLER(CBRM_GETCMDBAR, OnParentAPIGetCmdBar)
+		MESSAGE_HANDLER(WM_SETTINGCHANGE, OnParentSettingChange)
 
 		MESSAGE_HANDLER(WM_DRAWITEM, OnParentDrawItem)
 		MESSAGE_HANDLER(WM_MEASUREITEM, OnParentMeasureItem)
@@ -1315,10 +1316,21 @@ public:
 			return NULL;
 	}
 
-	LRESULT OnSettingChange(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+	LRESULT OnSettingChange(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 	{
-		T* pT = static_cast<T*>(this);
-		pT->GetSystemSettings();
+#ifndef SPI_GETKEYBOARDCUES
+		const UINT SPI_SETKEYBOARDCUES = 0x100B;
+#endif //!SPI_GETKEYBOARDCUES
+#ifndef SPI_GETFLATMENU
+		const UINT SPI_SETFLATMENU = 0x1023;
+#endif //!SPI_GETFLATMENU
+
+		if(wParam == SPI_SETNONCLIENTMETRICS || wParam == SPI_SETKEYBOARDCUES || wParam == SPI_SETFLATMENU)
+		{
+			T* pT = static_cast<T*>(this);
+			pT->GetSystemSettings();
+		}
+
 		return 0;
 	}
 
@@ -1641,6 +1653,13 @@ public:
 	LRESULT OnParentAPIGetCmdBar(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 	{
 		return OnAPIGetCmdBar(uMsg, wParam, lParam, bHandled);
+	}
+
+	LRESULT OnParentSettingChange(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+	{
+		OnSettingChange(uMsg, wParam, lParam, bHandled);
+		bHandled = FALSE;
+		return 1;
 	}
 
 	LRESULT OnParentDrawItem(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
