@@ -6833,7 +6833,7 @@ public:
 #if (_RICHEDIT_VER >= 0x0200)
 		LONG lLen = 0;
 		LPTSTR lpstrText = strText.GetBufferSetLength(cr.cpMax - cr.cpMin);
-		if(lpstr != NULL)
+		if(lpstrText != NULL)
 		{
 			lLen = (LONG)::SendMessage(m_hWnd, EM_GETSELTEXT, 0, (LPARAM)lpstrText);
 			strText.ReleaseBuffer();
