@@ -41,6 +41,8 @@
 // CFSBWindowT<TBase>
 // CZoomScrollImpl<T>
 // CZoomScrollWindowImpl<T, TBase, TWinTraits>
+// CScrollContainerImpl<T, TBase, TWinTraits>
+// CScrollContainer
 
 namespace WTL
 {
@@ -380,6 +382,49 @@ public:
 		T* pT = static_cast<T*>(this);
 		ATLASSERT(::IsWindow(pT->m_hWnd));
 		pT->DoScroll(SB_HORZ, SB_BOTTOM, (int&)m_ptOffset.x, m_sizeAll.cx, m_sizePage.cx, m_sizeLine.cx);
+	}
+
+	// scroll to make point/view/window visible
+	void ScrollToView(POINT pt)
+	{
+		T* pT = static_cast<T*>(this);
+		ATLASSERT(::IsWindow(pT->m_hWnd));
+		RECT rect = { pt.x, pt.y, pt.x, pt.y };
+		pT->ScrollToView(rect);
+	}
+
+	void ScrollToView(RECT& rect)
+	{
+		T* pT = static_cast<T*>(this);
+		ATLASSERT(::IsWindow(pT->m_hWnd));
+
+		RECT rcClient = { 0 };
+		pT->GetClientRect(&rcClient);
+
+		int x = m_ptOffset.x;
+		if(rect.left < m_ptOffset.x)
+			x = rect.left;
+		else if(rect.right > (m_ptOffset.x + rcClient.right))
+			x = rect.right - rcClient.right;
+
+		int y = m_ptOffset.y;
+		if(rect.top < m_ptOffset.y)
+			y = rect.top;
+		else if(rect.bottom > (m_ptOffset.y + rcClient.bottom))
+			y = rect.bottom - rcClient.bottom;
+
+		SetScrollOffset(x, y);
+	}
+
+	void ScrollToView(HWND hWnd)
+	{
+		T* pT = static_cast<T*>(this);
+		ATLASSERT(::IsWindow(pT->m_hWnd));
+
+		RECT rect = { 0 };
+		::GetWindowRect(hWnd, &rect);
+		::MapWindowPoints(NULL, pT->m_hWnd, (LPPOINT)&rect, 2);
+		ScrollToView(rect);
 	}
 
 	BEGIN_MSG_MAP(CScrollImpl)
@@ -1714,6 +1759,179 @@ public:
 };
 
 #endif //!_WIN32_WCE
+
+
+///////////////////////////////////////////////////////////////////////////////
+// CScrollContainer
+
+template <class T, class TBase = ATL::CWindow, class TWinTraits = ATL::CControlWinTraits>
+class ATL_NO_VTABLE CScrollContainerImpl : public CScrollWindowImpl< T, TBase, TWinTraits >
+{
+public:
+	DECLARE_WND_CLASS_EX(NULL, 0, -1)
+
+	typedef CScrollWindowImpl< T, TBase, TWinTraits >   _baseClass;
+
+// Data members
+	ATL::CWindow m_wndClient;
+	bool m_bAutoSizeClient;
+	bool m_bDrawEdgeIfEmpty;
+
+// Constructor
+	CScrollContainerImpl() : m_bAutoSizeClient(true), m_bDrawEdgeIfEmpty(false)
+	{
+		// Set CScrollWindowImpl extended style
+		SetScrollExtendedStyle(SCRL_SCROLLCHILDREN);
+	}
+
+// Attributes
+	HWND GetClient() const
+	{
+		return m_wndClient;
+	}
+
+	HWND SetClient(HWND hWndClient, bool bClientSizeAsMin = true)
+	{
+		ATLASSERT(::IsWindow(m_hWnd));
+
+		HWND hWndOldClient = m_wndClient;
+		m_wndClient = hWndClient;
+
+		SetRedraw(FALSE);
+		SetScrollSize(1, 1, FALSE);
+
+		if(m_wndClient.m_hWnd != NULL)
+		{
+			m_wndClient.SetWindowPos(NULL, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOSIZE);
+
+			if(bClientSizeAsMin)
+			{
+				RECT rect = { 0 };
+				m_wndClient.GetWindowRect(&rect);
+				if((rect.right - rect.left) > 0 && (rect.bottom - rect.top) > 0)
+					SetScrollSize(rect.right - rect.left, rect.bottom - rect.top, FALSE);
+			}
+
+			T* pT = static_cast<T*>(this);
+			pT->UpdateLayout();
+		}
+
+		SetRedraw(TRUE);
+		RedrawWindow(NULL, NULL, RDW_INVALIDATE | RDW_FRAME | RDW_UPDATENOW | RDW_ALLCHILDREN);
+
+		return hWndOldClient;
+	}
+
+// Message map and handlers
+	BEGIN_MSG_MAP(CScrollContainerImpl)
+		MESSAGE_HANDLER(WM_SETFOCUS, OnSetFocus)
+		MESSAGE_HANDLER(WM_ERASEBKGND, OnEraseBackground)
+		MESSAGE_HANDLER(WM_SIZE, OnSize)
+		CHAIN_MSG_MAP(_baseClass)
+		FORWARD_NOTIFICATIONS()
+	ALT_MSG_MAP(1)
+		CHAIN_MSG_MAP_ALT(_baseClass, 1)
+	END_MSG_MAP()
+
+	LRESULT OnSetFocus(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+	{
+		if(m_wndClient.m_hWnd != NULL)
+			m_wndClient.SetFocus();
+
+		return 0;
+	}
+
+	LRESULT OnEraseBackground(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+	{
+		return 1;   // no background needed
+	}
+
+	LRESULT OnSize(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/)
+	{
+		BOOL bTmp = TRUE;
+		LRESULT lRet = _baseClass::OnSize(uMsg, wParam, lParam, bTmp);
+
+		T* pT = static_cast<T*>(this);
+		pT->UpdateLayout();
+
+		return lRet;
+	}
+
+// Overrides for CScrollWindowImpl
+	void DoPaint(CDCHandle dc)
+	{
+		if(!m_bAutoSizeClient || m_wndClient.m_hWnd == NULL)
+		{
+			T* pT = static_cast<T*>(this);
+			RECT rect = { 0 };
+			pT->GetContainerRect(rect);
+
+			if(m_bDrawEdgeIfEmpty && m_wndClient.m_hWnd == NULL)
+				dc.DrawEdge(&rect, EDGE_SUNKEN, BF_RECT | BF_ADJUST);
+
+			dc.FillRect(&rect, COLOR_APPWORKSPACE);
+		}
+	}
+
+	void ScrollToView(POINT pt)
+	{
+		CScrollWindowImpl< T, TBase, TWinTraits >::ScrollToView(pt);
+	}
+
+	void ScrollToView(RECT& rect)
+	{
+		CScrollWindowImpl< T, TBase, TWinTraits >::ScrollToView(rect);
+	}
+
+	void ScrollToView(HWND hWnd)   // client window coordinates
+	{
+		T* pT = static_cast<T*>(this);
+		pT;   // avoid level 4 warning
+		ATLASSERT(::IsWindow(pT->m_hWnd));
+		ATLASSERT(m_wndClient.IsWindow());
+
+		RECT rect = { 0 };
+		::GetWindowRect(hWnd, &rect);
+		::MapWindowPoints(NULL, m_wndClient.m_hWnd, (LPPOINT)&rect, 2);
+		ScrollToView(rect);
+	}
+
+// Implementation - overrideable methods
+	void UpdateLayout()
+	{
+		ATLASSERT(::IsWindow(m_hWnd));
+
+		if(m_bAutoSizeClient && m_wndClient.m_hWnd != NULL)
+		{
+			T* pT = static_cast<T*>(this);
+			RECT rect = { 0 };
+			pT->GetContainerRect(rect);
+
+			m_wndClient.SetWindowPos(NULL, &rect, SWP_NOZORDER | SWP_NOMOVE);
+		}
+		else
+		{
+			Invalidate();
+		}
+	}
+
+	void GetContainerRect(RECT& rect)
+	{
+		GetClientRect(&rect);
+
+		if(rect.right < m_sizeAll.cx)
+			rect.right = m_sizeAll.cx;
+
+		if(rect.bottom < m_sizeAll.cy)
+			rect.bottom = m_sizeAll.cy;
+	}
+};
+
+class CScrollContainer : public CScrollContainerImpl<CScrollContainer>
+{
+public:
+	DECLARE_WND_CLASS_EX(_T("WTL_ScrollContainer"), 0, -1)
+};
 
 }; //namespace WTL
 
