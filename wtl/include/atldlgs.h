@@ -60,6 +60,13 @@
 // CPropertyPage<t_wDlgTemplateID>
 // CAxPropertyPageImpl<T, TBase>
 // CAxPropertyPage<t_wDlgTemplateID>
+// CWizard97SheetWindow
+// CWizard97SheetImpl<T, TBase>
+// CWizard97Sheet
+// CWizard97PageWindow
+// CWizard97PageImpl<T, TBase>
+// CWizard97ExteriorPageImpl<T, TBase>
+// CWizard97InteriorPageImpl<T, TBase>
 
 
 namespace WTL
@@ -439,11 +446,11 @@ public:
 	static int CALLBACK BrowseCallbackProc(HWND hWnd, UINT uMsg, LPARAM lParam, LPARAM lpData)
 	{
 #ifndef BFFM_VALIDATEFAILED
-  #ifdef UNICODE
+#ifdef UNICODE
 		const int BFFM_VALIDATEFAILED = 4;
-  #else
+#else
 		const int BFFM_VALIDATEFAILED = 3;
-  #endif
+#endif
 #endif //!BFFM_VALIDATEFAILED
 
 #ifndef BFFM_IUNKNOWN
@@ -2219,6 +2226,7 @@ public:
 		}
 	}
 
+// Callback function and overrideables
 	static int CALLBACK PropSheetCallback(HWND hWnd, UINT uMsg, LPARAM /*lParam*/)
 	{
 		if(uMsg == PSCB_INITIALIZED)
@@ -2233,11 +2241,18 @@ public:
 			pT->SubclassWindow(hWnd);
 			// remove page handles array
 			pT->_CleanUpPages();
+
+			pT->OnSheetInitialized();
 		}
 
 		return 0;
 	}
 
+	void OnSheetInitialized()
+	{
+	}
+
+// Create method
 	HWND Create(HWND hWndParent = NULL)
 	{
 		ATLASSERT(m_hWnd == NULL);
@@ -3402,6 +3417,419 @@ public:
 };
 
 #endif //_ATL_NO_HOSTING
+
+
+// Sample wizard dialog resources:
+//
+//IDD_WIZ97_INTERIOR_BLANK DIALOG  0, 0, 317, 143
+//STYLE DS_SETFONT | WS_CHILD | WS_DISABLED | WS_CAPTION
+//CAPTION "Wizard97 Property Page - Interior"
+//FONT 8, "MS Shell Dlg"
+//BEGIN
+//END
+//
+//IDD_WIZ97_EXTERIOR_BLANK DIALOGEX 0, 0, 317, 193
+//STYLE DS_SETFONT | DS_FIXEDSYS | WS_CHILD | WS_DISABLED | WS_CAPTION
+//CAPTION "Wizard97 Property Page - Welcome/Complete"
+//FONT 8, "MS Shell Dlg", 0, 0, 0x0
+//BEGIN
+//    LTEXT           "Welcome to the X Wizard",IDC_WIZ97_EXTERIOR_TITLE,115,8,
+//                    195,24
+//    LTEXT           "Wizard Explanation\r\n(The height of the static text should be in multiples of 8 dlus)",
+//                    IDC_STATIC,115,40,195,16
+//    LTEXT           "h",IDC_WIZ97_BULLET1,118,64,8,8
+//    LTEXT           "List Item 1 (the h is turned into a bullet)",IDC_STATIC,
+//                    127,63,122,8
+//    LTEXT           "h",IDC_WIZ97_BULLET2,118,79,8,8
+//    LTEXT           "List Item 2. Keep 7 dlus between paragraphs",IDC_STATIC,
+//                    127,78,33,8
+//    CONTROL         "&Do not show this Welcome page again",
+//                    IDC_WIZ97_WELCOME_NOTAGAIN,"Button",BS_AUTOCHECKBOX | 
+//                    WS_TABSTOP,115,169,138,10
+//END
+//
+//GUIDELINES DESIGNINFO 
+//BEGIN
+//    IDD_WIZ97_INTERIOR_BLANK, DIALOG
+//    BEGIN
+//        LEFTMARGIN, 7
+//        RIGHTMARGIN, 310
+//        VERTGUIDE, 21
+//        VERTGUIDE, 31
+//        VERTGUIDE, 286
+//        VERTGUIDE, 296
+//        TOPMARGIN, 7
+//        BOTTOMMARGIN, 136
+//        HORZGUIDE, 8
+//    END
+//
+//    IDD_WIZ97_EXTERIOR_BLANK, DIALOG
+//    BEGIN
+//        RIGHTMARGIN, 310
+//        VERTGUIDE, 115
+//        VERTGUIDE, 118
+//        VERTGUIDE, 127
+//        TOPMARGIN, 7
+//        BOTTOMMARGIN, 186
+//        HORZGUIDE, 8
+//        HORZGUIDE, 32
+//        HORZGUIDE, 40
+//        HORZGUIDE, 169
+//    END
+//END
+
+///////////////////////////////////////////////////////////////////////////////
+// CWizard97SheetWindow - client side for a Wizard 97 style wizard sheet
+
+class CWizard97SheetWindow : public CPropertySheetWindow
+{
+// Constructors
+public:
+	CWizard97SheetWindow(HWND hWnd = NULL) : CPropertySheetWindow(hWnd)
+	{ }
+
+	CWizard97SheetWindow& operator =(HWND hWnd)
+	{
+		m_hWnd = hWnd;
+		return *this;
+	}
+
+// Operations
+public:
+	HFONT GetExteriorPageTitleFont(void)
+	{
+		ATLASSERT(::IsWindow(m_hWnd));
+		return (HFONT)::SendMessage(m_hWnd, GetMessage_GetExteriorPageTitleFont(), 0, 0L);
+	}
+
+	HFONT GetBulletFont(void)
+	{
+		ATLASSERT(::IsWindow(m_hWnd));
+		return (HFONT)::SendMessage(m_hWnd, GetMessage_GetBulletFont(), 0, 0L);
+	}
+
+// Helpers
+public:
+	static UINT GetMessage_GetExteriorPageTitleFont()
+	{
+		static UINT uGetExteriorPageTitleFont = 0;
+		if(uGetExteriorPageTitleFont == 0)
+		{
+			CStaticDataInitCriticalSectionLock lock;
+			if(FAILED(lock.Lock()))
+			{
+				ATLTRACE2(atlTraceUI, 0, _T("ERROR : Unable to lock critical section in CWizard97SheetWindow::GetMessage_GetExteriorPageTitleFont().\n"));
+				ATLASSERT(FALSE);
+				return 0;
+			}
+
+			if(uGetExteriorPageTitleFont == 0)
+				uGetExteriorPageTitleFont = ::RegisterWindowMessage(_T("GetExteriorPageTitleFont_531AF056-B8BE-4c4c-B786-AC608DF0DF12"));
+
+			lock.Unlock();
+		}
+		ATLASSERT(uGetExteriorPageTitleFont != 0);
+		return uGetExteriorPageTitleFont;
+	}
+
+	static UINT GetMessage_GetBulletFont()
+	{
+		static UINT uGetBulletFont = 0;
+		if(uGetBulletFont == 0)
+		{
+			CStaticDataInitCriticalSectionLock lock;
+			if(FAILED(lock.Lock()))
+			{
+				ATLTRACE2(atlTraceUI, 0, _T("ERROR : Unable to lock critical section in CWizard97SheetWindow::GetMessage_GetBulletFont().\n"));
+				ATLASSERT(FALSE);
+				return 0;
+			}
+
+			if(uGetBulletFont == 0)
+				uGetBulletFont = ::RegisterWindowMessage(_T("GetBulletFont_AD347D08-8F65-45ef-982E-6352E8218AD5"));
+
+			lock.Unlock();
+		}
+		ATLASSERT(uGetBulletFont != 0);
+		return uGetBulletFont;
+	}
+
+// Implementation - override to prevent usage
+public:
+	HWND Create(LPCTSTR, HWND, _U_RECT = NULL, LPCTSTR = NULL, DWORD = 0, DWORD = 0, _U_MENUorID = 0U, LPVOID = NULL)
+	{
+		ATLASSERT(FALSE);
+		return NULL;
+	}
+};
+
+///////////////////////////////////////////////////////////////////////////////
+// CWizard97SheetImpl - implements a Wizard 97 style wizard sheet
+
+template <class T, class TBase = CWizard97SheetWindow >
+class ATL_NO_VTABLE CWizard97SheetImpl :
+	public CPropertySheetImpl< T, TBase >
+{
+// Typedefs
+protected:
+	typedef CWizard97SheetImpl< T, TBase > thisClass;
+	typedef CPropertySheetImpl< T, TBase > baseClass;
+
+// Member variables
+protected:
+	CFont m_fontExteriorPageTitle;			// Welcome and Completion page title font
+	CFont m_fontBullet;						// Bullet font (used on static text 'h' to produce a small bullet)
+	bool m_bReceivedFirstSizeMessage;
+
+public:
+	CWizard97SheetImpl(_U_STRINGorID title, _U_STRINGorID headerBitmap, _U_STRINGorID watermarkBitmap, UINT uStartPage = 0, HWND hWndParent = NULL) :
+		baseClass(title, uStartPage, hWndParent),
+		m_bReceivedFirstSizeMessage(false)
+	{
+		m_psh.dwFlags &= ~(PSH_NOCONTEXTHELP);
+		m_psh.dwFlags &= ~(PSH_WIZARD | PSH_WIZARD_LITE);
+		m_psh.dwFlags |= (PSH_HASHELP | PSH_WIZARDCONTEXTHELP);
+		m_psh.dwFlags |= PSH_WIZARD97;
+
+		baseClass::SetHeader(headerBitmap.m_lpstr);
+		baseClass::SetWatermark(watermarkBitmap.m_lpstr);
+	}
+
+// Overrides from base class
+public:
+	void OnSheetInitialized()
+	{
+		T* pT = static_cast<T*>(this);
+		pT->_InitializeFonts();
+
+		// We'd like to center the wizard here, but its too early.
+		// Instead, we'll do CenterWindow upon our first WM_SIZE message
+	}
+
+// Initialization
+public:
+	void _InitializeFonts()
+	{
+		// Setup the Title and Bullet Font
+		// (Property pages can send the "get external page title font" and "get bullet font" messages)
+		//The derived class needs to do the actual SetFont for the dialog items)
+
+		CFontHandle fontThisDialog = this->GetFont();
+		CClientDC dcScreen(NULL);
+
+		LOGFONT titleLogFont = {0};
+		LOGFONT bulletLogFont = {0};
+		fontThisDialog.GetLogFont(&titleLogFont);
+		fontThisDialog.GetLogFont(&bulletLogFont);
+
+		// The Wizard 97 Spec recommends to do the Title Font
+		// as Verdana Bold, 12pt.
+		titleLogFont.lfCharSet = DEFAULT_CHARSET;
+		titleLogFont.lfWeight = FW_BOLD;
+		lstrcpy(titleLogFont.lfFaceName, _T("Verdana Bold"));
+		INT titleFontPointSize = 12;
+		titleLogFont.lfHeight = -::MulDiv(titleFontPointSize, dcScreen.GetDeviceCaps(LOGPIXELSY), 72);
+		m_fontExteriorPageTitle.CreateFontIndirect(&titleLogFont);
+
+		// The Wizard 97 Spec recommends to do Bullets by having
+		// static text of "h" in the Marlett font.
+		bulletLogFont.lfCharSet = DEFAULT_CHARSET;
+		bulletLogFont.lfWeight = FW_NORMAL;
+		lstrcpy(bulletLogFont.lfFaceName, _T("Marlett"));
+		INT bulletFontSize = 8;
+		bulletLogFont.lfHeight = -::MulDiv(bulletFontSize, dcScreen.GetDeviceCaps(LOGPIXELSY), 72);
+		m_fontBullet.CreateFontIndirect(&bulletLogFont);
+	}
+
+// Message Handling
+public:
+	BEGIN_MSG_MAP(thisClass)
+		MESSAGE_HANDLER(CWizard97SheetWindow::GetMessage_GetExteriorPageTitleFont(), OnGetExteriorPageTitleFont)
+		MESSAGE_HANDLER(CWizard97SheetWindow::GetMessage_GetBulletFont(), OnGetBulletFont)
+		MESSAGE_HANDLER(WM_SIZE, OnSize)
+		CHAIN_MSG_MAP(baseClass)
+	END_MSG_MAP()
+
+	LRESULT OnGetExteriorPageTitleFont(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+	{
+		return (LRESULT)(HFONT)m_fontExteriorPageTitle;
+	}
+
+	LRESULT OnGetBulletFont(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+	{
+		return (LRESULT)(HFONT)m_fontBullet;
+	}
+
+	LRESULT OnSize(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
+	{
+		if(!m_bReceivedFirstSizeMessage)
+		{
+			m_bReceivedFirstSizeMessage = true;
+			this->CenterWindow();
+		}
+
+		bHandled = FALSE;
+		return 0;
+	}
+};
+
+// for non-customized sheets
+class CWizard97Sheet : public CWizard97SheetImpl<CWizard97Sheet>
+{
+// Typedefs
+protected:
+	typedef CWizard97Sheet thisClass;
+	typedef CWizard97SheetImpl<CWizard97Sheet> baseClass;
+
+public:
+	CWizard97Sheet(_U_STRINGorID title, _U_STRINGorID headerBitmap, _U_STRINGorID watermarkBitmap, UINT uStartPage = 0, HWND hWndParent = NULL) :
+		baseClass(title, headerBitmap, watermarkBitmap, uStartPage, hWndParent)
+	{ }
+
+	BEGIN_MSG_MAP(thisClass)
+		CHAIN_MSG_MAP(baseClass)
+	END_MSG_MAP()
+};
+
+///////////////////////////////////////////////////////////////////////////////
+// CWizard97PageWindow - client side for a Wizard 97 style wizard page
+
+#define WIZARD97_EXTERIOR_CXDLG 317
+#define WIZARD97_EXTERIOR_CYDLG 193
+
+#define WIZARD97_INTERIOR_CXDLG 317
+#define WIZARD97_INTERIOR_CYDLG 143
+
+class CWizard97PageWindow : public CPropertyPageWindow
+{
+// Constructors
+public:
+	CWizard97PageWindow(HWND hWnd = NULL) : CPropertyPageWindow(hWnd)
+	{ }
+
+	CWizard97PageWindow& operator =(HWND hWnd)
+	{
+		m_hWnd = hWnd;
+		return *this;
+	}
+
+// Attributes
+public:
+	CWizard97SheetWindow GetPropertySheet() const
+	{
+		ATLASSERT(::IsWindow(m_hWnd));
+		return CWizard97SheetWindow(GetParent());
+	}
+
+// Operations
+public:
+	HFONT GetExteriorPageTitleFont(void)
+	{
+		ATLASSERT(::IsWindow(m_hWnd));
+		return GetPropertySheet().GetExteriorPageTitleFont();
+	}
+
+	HFONT GetBulletFont(void)
+	{
+		ATLASSERT(::IsWindow(m_hWnd));
+		return GetPropertySheet().GetBulletFont();
+	}
+
+// Implementation - overrides to prevent usage
+public:
+	HWND Create(LPCTSTR, HWND, _U_RECT = NULL, LPCTSTR = NULL, DWORD = 0, DWORD = 0, _U_MENUorID = 0U, LPVOID = NULL)
+	{
+		ATLASSERT(FALSE);
+		return NULL;
+	}
+
+};
+
+///////////////////////////////////////////////////////////////////////////////
+// CWizard97PageImpl - implements a Wizard 97 style wizard page
+
+template <class T, class TBase = CWizard97PageWindow>
+class ATL_NO_VTABLE CWizard97PageImpl : public CPropertyPageImpl< T, TBase >
+{
+// Typedefs
+protected:
+	typedef CWizard97PageImpl< T, TBase > thisClass;
+	typedef CPropertyPageImpl< T, TBase > baseClass;
+
+public:
+	CWizard97PageImpl(_U_STRINGorID title = (LPCTSTR)NULL) :
+		baseClass(title)
+	{ }
+
+// Message Handling
+public:
+	BEGIN_MSG_MAP(thisClass)
+		CHAIN_MSG_MAP(baseClass)
+	END_MSG_MAP()
+};
+
+///////////////////////////////////////////////////////////////////////////////
+// CWizard97ExteriorPageImpl - implements a Wizard 97 style exterior wizard page
+
+template <class T, class TBase = CWizard97PageWindow>
+class ATL_NO_VTABLE CWizard97ExteriorPageImpl : public CPropertyPageImpl< T, TBase >
+{
+// Typedefs
+protected:
+	typedef CWizard97ExteriorPageImpl< T, TBase > thisClass;
+	typedef CPropertyPageImpl< T, TBase > baseClass;
+
+// Constructors
+public:
+	CWizard97ExteriorPageImpl(_U_STRINGorID title = (LPCTSTR)NULL) :
+		baseClass(title)
+	{
+		m_psp.dwFlags |= PSP_HASHELP;
+		m_psp.dwFlags |= PSP_HIDEHEADER;
+	}
+
+// Message Handling
+public:
+	BEGIN_MSG_MAP(thisClass)
+		CHAIN_MSG_MAP(baseClass)
+	END_MSG_MAP()
+};
+
+///////////////////////////////////////////////////////////////////////////////
+// CWizard97InteriorPageImpl - implements a Wizard 97 style interior wizard page
+
+template <class T, class TBase = CWizard97PageWindow>
+class ATL_NO_VTABLE CWizard97InteriorPageImpl : public CPropertyPageImpl< T, TBase >
+{
+// Typedefs
+protected:
+	typedef CWizard97InteriorPageImpl< T, TBase > thisClass;
+	typedef CPropertyPageImpl< T, TBase > baseClass;
+
+// Constructors
+public:
+	CWizard97InteriorPageImpl(_U_STRINGorID title = (LPCTSTR)NULL) :
+		baseClass(title)
+	{
+		m_psp.dwFlags |= PSP_HASHELP;
+		m_psp.dwFlags &= ~PSP_HIDEHEADER;
+		m_psp.dwFlags |= PSP_USEHEADERTITLE | PSP_USEHEADERSUBTITLE;
+
+		// Be sure to have the derived class define this in the constructor.
+		// We'll default it to something obvious in case its forgotten.
+		baseClass::SetHeaderTitle(_T("Call SetHeaderTitle in Derived Class"));
+		baseClass::SetHeaderSubTitle(
+			_T("Call SetHeaderSubTitle in the")
+			_T(" constructor of the Derived Class."));
+	}
+
+// Message Handling
+public:
+	BEGIN_MSG_MAP(thisClass)
+		CHAIN_MSG_MAP(baseClass)
+	END_MSG_MAP()
+};
+
 
 }; //namespace WTL
 
