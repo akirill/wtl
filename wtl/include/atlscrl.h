@@ -408,7 +408,7 @@ public:
 		int zTotal = (m_nWheelLines == WHEEL_PAGESCROLL) ? abs(m_zDelta) : abs(m_zDelta) * m_nWheelLines;
 		if((pT->GetStyle() & WS_VSCROLL) != 0)
 		{
-			for(short i = 0; i < zTotal; i += WHEEL_DELTA)
+			for(int i = 0; i < zTotal; i += WHEEL_DELTA)
 			{
 				pT->DoScroll(SB_VERT, nScrollCode, (int&)m_ptOffset.y, m_sizeAll.cy, m_sizePage.cy, m_sizeLine.cy);
 				pT->UpdateWindow();
@@ -416,7 +416,7 @@ public:
 		}
 		else		// can't scroll vertically, scroll horizontally
 		{
-			for(short i = 0; i < zTotal; i += WHEEL_DELTA)
+			for(int i = 0; i < zTotal; i += WHEEL_DELTA)
 			{
 				pT->DoScroll(SB_HORZ, nScrollCode, (int&)m_ptOffset.x, m_sizeAll.cx, m_sizePage.cx, m_sizeLine.cx);
 				pT->UpdateWindow();
