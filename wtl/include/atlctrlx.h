@@ -1421,7 +1421,7 @@ public:
 	static COLORREF _ParseColorString(LPTSTR lpstr)
 	{
 		int c[3] = { -1, -1, -1 };
-		LPTSTR p;
+		LPTSTR p = NULL;
 		for(int i = 0; i < 2; i++)
 		{
 			for(p = lpstr; *p != _T('\0'); p = ::CharNext(p))
@@ -1429,7 +1429,7 @@ public:
 				if(*p == _T(','))
 				{
 					*p = _T('\0');
-					c[i] = _ttoi(lpstr);
+					c[i] = T::_xttoi(lpstr);
 					lpstr = &p[1];
 					break;
 				}
@@ -1439,7 +1439,7 @@ public:
 		}
 		if(*lpstr == _T('\0'))
 			return CLR_INVALID;
-		c[2] = _ttoi(lpstr);
+		c[2] = T::_xttoi(lpstr);
 
 		return RGB(c[0], c[1], c[2]);
 	}
@@ -1704,6 +1704,31 @@ public:
 	bool IsUsingToolTip() const
 	{
 		return ((m_dwExtendedStyle & HLINK_NOTOOLTIP) == 0);
+	}
+
+	static int _xttoi(const TCHAR* nptr)
+	{
+#ifndef _ATL_MIN_CRT
+		return _ttoi(nptr);
+#else //_ATL_MIN_CRT
+		while(*nptr == _T(' '))   // skip spaces
+			++nptr;
+
+		int c = (int)(_TUCHAR)*nptr++;
+		int sign = c;   // save sign indication
+		if (c == _T('-') || c == _T('+'))
+			c = (int)(_TUCHAR)*nptr++;   // skip sign
+
+		int total = 0;
+		while((TCHAR)c >= _T('0') && (TCHAR)c <= _T('9'))
+		{
+			total = 10 * total + ((TCHAR)c - _T('0'));   // accumulate digit
+			c = (int)(_TUCHAR)*nptr++;        // get next char
+		}
+
+		// return result, negated if necessary
+		return ((TCHAR)sign != _T('-')) ? total : -total;
+#endif //_ATL_MIN_CRT
 	}
 };
 
