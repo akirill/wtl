@@ -8,19 +8,19 @@
 #endif
 
 #ifndef __ATLAPP_H__
-	#error BrowseForFolderWithDefault.h requires atlapp.h to be included first
+	#error FolderDialogStatusText.h requires atlapp.h to be included first
 #endif
 
 #ifndef __ATLWIN_H__
-	#error BrowseForFolderWithDefault.h requires atlwin.h to be included first
+	#error FolderDialogStatusText.h requires atlwin.h to be included first
 #endif
 
 #ifndef __ATLWIN_H__
-	#error BrowseForFolderWithDefault.h requires atlwin.h to be included first
+	#error FolderDialogStatusText.h requires atlwin.h to be included first
 #endif
 
 #ifndef __ATLDLGS_H__
-	#error BrowseForFolderWithDefault.h requires atldlgs.h to be included first
+	#error FolderDialogStatusText.h requires atldlgs.h to be included first
 #endif
 
 class CFolderDialogStatusText :
