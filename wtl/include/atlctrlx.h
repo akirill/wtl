@@ -665,7 +665,10 @@ public:
 		LVHITTESTINFO lvh = { 0 };
 		lvh.pt = ptMsg;
 		if(HitTest(&lvh) != -1 && lvh.flags == LVHT_ONITEMSTATEICON && ::GetKeyState(VK_CONTROL) >= 0)
-			CheckSelectedItems(lvh.iItem);
+		{
+			T* pT = static_cast<T*>(this);
+			pT->CheckSelectedItems(lvh.iItem);
+		}
 		bHandled = FALSE;
 		return 1;
 	}
@@ -676,7 +679,10 @@ public:
 		{
 			int nCurrItem = GetNextItem(-1, LVNI_FOCUSED);
 			if(nCurrItem != -1  && ::GetKeyState(VK_CONTROL) >= 0)
-				CheckSelectedItems(nCurrItem);
+			{
+				T* pT = static_cast<T*>(this);
+				pT->CheckSelectedItems(nCurrItem);
+			}
 		}
 		bHandled = FALSE;
 		return 1;
