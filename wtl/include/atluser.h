@@ -614,7 +614,7 @@ public:
 	bool IsNull() const { return m_hAccel == NULL; }
 
 // Create/destroy methods
-	HACCEL LoadAccelerators(_U_STRINGorID accel)
+	HACCEL LoadAccelerators(ATL::_U_STRINGorID accel)
 	{
 		ATLASSERT(m_hAccel == NULL);
 #if (_ATL_VER >= 0x0700)
@@ -709,7 +709,7 @@ public:
 	bool IsNull() const { return m_hIcon == NULL; }
 
 // Create/destroy methods
-	HICON LoadIcon(_U_STRINGorID icon)
+	HICON LoadIcon(ATL::_U_STRINGorID icon)
 	{
 		ATLASSERT(m_hIcon == NULL);
 #if (_ATL_VER >= 0x0700)
@@ -720,7 +720,7 @@ public:
 		return m_hIcon;
 	}
 
-	HICON LoadIcon(_U_STRINGorID icon, int cxDesired, int cyDesired, UINT fuLoad = 0)
+	HICON LoadIcon(ATL::_U_STRINGorID icon, int cxDesired, int cyDesired, UINT fuLoad = 0)
 	{
 		ATLASSERT(m_hIcon == NULL);
 #if (_ATL_VER >= 0x0700)
@@ -920,7 +920,7 @@ public:
 	bool IsNull() const { return m_hCursor == NULL; }
 
 // Create/destroy methods
-	HCURSOR LoadCursor(_U_STRINGorID cursor)
+	HCURSOR LoadCursor(ATL::_U_STRINGorID cursor)
 	{
 		ATLASSERT(m_hCursor == NULL);
 #if (_ATL_VER >= 0x0700)
@@ -938,7 +938,7 @@ public:
 		return m_hCursor;
 	}
 
-	HCURSOR LoadCursor(_U_STRINGorID cursor, int cxDesired, int cyDesired, UINT fuLoad = 0)
+	HCURSOR LoadCursor(ATL::_U_STRINGorID cursor, int cxDesired, int cyDesired, UINT fuLoad = 0)
 	{
 		ATLASSERT(m_hCursor == NULL);
 #if (_ATL_VER >= 0x0700)
@@ -1049,7 +1049,7 @@ public:
 	}
 
 // Load methods
-	bool Load(_U_STRINGorID Type, _U_STRINGorID ID)
+	bool Load(ATL::_U_STRINGorID Type, ATL::_U_STRINGorID ID)
 	{
 		ATLASSERT(m_hResource == NULL);
 		ATLASSERT(m_hGlobal == NULL);
@@ -1077,7 +1077,7 @@ public:
 	}
 
 #ifndef _WIN32_WCE
-	bool LoadEx(_U_STRINGorID Type, _U_STRINGorID ID, WORD wLanguage)
+	bool LoadEx(ATL::_U_STRINGorID Type, ATL::_U_STRINGorID ID, WORD wLanguage)
 	{
 		ATLASSERT(m_hResource == NULL);
 		ATLASSERT(m_hGlobal == NULL);
