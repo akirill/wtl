@@ -128,19 +128,25 @@ public:
 		m_ptOffset.x = x;
 		m_ptOffset.y = y;
 
-		SCROLLINFO si = { sizeof(SCROLLINFO) };
+		// block: set horizontal scroll bar
+		{
+			SCROLLINFO si = { sizeof(SCROLLINFO) };
+			si.fMask = SIF_POS;
+			if((m_dwExtendedStyle & SCRL_DISABLENOSCROLLH) != 0)
+				si.fMask |= SIF_DISABLENOSCROLL;
+			si.nPos = m_ptOffset.x;
+			pT->SetScrollInfo(SB_HORZ, &si, bRedraw);
+		}
 
-		si.fMask = SIF_POS;
-		if((m_dwExtendedStyle & SCRL_DISABLENOSCROLLH) != 0)
-			si.fMask |= SIF_DISABLENOSCROLL;
-		si.nPos = m_ptOffset.x;
-		pT->SetScrollInfo(SB_HORZ, &si, bRedraw);
-
-		si.fMask = SIF_POS;
-		if((m_dwExtendedStyle & SCRL_DISABLENOSCROLLV) != 0)
-			si.fMask |= SIF_DISABLENOSCROLL;
-		si.nPos = m_ptOffset.y;
-		pT->SetScrollInfo(SB_VERT, &si, bRedraw);
+		// block: set vertical scroll bar
+		{
+			SCROLLINFO si = { sizeof(SCROLLINFO) };
+			si.fMask = SIF_POS;
+			if((m_dwExtendedStyle & SCRL_DISABLENOSCROLLV) != 0)
+				si.fMask |= SIF_DISABLENOSCROLL;
+			si.nPos = m_ptOffset.y;
+			pT->SetScrollInfo(SB_VERT, &si, bRedraw);
+		}
 
 		if(bRedraw)
 			pT->Invalidate();
@@ -162,40 +168,37 @@ public:
 		T* pT = static_cast<T*>(this);
 		ATLASSERT(::IsWindow(pT->m_hWnd));
 
-		// reset current range to prevent scroll bar problems
-		SCROLLINFO si = { sizeof(SCROLLINFO) };
-		si.fMask = SIF_RANGE;
-		if((m_dwExtendedStyle & SCRL_DISABLENOSCROLLH) != 0)
-			si.fMask |= SIF_DISABLENOSCROLL;
-		pT->SetScrollInfo(SB_HORZ, &si, FALSE);
-		si.fMask = SIF_RANGE;
-		if((m_dwExtendedStyle & SCRL_DISABLENOSCROLLV) != 0)
-			si.fMask |= SIF_DISABLENOSCROLL;
-		pT->SetScrollInfo(SB_VERT, &si, FALSE);
-
 		m_sizeAll.cx = cx;
 		m_sizeAll.cy = cy;
 
 		m_ptOffset.x = 0;
 		m_ptOffset.y = 0;
 
-		si.nMin = 0;
+		// block: set horizontal scroll bar
+		{
+			SCROLLINFO si = { sizeof(SCROLLINFO) };
+			si.fMask = SIF_PAGE | SIF_RANGE | SIF_POS;
+			if((m_dwExtendedStyle & SCRL_DISABLENOSCROLLH) != 0)
+				si.fMask |= SIF_DISABLENOSCROLL;
+			si.nMin = 0;
+			si.nMax = m_sizeAll.cx - 1;
+			si.nPage = m_sizeClient.cx;
+			si.nPos = m_ptOffset.x;
+			pT->SetScrollInfo(SB_HORZ, &si, bRedraw);
+		}
 
-		si.fMask = SIF_PAGE | SIF_RANGE | SIF_POS;
-		if((m_dwExtendedStyle & SCRL_DISABLENOSCROLLH) != 0)
-			si.fMask |= SIF_DISABLENOSCROLL;
-		si.nMax = m_sizeAll.cx - 1;
-		si.nPage = m_sizeClient.cx;
-		si.nPos = m_ptOffset.x;
-		pT->SetScrollInfo(SB_HORZ, &si, bRedraw);
-
-		si.fMask = SIF_PAGE | SIF_RANGE | SIF_POS;
-		if((m_dwExtendedStyle & SCRL_DISABLENOSCROLLV) != 0)
-			si.fMask |= SIF_DISABLENOSCROLL;
-		si.nMax = m_sizeAll.cy - 1;
-		si.nPage = m_sizeClient.cy;
-		si.nPos = m_ptOffset.y;
-		pT->SetScrollInfo(SB_VERT, &si, bRedraw);
+		// block: set vertical scroll bar
+		{
+			SCROLLINFO si = { sizeof(SCROLLINFO) };
+			si.fMask = SIF_PAGE | SIF_RANGE | SIF_POS;
+			if((m_dwExtendedStyle & SCRL_DISABLENOSCROLLV) != 0)
+				si.fMask |= SIF_DISABLENOSCROLL;
+			si.nMin = 0;
+			si.nMax = m_sizeAll.cy - 1;
+			si.nPage = m_sizeClient.cy;
+			si.nPos = m_ptOffset.y;
+			pT->SetScrollInfo(SB_VERT, &si, bRedraw);
+		}
 
 		SetScrollLine(0, 0);
 		SetScrollPage(0, 0);
@@ -339,7 +342,7 @@ public:
 		pT->DoScroll(SB_HORZ, SB_BOTTOM, (int&)m_ptOffset.x, m_sizeAll.cx, m_sizePage.cx, m_sizeLine.cx);
 	}
 
-	BEGIN_MSG_MAP(CScrollImpl< T >)
+	BEGIN_MSG_MAP(CScrollImpl)
 		MESSAGE_HANDLER(WM_CREATE, OnCreate)
 		MESSAGE_HANDLER(WM_VSCROLL, OnVScroll)
 		MESSAGE_HANDLER(WM_HSCROLL, OnHScroll)
@@ -442,21 +445,31 @@ public:
 		m_sizeClient.cx = GET_X_LPARAM(lParam);
 		m_sizeClient.cy = GET_Y_LPARAM(lParam);
 
-		SCROLLINFO si = { sizeof(SCROLLINFO) };
+		// block: set horizontal scroll bar
+		{
+			SCROLLINFO si = { sizeof(SCROLLINFO) };
+			si.fMask = SIF_PAGE | SIF_RANGE | SIF_POS;
+			si.nMin = 0;
+			si.nMax = m_sizeAll.cx - 1;
+			if((m_dwExtendedStyle & SCRL_DISABLENOSCROLLH) != 0)
+				si.fMask |= SIF_DISABLENOSCROLL;
+			si.nPage = m_sizeClient.cx;
+			si.nPos = m_ptOffset.x;
+			pT->SetScrollInfo(SB_HORZ, &si, TRUE);
+		}
 
-		si.fMask = SIF_PAGE | SIF_POS;
-		if((m_dwExtendedStyle & SCRL_DISABLENOSCROLLH) != 0)
-			si.fMask |= SIF_DISABLENOSCROLL;
-		si.nPage = m_sizeClient.cx;
-		si.nPos = m_ptOffset.x;
-		pT->SetScrollInfo(SB_HORZ, &si, FALSE);
-
-		si.fMask = SIF_PAGE | SIF_POS;
-		if((m_dwExtendedStyle & SCRL_DISABLENOSCROLLV) != 0)
-			si.fMask |= SIF_DISABLENOSCROLL;
-		si.nPage = m_sizeClient.cy;
-		si.nPos = m_ptOffset.y;
-		pT->SetScrollInfo(SB_VERT, &si, FALSE);
+		// block: set vertical scroll bar
+		{
+			SCROLLINFO si = { sizeof(SCROLLINFO) };
+			si.fMask = SIF_PAGE | SIF_RANGE | SIF_POS;
+			si.nMin = 0;
+			si.nMax = m_sizeAll.cy - 1;
+			if((m_dwExtendedStyle & SCRL_DISABLENOSCROLLV) != 0)
+				si.fMask |= SIF_DISABLENOSCROLL;
+			si.nPage = m_sizeClient.cy;
+			si.nPos = m_ptOffset.y;
+			pT->SetScrollInfo(SB_VERT, &si, TRUE);
+		}
 
 		bool bUpdate = false;
 		int cxMax = m_sizeAll.cx - m_sizeClient.cx;
@@ -753,7 +766,7 @@ template <class T, class TBase = ATL::CWindow, class TWinTraits = ATL::CControlW
 class ATL_NO_VTABLE CScrollWindowImpl : public ATL::CWindowImpl<T, TBase, TWinTraits>, public CScrollImpl< T >
 {
 public:
-	BEGIN_MSG_MAP(CScrollImpl< T >)
+	BEGIN_MSG_MAP(CScrollWindowImpl)
 		MESSAGE_HANDLER(WM_VSCROLL, CScrollImpl< T >::OnVScroll)
 		MESSAGE_HANDLER(WM_HSCROLL, CScrollImpl< T >::OnHScroll)
 		MESSAGE_HANDLER(WM_MOUSEWHEEL, CScrollImpl< T >::OnMouseWheel)
@@ -953,7 +966,7 @@ public:
 		sizePage = m_sizeLogPage;
 	}
 
-	BEGIN_MSG_MAP(CMapScrollImpl< T >)
+	BEGIN_MSG_MAP(CMapScrollImpl)
 		MESSAGE_HANDLER(WM_VSCROLL, CScrollImpl< T >::OnVScroll)
 		MESSAGE_HANDLER(WM_HSCROLL, CScrollImpl< T >::OnHScroll)
 		MESSAGE_HANDLER(WM_MOUSEWHEEL, CScrollImpl< T >::OnMouseWheel)
@@ -1021,7 +1034,7 @@ template <class T, class TBase = ATL::CWindow, class TWinTraits = ATL::CControlW
 class ATL_NO_VTABLE CMapScrollWindowImpl : public ATL::CWindowImpl< T, TBase, TWinTraits >, public CMapScrollImpl< T >
 {
 public:
-	BEGIN_MSG_MAP(CMapScrollWindowImpl< T >)
+	BEGIN_MSG_MAP(CMapScrollWindowImpl)
 		MESSAGE_HANDLER(WM_VSCROLL, CScrollImpl< T >::OnVScroll)
 		MESSAGE_HANDLER(WM_HSCROLL, CScrollImpl< T >::OnHScroll)
 		MESSAGE_HANDLER(WM_MOUSEWHEEL, CScrollImpl< T >::OnMouseWheel)
