@@ -375,12 +375,14 @@ class ATL_NO_VTABLE CFolderDialogImpl
 {
 public:
 	BROWSEINFO m_bi;
+	LPCTSTR m_lpstrInitialFolder;
 	TCHAR m_szFolderDisplayName[MAX_PATH];
 	TCHAR m_szFolderPath[MAX_PATH];
 	HWND m_hWnd;   // used only in the callback function
 
 // Constructor
-	CFolderDialogImpl(HWND hWndParent = NULL, LPCTSTR lpstrTitle = NULL, UINT uFlags = BIF_RETURNONLYFSDIRS)
+	CFolderDialogImpl(HWND hWndParent = NULL, LPCTSTR lpstrTitle = NULL, UINT uFlags = BIF_RETURNONLYFSDIRS) : 
+			m_lpstrInitialFolder(NULL), m_hWnd(NULL)
 	{
 		memset(&m_bi, 0, sizeof(m_bi)); // initialize structure to 0/NULL
 
@@ -394,8 +396,6 @@ public:
 
 		m_szFolderPath[0] = 0;
 		m_szFolderDisplayName[0] = 0;
-
-		m_hWnd = NULL;
 	}
 
 // Operations
@@ -427,6 +427,11 @@ public:
 		return nRet;
 	}
 
+	void SetInitialFolder(LPCTSTR lpstrInitialFolder)
+	{
+		m_lpstrInitialFolder = lpstrInitialFolder;
+	}
+
 	// filled after a call to DoModal
 	LPCTSTR GetFolderPath() const
 	{
@@ -447,16 +452,18 @@ public:
 	static int CALLBACK BrowseCallbackProc(HWND hWnd, UINT uMsg, LPARAM lParam, LPARAM lpData)
 	{
 #ifndef BFFM_VALIDATEFAILED
-#ifdef UNICODE
+  #ifdef UNICODE
 		const int BFFM_VALIDATEFAILED = 4;
-#else
+  #else
 		const int BFFM_VALIDATEFAILED = 3;
-#endif
+  #endif
 #endif //!BFFM_VALIDATEFAILED
-
 #ifndef BFFM_IUNKNOWN
 		const int BFFM_IUNKNOWN = 5;
 #endif //!BFFM_IUNKNOWN
+#ifndef BIF_NEWDIALOGSTYLE
+		const UINT BIF_NEWDIALOGSTYLE = 0x0040;
+#endif //!BIF_NEWDIALOGSTYLE
 
 		int nRet = 0;
 		T* pT = (T*)lpData;
@@ -474,6 +481,13 @@ public:
 		switch(uMsg)
 		{
 		case BFFM_INITIALIZED:
+			if(pT->m_lpstrInitialFolder != NULL)
+			{
+				if((pT->m_bi.ulFlags & BIF_NEWDIALOGSTYLE) != 0)
+					pT->SetExpanded(pT->m_lpstrInitialFolder);
+				else
+					pT->SetSelection(pT->m_lpstrInitialFolder);
+			}
 			pT->OnInitialized();
 			break;
 		case BFFM_SELCHANGED:
@@ -536,6 +550,37 @@ public:
 		ATLASSERT(m_hWnd != NULL);
 		::SendMessage(m_hWnd, BFFM_SETSTATUSTEXT, 0, (LPARAM)lpstrText);
 	}
+
+	void SetOKText(LPCTSTR lpstrOKText)
+	{
+#ifndef BFFM_SETOKTEXT
+		const UINT BFFM_SETOKTEXT = WM_USER + 105;
+#endif
+		ATLASSERT(m_hWnd != NULL);
+		USES_CONVERSION;
+		LPCWSTR lpstr = T2CW(lpstrOKText);
+		::SendMessage(m_hWnd, BFFM_SETOKTEXT, (WPARAM)lpstr, 0L);
+	}
+
+	void SetExpanded(LPITEMIDLIST pItemIDList)
+	{
+#ifndef BFFM_SETEXPANDED
+		const UINT BFFM_SETEXPANDED = WM_USER + 106;
+#endif
+		ATLASSERT(m_hWnd != NULL);
+		::SendMessage(m_hWnd, BFFM_SETEXPANDED, FALSE, (LPARAM)pItemIDList);
+	}
+
+	void SetExpanded(LPCTSTR lpstrFolderPath)
+	{
+#ifndef BFFM_SETEXPANDED
+		const UINT BFFM_SETEXPANDED = WM_USER + 106;
+#endif
+		ATLASSERT(m_hWnd != NULL);
+		USES_CONVERSION;
+		LPCWSTR lpstr = T2CW(lpstrFolderPath);
+		::SendMessage(m_hWnd, BFFM_SETEXPANDED, TRUE, (LPARAM)lpstr);
+	}
 };
 
 class CFolderDialog : public CFolderDialogImpl<CFolderDialog>
@@ -543,9 +588,7 @@ class CFolderDialog : public CFolderDialogImpl<CFolderDialog>
 public:
 	CFolderDialog(HWND hWndParent = NULL, LPCTSTR lpstrTitle = NULL, UINT uFlags = BIF_RETURNONLYFSDIRS)
 		: CFolderDialogImpl<CFolderDialog>(hWndParent, lpstrTitle, uFlags)
-	{
-		m_bi.lpfn = NULL;
-	}
+	{ }
 };
 
 #endif //!_WIN32_WCE
