@@ -91,6 +91,8 @@ private:
 
 	bool m_bFirstIdle;
 
+	// Buffer for OnLVGetDispInfo
+	TCHAR m_szListViewBuffer[MAX_PATH];
 public:
 	DECLARE_FRAME_WND_CLASS(NULL, IDR_MAINFRAME)
 

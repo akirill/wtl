@@ -466,11 +466,10 @@ LRESULT CMainFrame::OnLVGetDispInfo(int, LPNMHDR pnmh, BOOL&)
 		if(FAILED(hr))
 			return hr;
 
-		USES_CONVERSION;
 		if(sd.str.uType == STRRET_WSTR)
 		{
-			plvdi->item.pszText = OLE2T(sd.str.pOleStr);
-			::CoTaskMemFree(sd.str.pOleStr);
+			StrRetToBuf(&sd.str, lplvid->lpi.m_pidl, m_szListViewBuffer, MAX_PATH);
+			plvdi->item.pszText=m_szListViewBuffer;
 		}
 		else if(sd.str.uType == STRRET_OFFSET)
 		{
@@ -478,6 +477,7 @@ LRESULT CMainFrame::OnLVGetDispInfo(int, LPNMHDR pnmh, BOOL&)
 		}
 		else if(sd.str.uType == STRRET_CSTR)
 		{
+			USES_CONVERSION;
 			plvdi->item.pszText = A2T(sd.str.cStr);
 		}
 	}
