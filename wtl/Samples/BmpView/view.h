@@ -80,12 +80,14 @@ public:
 			rectBottom.top = y;
 			dc.FillRect(&rectBottom, COLOR_WINDOW);
 		}
+#if !defined(_WIN32_WCE) || (_WIN32_WCE >= 400)
 		if(!m_bmp.IsNull())
 		{
 			dc.MoveTo(m_size.cx, 0);
 			dc.LineTo(m_size.cx, m_size.cy);
 			dc.LineTo(0, m_size.cy);
 		}
+#endif //!defined(_WIN32_WCE) || (_WIN32_WCE >= 400)
 		return 0;
 	}
 
