@@ -757,7 +757,11 @@ public:
 #endif //(_WIN32_IE >= 0x0400)
 #endif // _WIN32_WCE
 
+#ifndef _WIN32_WCE
 	BOOL CreateSimpleStatusBar(LPCTSTR lpstrText, DWORD dwStyle = WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | SBARS_SIZEGRIP, UINT nID = ATL_IDW_STATUS_BAR)
+#else // CE specific
+	BOOL CreateSimpleStatusBar(LPCTSTR lpstrText, DWORD dwStyle = WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS, UINT nID = ATL_IDW_STATUS_BAR)
+#endif //_WIN32_WCE
 	{
 		ATLASSERT(!::IsWindow(m_hWndStatusBar));
 		m_hWndStatusBar = ::CreateStatusWindow(dwStyle, lpstrText, m_hWnd, nID);
@@ -785,10 +789,13 @@ public:
 	BOOL CreateSimpleCECommandBar(LPTSTR pszMenu = NULL, WORD iButton = 0, DWORD dwFlags = 0, int nCmdBarID = 1)
 	{
 		ATLASSERT(m_hWndCECommandBar == NULL);
+		ATLASSERT(m_hWndToolBar == NULL);
 
 		m_hWndCECommandBar = ::CommandBar_Create(_Module.GetModuleInstance(), m_hWnd, nCmdBarID);
 		if(m_hWndCECommandBar == NULL)
 			return FALSE;
+
+		m_hWndToolBar = m_hWndCECommandBar;
 
 		BOOL bRet = TRUE;
 
@@ -816,13 +823,26 @@ public:
 		mbi.hwndMB = NULL;   // This gets set by SHCreateMenuBar
 
 		BOOL bRet = ::SHCreateMenuBar(&mbi);
-		if(bRet)
+		if(bRet != FALSE)
 		{
 			m_hWndCECommandBar = mbi.hwndMB;
-			UpdateLayout();
+			SizeToMenuBar();
 		}
 
 		return bRet;
+	}
+
+	void SizeToMenuBar()   // for menu bar only
+	{
+		ATLASSERT(::IsWindow(m_hWnd));
+		ATLASSERT(::IsWindow(m_hWndCECommandBar));
+
+		RECT rect = { 0 };
+		GetWindowRect(&rect);
+		RECT rectMB = { 0 };
+		::GetWindowRect(m_hWndCECommandBar, &rectMB);
+		int cy = ::IsWindowVisible(m_hWndCECommandBar) ? rectMB.top - rect.top : rectMB.bottom - rect.top;
+		SetWindowPos(NULL, 0, 0, rect.right - rect.left, cy, SWP_NOZORDER | SWP_NOMOVE);
 	}
 #endif //defined(_AYGSHELL_H_) || defined(__AYGSHELL_H__)
 #endif //_WIN32_WCE
@@ -830,22 +850,6 @@ public:
 	void UpdateLayout(BOOL bResizeBars = TRUE)
 	{
 		RECT rect = { 0 };
-
-#if defined(_AYGSHELL_H_) || defined(__AYGSHELL_H__) // PPC MenuBar specific
-		
-		if (m_hWndCECommandBar != NULL)
-		{
-			GetWindowRect(&rect);
-			RECT rectMB;
-			ATLASSERT( ::IsWindow(m_hWndCECommandBar));
-			::GetWindowRect(m_hWndCECommandBar, &rectMB);
-			int bottom = ::GetWindowLong(m_hWndCECommandBar, GWL_STYLE) & WS_VISIBLE ? rectMB.top : rectMB.bottom;
-			if ( bottom != rect.bottom )
-				::MoveWindow( m_hWnd, rect.left, rect.top, 
-					rect.right - rect.left, bottom - rect.top, false);
-		}
-#endif //defined(_AYGSHELL_H_) || defined(__AYGSHELL_H__)
-
 		GetClientRect(&rect);
 
 		// position bars and offset their dimensions
@@ -1266,15 +1270,16 @@ public:
 
 	BOOL CreateSimpleToolBar(UINT nResourceID = 0, DWORD dwStyle = ATL_SIMPLE_TOOLBAR_STYLE, UINT nID = ATL_IDW_TOOLBAR)
 	{
-		ATLASSERT(!::IsWindow(m_hWndToolBar));
 		if(nResourceID == 0)
 			nResourceID = T::GetWndClassInfo().m_uCommonResourceID;
 #ifndef _WIN32_WCE
+		ATLASSERT(!::IsWindow(m_hWndToolBar));
 		m_hWndToolBar = T::CreateSimpleToolBarCtrl(m_hWnd, nResourceID, TRUE, dwStyle, nID);
-#else // CE specific
-		m_hWndToolBar = T::CreateSimpleToolBarCtrl(m_hWndCECommandBar, nResourceID, TRUE, dwStyle, nID);
-#endif //_WIN32_WCE
 		return (m_hWndToolBar != NULL);
+#else // CE specific
+		HWND hWnd= T::CreateSimpleToolBarCtrl(m_hWndCECommandBar, nResourceID, TRUE, dwStyle, nID);
+		return (hWnd != NULL);
+#endif //_WIN32_WCE
 	}
 
 // message map and handlers
@@ -2998,8 +3003,6 @@ public:
 // CDialogResize - provides support for resizing dialog controls
 //                 (works for any window that has child controls)
 
-#ifndef _WIN32_WCE
-
 // Put CDialogResize in the list of base classes for a dialog (or even plain window),
 // then implement DLGRESIZE map by specifying controls and groups of control
 // and using DLSZ_* values to specify how are they supposed to be resized.
@@ -3131,6 +3134,7 @@ public:
 		m_sizeDialog.cx = rectDlg.right;
 		m_sizeDialog.cy = rectDlg.bottom;
 
+#ifndef _WIN32_WCE
 		// Create gripper if requested
 		m_bGripper = false;
 		if(bAddGripper)
@@ -3153,6 +3157,7 @@ public:
 				}
 			}
 		}
+#endif // _WIN32_WCE
 
 		// Get min track position if requested
 		if(bUseMinTrackSize)
@@ -3296,12 +3301,15 @@ public:
 // Message map and handlers
 	BEGIN_MSG_MAP(CDialogResize)
 		MESSAGE_HANDLER(WM_SIZE, OnSize)
+#ifndef _WIN32_WCE
 		MESSAGE_HANDLER(WM_GETMINMAXINFO, OnGetMinMaxInfo)
+#endif //_WIN32_WCE
 	END_MSG_MAP()
 
 	LRESULT OnSize(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/)
 	{
 		T* pT = static_cast<T*>(this);
+#ifndef _WIN32_WCE
 		if(m_bGripper)
 		{
 			ATL::CWindow wndGripper = pT->GetDlgItem(ATL_IDW_STATUS_BAR);
@@ -3310,6 +3318,7 @@ public:
 			else if(wParam == SIZE_RESTORED)
 				wndGripper.ShowWindow(SW_SHOW);
 		}
+#endif // _WIN32_WCE
 		if(wParam != SIZE_MINIMIZED)
 		{
 			ATLASSERT(::IsWindow(pT->m_hWnd));
@@ -3318,6 +3327,7 @@ public:
 		return 0;
 	}
 
+#ifndef _WIN32_WCE
 	LRESULT OnGetMinMaxInfo(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/)
 	{
 		if(m_ptMinTrackSize.x != -1 && m_ptMinTrackSize.y != -1)
@@ -3327,6 +3337,7 @@ public:
 		}
 		return 0;
 	}
+#endif // _WIN32_WCE
 
 // Implementation
 	bool DlgResize_PositionControl(int cxWidth, int cyHeight, RECT& rectGroup, _AtlDlgResizeData& data, bool bGroup, int xyStartNext = -1)
@@ -3405,8 +3416,6 @@ public:
 		return true;
 	}
 };
-
-#endif //!_WIN32_WCE
 
 // command bar support
 #if !defined(__ATLCTRLW_H__) && !defined(_WIN32_WCE)
