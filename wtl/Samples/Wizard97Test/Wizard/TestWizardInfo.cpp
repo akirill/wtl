@@ -495,7 +495,7 @@ bool CTestWizardInfo::FinishWizard_SendEMail(HWND hWndParent)
 
 	const CString& output = callback.GetOutputString();
 
-    HMODULE hMapi = LoadLibrary(_T("MAPI32.DLL"));
+	HMODULE hMapi = LoadLibrary(_T("MAPI32.DLL"));
 	if(hMapi)
 	{
 		LPMAPISENDMAIL pfnMAPISendMail = (LPMAPISENDMAIL) ::GetProcAddress(hMapi, "MAPISendMail");
