@@ -311,11 +311,25 @@ public:
 		return ::AppendMenu(m_hMenu, nFlags, nIDNewItem, lpszNewItem);
 	}
 
+	BOOL AppendMenu(UINT nFlags, HMENU hSubMenu, LPCTSTR lpszNewItem)
+	{
+		ATLASSERT(::IsMenu(m_hMenu));
+		ATLASSERT(::IsMenu(hSubMenu));
+		return ::AppendMenu(m_hMenu, nFlags | MF_POPUP, (UINT_PTR)hSubMenu, lpszNewItem);
+	}
+
 #ifndef _WIN32_WCE
 	BOOL AppendMenu(UINT nFlags, UINT_PTR nIDNewItem, HBITMAP hBmp)
 	{
 		ATLASSERT(::IsMenu(m_hMenu));
 		return ::AppendMenu(m_hMenu, nFlags | MF_BITMAP, nIDNewItem, (LPCTSTR)hBmp);
+	}
+
+	BOOL AppendMenu(UINT nFlags, HMENU hSubMenu, HBITMAP hBmp)
+	{
+		ATLASSERT(::IsMenu(m_hMenu));
+		ATLASSERT(::IsMenu(hSubMenu));
+		return ::AppendMenu(m_hMenu, nFlags | (MF_BITMAP | MF_POPUP), (UINT_PTR)hSubMenu, (LPCTSTR)hBmp);
 	}
 #endif //!_WIN32_WCE
 
@@ -425,11 +439,25 @@ public:
 		return ::InsertMenu(m_hMenu, nPosition, nFlags, nIDNewItem, lpszNewItem);
 	}
 
+	BOOL InsertMenu(UINT nPosition, UINT nFlags, HMENU hSubMenu, LPCTSTR lpszNewItem)
+	{
+		ATLASSERT(::IsMenu(m_hMenu));
+		ATLASSERT(::IsMenu(hSubMenu));
+		return ::InsertMenu(m_hMenu, nPosition, nFlags | MF_POPUP, (UINT_PTR)hSubMenu, lpszNewItem);
+	}
+
 #ifndef _WIN32_WCE
 	BOOL InsertMenu(UINT nPosition, UINT nFlags, UINT_PTR nIDNewItem, HBITMAP hBmp)
 	{
 		ATLASSERT(::IsMenu(m_hMenu));
 		return ::InsertMenu(m_hMenu, nPosition, nFlags | MF_BITMAP, nIDNewItem, (LPCTSTR)hBmp);
+	}
+
+	BOOL InsertMenu(UINT nPosition, UINT nFlags, HMENU hSubMenu, HBITMAP hBmp)
+	{
+		ATLASSERT(::IsMenu(m_hMenu));
+		ATLASSERT(::IsMenu(hSubMenu));
+		return ::InsertMenu(m_hMenu, nPosition, nFlags | (MF_BITMAP | MF_POPUP), (UINT_PTR)hSubMenu, (LPCTSTR)hBmp);
 	}
 
 	BOOL ModifyMenu(UINT nPosition, UINT nFlags, UINT_PTR nIDNewItem = 0, LPCTSTR lpszNewItem = NULL)
@@ -438,10 +466,24 @@ public:
 		return ::ModifyMenu(m_hMenu, nPosition, nFlags, nIDNewItem, lpszNewItem);
 	}
 
+	BOOL ModifyMenu(UINT nPosition, UINT nFlags, HMENU hSubMenu, LPCTSTR lpszNewItem)
+	{
+		ATLASSERT(::IsMenu(m_hMenu));
+		ATLASSERT(::IsMenu(hSubMenu));
+		return ::ModifyMenu(m_hMenu, nPosition, nFlags | MF_POPUP, (UINT_PTR)hSubMenu, lpszNewItem);
+	}
+
 	BOOL ModifyMenu(UINT nPosition, UINT nFlags, UINT_PTR nIDNewItem, HBITMAP hBmp)
 	{
 		ATLASSERT(::IsMenu(m_hMenu));
 		return ::ModifyMenu(m_hMenu, nPosition, nFlags | MF_BITMAP, nIDNewItem, (LPCTSTR)hBmp);
+	}
+
+	BOOL ModifyMenu(UINT nPosition, UINT nFlags, HMENU hSubMenu, HBITMAP hBmp)
+	{
+		ATLASSERT(::IsMenu(m_hMenu));
+		ATLASSERT(::IsMenu(hSubMenu));
+		return ::ModifyMenu(m_hMenu, nPosition, nFlags | (MF_BITMAP | MF_POPUP), (UINT_PTR)hSubMenu, (LPCTSTR)hBmp);
 	}
 #endif //!_WIN32_WCE
 
