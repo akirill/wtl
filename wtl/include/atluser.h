@@ -246,6 +246,9 @@ public:
 	{
 		ATLASSERT(::IsMenu(m_hMenu));
 #ifndef _WIN32_WCE
+#if (WINVER >= 0x0500)
+		x = _FixTrackMenuPopupX(x, y);
+#endif //!(WINVER >= 0x0500)
 		return ::TrackPopupMenu(m_hMenu, nFlags, x, y, 0, hWnd, lpRect);
 #else // CE specific
 		lpRect;
@@ -256,10 +259,38 @@ public:
 	BOOL TrackPopupMenuEx(UINT uFlags, int x, int y, HWND hWnd, LPTPMPARAMS lptpm = NULL)
 	{
 		ATLASSERT(::IsMenu(m_hMenu));
+#if (WINVER >= 0x0500) && !defined(_WIN32_WCE)
+		x = _FixTrackMenuPopupX(x, y);
+#endif //(WINVER >= 0x0500) && !defined(_WIN32_WCE)
 		return ::TrackPopupMenuEx(m_hMenu, uFlags, x, y, hWnd, lptpm);
 	}
 
 #if (WINVER >= 0x0500) && !defined(_WIN32_WCE)
+	// helper that fixes popup menu X position when it's off-screen
+	static int _FixTrackMenuPopupX(int x, int y)
+	{
+		POINT pt = { x, y };
+		HMONITOR hMonitor = ::MonitorFromPoint(pt, MONITOR_DEFAULTTONULL);
+		if(hMonitor == NULL)
+		{
+			HMONITOR hMonitorNear = ::MonitorFromPoint(pt, MONITOR_DEFAULTTONEAREST);
+			if(hMonitorNear != NULL)
+			{
+				MONITORINFO mi = { 0 };
+				mi.cbSize = sizeof(MONITORINFO);
+				if(::GetMonitorInfo(hMonitorNear, &mi) != FALSE)
+				{
+					if(x < mi.rcWork.left)
+						x = mi.rcWork.left;
+					else if(x > mi.rcWork.right)
+						x = mi.rcWork.right;
+				}
+			}
+		}
+
+		return x;
+	}
+
 	BOOL GetMenuInfo(LPMENUINFO lpMenuInfo) const
 	{
 		ATLASSERT(::IsMenu(m_hMenu));

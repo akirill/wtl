@@ -1154,7 +1154,8 @@ public:
 		}
 		else
 		{
-			::TrackPopupMenuEx(cmi.hMenu, uMenuFlags, pt.x, pt.y, m_hWnd, &TPMParams);
+			CMenuHandle menu = cmi.hMenu;
+			menu.TrackPopupMenuEx(uMenuFlags, pt.x, pt.y, m_hWnd, &TPMParams);
 		}
 	}
 
