@@ -8325,7 +8325,7 @@ public:
 		return DATETIMEPICK_CLASS;
 	}
 
-	BOOL SetFormat(LPTSTR lpszFormat)
+	BOOL SetFormat(LPCTSTR lpszFormat)
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
 		return (BOOL)::SendMessage(m_hWnd, DTM_SETFORMAT, 0, (LPARAM)lpszFormat);
