@@ -9016,8 +9016,11 @@ public:
 	}
 };
 
-typedef CCECommandBarCtrlT<CWindow>	CCECommandBarCtrl;
-
+#if defined(_AYGSHELL_H_) || defined(__AYGSHELL_H__) // PPC MenuBar
+	typedef CCECommandBarCtrlT<CToolBarCtrl>	CMenuBarCtrl;
+#else
+	typedef CCECommandBarCtrlT<CToolBarCtrl>	CCECommandBarCtrl;
+#endif // defined(_AYGSHELL_H_) || defined(__AYGSHELL_H__)
 
 ///////////////////////////////////////////////////////////////////////////////
 // CCECommandBandsCtrl
