@@ -3266,7 +3266,24 @@ public:
 #ifndef _WTL_NO_AUTO_THEME
 		if(m_hTheme != NULL)
 		{
-			dc.FillRect(&rect, COLOR_WINDOW);
+			if(m_pfnDrawThemeParentBackground != NULL)
+			{
+				// this is to account for the left non-client area
+				POINT ptOrg = { 0, 0 };
+				dc.GetViewportOrg(&ptOrg);
+				dc.SetViewportOrg(ptOrg.x + m_cxLeft, ptOrg.y);
+				::OffsetRect(&rect, -m_cxLeft, 0);
+
+				m_pfnDrawThemeParentBackground(m_hWnd, dc, &rect);
+
+				// restore
+				dc.SetViewportOrg(ptOrg);
+				::OffsetRect(&rect, m_cxLeft, 0);
+			}
+			else
+			{
+				dc.FillRect(&rect, COLOR_3DFACE);
+			}
 		}
 		else
 #endif //!_WTL_NO_AUTO_THEME
