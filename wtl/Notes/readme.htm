@@ -118,14 +118,14 @@ directory</b> to the list of include directories in VC++, so that the compiler
 can find them when you include them in your projects..</font></p>
 <p style=margin:0in>&nbsp;</p>
 <p style=margin:0in><font face="Arial" size="2">Setup programs for the AppWizard are provided. After executing the setup scripts, ATL/WTL AppWizard will appear in the list of AppWizards when you select File.New.Project 
-in VC++ IDE. The file AppWiz70\setup70.js is the setup script for VC++ .NET 2002, while AppWiz70\setup71.js is for VC++ 
+in VC++ IDE. The file AppWiz\setup70.js is the setup script for VC++ .NET 2002, while AppWiz\setup71.js is for VC++ 
 .NET 2003.</font></p>
 <p style=margin:0in>&nbsp;</p>
 <p style=margin:0in><font face="Arial" size="2">To manually install AppWizard 
-for VC++ .NET 2002, copy all WTLApp70.* files from AppWiz70\Files to VC++ .NET 
+for VC++ .NET 2002, copy all WTLAppWiz.* files from AppWiz\Files to VC++ .NET 
 projects directory, %VC7DIR%\Vc7\vcprojects, where %VC7DIR% is the directory 
-where VC++ .NET 2002 is installed. After that,&nbsp;open WTLApp70.vsz and modify the 
-like that contains ABSOLUTE_PATH to contain %WTLDIR%\AppWiz70\Files, where 
+where VC++ .NET 2002 is installed. After that,&nbsp;open WTLAppWiz.vsz and modify the 
+like that contains ABSOLUTE_PATH to contain %WTLDIR%\AppWiz\Files, where 
 %WTLDIR% is the directory where WTL files are.</font></p>
 <p style=margin:0in>&nbsp;</p>
 <p style=margin:0in><font face="Arial" size="2">For VC++ .NET 2003 use the WTLApp71.* 
@@ -269,7 +269,7 @@ Wizards for both Windows applications and SmartDevice projects are provided.</fo
     <td width="494" colspan="2">&nbsp;</td>
   </tr>
   <tr>
-    <td width="494" colspan="2"><font face="Arial" size="2">samples\</font></td>
+    <td width="494" colspan="2"><font face="Arial" size="2">Samples\</font></td>
   </tr>
   <tr>
     <td width="136"><font face="Arial" size="2">&nbsp;&nbsp;&nbsp; Alpha\...</font></td>
@@ -302,7 +302,7 @@ Wizards for both Windows applications and SmartDevice projects are provided.</fo
     <td width="494" colspan="2">&nbsp;</td>
   </tr>
 	<tr>
-    <td width="494" colspan="2"><font face="Arial" size="2">appwiz\</font></td>
+    <td width="494" colspan="2"><font face="Arial" size="2">AppWiz\</font></td>
   </tr>
 	<tr>
     <td width="136"><font face="Arial" size="2">&nbsp;&nbsp;&nbsp; setup70.js</font></td>
@@ -328,7 +328,7 @@ Wizards for both Windows applications and SmartDevice projects are provided.</fo
     <td width="494" colspan="2">&nbsp;</td>
   </tr>
   <tr>
-    <td width="494" colspan="2"><font face="Arial" size="2">appwizCE\</font></td>
+    <td width="494" colspan="2"><font face="Arial" size="2">AppWizCE\</font></td>
   </tr>
   <tr>
     <td width="136"><font face="Arial" size="2">&nbsp;&nbsp;&nbsp; setup80.js</font></td>
@@ -480,6 +480,12 @@ Wizards for both Windows applications and SmartDevice projects are provided.</fo
     <td width="221"><b><font face="Arial" size="2">CUpdateUI&lt;&gt;</font></b></td>
     <td width="115"><font face="Arial" size="2">mi base class</font></td>
     <td width="255"><font face="Arial" size="2">&nbsp;provides support for UI 
+    update</font></td>
+  </tr>
+  <tr>
+    <td width="221"><b><font face="Arial" size="2">CDynamicUpdateUI&lt;&gt;</font></b></td>
+    <td width="115"><font face="Arial" size="2">mi base class</font></td>
+    <td width="255"><font face="Arial" size="2">&nbsp;provides dynamic support for UI 
     update</font></td>
   </tr>
   <tr>
