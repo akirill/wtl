@@ -439,12 +439,17 @@ public:
 	static int CALLBACK BrowseCallbackProc(HWND hWnd, UINT uMsg, LPARAM lParam, LPARAM lpData)
 	{
 #ifndef BFFM_VALIDATEFAILED
-#ifdef UNICODE
+  #ifdef UNICODE
 		const int BFFM_VALIDATEFAILED = 4;
-#else
+  #else
 		const int BFFM_VALIDATEFAILED = 3;
-#endif
+  #endif
 #endif //!BFFM_VALIDATEFAILED
+
+#ifndef BFFM_IUNKNOWN
+		const int BFFM_IUNKNOWN = 5;
+#endif //!BFFM_IUNKNOWN
+
 		int nRet = 0;
 		T* pT = (T*)lpData;
 		bool bClear = false;
