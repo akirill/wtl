@@ -556,12 +556,19 @@ public:
 		WORD cyFontHeight = (WORD)abs(lf.lfHeight);
 
 #ifndef _WIN32_WCE
-		if(AtlIsAlphaBitmapResource(nResourceID))   // alpha channel bitmap (valid for Windows XP only)
+		WORD bitsPerPixel = AtlGetBitmapResourceBitsPerPixel(nResourceID);
+		if(bitsPerPixel > 4)
 		{
+			COLORREF crMask = CLR_DEFAULT;
+			if(bitsPerPixel == 32)
+			{
+				// 32-bit color bitmap with alpha channel (valid for Windows XP and later)
+				crMask = CLR_NONE;
+			}
 #if (_ATL_VER >= 0x0700)
-			HIMAGELIST hImageList = ImageList_LoadImage(ATL::_AtlBaseModule.GetResourceInstance(), MAKEINTRESOURCE(nResourceID), pData->wWidth, 1, CLR_NONE, IMAGE_BITMAP, LR_CREATEDIBSECTION | LR_DEFAULTSIZE);
+			HIMAGELIST hImageList = ImageList_LoadImage(ATL::_AtlBaseModule.GetResourceInstance(), MAKEINTRESOURCE(nResourceID), pData->wWidth, 1, crMask, IMAGE_BITMAP, LR_CREATEDIBSECTION | LR_DEFAULTSIZE);
 #else //!(_ATL_VER >= 0x0700)
-			HIMAGELIST hImageList = ImageList_LoadImage(_Module.GetResourceInstance(), MAKEINTRESOURCE(nResourceID), pData->wWidth, 1, CLR_NONE, IMAGE_BITMAP, LR_CREATEDIBSECTION | LR_DEFAULTSIZE);
+			HIMAGELIST hImageList = ImageList_LoadImage(_Module.GetResourceInstance(), MAKEINTRESOURCE(nResourceID), pData->wWidth, 1, crMask, IMAGE_BITMAP, LR_CREATEDIBSECTION | LR_DEFAULTSIZE);
 #endif //!(_ATL_VER >= 0x0700)
 			ATLASSERT(hImageList != NULL);
 			::SendMessage(hWnd, TB_SETIMAGELIST, 0, (LPARAM)hImageList);
