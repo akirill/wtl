@@ -34,10 +34,6 @@
   #undef SelectBitmap
 #endif //_INC_WINDOWSX
 
-#if defined(_WIN32_WCE) && defined(DrawIcon)
-  #undef DrawIcon
-#endif //defined(_WIN32_WCE) && defined(DrawIcon)
-
 // required libraries
 #if !defined(_ATL_NO_MSIMG) && !defined(_WIN32_WCE)
   #pragma comment(lib, "msimg32.lib")
@@ -52,6 +48,7 @@
 //
 // CPenT<t_bManaged>
 // CBrushT<t_bManaged>
+// CLogFont
 // CFontT<t_bManaged>
 // CBitmapT<t_bManaged>
 // CPaletteT<t_bManaged>
@@ -303,18 +300,10 @@ public:
 	HBRUSH CreateDIBPatternBrush(HGLOBAL hPackedDIB, UINT nUsage)
 	{
 		ATLASSERT(hPackedDIB != NULL);
-#ifndef _WIN32_WCE
-		const void* lpPackedDIB = ::GlobalLock(hPackedDIB);
-#else // CE specific
 		const void* lpPackedDIB = GlobalLock(hPackedDIB);
-#endif //_WIN32_WCE
 		ATLASSERT(lpPackedDIB != NULL);
 		m_hBrush = ::CreateDIBPatternBrushPt(lpPackedDIB, nUsage);
-#ifndef _WIN32_WCE
-		::GlobalUnlock(hPackedDIB);
-#else // CE specific
 		GlobalUnlock(hPackedDIB);
-#endif //_WIN32_WCE
 		return m_hBrush;
 	}
 
@@ -361,6 +350,174 @@ typedef CBrushT<true>    CBrush;
 
 ///////////////////////////////////////////////////////////////////////////////
 // CFont
+
+class CLogFont : public LOGFONT
+{
+public:
+	CLogFont()
+	{
+		memset(this, 0, sizeof(LOGFONT));
+	}
+
+	CLogFont(const LOGFONT& lf)
+	{
+		Copy(&lf);
+	}
+
+	CLogFont(HFONT hFont)
+	{
+		ATLASSERT(::GetObjectType(hFont) == OBJ_FONT);
+		::GetObject(hFont, sizeof(LOGFONT), (LOGFONT*)this);
+	}
+
+	HFONT CreateFontIndirect()
+	{
+		return ::CreateFontIndirect(this);
+	}
+
+	void SetBold()
+	{
+		lfWeight = FW_BOLD;
+	}
+
+	bool IsBold() const
+	{
+		return (lfWeight >= FW_BOLD);
+	}
+
+	void MakeBolder(int iScale = 1)
+	{
+		lfWeight += FW_BOLD * iScale;
+	}
+
+	void MakeLarger(int iScale)
+	{
+		if(lfHeight > 0)
+			lfHeight += iScale;
+		else
+			lfHeight -= iScale;
+	}
+
+	void SetHeight(LONG nPointSize, HDC hDC = NULL)
+	{
+		// For MM_TEXT mapping mode
+		lfHeight = -::MulDiv(nPointSize, ::GetDeviceCaps(hDC, LOGPIXELSY), 72);
+	}
+
+	LONG GetHeight(HDC hDC = NULL) const
+	{
+		// For MM_TEXT mapping mode
+		return ::MulDiv(-lfHeight, 72, ::GetDeviceCaps(hDC, LOGPIXELSY));
+	}
+
+	LONG GetDeciPointHeight(HDC hDC = NULL) const
+	{
+#ifndef _WIN32_WCE
+		POINT ptOrg = { 0, 0 };
+		::DPtoLP(hDC, &ptOrg, 1);
+		POINT pt = { 0, 0 };
+		pt.y = abs(lfHeight) + ptOrg.y;
+		::LPtoDP(hDC,&pt,1);
+		return ::MulDiv(pt.y, 720, ::GetDeviceCaps(hDC, LOGPIXELSY));   // 72 points/inch, 10 decipoints/point
+#else // CE specific
+		// DP and LP are always the same on CE
+		return ::MulDiv(abs(lfHeight), 720, ::GetDeviceCaps(hDC, LOGPIXELSY));   // 72 points/inch, 10 decipoints/point
+#endif //!_WIN32_WCE
+	}
+
+	void SetHeightFromDeciPoint(LONG nDeciPtHeight, HDC hDC = NULL)
+	{
+#ifndef _WIN32_WCE
+		POINT pt = { 0, 0 };
+		pt.y = ::MulDiv(::GetDeviceCaps(hDC, LOGPIXELSY), nDeciPtHeight, 720);   // 72 points/inch, 10 decipoints/point
+		::DPtoLP(hDC, &pt, 1);
+		POINT ptOrg = { 0, 0 };
+		::DPtoLP(hDC, &ptOrg, 1);
+		lfHeight = -abs(pt.y - ptOrg.y);
+#else // CE specific
+		// DP and LP are always the same on CE
+		lfHeight = -abs(::MulDiv(::GetDeviceCaps(hDC, LOGPIXELSY), nDeciPtHeight, 720));   // 72 points/inch, 10 decipoints/point
+#endif //!_WIN32_WCE
+	}
+
+#ifndef _WIN32_WCE
+	void SetCaptionFont()
+	{
+		NONCLIENTMETRICS ncm = { 0 };
+		ncm.cbSize = sizeof(NONCLIENTMETRICS);
+		::SystemParametersInfo(SPI_GETNONCLIENTMETRICS, sizeof(ncm), &ncm, 0);
+		Copy(&ncm.lfCaptionFont);
+	}
+
+	void SetMenuFont()
+	{
+		NONCLIENTMETRICS ncm = { 0 };
+		ncm.cbSize = sizeof(NONCLIENTMETRICS);
+		::SystemParametersInfo(SPI_GETNONCLIENTMETRICS, sizeof(ncm), &ncm, 0);
+		Copy(&ncm.lfMenuFont);
+	}
+
+	void SetStatusFont()
+	{
+		NONCLIENTMETRICS ncm = { 0 };
+		ncm.cbSize = sizeof(NONCLIENTMETRICS);
+		::SystemParametersInfo(SPI_GETNONCLIENTMETRICS, sizeof(ncm), &ncm, 0);
+		Copy(&ncm.lfStatusFont);
+	}
+
+	void SetMessageBoxFont()
+	{
+		NONCLIENTMETRICS ncm = { 0 };
+		ncm.cbSize = sizeof(NONCLIENTMETRICS);
+		::SystemParametersInfo(SPI_GETNONCLIENTMETRICS, sizeof(ncm), &ncm, 0);
+		Copy(&ncm.lfMessageFont);
+	}
+#endif //!_WIN32_WCE
+
+	void Copy(const LOGFONT* pLogFont)
+	{
+		ATLASSERT(pLogFont != NULL);
+		memcpy(this, pLogFont, sizeof(LOGFONT));
+	}
+
+	CLogFont& operator =(const CLogFont& src)
+	{
+		Copy(&src);
+		return *this;
+	}
+
+	CLogFont& operator =(const LOGFONT& src)
+	{
+		Copy(&src);
+		return *this;
+	}
+
+	CLogFont& operator =(HFONT hFont)
+	{
+		ATLASSERT(::GetObjectType(hFont) == OBJ_FONT);
+		::GetObject(hFont, sizeof(LOGFONT), (LOGFONT*)this);
+		return *this;
+	}
+
+	bool operator ==(const LOGFONT& logfont) const
+	{
+		return(logfont.lfHeight == lfHeight &&
+		       logfont.lfWidth == lfWidth &&
+		       logfont.lfEscapement == lfEscapement &&
+		       logfont.lfOrientation == lfOrientation &&
+		       logfont.lfWeight == lfWeight &&
+		       logfont.lfItalic == lfItalic &&
+		       logfont.lfUnderline == lfUnderline &&
+		       logfont.lfStrikeOut == lfStrikeOut &&
+		       logfont.lfCharSet == lfCharSet &&
+		       logfont.lfOutPrecision == lfOutPrecision &&
+		       logfont.lfClipPrecision == lfClipPrecision &&
+		       logfont.lfQuality == lfQuality &&
+		       logfont.lfPitchAndFamily == lfPitchAndFamily &&
+		       lstrcmp(logfont.lfFaceName, lfFaceName) == 0);
+	}
+};
+
 
 template <bool t_bManaged>
 class CFontT
@@ -459,20 +616,14 @@ public:
 		LOGFONT logFont = *lpLogFont;
 #ifndef _WIN32_WCE
 		POINT pt = { 0, 0 };
-		pt.y = ::GetDeviceCaps(hDC1, LOGPIXELSY) * logFont.lfHeight;
-		pt.y /= 720;    // 72 points/inch, 10 decipoints/point
+		pt.y = ::MulDiv(::GetDeviceCaps(hDC1, LOGPIXELSY), logFont.lfHeight, 720);   // 72 points/inch, 10 decipoints/point
 		::DPtoLP(hDC1, &pt, 1);
 		POINT ptOrg = { 0, 0 };
 		::DPtoLP(hDC1, &ptOrg, 1);
 		logFont.lfHeight = -abs(pt.y - ptOrg.y);
 #else // CE specific
 		// DP and LP are always the same on CE
-		logFont.lfHeight = ::GetDeviceCaps(hDC1, LOGPIXELSY) * logFont.lfHeight;
-		logFont.lfHeight /= 720;    // 72 points/inch, 10 decipoints/point
-		if(logFont.lfHeight > 0)
-		{
-			logFont.lfHeight *= -1;
-		}
+		logFont.lfHeight = -abs(::MulDiv(::GetDeviceCaps(hDC1, LOGPIXELSY), logFont.lfHeight, 720));   // 72 points/inch, 10 decipoints/point
 #endif //!_WIN32_WCE
 
 		if(hDC == NULL)
@@ -1549,8 +1700,8 @@ public:
 		SIZE sizeVpExt = { 0, 0 };
 		if(!GetViewportExt(&sizeVpExt))
 			return FALSE;
-		lpSize->cx = MulDiv(lpSize->cx, abs(sizeWinExt.cx), abs(sizeVpExt.cx));
-		lpSize->cy = MulDiv(lpSize->cy, abs(sizeWinExt.cy), abs(sizeVpExt.cy));
+		lpSize->cx = ::MulDiv(lpSize->cx, abs(sizeWinExt.cx), abs(sizeVpExt.cx));
+		lpSize->cy = ::MulDiv(lpSize->cy, abs(sizeWinExt.cy), abs(sizeVpExt.cy));
 		return TRUE;
 	}
 
@@ -1599,8 +1750,8 @@ public:
 			int cxPerInch = GetDeviceCaps(LOGPIXELSX);
 			int cyPerInch = GetDeviceCaps(LOGPIXELSY);
 			ATLASSERT(cxPerInch != 0 && cyPerInch != 0);
-			lpSize->cx = MulDiv(lpSize->cx, HIMETRIC_INCH, cxPerInch);
-			lpSize->cy = MulDiv(lpSize->cy, HIMETRIC_INCH, cyPerInch);
+			lpSize->cx = ::MulDiv(lpSize->cx, HIMETRIC_INCH, cxPerInch);
+			lpSize->cy = ::MulDiv(lpSize->cy, HIMETRIC_INCH, cyPerInch);
 		}
 	}
 
@@ -1621,8 +1772,8 @@ public:
 			int cxPerInch = GetDeviceCaps(LOGPIXELSX);
 			int cyPerInch = GetDeviceCaps(LOGPIXELSY);
 			ATLASSERT(cxPerInch != 0 && cyPerInch != 0);
-			lpSize->cx = MulDiv(lpSize->cx, cxPerInch, HIMETRIC_INCH);
-			lpSize->cy = MulDiv(lpSize->cy, cyPerInch, HIMETRIC_INCH);
+			lpSize->cx = ::MulDiv(lpSize->cx, cxPerInch, HIMETRIC_INCH);
+			lpSize->cy = ::MulDiv(lpSize->cy, cyPerInch, HIMETRIC_INCH);
 		}
 	}
 

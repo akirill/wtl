@@ -183,6 +183,10 @@ extern "C" void WINAPI ListView_SetItemSpacing(HWND hwndLV, int iHeight);
   #endif
 #endif (_ATL_VER >= 0x0800)
 
+#ifdef DrawIcon
+  #undef DrawIcon
+#endif
+
 #endif //_WIN32_WCE
 
 

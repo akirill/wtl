@@ -60,6 +60,7 @@
 // CPropertyPage<t_wDlgTemplateID>
 // CAxPropertyPageImpl<T, TBase>
 // CAxPropertyPage<t_wDlgTemplateID>
+//
 // CWizard97SheetWindow
 // CWizard97SheetImpl<T, TBase>
 // CWizard97Sheet
@@ -3100,11 +3101,7 @@ public:
 			DLGTEMPLATE* pDlg = (DLGTEMPLATE*)::LockResource(m_hDlgRes);
 			LPCDLGTEMPLATE lpDialogTemplate = ATL::_DialogSplitHelper::SplitDialogTemplate(pDlg, pInitData);
 			if(lpDialogTemplate != pDlg)
-#ifndef _WIN32_WCE
-				m_hDlgResSplit = ::GlobalHandle(lpDialogTemplate);
-#else // CE specific
 				m_hDlgResSplit = GlobalHandle(lpDialogTemplate);
-#endif //_WIN32_WCE
 
 			// set up property page to use in-memory dialog template
 			if(lpDialogTemplate != NULL)
@@ -3128,20 +3125,12 @@ public:
 		if(m_hInitData != NULL)
 		{
 			UnlockResource(m_hInitData);
-#ifndef _WIN32_WCE
-			::FreeResource(m_hInitData);
-#else // CE specific
 			FreeResource(m_hInitData);
-#endif //_WIN32_WCE
 		}
 		if(m_hDlgRes != NULL)
 		{
 			UnlockResource(m_hDlgRes);
-#ifndef _WIN32_WCE
-			::FreeResource(m_hDlgRes);
-#else // CE specific
 			FreeResource(m_hDlgRes);
-#endif //_WIN32_WCE
 		}
 		if(m_hDlgResSplit != NULL)
 		{
@@ -3822,7 +3811,7 @@ public:
 	END_MSG_MAP()
 };
 
-#endif //(_WIN32_IE >= 0x0400) && !defined(_WIN32_WCE)
+#endif //(_WIN32_IE >= 0x0500) && !defined(_WIN32_WCE)
 
 }; //namespace WTL
 
