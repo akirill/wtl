@@ -2676,6 +2676,9 @@ public:
 ///////////////////////////////////////////////////////////////////////////////
 // CSortListViewCtrl - implements sorting for a listview control
 
+// sort listview extended styles
+#define SORTLV_USESHELLBITMAPS	0x00000001
+
 // Notification sent to parent when sort column is changed by user clicking header.  
 #define SLVN_SORTCHANGED	(LVN_FIRST-201)
 
@@ -2698,6 +2701,9 @@ enum
 	LVCOLSORT_DATETIME,
 	LVCOLSORT_DATE,
 	LVCOLSORT_TIME,
+#if !defined(_WIN32_WCE) && !defined(_ATL_MIN_CRT)
+	LVCOLSORT_INT64,
+#endif //!defined(_WIN32_WCE) && !defined(_ATL_MIN_CRT)
 	LVCOLSORT_CUSTOM,
 	LVCOLSORT_LAST = LVCOLSORT_CUSTOM
 };
@@ -2715,7 +2721,8 @@ public:
 		m_cxSortArrow = 11,
 		m_cySortArrow = 6,
 		m_iSortUp = 0,        // index of sort bitmaps
-		m_iSortDown = 1
+		m_iSortDown = 1,
+		m_nShellSortUpID = 133
 	};
 
 	// passed to LVCompare functions as lParam1 and lParam2 
@@ -2728,6 +2735,9 @@ public:
 			long lValue;
 			double dblValue;
 			LPCTSTR pszValue;
+#if !defined(_WIN32_WCE) && !defined(_ATL_MIN_CRT)
+			__int64 nValue;
+#endif//!defined(_WIN32_WCE) && !defined(_ATL_MIN_CRT)
 		};
 	};
 
@@ -2745,6 +2755,7 @@ public:
 	CBitmap m_bmSort[2];
 	int m_fmtOldSortCol;
 	HBITMAP m_hbmOldSortCol;
+	DWORD m_dwSortLVExtendedStyle;
 	ATL::CSimpleArray<WORD> m_arrColSortType;
 	
 	CSortListViewImpl() :
@@ -2752,7 +2763,8 @@ public:
 			m_bCommCtrl6(false),
 			m_iSortColumn(-1), 
 			m_fmtOldSortCol(0),
-			m_hbmOldSortCol(NULL)
+			m_hbmOldSortCol(NULL),
+			m_dwSortLVExtendedStyle(SORTLV_USESHELLBITMAPS)
 	{
 #ifndef _WIN32_WCE
 		DWORD dwMajor = 0;
@@ -2798,7 +2810,7 @@ public:
 		}
 
 		if(m_bmSort[m_iSortUp].IsNull())
-			CreateSortBitmaps();
+			pT->CreateSortBitmaps();
 
 		// restore previous sort column's bitmap, if any, and format
 		HDITEM hditem = { HDI_BITMAP | HDI_FORMAT };
@@ -2854,6 +2866,21 @@ public:
 	bool IsSortDescending() const
 	{
 		return m_bSortDescending;
+	}
+
+	DWORD GetSortListViewExtendedStyle() const
+	{
+		return m_dwSortLVExtendedStyle;
+	}
+
+	DWORD SetSortListViewExtendedStyle(DWORD dwExtendedStyle, DWORD dwMask = 0)
+	{
+		DWORD dwPrevStyle = m_dwSortLVExtendedStyle;
+		if(dwMask == 0)
+			m_dwSortLVExtendedStyle = dwExtendedStyle;
+		else
+			m_dwSortLVExtendedStyle = (m_dwSortLVExtendedStyle & ~dwMask) | (dwExtendedStyle & dwMask);
+		return dwPrevStyle;
 	}
 
 // Operations
@@ -2952,6 +2979,21 @@ public:
 				}
 			}
 			break;
+#if !defined(_WIN32_WCE) && !defined(_ATL_MIN_CRT)
+		case LVCOLSORT_INT64:
+			{
+				pFunc = (PFNLVCOMPARE)pT->LVCompareInt64;
+				for(int i = 0; i < nCount; i++)
+				{
+					pParam[i].iItem = i;
+					pParam[i].dwItemData = pT->GetItemData(i);
+					pT->GetItemText(i, iCol, pszTemp, pT->m_cchCmpTextMax);
+					pParam[i].nValue = pT->StrToInt64(pszTemp);
+					pT->SetItemData(i, (DWORD_PTR)&pParam[i]);
+				}
+			}
+			break;
+#endif//!defined(_WIN32_WCE) && !defined(_ATL_MIN_CRT)
 		default:
 			ATLTRACE2(atlTraceUI, 0, _T("Unknown value for sort type in CSortListViewImpl::DoSortItems()\n"));
 			break;
@@ -2982,6 +3024,40 @@ public:
 
 	void CreateSortBitmaps()
 	{
+		if((m_dwSortLVExtendedStyle & SORTLV_USESHELLBITMAPS) != 0)
+		{
+			bool bFree = false;
+			LPCTSTR pszModule = _T("shell32.dll"); 
+			HINSTANCE hShell = ::GetModuleHandle(pszModule);
+
+			if (hShell == NULL)		
+			{
+				hShell = ::LoadLibrary(pszModule);
+				bFree = true;
+			}
+ 
+			if (hShell != NULL)
+			{
+				bool bSuccess = true;
+				for(int i = m_iSortUp; i <= m_iSortDown; i++)
+				{
+					if(!m_bmSort[i].IsNull())
+						m_bmSort[i].DeleteObject();
+					m_bmSort[i] = (HBITMAP)::LoadImage(hShell, MAKEINTRESOURCE(m_nShellSortUpID + i), 
+						IMAGE_BITMAP, 0, 0, LR_LOADMAP3DCOLORS);
+					if(m_bmSort[i].IsNull())
+					{
+						bSuccess = false;
+						break;
+					}
+				}
+				if(bFree)
+					::FreeLibrary(hShell);
+				if(bSuccess)
+					return;
+			}
+		}
+
 		T* pT = static_cast<T*>(this);
 		for(int i = m_iSortUp; i <= m_iSortDown; i++)
 		{
@@ -3099,6 +3175,31 @@ public:
 		return dblRet;
 	}
 
+#if !defined(_WIN32_WCE) && !defined(_ATL_MIN_CRT)
+	__int64 StrToInt64(LPCTSTR lpstr)
+	{
+		ATLASSERT(lpstr != NULL);
+		if(lpstr == NULL || lpstr[0] == _T('\0'))
+			return 0;
+		
+		TCHAR szTemp[m_cchCmpTextMax];
+		int nlen = ::lstrlen(lpstr);
+		int iTemp = 0;
+
+		// remove formatting
+		for(int i = 0; i < nlen; i++)
+		{
+			if(_istdigit(lpstr[i]) || lpstr[i] == _T('-'))
+			{
+				szTemp[iTemp] = lpstr[i];
+				iTemp++;
+			}
+		}
+		szTemp[iTemp] = _T('\0');
+		return _ttoi64(szTemp);
+	}
+#endif//!defined(_WIN32_WCE) && !defined(_ATL_MIN_CRT)
+
 //Overrideable PFNLVCOMPARE functions
 	static int CALLBACK LVCompareText(LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort)
 	{
@@ -3168,6 +3269,24 @@ public:
 		return pInfo->bDescending ? -nRet : nRet;
 	}
 
+#if !defined(_WIN32_WCE) && !defined(_ATL_MIN_CRT)
+	static int CALLBACK LVCompareInt64(LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort)
+	{
+		ATLASSERT(lParam1 != NULL && lParam2 != NULL && lParamSort != NULL);
+
+		LVCompareParam* pParam1 = (LVCompareParam*)lParam1;
+		LVCompareParam* pParam2 = (LVCompareParam*)lParam2;
+		LVSortInfo* pInfo = (LVSortInfo*)lParamSort;
+		
+		int nRet = 0;
+		if(pParam1->nValue > pParam2->nValue)
+			nRet = 1;
+		else if(pParam1->nValue < pParam2->nValue)
+			nRet = -1;
+		return pInfo->bDescending ? -nRet : nRet;
+	}
+#endif//!defined(_WIN32_WCE) && !defined(_ATL_MIN_CRT)
+
 	BEGIN_MSG_MAP(CSortListViewImpl)
 		MESSAGE_HANDLER(LVM_INSERTCOLUMN, OnInsertColumn)
 		MESSAGE_HANDLER(LVM_DELETECOLUMN, OnDeleteColumn)
@@ -3202,8 +3321,8 @@ public:
 	{
 		T* pT = static_cast<T*>(this);
 		LRESULT lRet = pT->DefWindowProc(uMsg, wParam, lParam);
-		if(lRet == -1)
-			return -1;
+		if(lRet == 0)
+			return 0;
 
 		int iCol = (int)wParam; 
 		if(m_iSortColumn == iCol)
@@ -3246,7 +3365,8 @@ public:
 	{
 		if(!m_bCommCtrl6 && !m_bmSort[m_iSortUp].IsNull())
 		{
-			CreateSortBitmaps();
+			T* pT = static_cast<T*>(this);
+			pT->CreateSortBitmaps();
 			if(m_iSortColumn != -1)
 				SetSortColumn(m_iSortColumn);
 		}
