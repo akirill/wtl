@@ -3315,7 +3315,8 @@ public:
 		return (int)::SendMessage(m_hWnd, LVM_INSERTCOLUMN, nCol, (LPARAM)pColumn);
 	}
 
-	int InsertColumn(int nCol, LPCTSTR lpszColumnHeading, int nFormat, int nWidth, int nSubItem)
+	int InsertColumn(int nCol, LPCTSTR lpszColumnHeading, int nFormat = LVCFMT_LEFT, 
+		int nWidth = -1, int nSubItem = -1, int iImage = -1, int iOrder = -1)
 	{
 		LVCOLUMN column = { 0 };
 		column.mask = LVCF_TEXT|LVCF_FMT;
@@ -3330,6 +3331,16 @@ public:
 		{
 			column.mask |= LVCF_SUBITEM;
 			column.iSubItem = nSubItem;
+		}
+		if (iImage != -1)
+		{
+			column.mask |= LVCF_IMAGE;
+			column.iImage = iImage;
+		}
+		if (iOrder != -1)
+		{
+			column.mask |= LVCF_ORDER;
+			column.iOrder = iOrder;
 		}
 		return InsertColumn(nCol, &column);
 	}
@@ -3672,16 +3683,16 @@ public:
 		::SendMessage(m_hWnd, TVM_SETINDENT, nIndent, 0L);
 	}
 
-	CImageList GetImageList(UINT nImageList) const
+	CImageList GetImageList(int nImageListType = TVSIL_NORMAL) const
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
-		return CImageList((HIMAGELIST)::SendMessage(m_hWnd, TVM_GETIMAGELIST, (UINT)nImageList, 0L));
+		return CImageList((HIMAGELIST)::SendMessage(m_hWnd, TVM_GETIMAGELIST, (WPARAM)nImageListType, 0L));
 	}
 
-	CImageList SetImageList(HIMAGELIST hImageList, int nImageListType)
+	CImageList SetImageList(HIMAGELIST hImageList, int nImageListType = TVSIL_NORMAL)
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
-		return CImageList((HIMAGELIST)::SendMessage(m_hWnd, TVM_SETIMAGELIST, (UINT)nImageListType, (LPARAM)hImageList));
+		return CImageList((HIMAGELIST)::SendMessage(m_hWnd, TVM_SETIMAGELIST, (WPARAM)nImageListType, (LPARAM)hImageList));
 	}
 
 	BOOL GetItem(LPTVITEM pItem) const
@@ -5120,6 +5131,23 @@ public:
 		return (BOOL)::SendMessage(m_hWnd, TB_SETBUTTONINFO, nID, (LPARAM)lptbbi);
 	}
 
+	BOOL SetButtonInfo(int nID, DWORD dwMask, BYTE Style, BYTE State, LPCTSTR lpszItem, 
+		int iImage, WORD cx, int iCommand, DWORD_PTR lParam)
+	{
+		ATLASSERT(::IsWindow(m_hWnd));
+		TBBUTTONINFO tbbi = { 0 };
+		tbbi.cbSize = sizeof(TBBUTTONINFO);
+		tbbi.dwMask = dwMask;
+		tbbi.idCommand = iCommand;
+		tbbi.iImage = iImage;
+		tbbi.fsState = State;
+		tbbi.fsStyle = Style;
+		tbbi.cx = cx;
+		tbbi.pszText = (LPTSTR) lpszItem;
+		tbbi.lParam = lParam;
+		return (BOOL)::SendMessage(m_hWnd, TB_SETBUTTONINFO, nID, (LPARAM)&tbbi);
+	}
+
 #ifndef _WIN32_WCE
 	int GetHotItem() const
 	{
@@ -5361,6 +5389,34 @@ public:
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
 		return (BOOL)::SendMessage(m_hWnd, TB_INSERTBUTTON, nIndex, (LPARAM)lpButton);
+	}
+
+	BOOL InsertButton(int nIndex, int iCommand, BYTE Style, BYTE State, int iBitmap, 
+		int iString, DWORD_PTR lParam)
+	{
+		ATLASSERT(::IsWindow(m_hWnd));
+		TBBUTTON tbb = { 0 };
+		tbb.fsStyle = Style;
+		tbb.fsState = State;
+		tbb.idCommand = iCommand;
+		tbb.iBitmap = iBitmap;
+		tbb.iString = iString;
+		tbb.dwData = lParam;
+		return (BOOL)::SendMessage(m_hWnd, TB_INSERTBUTTON, nIndex, (LPARAM)&tbb);
+	}
+
+	BOOL InsertButton(int nIndex, int iCommand, BYTE Style, BYTE State, int iBitmap, 
+		LPCTSTR lpszItem, DWORD_PTR lParam)
+	{
+		ATLASSERT(::IsWindow(m_hWnd));
+		TBBUTTON tbb = { 0 };
+		tbb.fsStyle = Style;
+		tbb.fsState = State;
+		tbb.idCommand = iCommand;
+		tbb.iBitmap = iBitmap;
+		tbb.iString = (int) lpszItem;
+		tbb.dwData = lParam;
+		return (BOOL)::SendMessage(m_hWnd, TB_INSERTBUTTON, nIndex, (LPARAM)&tbb);
 	}
 
 	BOOL DeleteButton(int nIndex)
@@ -5766,6 +5822,19 @@ public:
 		return (BOOL)::SendMessage(m_hWnd, TCM_SETITEM, nItem, (LPARAM)pTabCtrlItem);
 	}
 
+	int SetItem(int nItem, UINT mask, LPCTSTR lpszItem, DWORD dwState, DWORD dwStateMask, int iImage, DWORD lParam)
+	{
+		ATLASSERT(::IsWindow(m_hWnd));
+		TCITEM tci = { 0 };
+		tci.mask = mask;
+		tci.pszText = (LPTSTR) lpszItem;
+		tci.dwState = dwState;
+		tci.dwStateMask = dwStateMask;
+		tci.iImage = iImage;
+		tci.lParam = lParam;
+		return (int)::SendMessage(m_hWnd, TCM_SETITEM, nItem, (LPARAM)&tci);
+	}
+
 	BOOL GetItemRect(int nItem, LPRECT lpRect) const
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
@@ -5790,6 +5859,12 @@ public:
 		DWORD dwSize = (DWORD)::SendMessage(m_hWnd, TCM_SETITEMSIZE, 0, MAKELPARAM(size.cx, size.cy));
 		SIZE sizeRet = { GET_X_LPARAM(dwSize), GET_Y_LPARAM(dwSize) };
 		return sizeRet;
+	}
+
+	void SetItemSize(int cx, int cy)
+	{
+		ATLASSERT(::IsWindow(m_hWnd));
+		::SendMessage(m_hWnd, TCM_SETITEMSIZE, 0, MAKELPARAM(cx, cy));
 	}
 
 	void SetPadding(SIZE size)
@@ -5876,6 +5951,26 @@ public:
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
 		return (int)::SendMessage(m_hWnd, TCM_INSERTITEM, nItem, (LPARAM)pTabCtrlItem);
+	}
+
+	int InsertItem(int nItem, UINT mask, LPCTSTR lpszItem, int iImage, DWORD lParam)
+	{
+		ATLASSERT(::IsWindow(m_hWnd));
+		TCITEM tci = { 0 };
+		tci.mask = mask;
+		tci.pszText = (LPTSTR) lpszItem;
+		tci.iImage = iImage;
+		tci.lParam = lParam;
+		return (int)::SendMessage(m_hWnd, TCM_INSERTITEM, nItem, (LPARAM)&tci);
+	}
+
+	int InsertItem(int nItem, LPCTSTR lpszItem)
+	{
+		ATLASSERT(::IsWindow(m_hWnd));
+		TCITEM tci = { 0 };
+		tci.mask = TCIF_TEXT;
+		tci.pszText = (LPTSTR) lpszItem;
+		return (int)::SendMessage(m_hWnd, TCM_INSERTITEM, nItem, (LPARAM)&tci);
 	}
 
 	BOOL DeleteItem(int nItem)
@@ -6418,7 +6513,16 @@ public:
 		::SendMessage(m_hWnd, PBM_GETRANGE, TRUE, (LPARAM)pPBRange);
 	}
 
-	int GetRangeLimit(BOOL bLimit) const
+	void GetRange(int& nLower, int& nUpper) const
+	{
+		ATLASSERT(::IsWindow(m_hWnd));
+		PBRANGE range = { 0 };
+		::SendMessage(m_hWnd, PBM_GETRANGE, TRUE, (LPARAM)&range);
+		nLower = range.iLow;
+		nUpper = range.iHigh;
+	}
+
+	int GetRangeLimit(BOOL bLowLimit) const
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
 		return (int)::SendMessage(m_hWnd, PBM_GETRANGE, bLimit, (LPARAM)NULL);
@@ -7709,6 +7813,26 @@ public:
 		return (BOOL)::SendMessage(m_hWnd, RB_SETBARINFO, 0, (LPARAM)lprbi);
 	}
 
+	CImageList GetImageList() const
+	{
+		ATLASSERT(::IsWindow(m_hWnd));
+		REBARINFO rbi = { 0 };
+		rbi.cbSize = sizeof(REBARINFO);
+		rbi.fMask = RBIM_IMAGELIST;
+		if( (BOOL)::SendMessage(m_hWnd, RB_GETBARINFO, 0, (LPARAM)&rbi) == FALSE ) return CImageList();
+		return CImageList(rbi.himl);
+	}
+
+	BOOL SetImageList(HIMAGELIST hImageList)
+	{
+		ATLASSERT(::IsWindow(m_hWnd));
+		REBARINFO rbi = { 0 };
+		rbi.cbSize = sizeof(REBARINFO);
+		rbi.fMask = RBIM_IMAGELIST;
+		rbi.himl = hImageList;
+		return (BOOL)::SendMessage(m_hWnd, RB_SETBARINFO, 0, (LPARAM)&rbi);
+	}
+
 	UINT GetRowCount() const
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
@@ -8072,6 +8196,36 @@ public:
 		return (int)::SendMessage(m_hWnd, CBEM_INSERTITEM, 0, (LPARAM)lpcCBItem);
 	}
 
+	int InsertItem(UINT nMask, int nIndex, LPCTSTR lpszItem, int nImage, int nSelImage, 
+		int iIndent, int iOverlay, DWORD lParam)
+	{
+		ATLASSERT(::IsWindow(m_hWnd));
+		COMBOBOXEXITEM cbex = { 0 };
+		cbex.mask = nMask;
+		cbex.iItem = nIndex;
+		cbex.pszText = (LPTSTR) lpszItem;
+		cbex.iImage = nImage;
+		cbex.iSelectedImage = nSelImage;
+		cbex.iIndent = iIndent;
+		cbex.iOverlay = iOverlay;
+		cbex.lParam = lParam;
+		return (int)::SendMessage(m_hWnd, CBEM_INSERTITEM, 0, (LPARAM)&cbex);
+	}
+
+	int InsertItem(int nIndex, LPCTSTR lpszItem, int nImage, int nSelImage, int iIndent, DWORD lParam = 0)
+	{
+		ATLASSERT(::IsWindow(m_hWnd));
+		COMBOBOXEXITEM cbex = { 0 };
+		cbex.mask = CBEIF_TEXT | CBEIF_IMAGE | CBEIF_SELECTEDIMAGE | CBEIF_INDENT | CBEIF_LPARAM;
+		cbex.iItem = nIndex;
+		cbex.pszText = (LPTSTR) lpszItem;
+		cbex.iImage = nImage;
+		cbex.iSelectedImage = nSelImage;
+		cbex.iIndent = iIndent;
+		cbex.lParam = lParam;
+		return (int)::SendMessage(m_hWnd, CBEM_INSERTITEM, 0, (LPARAM)&cbex);
+	}
+
 	int DeleteItem(int nIndex)
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
@@ -8090,6 +8244,110 @@ public:
 		return (BOOL)::SendMessage(m_hWnd, CBEM_SETITEM, 0, (LPARAM)lpcCBItem);
 	}
 
+	int SetItem(int nIndex, UINT nMask, LPCTSTR lpszItem, int nImage, int nSelImage, 
+		int iIndent, int iOverlay, DWORD lParam)
+	{
+		ATLASSERT(::IsWindow(m_hWnd));
+		COMBOBOXEXITEM cbex = { 0 };
+		cbex.mask = nMask;
+		cbex.iItem = nIndex;
+		cbex.pszText = (LPTSTR) lpszItem;
+		cbex.iImage = nImage;
+		cbex.iSelectedImage = nSelImage;
+		cbex.iIndent = iIndent;
+		cbex.iOverlay = iOverlay;
+		cbex.lParam = lParam;
+		return (int)::SendMessage(m_hWnd, CBEM_SETITEM, 0, (LPARAM)&cbex);
+	}
+
+	BOOL GetItemText(int nIndex, LPTSTR lpszItem, int nLen) const
+	{
+		ATLASSERT(::IsWindow(m_hWnd));
+		ATLASSERT(lpszItem != NULL);
+
+		COMBOBOXEXITEM cbex = { 0 };
+		cbex.mask = CBEIF_TEXT;
+		cbex.iItem = nIndex;
+		cbex.pszText = lpszItem;
+		cbex.cchTextMax = nLen;
+
+		return (BOOL)::SendMessage(m_hWnd, CBEM_GETITEM, 0, (LPARAM)&cbex);
+	}
+
+#ifndef _ATL_NO_COM
+	BOOL GetItemText(int nIndex, BSTR& bstrText) const
+	{
+		USES_CONVERSION;
+		ATLASSERT(::IsWindow(m_hWnd));
+		ATLASSERT(bstrText == NULL);
+
+		COMBOBOXEXITEM cbex = { 0 };
+		cbex.mask = CBEIF_TEXT;
+		cbex.iItem = nIndex;
+
+		LPTSTR lpstrText = NULL;
+		BOOL bRet = FALSE;
+		for(int nLen = 256; ; nLen *= 2)
+		{
+			ATLTRY(lpstrText = new TCHAR[nLen]);
+			if(lpstrText == NULL)
+				break;
+			lpstrText[0] = NULL;
+			cbex.pszText = lpstrText;
+			cbex.cchTextMax = nLen;
+			bRet = (BOOL)::SendMessage(m_hWnd, CBEM_GETITEM, 0, (LPARAM)&cbex);
+			if(!bRet || (lstrlen(cbex.pszText) < nLen - 1))
+				break;
+			delete [] lpstrText;
+			lpstrText = NULL;
+		}
+
+		if(lpstrText != NULL)
+		{
+			if(bRet)
+				bstrText = ::SysAllocString(T2OLE(lpstrText));
+			delete [] lpstrText;
+		}
+
+		return (bstrText != NULL) ? TRUE : FALSE;
+	}
+#endif //!_ATL_NO_COM
+
+#if defined(_WTL_USE_CSTRING) || defined(__ATLSTR_H__)
+	BOOL GetItemText(int nIndex, _CSTRING_NS::CString& strText) const
+	{
+		ATLASSERT(::IsWindow(m_hWnd));
+
+		COMBOBOXEXITEM cbex = { 0 };
+		cbex.mask = CBEIF_TEXT;
+		cbex.iItem = nIndex;
+
+		strText.Empty();
+		BOOL bRet = FALSE;
+		for(int nLen = 256; ; nLen *= 2)
+		{
+			cbex.pszText = strText.GetBufferSetLength(nLen);
+			if(cbex.pszText == NULL)
+			{
+				bRet = FALSE;
+				break;
+			}
+			cbex.cchTextMax = nLen;
+			bRet = (BOOL)::SendMessage(m_hWnd, CBEM_GETITEM, 0, (LPARAM)&cbex);
+			if(!bRet || (lstrlen(cbex.pszText) < nLen - 1))
+				break;
+		}
+		strText.ReleaseBuffer();
+		return bRet;
+	}
+#endif //defined(_WTL_USE_CSTRING) || defined(__ATLSTR_H__)
+
+	BOOL SetItemText(int nIndex, LPCTSTR lpszItem)
+	{
+		ATLASSERT(::IsWindow(m_hWnd));
+		return SetItem(nIndex, CBEIF_TEXT, lpszItem, 0, 0, 0, 0, 0);
+	}
+
 	CComboBox GetComboCtrl() const
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
@@ -8106,6 +8364,31 @@ public:
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
 		return (BOOL)::SendMessage(m_hWnd, CBEM_HASEDITCHANGED, 0, 0L);
+	}
+
+// Non-functional
+	int AddString(LPCTSTR lpszItem)
+	{
+		ATLASSERT(FALSE);  // Not available in CComboBoxEx; use InsertItem
+		return 0;
+	}
+
+	int InsertString(int /*nIndex*/, LPCTSTR /*lpszString*/)
+	{
+		ATLASSERT(FALSE);  // Not available in CComboBoxEx; use InsertItem
+		return 0;
+	}
+
+	int Dir(UINT /*attr*/, LPCTSTR /*lpszWildCard*/)
+	{
+		ATLASSERT(FALSE);  // Not available in CComboBoxEx
+		return 0;
+	}
+
+	int FindString(int /*nStartAfter*/, LPCTSTR /*lpszString*/) const
+	{
+		ATLASSERT(FALSE);  // Not available in CComboBoxEx; try FindStringExact
+		return 0;
 	}
 };
 
