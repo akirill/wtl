@@ -2352,7 +2352,7 @@ inline BOOL CString::FormatV(LPCTSTR lpszFormat, va_list argList)
 					// 309 zeroes == max precision of a double
 					// 6 == adjustment in case precision is not specified,
 					//   which means that the precision defaults to 6
-					pszTemp = (LPTSTR)_alloca(max(nWidth, 312 + nPrecision + 6));
+					pszTemp = (LPTSTR)_alloca(max(nWidth, 312 + nPrecision + 6) * sizeof(TCHAR));
 
 					f = va_arg(argList, double);
 					_stprintf(pszTemp, _T("%*.*f"), nWidth, nPrecision + 6, f);
