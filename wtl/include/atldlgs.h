@@ -469,6 +469,9 @@ public:
 		case BFFM_VALIDATEFAILED:
 			nRet = pT->OnValidateFailed((LPCTSTR)lParam);
 			break;
+		case BFFM_IUNKNOWN:
+			pT->OnIUnknown((IUnknown*)lParam);
+			break;
 		default:
 			ATLTRACE2(atlTraceUI, 0, _T("Unknown message received in CFolderDialogImpl::BrowseCallbackProc\n"));
 			break;
@@ -490,6 +493,10 @@ public:
 	int OnValidateFailed(LPCTSTR /*lpstrFolderPath*/)
 	{
 		return 1;   // 1=continue, 0=EndDialog
+	}
+
+	void OnIUnknown(IUnknown* /*pUnknown*/)
+	{
 	}
 
 	// Commands - valid to call only from handlers
@@ -2172,20 +2179,12 @@ public:
 ///////////////////////////////////////////////////////////////////////////////
 // CPropertySheetImpl - implements a property sheet
 
-#if (_MSC_VER >= 1200)
-typedef HPROPSHEETPAGE   _HPROPSHEETPAGE_TYPE;
-#else
-// we use void* here instead of HPROPSHEETPAGE becuase HPROPSHEETPAGE
-// is a _PSP*, but _PSP is not defined properly
-typedef void*   _HPROPSHEETPAGE_TYPE;
-#endif
-
 template <class T, class TBase = CPropertySheetWindow>
 class ATL_NO_VTABLE CPropertySheetImpl : public ATL::CWindowImplBaseT< TBase >
 {
 public:
 	PROPSHEETHEADER m_psh;
-	ATL::CSimpleArray<_HPROPSHEETPAGE_TYPE> m_arrPages;
+	ATL::CSimpleArray<HPROPSHEETPAGE> m_arrPages;
 
 // Construction/Destruction
 	CPropertySheetImpl(ATL::_U_STRINGorID title = (LPCTSTR)NULL, UINT uStartPage = 0, HWND hWndParent = NULL)
@@ -2215,7 +2214,7 @@ public:
 		}
 	}
 
-	static int CALLBACK PropSheetCallback(HWND hWnd, UINT uMsg, LPARAM)
+	static int CALLBACK PropSheetCallback(HWND hWnd, UINT uMsg, LPARAM /*lParam*/)
 	{
 		if(uMsg == PSCB_INITIALIZED)
 		{
@@ -2316,7 +2315,7 @@ public:
 	int GetPageIndex(HPROPSHEETPAGE hPage) const
 	{
 		ATLASSERT(m_hWnd == NULL);   // can't do this after it's created
-		return m_arrPages.Find((_HPROPSHEETPAGE_TYPE&)hPage);
+		return m_arrPages.Find((HPROPSHEETPAGE&)hPage);
 	}
 
 	BOOL SetActivePage(int nPageIndex)
@@ -2382,7 +2381,7 @@ public:
 		if(m_hWnd != NULL)
 			bRet = TBase::AddPage(hPage);
 		else	// sheet not created yet, use internal data
-			bRet = m_arrPages.Add((_HPROPSHEETPAGE_TYPE&)hPage);
+			bRet = m_arrPages.Add((HPROPSHEETPAGE&)hPage);
 		return bRet;
 	}
 
@@ -2635,23 +2634,58 @@ public:
 			SetTitle(title);
 	}
 
+// Callback function and overrideables
 	static UINT CALLBACK PropPageCallback(HWND hWnd, UINT uMsg, LPPROPSHEETPAGE ppsp)
 	{
 		hWnd;   // avoid level 4 warning
-		if(uMsg == PSPCB_CREATE)
+		ATLASSERT(hWnd == NULL);
+		T* pT = (T*)ppsp->lParam;
+		UINT uRet = 0;
+
+		switch(uMsg)
 		{
-			ATLASSERT(hWnd == NULL);
-			ATL::CDialogImplBaseT< TBase >* pPage = (ATL::CDialogImplBaseT< TBase >*)(T*)ppsp->lParam;
+		case PSPCB_CREATE:
+			{
+				ATL::CDialogImplBaseT< TBase >* pPage = (ATL::CDialogImplBaseT< TBase >*)pT;
 #if (_ATL_VER >= 0x0700)
-			ATL::_AtlWinModule.AddCreateWndData(&pPage->m_thunk.cd, pPage);
+				ATL::_AtlWinModule.AddCreateWndData(&pPage->m_thunk.cd, pPage);
 #else //!(_ATL_VER >= 0x0700)
-			_Module.AddCreateWndData(&pPage->m_thunk.cd, pPage);
+				_Module.AddCreateWndData(&pPage->m_thunk.cd, pPage);
 #endif //!(_ATL_VER >= 0x0700)
+				uRet = pT->OnPageCreate() ? 1 : 0;
+			}
+			break;
+#if (_WIN32_IE >= 0x0500)
+		case PSPCB_ADDREF:
+			pT->OnPageAddRef();
+			break;
+#endif //(_WIN32_IE >= 0x0500)
+		case PSPCB_RELEASE:
+			pT->OnPageRelease();
+			break;
+		default:
+			break;
 		}
 
-		return 1;
+		return uRet;
 	}
 
+	bool OnPageCreate()
+	{
+		return true;   // true - allow page to be created, false - prevent creation
+	}
+
+#if (_WIN32_IE >= 0x0500)
+	void OnPageAddRef()
+	{
+	}
+#endif //(_WIN32_IE >= 0x0500)
+
+	void OnPageRelease()
+	{
+	}
+
+// Create method
 	HPROPSHEETPAGE Create()
 	{
 		return ::CreatePropertySheetPage(&m_psp);
