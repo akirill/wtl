@@ -3054,13 +3054,12 @@ public:
 	typedef HTHEME (STDAPICALLTYPE *PFN_OpenThemeData)(HWND hwnd, LPCWSTR pszClassList);
 	typedef HRESULT (STDAPICALLTYPE *PFN_CloseThemeData)(HTHEME hTheme);
 	typedef HRESULT (STDAPICALLTYPE *PFN_DrawThemeBackground)(HTHEME hTheme, HDC hdc, int iPartId, int iStateId, const RECT *pRect, OPTIONAL const RECT *pClipRect);
+	typedef HRESULT (STDAPICALLTYPE *PFN_DrawThemeParentBackground)(HWND hwnd, HDC hdc, OPTIONAL RECT* prc);
 
 	HMODULE m_hThemeDLL;
-	
 	HTHEME m_hTheme;
-	HTHEME m_hThemeRebar;
-
 	PFN_DrawThemeBackground m_pfnDrawThemeBackground;
+	PFN_DrawThemeParentBackground m_pfnDrawThemeParentBackground;
 #endif //!_WTL_NO_AUTO_THEME
 
 // Constructor/destructor
@@ -3069,7 +3068,7 @@ public:
 			m_hWndChildMaximized(NULL), m_hIconChildMaximized(NULL), 
 			m_nBtnPressed(-1), m_nBtnWasPressed(-1),
 #ifndef _WTL_NO_AUTO_THEME
-			m_hThemeDLL(NULL), m_hTheme(NULL), m_hThemeRebar(NULL), m_pfnDrawThemeBackground(NULL),
+			m_hThemeDLL(NULL), m_hTheme(NULL), m_pfnDrawThemeBackground(NULL), m_pfnDrawThemeParentBackground(NULL), 
 #endif //!_WTL_NO_AUTO_THEME
 			m_cxyOffset(2),
 			m_cxIconWidth(16), m_cyIconHeight(16),
@@ -3124,6 +3123,7 @@ public:
 		MESSAGE_HANDLER(WM_CAPTURECHANGED, OnCaptureChanged)
 		CHAIN_MSG_MAP(_baseClass)
 	ALT_MSG_MAP(1)   // Parent window messages
+		MESSAGE_HANDLER(WM_ACTIVATE, OnParentActivate)
 		CHAIN_MSG_MAP_ALT(_baseClass, 1)
 	ALT_MSG_MAP(2)   // MDI client window messages
 		MESSAGE_HANDLER(WM_MDISETMENU, OnMDISetMenu)
@@ -3157,6 +3157,8 @@ public:
 				::FreeLibrary(m_hThemeDLL);
 				m_hThemeDLL = NULL;
 			}
+			m_pfnDrawThemeParentBackground = (PFN_DrawThemeParentBackground)::GetProcAddress(m_hThemeDLL, "DrawThemeParentBackground");
+			ATLASSERT(m_pfnDrawThemeParentBackground != NULL);
 		}
 #endif //!_WTL_NO_AUTO_THEME
 
@@ -3239,20 +3241,15 @@ public:
 		int cxWidth = rect.right - rect.left;
 		int cyHeight = rect.bottom - rect.top;
 
-#ifndef _WTL_NO_AUTO_THEME
-		// assume we are in a rebar, get the client rect of the rebar
-		RECT rcReBar;
-		::GetClientRect(GetParent(), &rcReBar);
-#endif //!_WTL_NO_AUTO_THEME
-
 		// paint left side nonclient background and draw icon
 		::SetRect(&rect, 0, 0, m_cxLeft, cyHeight);
 #ifndef _WTL_NO_AUTO_THEME
-		if(m_hThemeRebar != NULL)
+		if(m_hTheme != NULL)
 		{
-			// referring to uxtheme.h, "iStateId=0" refers to the root part and 
-			// "iPartId" = "0" refers to the root class.  
-			m_pfnDrawThemeBackground(m_hThemeRebar, dc, 0, 0, &rcReBar, &rect);
+			if(m_pfnDrawThemeParentBackground != NULL)
+				m_pfnDrawThemeParentBackground(m_hWnd, dc, &rect);
+			else
+				dc.FillRect(&rect, COLOR_WINDOW);
 		}
 		else
 #endif //!_WTL_NO_AUTO_THEME
@@ -3271,11 +3268,9 @@ public:
 		// paint right side nonclient background
 		::SetRect(&rect, cxWidth - m_cxRight, 0, cxWidth, cyHeight);
 #ifndef _WTL_NO_AUTO_THEME
-		if(m_hThemeRebar != NULL)
+		if(m_hTheme != NULL)
 		{
-			// referring to uxtheme.h, "iStateId=0" refers to the root part and 
-			// "iPartId" = "0" refers to the root class.  
-			m_pfnDrawThemeBackground(m_hThemeRebar, dc, 0, 0, &rcReBar, &rect);
+			dc.FillRect(&rect, COLOR_WINDOW);
 		}
 		else
 #endif //!_WTL_NO_AUTO_THEME
@@ -3533,6 +3528,15 @@ public:
 			bHandled = FALSE;
 		}
 		return 0;
+	}
+
+// Parent window message handlers
+	LRESULT OnParentActivate(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& bHandled)
+	{
+		m_bParentActive = (LOWORD(wParam) != WA_INACTIVE);
+		RedrawWindow(NULL, NULL, RDW_INVALIDATE | RDW_FRAME | RDW_UPDATENOW);
+		bHandled = FALSE;
+		return 1;
 	}
 
 // MDI client window message handlers
@@ -3804,19 +3808,22 @@ public:
 			const int WP_MDICLOSEBUTTON = 20;
 			const int CBS_NORMAL = 1;
 			const int CBS_PUSHED = 3;
+			const int CBS_DISABLED = 4;
 			const int WP_MDIRESTOREBUTTON = 22;
 			const int RBS_NORMAL = 1;
 			const int RBS_PUSHED = 3;
+			const int RBS_DISABLED = 4;
 			const int WP_MDIMINBUTTON = 16;
 			const int MINBS_NORMAL = 1;
 			const int MINBS_PUSHED = 3;
+			const int MINBS_DISABLED = 4;
 #endif //TMSCHEMA_H
 			if(nBtn == -1 || nBtn == 0)
-				m_pfnDrawThemeBackground(m_hTheme, dc, WP_MDICLOSEBUTTON, (m_nBtnPressed == 0) ? CBS_PUSHED : CBS_NORMAL, &pRects[0], NULL);
+				m_pfnDrawThemeBackground(m_hTheme, dc, WP_MDICLOSEBUTTON, m_bParentActive ? ((m_nBtnPressed == 0) ? CBS_PUSHED : CBS_NORMAL) : CBS_DISABLED, &pRects[0], NULL);
 			if(nBtn == -1 || nBtn == 1)
-				m_pfnDrawThemeBackground(m_hTheme, dc, WP_MDIRESTOREBUTTON, (m_nBtnPressed == 1) ? RBS_PUSHED : RBS_NORMAL, &pRects[1], NULL);
+				m_pfnDrawThemeBackground(m_hTheme, dc, WP_MDIRESTOREBUTTON, m_bParentActive ? ((m_nBtnPressed == 1) ? RBS_PUSHED : RBS_NORMAL) : RBS_DISABLED, &pRects[1], NULL);
 			if(nBtn == -1 || nBtn == 2)
-				m_pfnDrawThemeBackground(m_hTheme, dc, WP_MDIMINBUTTON, (m_nBtnPressed == 2) ? MINBS_PUSHED : MINBS_NORMAL, &pRects[2], NULL);
+				m_pfnDrawThemeBackground(m_hTheme, dc, WP_MDIMINBUTTON, m_bParentActive ? ((m_nBtnPressed == 2) ? MINBS_PUSHED : MINBS_NORMAL) : MINBS_DISABLED, &pRects[2], NULL);
 		}
 		else
 #endif //!_WTL_NO_AUTO_THEME
@@ -3845,10 +3852,8 @@ public:
 
 		PFN_OpenThemeData pfnOpenThemeData = (PFN_OpenThemeData)::GetProcAddress(m_hThemeDLL, "OpenThemeData");
 		ATLASSERT(pfnOpenThemeData != NULL);
-		if(pfnOpenThemeData != NULL) {
+		if(pfnOpenThemeData != NULL)
 			m_hTheme = pfnOpenThemeData(m_hWnd, L"Window");
-			m_hThemeRebar = pfnOpenThemeData(m_hWnd, L"Rebar");
-		}
 	}
 
 	void _CloseThemeData()
@@ -3864,9 +3869,6 @@ public:
 		{
 			pfnCloseThemeData(m_hTheme);
 			m_hTheme = NULL;
-
-			pfnCloseThemeData(m_hThemeRebar);
-			m_hThemeRebar=NULL;
 		}
 	}
 #endif //!_WTL_NO_AUTO_THEME
