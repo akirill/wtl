@@ -1824,6 +1824,19 @@ public:
 		return ::GetClipBox(m_hDC, lpRect);
 	}
 
+	int GetClipRgn(CRgn& region) const
+	{
+		ATLASSERT(m_hDC != NULL);
+		if(region.IsNull())
+			region.CreateRectRgn(0, 0, 0, 0);
+
+		int nRet = ::GetClipRgn(m_hDC, region);
+		if(nRet != 1)
+			region.DeleteObject();
+
+		return nRet;
+	}
+
 #ifndef _WIN32_WCE
 	BOOL PtVisible(int x, int y) const
 	{
