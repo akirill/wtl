@@ -1,3 +1,6 @@
+#include <atlctrls.h>
+#include <atlctrlw.h>
+
 class CHelloView : public CWindowImpl<CHelloView>
 {
 public:
@@ -636,6 +639,8 @@ class CMDIFrame : public CMDIFrameWindowImpl<CMDIFrame>, CUpdateUI<CMDIFrame>,
 public:
 	DECLARE_FRAME_WND_CLASS(NULL, IDR_MAINFRAME)
 
+	CMDICommandBarCtrl m_CmdBar;
+
 	virtual BOOL PreTranslateMessage(MSG* pMsg)
 	{
 		return CMDIFrameWindowImpl<CMDIFrame>::PreTranslateMessage(pMsg);
@@ -679,12 +684,25 @@ public:
 
 	LRESULT OnCreate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 	{
-		CreateSimpleToolBar(IDR_MAINFRAME);
-		CreateSimpleStatusBar(_T("Ready"));
-
+		// Create MDIClient
 		CreateMDIClient();
 
-		UIAddToolBar(m_hWndToolBar);
+		// Create MDI CommandBar
+		m_CmdBar.Create(m_hWnd, rcDefault, NULL, ATL_SIMPLE_CMDBAR_PANE_STYLE);
+		m_CmdBar.SetMDIClient(m_hWndClient);
+		m_CmdBar.AttachMenu(GetMenu());
+		SetMenu(NULL);
+
+		// Create Toolbar
+		HWND hWndToolBar = CreateSimpleToolBarCtrl(m_hWnd, IDR_MAINFRAME, FALSE, ATL_SIMPLE_TOOLBAR_PANE_STYLE);
+		UIAddToolBar(hWndToolBar);
+
+		// Create Rebar
+		CreateSimpleReBar(ATL_SIMPLE_REBAR_NOBORDER_STYLE);
+		AddSimpleReBarBand(m_CmdBar);
+		AddSimpleReBarBand(hWndToolBar, NULL, TRUE);
+
+		CreateSimpleStatusBar(_T("Ready"));
 
 		UISetCheck(ID_VIEW_TOOLBAR, 1);
 		UISetCheck(ID_VIEW_STATUS_BAR, 1);
