@@ -760,7 +760,7 @@ public:
 		CEnhMetaFileInfo emfinfo(m_meta);
 		ENHMETAHEADER* pmh = emfinfo.GetEnhMetaFileHeader();
 
-		//Compute whether we are OK vertically or horizontally
+		// Compute whether we are OK vertically or horizontally
 		int x2 = pmh->szlDevice.cx;
 		int y2 = pmh->szlDevice.cy;
 		int y1p = MulDiv(x1, y2, x2);
@@ -782,7 +782,12 @@ public:
 		}
 	}
 
-// Painting helper
+// Painting helpers
+	void DoPaint(CDCHandle dc)
+	{
+		// this one is not used
+	}
+
 	void DoPaint(CDCHandle dc, RECT& rc)
 	{
 		CEnhMetaFileInfo emfinfo(m_meta);
@@ -892,16 +897,16 @@ public:
 	DECLARE_WND_CLASS_EX(_T("WTL_PrintPreview"), CS_VREDRAW | CS_HREDRAW, -1)
 };
 
-#ifdef __ATLSCRL_H__
+
 ///////////////////////////////////////////////////////////////////////////////
 // CZoomPrintPreviewWindowImpl - Implements print preview window with zooming
 
+#ifdef __ATLSCRL_H__
+
 template <class T, class TBase = ATL::CWindow, class TWinTraits = ATL::CControlWinTraits>
-class ATL_NO_VTABLE CZoomPrintPreviewWindowImpl : public CPrintPreviewWindowImpl< T, TBase, TWinTraits >, 
-	public CZoomScrollImpl< T >
+class ATL_NO_VTABLE CZoomPrintPreviewWindowImpl : public CPrintPreviewWindowImpl< T, TBase, TWinTraits >, public CZoomScrollImpl< T >
 {
 public:
-
 	bool m_bSized;
 
 	CZoomPrintPreviewWindowImpl()  
@@ -952,9 +957,6 @@ public:
 	
 	LRESULT OnSize(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 	{
-		T* pT = static_cast<T*>(this);
-		pT;
-
 		SIZE sizeClient = {GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)};
 		POINT ptOffset = m_ptOffset;
 		SIZE sizeAll = m_sizeAll;
@@ -968,6 +970,7 @@ public:
 		if(!m_bSized)
 		{
 			m_bSized = true;
+			T* pT = static_cast<T*>(this);
 			pT->ShowScrollBar(SB_HORZ, TRUE);
 			pT->ShowScrollBar(SB_VERT, TRUE);
 		}
@@ -979,7 +982,7 @@ public:
 		return 1;
 	}
 
-	LRESULT OnPaint(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/)
+	LRESULT OnPaint(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 	{
 		T* pT = static_cast<T*>(this);
 		CPaintDC dc(pT->m_hWnd);
@@ -992,7 +995,7 @@ public:
 			rcArea.right = rcArea.left;
 		if (rcArea.top > rcArea.bottom)
 			rcArea.bottom = rcArea.top;
-		RECT rc;
+		RECT rc = { 0 };
 		GetPageRect(rcArea, &rc);
 		HBRUSH hbrOld = dc.SelectBrush(::GetSysColorBrush(COLOR_BTNSHADOW));
 		dc.PatBlt(rcClient.left, rcClient.top, rc.left - rcClient.left, rcClient.bottom - rcClient.top, PATCOPY);
@@ -1009,7 +1012,12 @@ public:
 		return 0;
 	}
 
-	//Painting helper
+	// Painting helpers
+	void DoPaint(CDCHandle dc)
+	{
+		// this one is not used
+	}
+
 	void DoPaint(CDCHandle dc, RECT& rc)
 	{
 		CEnhMetaFileInfo emfinfo(m_meta);

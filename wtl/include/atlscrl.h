@@ -1299,7 +1299,7 @@ public:
 			m_fZoomScale = fZoomScale;
 	}
 
-	float GetZoomScale()
+	float GetZoomScale() const
 	{
 		return m_fZoomScale;
 	}
@@ -1309,7 +1309,7 @@ public:
 		m_fZoomScaleMin = fZoomScaleMin;
 	}
 
-	float GetZoomScaleMin()
+	float GetZoomScaleMin() const
 	{
 		return m_fZoomScaleMin;
 	}
@@ -1322,7 +1322,7 @@ public:
 			m_fZoomDelta = fZoomDelta;
 	}
 
-	float GetZoomDelta()
+	float GetZoomDelta() const
 	{
 		return m_fZoomDelta;
 	}
@@ -1332,7 +1332,7 @@ public:
 		m_nZoomMode = nZoomMode;
 	}
 
-	int GetZoomMode()
+	int GetZoomMode() const
 	{
 		return m_nZoomMode;
 	}
@@ -1591,7 +1591,7 @@ public:
 		return 0;
 	}
 
-	LRESULT OnLButtonDown(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+	LRESULT OnLButtonDown(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& bHandled)
 	{
 		if(m_nZoomMode == ZOOMMODE_IN && !m_bTracking)
 		{
@@ -1608,7 +1608,7 @@ public:
 		return 0;
 	}
 
-	LRESULT OnMouseMove(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+	LRESULT OnMouseMove(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& bHandled)
 	{
 		if(m_bTracking)
 		{
@@ -1625,7 +1625,7 @@ public:
 		return 0;
 	}
 
-	LRESULT OnLButtonUp(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+	LRESULT OnLButtonUp(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& bHandled)
 	{
 		::ReleaseCapture();
 		if(m_nZoomMode == ZOOMMODE_OUT)
@@ -1637,7 +1637,7 @@ public:
 		return 0;
 	}
 
-	LRESULT OnCaptureChanged(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+	LRESULT OnCaptureChanged(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
 	{
 		if(m_bTracking)
 		{
