@@ -207,10 +207,10 @@ public:
 		return ::GetThemeTextExtent(m_hTheme, hDC, nPartID, nStateID, pszText, nCharCount, dwTextFlags, pBoundingRect, pExtentRect);
 	}
 
-	HRESULT GetThemeTextMetrics(HDC hDC, int nPartID, int nStateID, PTEXTMETRIC pTextMetric) const
+	HRESULT GetThemeTextMetrics(HDC hDC, int nPartID, int nStateID, PTEXTMETRICW pTextMetric) const
 	{
 		ATLASSERT(m_hTheme != NULL);
-		return ::GetThemeTextMetrics(m_hTheme, hDC, nPartID, nStateID, pTextMetric);
+		return ::GetThemeTextMetrics(m_hTheme, hDC, nPartID, nStateID, (PTEXTMETRIC)pTextMetric);
 	}
 
 	HRESULT GetThemeBackgroundRegion(HDC hDC, int nPartID, int nStateID, LPCRECT pRect, HRGN* pRegion) const
@@ -292,16 +292,16 @@ public:
 	}
 
 	// deprecated
-	HRESULT GetThemeFont(int nPartID, HDC hDC, int nStateID, int nPropID, LOGFONT* pFont) const
+	HRESULT GetThemeFont(int nPartID, HDC hDC, int nStateID, int nPropID, LOGFONTW* pFont) const
 	{
 		ATLASSERT(m_hTheme != NULL);
-		return ::GetThemeFont(m_hTheme, hDC, nPartID, nStateID, nPropID, pFont);
+		return ::GetThemeFont(m_hTheme, hDC, nPartID, nStateID, nPropID, (LOGFONT*)pFont);
 	}
 
-	HRESULT GetThemeFont(HDC hDC, int nPartID, int nStateID, int nPropID, LOGFONT* pFont) const
+	HRESULT GetThemeFont(HDC hDC, int nPartID, int nStateID, int nPropID, LOGFONTW* pFont) const
 	{
 		ATLASSERT(m_hTheme != NULL);
-		return ::GetThemeFont(m_hTheme, hDC, nPartID, nStateID, nPropID, pFont);
+		return ::GetThemeFont(m_hTheme, hDC, nPartID, nStateID, nPropID, (LOGFONT*)pFont);
 	}
 
 	HRESULT GetThemeRect(int nPartID, int nStateID, int nPropID, LPRECT pRect) const
@@ -358,10 +358,10 @@ public:
 		return ::GetThemeSysBool(m_hTheme, nBoolID);
 	}
 
-	HRESULT GetThemeSysFont(int nFontID, LOGFONT* plf) const
+	HRESULT GetThemeSysFont(int nFontID, LOGFONTW* plf) const
 	{
 		ATLASSERT(m_hTheme != NULL);
-		return ::GetThemeSysFont(m_hTheme, nFontID, plf);
+		return ::GetThemeSysFont(m_hTheme, nFontID, (LOGFONT*)plf);
 	}
 
 	HRESULT GetThemeSysString(int nStringID, LPWSTR pszStringBuff, int cchMaxStringChars) const
