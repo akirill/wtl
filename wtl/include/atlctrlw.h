@@ -1326,9 +1326,9 @@ public:
 #endif //!SPI_GETFLATMENU
 
 		if(wParam == SPI_SETNONCLIENTMETRICS || wParam == SPI_SETKEYBOARDCUES || wParam == SPI_SETFLATMENU)
-		{
-			T* pT = static_cast<T*>(this);
-			pT->GetSystemSettings();
+	{
+		T* pT = static_cast<T*>(this);
+		pT->GetSystemSettings();
 		}
 
 		return 0;
@@ -3008,7 +3008,7 @@ public:
 // Implementation
 	bool CreateInternalImageList(int cImages)
 	{
-		UINT uFlags = (m_bAlphaImages ? ILC_COLOR32 : ILC_COLOR) | ILC_MASK;
+		UINT uFlags = (m_bAlphaImages ? ILC_COLOR32 : ILC_COLOR24) | ILC_MASK;
 		m_hImageList = ::ImageList_Create(m_szBitmap.cx, m_szBitmap.cy, uFlags, cImages, 1);
 		ATLASSERT(m_hImageList != NULL);
 		return (m_hImageList != NULL);
