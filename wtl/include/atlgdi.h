@@ -65,11 +65,43 @@
 // CEnhMetaFileDC
 //
 // Global functions:
+//   AtlGetBitmapResourceInfo()
+//   AtlGetBitmapResourceBitsPerPixel()
 //   AtlIsAlphaBitmapResource()
 
 
 namespace WTL
 {
+
+///////////////////////////////////////////////////////////////////////////////
+// Bitmap resource helpers to extract bitmap information for a bitmap resource
+
+inline LPBITMAPINFOHEADER AtlGetBitmapResourceInfo(HMODULE hModule, ATL::_U_STRINGorID image)
+{
+	HRSRC hResource = ::FindResource(hModule, image.m_lpstr, RT_BITMAP);
+	ATLASSERT(hResource != NULL);
+	HGLOBAL hGlobal = ::LoadResource(hModule, hResource);
+	ATLASSERT(hGlobal != NULL);
+	LPBITMAPINFOHEADER pBitmapInfoHeader = (LPBITMAPINFOHEADER)::LockResource(hGlobal);
+	ATLASSERT(pBitmapInfoHeader != NULL);
+	return pBitmapInfoHeader;
+}
+
+inline WORD AtlGetBitmapResourceBitsPerPixel(HMODULE hModule, ATL::_U_STRINGorID image)
+{
+	LPBITMAPINFOHEADER pBitmapInfoHeader = AtlGetBitmapResourceInfo(hModule, image);
+	ATLASSERT(pBitmapInfoHeader != NULL);
+	return pBitmapInfoHeader->biBitCount;
+}
+
+inline WORD AtlGetBitmapResourceBitsPerPixel(ATL::_U_STRINGorID image)
+{
+#if (_ATL_VER >= 0x0700)
+	return AtlGetBitmapResourceBitsPerPixel(ATL::_AtlBaseModule.GetResourceInstance(), image);
+#else //!(_ATL_VER >= 0x0700)
+	return AtlGetBitmapResourceBitsPerPixel(ATL::_pModule->GetResourceInstance(), image);
+#endif //!(_ATL_VER >= 0x0700)
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 // 32-bit (alpha channel) bitmap resource helper
@@ -80,20 +112,7 @@ namespace WTL
 
 inline bool AtlIsAlphaBitmapResource(ATL::_U_STRINGorID image)
 {
-#if (_ATL_VER >= 0x0700)
-	HRSRC hResource = ::FindResource(ATL::_AtlBaseModule.GetResourceInstance(), image.m_lpstr, RT_BITMAP);
-	ATLASSERT(hResource != NULL);
-	HGLOBAL hGlobal = ::LoadResource(ATL::_AtlBaseModule.GetResourceInstance(), hResource);
-	ATLASSERT(hGlobal != NULL);
-#else //!(_ATL_VER >= 0x0700)
-	HRSRC hResource = ::FindResource(ATL::_pModule->GetResourceInstance(), image.m_lpstr, RT_BITMAP);
-	ATLASSERT(hResource != NULL);
-	HGLOBAL hGlobal = ::LoadResource(ATL::_pModule->GetResourceInstance(), hResource);
-	ATLASSERT(hGlobal != NULL);
-#endif //!(_ATL_VER >= 0x0700)
-	LPBITMAPINFOHEADER pBitmapInfoHeader = (LPBITMAPINFOHEADER)::LockResource(hGlobal);
-	ATLASSERT(pBitmapInfoHeader != NULL);
-	return (pBitmapInfoHeader->biBitCount == 32);
+	return (AtlGetBitmapResourceBitsPerPixel(image) == 32);
 }
 
 
@@ -565,10 +584,10 @@ public:
 	}
 #endif //!_WIN32_WCE
 
-	HBITMAP CreateBitmap(int nWidth, int nHeight, UINT nPlanes, UINT nBitcount, const void* lpBits)
+	HBITMAP CreateBitmap(int nWidth, int nHeight, UINT nPlanes, UINT nBitsPerPixel, const void* lpBits)
 	{
 		ATLASSERT(m_hBitmap == NULL);
-		m_hBitmap = ::CreateBitmap(nWidth, nHeight, nPlanes, nBitcount, lpBits);
+		m_hBitmap = ::CreateBitmap(nWidth, nHeight, nPlanes, nBitsPerPixel, lpBits);
 		return m_hBitmap;
 	}
 
