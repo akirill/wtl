@@ -3056,7 +3056,10 @@ public:
 	typedef HRESULT (STDAPICALLTYPE *PFN_DrawThemeBackground)(HTHEME hTheme, HDC hdc, int iPartId, int iStateId, const RECT *pRect, OPTIONAL const RECT *pClipRect);
 
 	HMODULE m_hThemeDLL;
+	
 	HTHEME m_hTheme;
+	HTHEME m_hThemeRebar;
+
 	PFN_DrawThemeBackground m_pfnDrawThemeBackground;
 #endif //!_WTL_NO_AUTO_THEME
 
@@ -3066,7 +3069,7 @@ public:
 			m_hWndChildMaximized(NULL), m_hIconChildMaximized(NULL), 
 			m_nBtnPressed(-1), m_nBtnWasPressed(-1),
 #ifndef _WTL_NO_AUTO_THEME
-			m_hThemeDLL(NULL), m_hTheme(NULL), m_pfnDrawThemeBackground(NULL),
+			m_hThemeDLL(NULL), m_hTheme(NULL), m_hThemeRebar(NULL), m_pfnDrawThemeBackground(NULL),
 #endif //!_WTL_NO_AUTO_THEME
 			m_cxyOffset(2),
 			m_cxIconWidth(16), m_cyIconHeight(16),
@@ -3236,12 +3239,20 @@ public:
 		int cxWidth = rect.right - rect.left;
 		int cyHeight = rect.bottom - rect.top;
 
+#ifndef _WTL_NO_AUTO_THEME
+		// assume we are in a rebar, get the client rect of the rebar
+		RECT rcReBar;
+		::GetClientRect(GetParent(), &rcReBar);
+#endif //!_WTL_NO_AUTO_THEME
+
 		// paint left side nonclient background and draw icon
 		::SetRect(&rect, 0, 0, m_cxLeft, cyHeight);
 #ifndef _WTL_NO_AUTO_THEME
-		if(m_hTheme != NULL)
+		if(m_hThemeRebar != NULL)
 		{
-			dc.FillRect(&rect, COLOR_WINDOW);
+			// referring to uxtheme.h, "iStateId=0" refers to the root part and 
+			// "iPartId" = "0" refers to the root class.  
+			m_pfnDrawThemeBackground(m_hThemeRebar, dc, 0, 0, &rcReBar, &rect);
 		}
 		else
 #endif //!_WTL_NO_AUTO_THEME
@@ -3260,9 +3271,11 @@ public:
 		// paint right side nonclient background
 		::SetRect(&rect, cxWidth - m_cxRight, 0, cxWidth, cyHeight);
 #ifndef _WTL_NO_AUTO_THEME
-		if(m_hTheme != NULL)
+		if(m_hThemeRebar != NULL)
 		{
-			dc.FillRect(&rect, COLOR_WINDOW);
+			// referring to uxtheme.h, "iStateId=0" refers to the root part and 
+			// "iPartId" = "0" refers to the root class.  
+			m_pfnDrawThemeBackground(m_hThemeRebar, dc, 0, 0, &rcReBar, &rect);
 		}
 		else
 #endif //!_WTL_NO_AUTO_THEME
@@ -3832,8 +3845,10 @@ public:
 
 		PFN_OpenThemeData pfnOpenThemeData = (PFN_OpenThemeData)::GetProcAddress(m_hThemeDLL, "OpenThemeData");
 		ATLASSERT(pfnOpenThemeData != NULL);
-		if(pfnOpenThemeData != NULL)
+		if(pfnOpenThemeData != NULL) {
 			m_hTheme = pfnOpenThemeData(m_hWnd, L"Window");
+			m_hThemeRebar = pfnOpenThemeData(m_hWnd, L"Rebar");
+		}
 	}
 
 	void _CloseThemeData()
@@ -3849,6 +3864,9 @@ public:
 		{
 			pfnCloseThemeData(m_hTheme);
 			m_hTheme = NULL;
+
+			pfnCloseThemeData(m_hThemeRebar);
+			m_hThemeRebar=NULL;
 		}
 	}
 #endif //!_WTL_NO_AUTO_THEME
