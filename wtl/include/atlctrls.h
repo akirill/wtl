@@ -3485,7 +3485,7 @@ public:
 		return (DWORD)::SendMessage(m_hWnd, LVM_APPROXIMATEVIEWRECT, nCount, MAKELPARAM(cx, cy));
 	}
 
-	int SubItemHitTest(LPLVHITTESTINFO lpInfo)
+	int SubItemHitTest(LPLVHITTESTINFO lpInfo) const
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
 		return (int)::SendMessage(m_hWnd, LVM_SUBITEMHITTEST, 0, (LPARAM)lpInfo);
@@ -3588,7 +3588,7 @@ public:
 		return (BOOL)::SendMessage(m_hWnd, LVM_HASGROUP, nGroupID, 0L);
 	}
 
-	BOOL InsertMarkHitTest(LPPOINT lpPoint, LPLVINSERTMARK pInsertMark)
+	BOOL InsertMarkHitTest(LPPOINT lpPoint, LPLVINSERTMARK pInsertMark) const
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
 		return (BOOL)::SendMessage(m_hWnd, LVM_INSERTMARKHITTEST, (WPARAM)lpPoint, (LPARAM)pInsertMark);
@@ -4192,13 +4192,13 @@ public:
 		return (BOOL)::SendMessage(m_hWnd, TVM_ENDEDITLABELNOW, bCancel, 0L);
 	}
 
-	HTREEITEM HitTest(TVHITTESTINFO* pHitTestInfo)
+	HTREEITEM HitTest(TVHITTESTINFO* pHitTestInfo) const
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
 		return (HTREEITEM)::SendMessage(m_hWnd, TVM_HITTEST, 0, (LPARAM)pHitTestInfo);
 	}
 
-	HTREEITEM HitTest(POINT pt, UINT* pFlags)
+	HTREEITEM HitTest(POINT pt, UINT* pFlags) const
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
 		TVHITTESTINFO hti = { 0 };
@@ -5502,20 +5502,20 @@ public:
 	}
 
 #if (_WIN32_IE >= 0x0400)
-	int HitTest(LPPOINT lpPoint)
+	int HitTest(LPPOINT lpPoint) const
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
 		return (int)::SendMessage(m_hWnd, TB_HITTEST, 0, (LPARAM)lpPoint);
 	}
 
 #ifndef _WIN32_WCE
-	BOOL InsertMarkHitTest(LPPOINT lpPoint, LPTBINSERTMARK lptbim)
+	BOOL InsertMarkHitTest(LPPOINT lpPoint, LPTBINSERTMARK lptbim) const
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
 		return (BOOL)::SendMessage(m_hWnd, TB_INSERTMARKHITTEST, (WPARAM)lpPoint, (LPARAM)lptbim);
 	}
 
-	BOOL InsertMarkHitTest(int x, int y, LPTBINSERTMARK lptbim)
+	BOOL InsertMarkHitTest(int x, int y, LPTBINSERTMARK lptbim) const
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
 		POINT pt = { x, y };
