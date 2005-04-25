@@ -2038,7 +2038,7 @@ public:
 	}
 
 #if (_WIN32_IE >= 0x0400)
-	CImageList Duplicate()
+	CImageList Duplicate() const
 	{
 		ATLASSERT(m_hImageList != NULL);
 		return CImageList(ImageList_Duplicate(m_hImageList));
