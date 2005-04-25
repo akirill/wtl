@@ -731,14 +731,20 @@ public:
 		return m_hIcon;
 	}
 
-	HICON LoadOEMIcon(UINT nIDIcon)   // for IDI_* types
+#ifndef _WIN32_WCE
+	HICON LoadOEMIcon(LPCTSTR lpstrIconName)
 	{
 		ATLASSERT(m_hIcon == NULL);
-		m_hIcon = ::LoadIcon(NULL, MAKEINTRESOURCE(nIDIcon));
+		ATLASSERT(lpstrIconName == IDI_APPLICATION ||
+			lpstrIconName == IDI_ASTERISK ||
+			lpstrIconName == IDI_EXCLAMATION ||
+			lpstrIconName == IDI_HAND ||
+			lpstrIconName == IDI_QUESTION ||
+			lpstrIconName == IDI_WINLOGO);
+		m_hIcon = ::LoadIcon(NULL, lpstrIconName);
 		return m_hIcon;
 	}
 
-#ifndef _WIN32_WCE
 	HICON CreateIcon(int nWidth, int nHeight, BYTE cPlanes, BYTE cBitsPixel, CONST BYTE* lpbANDbits, CONST BYTE *lpbXORbits)
 	{
 		ATLASSERT(m_hIcon == NULL);
@@ -931,10 +937,15 @@ public:
 		return m_hCursor;
 	}
 
-	HCURSOR LoadOEMCursor(UINT nIDCursor)   // for IDC_ types
+	HCURSOR LoadOEMCursor(LPCTSTR lpstrCursorName)
 	{
 		ATLASSERT(m_hCursor == NULL);
-		m_hCursor = ::LoadCursor(NULL, MAKEINTRESOURCE(nIDCursor));
+		ATLASSERT(lpstrCursorName == IDC_ARROW || lpstrCursorName == IDC_IBEAM || lpstrCursorName == IDC_WAIT ||
+			lpstrCursorName == IDC_CROSS || lpstrCursorName == IDC_UPARROW || lpstrCursorName == IDC_SIZE ||
+			lpstrCursorName == IDC_ICON || lpstrCursorName == IDC_SIZENWSE || lpstrCursorName == IDC_SIZENESW ||
+			lpstrCursorName == IDC_SIZEWE || lpstrCursorName == IDC_SIZENS || lpstrCursorName == IDC_SIZEALL ||
+			lpstrCursorName == IDC_NO || lpstrCursorName == IDC_APPSTARTING || lpstrCursorName == IDC_HELP);
+		m_hCursor = ::LoadCursor(NULL, lpstrCursorName);
 		return m_hCursor;
 	}
 

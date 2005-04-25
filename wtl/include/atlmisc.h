@@ -3675,13 +3675,13 @@ inline HBITMAP AtlLoadBitmap(ATL::_U_STRINGorID bitmap)
 }
 
 #ifdef OEMRESOURCE
-inline HBITMAP AtlLoadSysBitmap(LPCTSTR lpBitmapName)
+inline HBITMAP AtlLoadSysBitmap(ATL::_U_STRINGorID bitmap)
 {
 #ifdef _DEBUG
-	WORD wID = (WORD)lpBitmapName;
+	WORD wID = (WORD)bitmap.m_lpstr;
 	ATLASSERT(wID >= 32734 && wID <= 32767);
 #endif //_DEBUG
-	return ::LoadBitmap(NULL, lpBitmapName);
+	return ::LoadBitmap(NULL, bitmap.m_lpstr);
 }
 #endif //OEMRESOURCE
 
