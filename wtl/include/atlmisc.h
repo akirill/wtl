@@ -2937,7 +2937,8 @@ public:
 		m_nMaxEntries_Min = 2,
 		m_nMaxEntries_Max = t_nLastID - t_nFirstID + 1,
 		m_cchMaxItemLen_Min = 6,
-		m_cchMaxItemLen_Max = t_cchItemLen
+		m_cchMaxItemLen_Max = t_cchItemLen,
+		m_cchItemNameLen = 11
 	};
 
 // Data members
@@ -2971,7 +2972,7 @@ public:
 		{
 			T* pT = static_cast<T*>(this);
 			pT;   // avoid level 4 warning
-			lstrcpy(m_szNoEntries, pT->GetMRUEmptyText());
+			lstrcpyn(m_szNoEntries, pT->GetMRUEmptyText(), t_cchItemLen);
 		}
 	}
 
@@ -3116,8 +3117,7 @@ public:
 
 		for(int nItem = m_nMaxEntries; nItem > 0; nItem--)
 		{
-			const int cchBuff = 11;
-			TCHAR szBuff[cchBuff] = { 0 };
+			TCHAR szBuff[m_cchItemNameLen] = { 0 };
 			wsprintf(szBuff, pT->GetRegItemName(), nItem);
 #if (_ATL_VER >= 0x0700)
 			ULONG ulCount = t_cchItemLen;
@@ -3161,8 +3161,7 @@ public:
 		int nItem;
 		for(nItem = m_arrDocs.GetSize(); nItem > 0; nItem--)
 		{
-			const int cchBuff = 11;
-			TCHAR szBuff[cchBuff] = { 0 };
+			TCHAR szBuff[m_cchItemNameLen] = { 0 };
 			wsprintf(szBuff, pT->GetRegItemName(), nItem);
 			TCHAR szDocName[t_cchItemLen] = { 0 };
 			GetFromList(t_nFirstID + nItem - 1, szDocName);
@@ -3177,8 +3176,7 @@ public:
 		// delete unused keys
 		for(nItem = m_arrDocs.GetSize() + 1; nItem < m_nMaxEntries_Max; nItem++)
 		{
-			const int cchBuff = 11;
-			TCHAR szBuff[cchBuff] = { 0 };
+			TCHAR szBuff[m_cchItemNameLen] = { 0 };
 			wsprintf(szBuff, pT->GetRegItemName(), nItem);
 			rk.DeleteValue(szBuff);
 		}
@@ -3270,6 +3268,9 @@ public:
 
 	static LPCTSTR GetRegItemName()
 	{
+		// Note: This string is a format string used with wsprintf().
+		// Resulting formatted string must be m_cchItemNameLen or less 
+		// characters long, including the terminating null character.
 		return _T("Document%i");
 	}
 
