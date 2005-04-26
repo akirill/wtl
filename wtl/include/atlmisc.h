@@ -2914,7 +2914,7 @@ inline BSTR CString::SetSysString(BSTR* pbstr) const
 #ifndef _WIN32_WCE
 
 #ifndef _WTL_MRUEMPTY_TEXT
-#define _WTL_MRUEMPTY_TEXT	_T("(empty)")
+  #define _WTL_MRUEMPTY_TEXT	_T("(empty)")
 #endif
 
 // forward declaration
@@ -2968,7 +2968,11 @@ public:
 		ATLASSERT(hMenu == NULL || ::IsMenu(hMenu));
 		m_hMenu = hMenu;
 		if(m_hMenu == NULL || (::GetMenuString(m_hMenu, t_nFirstID, m_szNoEntries, t_cchItemLen, MF_BYCOMMAND) == 0))
-			lstrcpy(m_szNoEntries, _WTL_MRUEMPTY_TEXT);
+		{
+			T* pT = static_cast<T*>(this);
+			pT;   // avoid level 4 warning
+			lstrcpy(m_szNoEntries, pT->GetMRUEmptyText());
+		}
 	}
 
 	int GetMaxEntries() const
@@ -3097,9 +3101,9 @@ public:
 
 		DWORD dwRet = 0;
 #if (_ATL_VER >= 0x0700)
-		lRet = rk.QueryDWORDValue(_T("DocumentCount"), dwRet);
+		lRet = rk.QueryDWORDValue(pT->GetRegCountName(), dwRet);
 #else
-		lRet = rk.QueryValue(dwRet, _T("DocumentCount"));
+		lRet = rk.QueryValue(dwRet, pT->GetRegCountName());
 #endif
 		if(lRet != ERROR_SUCCESS)
 			return FALSE;
@@ -3114,7 +3118,7 @@ public:
 		{
 			const int cchBuff = 11;
 			TCHAR szBuff[cchBuff] = { 0 };
-			wsprintf(szBuff, _T("Document%i"), nItem);
+			wsprintf(szBuff, pT->GetRegItemName(), nItem);
 #if (_ATL_VER >= 0x0700)
 			ULONG ulCount = t_cchItemLen;
 			lRet = rk.QueryStringValue(szBuff, szRetString, &ulCount);
@@ -3147,9 +3151,9 @@ public:
 			return FALSE;
 
 #if (_ATL_VER >= 0x0700)
-		lRet = rk.SetDWORDValue(_T("DocumentCount"), m_nMaxEntries);
+		lRet = rk.SetDWORDValue(pT->GetRegCountName(), m_nMaxEntries);
 #else
-		lRet = rk.SetValue(m_nMaxEntries, _T("DocumentCount"));
+		lRet = rk.SetValue(m_nMaxEntries, pT->GetRegCountName());
 #endif
 		ATLASSERT(lRet == ERROR_SUCCESS);
 
@@ -3159,7 +3163,7 @@ public:
 		{
 			const int cchBuff = 11;
 			TCHAR szBuff[cchBuff] = { 0 };
-			wsprintf(szBuff, _T("Document%i"), nItem);
+			wsprintf(szBuff, pT->GetRegItemName(), nItem);
 			TCHAR szDocName[t_cchItemLen] = { 0 };
 			GetFromList(t_nFirstID + nItem - 1, szDocName);
 #if (_ATL_VER >= 0x0700)
@@ -3175,7 +3179,7 @@ public:
 		{
 			const int cchBuff = 11;
 			TCHAR szBuff[cchBuff] = { 0 };
-			wsprintf(szBuff, _T("Document%i"), nItem);
+			wsprintf(szBuff, pT->GetRegItemName(), nItem);
 			rk.DeleteValue(szBuff);
 		}
 
@@ -3257,6 +3261,21 @@ public:
 	static LPCTSTR GetRegKeyName()
 	{
 		return _T("Recent Document List");
+	}
+
+	static LPCTSTR GetRegCountName()
+	{
+		return _T("DocumentCount");
+	}
+
+	static LPCTSTR GetRegItemName()
+	{
+		return _T("Document%i");
+	}
+
+	static LPCTSTR GetMRUEmptyText()
+	{
+		return _WTL_MRUEMPTY_TEXT;
 	}
 };
 
