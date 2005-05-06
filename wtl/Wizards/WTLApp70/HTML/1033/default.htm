@@ -196,7 +196,7 @@
 											<TABLE WIDTH="160" HEIGHT="28" BORDER="0" CELLPADDING="0" CELLSPACING="0" CLASS="LINKTEXTSELECTED">
 												<TR VALIGN="center">
 													<TD WIDTH="156">
-														<SPAN ID="Page_0" TITLE="Examine an overview of selections" onClick="Next(document, 'default.htm');" TABINDEX="1">Overview</SPAN>
+														<SPAN ID="Default" TITLE="Examine an overview of selections" onClick="Next(document, 'default.htm');" TABINDEX="1">Overview</SPAN>
 													</TD>
 													<TD WIDTH="4">
 														<IMG SRC="../../Images/spacer.gif" HEIGHT="1" WIDTH="4">
@@ -208,7 +208,7 @@
 											<TABLE WIDTH="166" HEIGHT="28" BORDER="0" CELLPADDING="0" CELLSPACING="0" CLASS="LINKTEXT">
 												<TR VALIGN="center">
 													<TD WIDTH="162">
-														<SPAN CLASS="ACTIVELINK" ID="Page_1" TITLE="Specify the application type and project options." onClick="Next(document, 'AppType.htm');" TABINDEX="1">
+														<SPAN CLASS="ACTIVELINK" ID="AppType" TITLE="Specify the application type and project options." onClick="Next(document, 'AppType.htm');" TABINDEX="1">
 															Application Type</SPAN>
 													</TD>
 													<TD WIDTH="4">
@@ -221,7 +221,7 @@
 											<TABLE WIDTH="166" HEIGHT="28" BORDER="0" CELLPADDING="0" CELLSPACING="0" CLASS="LINKTEXT">
 												<TR VALIGN="center">
 													<TD WIDTH="162">
-														<SPAN CLASS="ACTIVELINK" ID="Page_2" TITLE="Specify features for the selected application type." onClick="Next(document, 'UIFeatures.htm');" TABINDEX="1">
+														<SPAN CLASS="ACTIVELINK" ID="UIFeatures" TITLE="Specify features for the selected application type." onClick="Next(document, 'UIFeatures.htm');" TABINDEX="1">
 															User Interface Features</SPAN>
 													</TD>
 													<TD WIDTH="4">
@@ -375,9 +375,9 @@
 		<SCRIPT LANGUAGE="JSCRIPT">
 
 var tab_array = new Array();
-tab_array[0] = Page_0;
-tab_array[1] = Page_1;
-tab_array[2] = Page_2;
+tab_array[0] = Default;
+tab_array[1] = AppType;
+tab_array[2] = UIFeatures;
 
 function InitDocument(document)
 {
@@ -411,9 +411,9 @@ function OnFinish(document)
 function OnInit()
 {
 	if(window.external.FindSymbol("WTL_APPTYPE_DLG"))
-		Page_2.className = "inactivelink";
+		UIFeatures.className = "inactivelink";
 	else
-		Page_2.className = "activelink";
+		UIFeatures.className = "activelink";
 
 	if(window.external.FindSymbol("WTL_APPTYPE_SDI"))
 	{
