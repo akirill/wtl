@@ -4367,9 +4367,9 @@ public:
 	BOOL EnsureVisible();
 	CTreeItemT<TBase> _Insert(LPCTSTR lpstrItem, int nImageIndex, HTREEITEM hItemAfter);
 	int GetImageIndex() const;
-#if (_WIN32_IE >= 0x0400)
+#if (_WIN32_IE >= 0x0400) && !defined(_WIN32_WCE)
 	BOOL SetInsertMark(BOOL bAfter);
-#endif //(_WIN32_IE >= 0x0400)
+#endif //(_WIN32_IE >= 0x0400) && !defined(_WIN32_WCE)
 #if (_WIN32_WINNT >= 0x0501)
 	UINT MapHTREEITEMToAccID() const;
 #endif //(_WIN32_WINNT >= 0x0501)
@@ -9366,7 +9366,7 @@ public:
 	}
 };
 
-typedef CCECommandBandsCtrlT<CWindow>	CCECommandBandsCtrl;
+typedef CCECommandBandsCtrlT<ATL::CWindow>	CCECommandBandsCtrl;
 
 #endif //_WIN32_WCE
 

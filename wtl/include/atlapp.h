@@ -41,7 +41,7 @@
 #endif //defined(_WIN32_WCE) && defined(_ATL_MIN_CRT)
 
 #include <limits.h>
-#if !defined(_ATL_MIN_CRT) && defined(_MT)
+#if !defined(_ATL_MIN_CRT) && defined(_MT) && !defined(_WIN32_WCE)
   #include <process.h>	// for _beginthreadex
 #endif
 
@@ -91,6 +91,96 @@
   #define SW_SHOWDEFAULT	SW_SHOWNORMAL
 #endif //!SW_SHOWDEFAULT
 
+// These get's OR-ed in a constant and will have no effect.
+// Defining them reduces the number of #ifdefs required for CE.
+#define LR_DEFAULTSIZE      0
+#define LR_LOADFROMFILE     0
+
+inline BOOL IsMenu(HMENU hMenu)
+{
+	MENUITEMINFO mii = { 0 };
+	mii.cbSize = sizeof(mii);
+	::SetLastError(0);
+	BOOL bRet = ::GetMenuItemInfo(hMenu, 0, TRUE, &mii);
+	if(!bRet)
+		bRet = (::GetLastError() != ERROR_INVALID_MENU_HANDLE) ? TRUE : FALSE;
+	return bRet;
+}
+
+extern "C" void WINAPI ListView_SetItemSpacing(HWND hwndLV, int iHeight);
+
+inline int MulDiv(IN int nNumber, IN int nNumerator, IN int nDenominator)
+{
+	__int64 multiple = nNumber * nNumerator;
+	return static_cast<int>(multiple / nDenominator);
+}
+
+#if (_ATL_VER >= 0x0800)
+
+#ifndef _WTL_KEEP_WS_OVERLAPPEDWINDOW
+  #ifdef WS_OVERLAPPEDWINDOW
+    #undef WS_OVERLAPPEDWINDOW
+    #define WS_OVERLAPPEDWINDOW	0
+  #endif //WS_OVERLAPPEDWINDOW
+#endif //!_WTL_KEEP_WS_OVERLAPPEDWINDOW
+
+#ifndef RDW_FRAME
+  #define RDW_FRAME	0
+#endif //!RDW_FRAME
+
+#ifndef WM_WINDOWPOSCHANGING
+  #define WM_WINDOWPOSCHANGING	0
+#endif //!WM_WINDOWPOSCHANGING
+
+#define FreeResource(x)
+#define UnlockResource(x)
+
+namespace ATL
+{
+  inline HRESULT CComModule::RegisterClassObjects(DWORD /*dwClsContext*/, DWORD /*dwFlags*/) throw()
+  { return E_NOTIMPL; }
+  inline HRESULT CComModule::RevokeClassObjects() throw()
+  { return E_NOTIMPL; }
+}; // namespace ATL
+
+#ifndef lstrlenW
+  #define lstrlenW	(int)ATL::lstrlenW
+#endif //lstrlenW
+
+inline int WINAPI lstrlenA(LPCSTR lpszString)
+{ return ATL::lstrlenA(lpszString); }
+
+#ifdef lstrcpyn
+  #undef lstrcpyn
+  #define lstrcpyn	ATL::lstrcpynW
+#endif //lstrcpyn
+
+#ifndef SetWindowLongPtrW
+  inline LONG_PTR tmp_SetWindowLongPtrW( HWND hWnd, int nIndex, LONG_PTR dwNewLong )
+  {
+	return( ::SetWindowLongW( hWnd, nIndex, LONG( dwNewLong ) ) );
+  }
+  #define SetWindowLongPtrW tmp_SetWindowLongPtrW
+#endif
+
+#ifndef GetWindowLongPtrW
+  inline LONG_PTR tmp_GetWindowLongPtrW( HWND hWnd, int nIndex )
+  {
+	return( ::GetWindowLongW( hWnd, nIndex ) );
+  }
+  #define GetWindowLongPtrW tmp_GetWindowLongPtrW
+#endif
+
+#ifndef LongToPtr
+  #define LongToPtr(x) ((void*)x)
+#endif
+
+#ifndef PtrToInt
+  #define PtrToInt( p ) ((INT)(INT_PTR) (p) )
+#endif
+
+#else //!(_ATL_VER >= 0x0800)
+
 #ifdef lstrlenW
   #undef lstrlenW
   #define lstrlenW (int)::wcslen
@@ -114,11 +204,6 @@
   #undef TrackPopupMenu
 #endif // TrackPopupMenu
 
-// These get's OR-ed in a constant and will have no effect.
-// Defining them reduces the number of #ifdefs required for CE.
-#define LR_DEFAULTSIZE      0
-#define LR_LOADFROMFILE     0
-
 #define DECLARE_WND_CLASS_EX(WndClassName, style, bkgnd) \
 static CWndClassInfo& GetWndClassInfo() \
 { \
@@ -135,53 +220,12 @@ static CWndClassInfo& GetWndClassInfo() \
   #define _MAX_FNAME	_MAX_PATH
 #endif //_MAX_FNAME
 
-inline int MulDiv(IN int nNumber, IN int nNumerator, IN int nDenominator)
-{
-	__int64 multiple = nNumber * nNumerator;
-	return static_cast<int>(multiple / nDenominator);
-}
-
-inline BOOL IsMenu(HMENU hMenu)
-{
-	MENUITEMINFO mii = { 0 };
-	mii.cbSize = sizeof(mii);
-	::SetLastError(0);
-	BOOL bRet = ::GetMenuItemInfo(hMenu, 0, TRUE, &mii);
-	if(!bRet)
-		bRet = (::GetLastError() != ERROR_INVALID_MENU_HANDLE) ? TRUE : FALSE;
-	return bRet;
-}
-
-extern "C" void WINAPI ListView_SetItemSpacing(HWND hwndLV, int iHeight);
-
 #if (_WIN32_WCE < 400)
   #define MAKEINTATOM(i)  (LPTSTR)((ULONG_PTR)((WORD)(i)))
 
   #define WHEEL_PAGESCROLL                (UINT_MAX)
   #define WHEEL_DELTA                     120
 #endif //(_WIN32_WCE < 400)
-
-#if (_ATL_VER >= 0x0800)
-  #ifndef SetWindowLongPtrW
-    inline LONG_PTR tmp_SetWindowLongPtrW( HWND hWnd, int nIndex, LONG_PTR dwNewLong )
-    {
-	return( ::SetWindowLongW( hWnd, nIndex, LONG( dwNewLong ) ) );
-    }
-    #define SetWindowLongPtrW tmp_SetWindowLongPtrW
-  #endif
-
-  #ifndef GetWindowLongPtrW
-    inline LONG_PTR tmp_GetWindowLongPtrW( HWND hWnd, int nIndex )
-    {
-	return( ::GetWindowLongW( hWnd, nIndex ) );
-    }
-    #define GetWindowLongPtrW tmp_GetWindowLongPtrW
-  #endif
-
-  #ifndef LongToPtr
-    #define LongToPtr(x) ((void*)x)
-  #endif
-#endif (_ATL_VER >= 0x0800)
 
 #ifdef DrawIcon
   #undef DrawIcon
@@ -203,6 +247,8 @@ extern "C" void WINAPI ListView_SetItemSpacing(HWND hwndLV, int iHeight);
 #ifndef RDW_ALLCHILDREN
   #define RDW_ALLCHILDREN   0
 #endif
+
+#endif //!(_ATL_VER >= 0x0800)
 
 #endif //_WIN32_WCE
 
@@ -965,7 +1011,7 @@ public:
 		if(m_hEventShutdown == NULL)
 			return false;
 		DWORD dwThreadID;
-#if !defined(_ATL_MIN_CRT) && defined(_MT)
+#if !defined(_ATL_MIN_CRT) && defined(_MT) && !defined(_WIN32_WCE)
 		HANDLE hThread = (HANDLE)_beginthreadex(NULL, 0, (UINT (WINAPI*)(void*))MonitorProc, this, 0, (UINT*)&dwThreadID);
 #else
 		HANDLE hThread = ::CreateThread(NULL, 0, MonitorProc, this, 0, &dwThreadID);

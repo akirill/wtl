@@ -3415,9 +3415,11 @@ public:
 
 								if (wnd != NULL)
 								{
+#ifndef _WIN32_WCE
 									// Set the Help ID
 									if (bDialogEx && ((ATL::_DialogSplitHelper::DLGITEMTEMPLATEEX*)pItem)->helpID != 0)
 										wnd.SetWindowContextHelpId(((ATL::_DialogSplitHelper::DLGITEMTEMPLATEEX*)pItem)->helpID);
+#endif //!_WIN32_WCE
 									// Try to create the ActiveX control.
 									hr = wnd.CreateControlLic(pszClassName, spStream, NULL, bstrLicKey);
 									if (FAILED(hr))
