@@ -229,12 +229,12 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
 	ATLASSERT(SUCCEEDED(hRes));
 
 	// Calling AtlInitCommonControls is not necessary to utilize picture,
-	//  static text, edit box, group box, button, check box, radio button, 
-	//  combo box, list box, or the horizontal and vertical scroll bars.
+	// static text, edit box, group box, button, check box, radio button, 
+	// combo box, list box, or the horizontal and vertical scroll bars.
 	// Calling AtlInitCommonControls with 0 is required to utilize the spin, 
-	//  progress, slider, list, tree, and tab controls.
+	// progress, slider, list, tree, and tab controls.
 	// Adding the ICC_DATE_CLASSES flag is required to initialize the 
-	//  date time picker and month calendar controls.
+	// date time picker and month calendar controls.
 	// Add additional flags to support additoinal controls not mentioned above.
 	AtlInitCommonControls(ICC_DATE_CLASSES);
 [!if WTL_COM_SERVER]

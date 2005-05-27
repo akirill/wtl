@@ -13,8 +13,9 @@
 
 <HTML DIR="ltr">
 	<HEAD>
-		<TITLE>'ATL/WTL Application Wizard'</TITLE>
+		<TITLE>'ATL/WTL Application Wizard for Windows CE'</TITLE>
 		<META NAME="vs_targetSchema" CONTENT="http://schemas.microsoft.com/intellisense/ie5">
+		<META HTTP-EQUIV="MSThemeCompatible" CONTENT="Yes">
 		<STYLE TYPE="text/css">@import url();
 		</STYLE>
 		<SCRIPT>
@@ -110,6 +111,19 @@
 													<TD WIDTH="162">
 														<SPAN CLASS="ACTIVELINK" ID="Default" TITLE="Examine an overview of selections" onClick="Next(document, 'default.htm');" TABINDEX="1">
 															Overview</SPAN>
+													</TD>
+													<TD WIDTH="4">
+														<IMG SRC="../../Images/spacer.gif" HEIGHT="1" WIDTH="4">
+													</TD>
+												</TR>
+											</TABLE>
+										</DIV>
+										<DIV CLASS="LINK">
+											<TABLE WIDTH="166" HEIGHT="28" BORDER="0" CELLPADDING="0" CELLSPACING="0" CLASS="LINKTEXT">
+												<TR VALIGN="center">
+													<TD WIDTH="162">
+														<SPAN CLASS="ACTIVELINK" ID="Platforms" TITLE="Specify the platforms to be supported by your WTL project." onClick="Next(document, 'Platforms.htm');" TABINDEX="1">
+															Platforms</SPAN>
 													</TD>
 													<TD WIDTH="4">
 														<IMG SRC="../../Images/spacer.gif" HEIGHT="1" WIDTH="4">
@@ -221,9 +235,7 @@
 																	<U>D</U>ialog Based</LABEL>
 															</DIV>
 															<BR>
-															<!--INPUT CLASS="CheckboxIndent" TYPE="checkbox" ID="WTL_APPTYPE_DLG_MODAL" ACCESSKEY="O" TITLE="Creates an application with a modal dialog." value="ON" NAME="WTL_APPTYPE_DLG_MODAL"-->
-															&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-															<INPUT CLASS="Checkbox" TYPE="checkbox" ID="WTL_APPTYPE_DLG_MODAL" ACCESSKEY="O" TITLE="Create an application with a modal dialog." value="ON" NAME="WTL_APPTYPE_DLG_MODAL">
+															<INPUT CLASS="CheckboxIndent" TYPE="checkbox" ID="WTL_APPTYPE_DLG_MODAL" ACCESSKEY="O" TITLE="Creates an application with a modal dialog." value="ON" NAME="WTL_APPTYPE_DLG_MODAL">
 															<DIV CLASS="itemTextCheckboxIndentB" ID="WTL_APPTYPE_DLG_MODAL_DIV" TITLE="Create an application with a modal dialog.">
 																<LABEL FOR="WTL_APPTYPE_DLG_MODAL" TITLE="Create an application with a modal dialog." ID="WTL_APPTYPE_DLG_MODAL_LABEL">
 																	M<U>o</U>dal Dialog</LABEL>
@@ -234,6 +246,25 @@
 														<P CLASS="ElementSpacer">&nbsp;</P>
 
 														<SPAN CLASS="itemText">Select project options:
+															<P CLASS="Spacer">&nbsp;</P>
+															<INPUT CLASS="CheckBoxA" TYPE="checkbox" ID="WTL_USE_AYGSHELL" ACCESSKEY="A" TITLE="Add support for AYGShell." value="ON" NAME="WTL_USE_AYGSHELL" onClick="OnUseAYGShell();">
+															<DIV CLASS="itemTextCheckboxB" ID="WTL_USE_AYGSHELL_DIV" TITLE="Add support for AYGShell.">
+																<LABEL FOR="WTL_USE_AYGSHELL" TITLE="Add support for AYGShell." ID="WTL_USE_AYGSHELL_LABEL">
+																	Use <U>A</U>YGShell</LABEL>
+															</DIV>
+															<BR>
+															<INPUT CLASS="CheckboxIndent" TYPE="checkbox" ID="WTL_USE_SP03_COMPAT_MENUS" ACCESSKEY="M" TITLE="Use SmartPhone 2003 compatible menus." value="ON" NAME="WTL_USE_SP03_COMPAT_MENUS">
+															<DIV CLASS="itemTextCheckboxIndentB" ID="WTL_USE_SP03_COMPAT_MENUS_DIV" TITLE="Use SmartPhone 2003 compatible menus.">
+																<LABEL FOR="WTL_USE_SP03_COMPAT_MENUS" TITLE="Use SmartPhone 2003 compatible menus." ID="WTL_USE_SP03_COMPAT_MENUS_LABEL">
+																	Use SmartPhone Compatible <U>M</U>enus</LABEL>
+															</DIV>
+															<BR>
+															<INPUT CLASS="CheckboxIndent" TYPE="checkbox" ID="WTL_USE_SINGLE_APP_INSTANCE" ACCESSKEY="I" TITLE="Allow only one instance of the application." value="OFF" NAME="WTL_USE_SINGLE_APP_INSTANCE">
+															<DIV CLASS="itemTextCheckboxIndentB" ID="WTL_USE_SINGLE_APP_INSTANCE_DIV" TITLE="Allow only one instance of the application.">
+																<LABEL FOR="WTL_USE_SINGLE_APP_INSTANCE" TITLE="Allow only one instance of the application." ID="WTL_USE_SINGLE_APP_INSTANCE_LABEL">
+																	Allow Only One <U>I</U>nstance of the Application</LABEL>
+															</DIV>
+															<BR>
 															<P CLASS="Spacer">&nbsp;</P>
 															<INPUT CLASS="CheckBoxA" TYPE="checkbox" ID="WTL_ENABLE_AX" ACCESSKEY="E" TITLE="Add support for hosting ActiveX controls." value="ON" NAME="WTL_ENABLE_AX">
 															<DIV CLASS="itemTextCheckboxB" ID="WTL_ENABLE_AX_DIV" TITLE="Add support for hosting ActiveX controls.">
@@ -344,8 +375,9 @@
 
 var tab_array = new Array();
 tab_array[0] = Default;
-tab_array[1] = AppType;
-tab_array[2] = UIFeatures;
+tab_array[1] = Platforms;
+tab_array[2] = AppType;
+tab_array[3] = UIFeatures;
 
 function InitDocument(document)
 {
@@ -379,6 +411,7 @@ function OnFinish(document)
 function OnInit()
 {
 	OnAppType();
+	OnUseAYGShell();
 }
 
 function OnAppType()
@@ -407,6 +440,40 @@ function OnAppType()
 			window.external.AddSymbol("WTL_USE_VIEW", true);
 
 			window.external.AddSymbol("WTL_WAS_DLG", false);
+		}
+	}
+}
+
+function OnUseAYGShell()
+{
+	if(WTL_USE_AYGSHELL.checked)
+	{
+		WTL_USE_SP03_COMPAT_MENUS.disabled = false;
+		WTL_USE_SINGLE_APP_INSTANCE.disabled = false;
+		WTL_USE_SP03_COMPAT_MENUS_LABEL.disabled = false;
+		WTL_USE_SINGLE_APP_INSTANCE_LABEL.disabled = false;
+
+		WTL_USE_SP03_COMPAT_MENUS.checked = true;
+		WTL_USE_SINGLE_APP_INSTANCE.checked = false;
+
+		window.external.AddSymbol("WTL_HAD_AYGSHELL", true);
+	}
+	else
+	{
+		WTL_USE_SP03_COMPAT_MENUS.checked = false;
+		WTL_USE_SINGLE_APP_INSTANCE.checked = false;
+
+		WTL_USE_SP03_COMPAT_MENUS.disabled = true;
+		WTL_USE_SINGLE_APP_INSTANCE.disabled = true;
+		WTL_USE_SP03_COMPAT_MENUS_LABEL.disabled = true;
+		WTL_USE_SINGLE_APP_INSTANCE_LABEL.disabled = true;
+
+		if(window.external.FindSymbol("WTL_HAD_AYGSHELL"))
+		{
+			window.external.AddSymbol("WTL_USE_TOOLBAR", false);
+			window.external.AddSymbol("WTL_USE_STATUSBAR", true);
+
+			window.external.AddSymbol("WTL_HAD_AYGSHELL", false);
 		}
 	}
 }

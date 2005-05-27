@@ -10,15 +10,17 @@
 // any other, from this software.
 
 
-/*
+var ProjWiz;
+ProjWiz = new ActiveXObject("ProjWiz.SDProjWiz2.2");
+
 function SetDCOMSymbols()
 {
 	var checkedPlatforms = wizard.FindSymbol("CHECKED_PLATFORMS");
 	wizard.AddSymbol("SUPPORT_DCOM", false);
 	wizard.AddSymbol("SUPPORT_NON_DCOM", false);
-	for (var i = 0; i < checkedPlatforms.length; i++)
+	for(var i = 0; i < checkedPlatforms.length; i++)
 	{
-		if (ProjWiz.GetBaseNativePlatformSupportsDCOM(checkedPlatforms[i]))
+		if(ProjWiz.GetBaseNativePlatformSupportsDCOM(checkedPlatforms[i]))
 		{
 			wizard.AddSymbol("SUPPORT_DCOM", true);
 		}
@@ -28,7 +30,6 @@ function SetDCOMSymbols()
 		}
 	}
 }
-*/
 
 function OnFinish(selProj, selObj)
 {
@@ -143,21 +144,8 @@ function OnFinish(selProj, selObj)
 
 		EnsureDevicePlatforms();
 
-		// TMP: Add all platforms
-		checkedPlatforms = new Array();
-		checkedPlatforms.push("Pocket PC 2003");
-		checkedPlatforms.push("SmartPhone 2003");
-		wizard.AddSymbol("CHECKED_PLATFORMS", checkedPlatforms);	
-
-		nativePlatforms = new Array();
-		nativePlatforms.push("Pocket PC 2003 (ARMV4)");
-		nativePlatforms.push("Pocket PC 2003 (Emulator)");
-		nativePlatforms.push("SmartPhone 2003 (ARMV4)");
-		nativePlatforms.push("SmartPhone 2003 (Emulator)");
-		wizard.AddSymbol("NATIVE_PLATFORMS", nativePlatforms);
-
 		// these calls must occur before project creation, because they affect how the templates are generated.
-//		SetDCOMSymbols();
+		SetDCOMSymbols();
 		SetDeviceSymbolsForPlatforms();
 
 		// Create project and configurations
@@ -167,7 +155,7 @@ function OnFinish(selProj, selObj)
 
 		var InfFile = CreateCustomInfFile();
 		AddFilesToCustomProj(selProj, strProjectName, strProjectPath, InfFile);
-		AddPchSettings(selProj);
+		SetCommonPchSettings(selProj);
 		InfFile.Delete();
 
 		selProj.Object.Save();
@@ -189,7 +177,7 @@ function OnFinish(selProj, selObj)
 	}
 	catch(e)
 	{
-		if (e.description.length != 0)
+		if(e.description.length != 0)
 			SetErrorInfo(e);
 		return e.number
 	}
@@ -222,12 +210,10 @@ function AddConfigurations(proj, strProjectName)
 {
 	try
 	{
-		var nCntr;
 		var oConfigs = proj.Object.Configurations;
-		for(nCntr = 1; nCntr <= oConfigs.Count; nCntr++)
+		for(var nCntr = 1; nCntr <= oConfigs.Count; nCntr++)
 		{
 			var config = oConfigs(nCntr);
-///**/			wizard.YesNoAlert("CONFIG: " + config.Platform.Name);
 
 			// Check if it's Debug configuration
 			var bDebug = false;
@@ -235,22 +221,30 @@ function AddConfigurations(proj, strProjectName)
 				bDebug = true;
 
 			// General settings
-			config.CharacterSet = charSetMBCS;
+			config.CharacterSet = charSetUnicode;
+			config.ATLMinimizesCRunTimeLibraryUsage = false;
 			if(bDebug)
 			{
-				config.IntermediateDirectory = 'Debug';
-				config.OutputDirectory = 'Debug';
-				config.ATLMinimizesCRunTimeLibraryUsage = false;
+				config.IntermediateDirectory = "$(PlatformName)\\Debug";
+				config.OutputDirectory = "$(PlatformName)\\Debug";
 			}
 			else
 			{
-				config.IntermediateDirectory = 'Release';
-				config.OutputDirectory = 'Release';
-				config.ATLMinimizesCRunTimeLibraryUsage = true;
+				config.IntermediateDirectory = "$(PlatformName)\\Release";
+				config.OutputDirectory = "$(PlatformName)\\Release";
 			}
 
 			if(wizard.FindSymbol("WTL_USE_VIEW") && wizard.FindSymbol("WTL_COMBO_VIEW_TYPE") == "WTL_VIEWTYPE_HTML")
 				config.UseOfATL = useATLDynamic;
+
+			// Instruction set
+			var instructionSet = "";
+			var sIndex = config.Name.indexOf("(");
+			var eIndex = config.Name.indexOf(")");
+			if((sIndex != -1) && (eIndex != -1))
+			{
+				instructionSet = config.Name.substr(sIndex + 1, eIndex - sIndex - 1);
+			}
 
 			// Compiler settings
 			var CLTool = config.Tools('VCCLCompilerTool');
@@ -258,36 +252,35 @@ function AddConfigurations(proj, strProjectName)
 			CLTool.WarningLevel = warningLevel_3;
 			if(bDebug)
 			{
-// Not supported by the Windows CE projects
-//				CLTool.RuntimeLibrary = rtMultiThreadedDebug;
+				CLTool.RuntimeLibrary = rtMultiThreadedDebug;
 				CLTool.MinimalRebuild = true;
-				CLTool.DebugInformationFormat = debugEditAndContinue;
-// Not supported by the Windows CE projects
-//				CLTool.BasicRuntimeChecks = runtimeBasicCheckAll;
+				CLTool.DebugInformationFormat = debugEnabled;
 				CLTool.Optimization = optimizeDisabled;
 			}
 			else
 			{
-// Not supported by the Windows CE projects
-//				CLTool.RuntimeLibrary = rtMultiThreaded;
+				CLTool.RuntimeLibrary = rtMultiThreaded;
 				CLTool.ExceptionHandling = false;
 				CLTool.DebugInformationFormat = debugDisabled;
 			}
 
 			var strDefines = GetPlatformDefine(config);
-			strDefines += "_WINDOWS;STRICT;";
-/**/			strDefines += "_WIN32_WCE=$(CEVER);UNDER_CE=$(CEVER);";
+			strDefines += "_WIN32_WCE=$(CEVER);UNDER_CE=$(CEVER);WINCE;";
 			if(bDebug)
 				strDefines += "_DEBUG";
 			else
 				strDefines += "NDEBUG";
+
+			// PLATFORMDEFINES isn't defined for all platforms
+			var PlatformDefines = config.Platform.GetMacroValue("PLATFORMDEFINES");
+			if(PlatformDefines != "")
+				strDefines += ";$(PLATFORMDEFINES)";
+
 			strDefines += ";$(ARCHFAM);$(_ARCHFAM_);_UNICODE"
 			CLTool.PreprocessorDefinitions = strDefines;
 
 			// Linker settings
 			var LinkTool = config.Tools('VCLinkerTool');
-//			LinkTool.SubSystem = subSystemWindows;
-//			LinkTool.TargetMachine = machineX86;
 			if(bDebug)
 			{
 				LinkTool.LinkIncremental = linkIncrementalYes;
@@ -301,31 +294,30 @@ function AddConfigurations(proj, strProjectName)
 			LinkTool.SubSystem = subSystemNotSet;
 			LinkTool.IgnoreImportLibrary = true;
 
-			if (bDebug)
+			if(bDebug)
 				LinkTool.AdditionalDependencies = "atlsd.lib libcmtd.lib"
 			else
 				LinkTool.AdditionalDependencies = "atls.lib libcmt.lib"
 			LinkTool.AdditionalDependencies += " corelibc.lib coredll.lib commctrl.lib ole32.lib oleaut32.lib uuid.lib atl.lib atlosapis.lib $(NOINHERIT)"
 
-			if (config.Platform.Name != "Win32")
+			if(config.Platform.Name != "Win32")
 			{
-//				LinkTool.AdditionalOptions = " /subsystem:windowsce," + ProjWiz.GetNativePlatformMajorVersion(config.Platform.Name) + "." + ProjWiz.GetNativePlatformMinorVersion(config.Platform.Name);
-				LinkTool.AdditionalOptions = " /subsystem:windowsce"
-//				LinkTool.AdditionalOptions = LinkTool.AdditionalOptions + " " + ProjWiz.GetLinkerMachineType(instructionSet);
+				LinkTool.AdditionalOptions = " /subsystem:windowsce," + ProjWiz.GetNativePlatformMajorVersion(config.Platform.Name) + "." + ProjWiz.GetNativePlatformMinorVersion(config.Platform.Name);
+				LinkTool.AdditionalOptions = LinkTool.AdditionalOptions + " " + ProjWiz.GetLinkerMachineType(instructionSet);
 			}
-			
-			if (config.Platform.Name == "Pocket PC 2003 (ARMV4)" ||
-				config.Platform.Name == "SmartPhone 2003 (ARMV4)" ||
-				config.Platform.Name == "Smartphone 2003 (ARMV4)" )
+
+			if(config.Platform.Name == "Pocket PC 2003 (ARMV4)" ||
+			   config.Platform.Name == "SmartPhone 2003 (ARMV4)" ||
+			   config.Platform.Name == "Smartphone 2003 (ARMV4)" )
 			{
 				LinkTool.AdditionalOptions = LinkTool.AdditionalOptions + " /ARMPADCODE";
 			}
 
-			if (config.Platform.Name == "Pocket PC 2003 (Emulator)" ||
-				config.Platform.Name == "SmartPhone 2003 (Emulator)" ||
-				config.Platform.Name == "Smartphone 2003 (Emulator)" )
+			if(config.Platform.Name == "Pocket PC 2003 (Emulator)" ||
+			   config.Platform.Name == "SmartPhone 2003 (Emulator)" ||
+			   config.Platform.Name == "Smartphone 2003 (Emulator)" )
 			{
-				if (bDebug)
+				if(bDebug)
 				{
 					LinkTool.AdditionalDependencies += " libcmtx86d.lib";
 				}
@@ -335,13 +327,13 @@ function AddConfigurations(proj, strProjectName)
 				}
 			}
 
-			if (config.Platform.Name.indexOf("Pocket PC 2003") != -1)
+			if(config.Platform.Name.indexOf("Pocket PC 2003") != -1)
 			{
 				LinkTool.AdditionalDependencies += " ccrtrtti.lib";
 			}
 			
-			if (config.Platform.Name.indexOf("SmartPhone 2003") != -1 ||
-				config.Platform.Name.indexOf("Smartphone 2003") != -1 )
+			if(config.Platform.Name.indexOf("SmartPhone 2003") != -1 ||
+			   config.Platform.Name.indexOf("Smartphone 2003") != -1 )
 			{
 				LinkTool.AdditionalDependencies += " ccrtrtti.lib";
 			}
@@ -350,7 +342,7 @@ function AddConfigurations(proj, strProjectName)
 			LinkTool.DelayLoadDLLs = "$(NOINHERIT)";
 
 			var DeployTool = config.DeploymentTool;
-			if (DeployTool)
+			if(DeployTool)
 			{
 				DeployTool.AdditionalFiles += "atl80.dll|$(VCInstallDir)ce\\dll\\$(INSTRUCTIONSET)\\|%CSIDL_WINDOWS%|0;";
 			}
@@ -397,33 +389,11 @@ function AddConfigurations(proj, strProjectName)
 	}
 }
 
-function AddPchSettings(proj)
-{
-	try
-	{
-		var files = proj.Object.Files;
-		var fStdafx = files("StdAfx.cpp");
-
-		var nCntr;
-		var oConfigs = proj.Object.Configurations;
-		for(nCntr = 1; nCntr <= oConfigs.Count; nCntr++)
-		{
-			var config = oConfigs(nCntr);
-			var CLTool = config.Tools('VCCLCompilerTool');
-			CLTool.UsePrecompiledHeader = pchCreateUsingSpecific;
-		}
-	}
-	catch(e)
-	{
-		throw e;
-	}
-}
-
 function DelFile(fso, strWizTempFile)
 {
 	try
 	{
-		if (fso.FileExists(strWizTempFile))
+		if(fso.FileExists(strWizTempFile))
 		{
 			var tmpFile = fso.GetFile(strWizTempFile);
 			tmpFile.Delete();
@@ -524,7 +494,7 @@ function AddFilesToCustomProj(proj, strProjectName, strProjectPath, InfFile)
 		while (!strTextStream.AtEndOfStream)
 		{
 			strTpl = strTextStream.ReadLine();
-			if (strTpl != '')
+			if(strTpl != '')
 			{
 				strName = strTpl;
 				var strTarget = GetTargetName(strName, strProjectName);

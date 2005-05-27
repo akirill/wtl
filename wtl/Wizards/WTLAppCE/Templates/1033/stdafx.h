@@ -5,25 +5,17 @@
 
 #pragma once
 
-#ifdef _X86_
-#pragma comment(linker, "/nodefaultlib:libc.lib")
-#pragma comment(linker, "/nodefaultlib:libcd.lib")
-#pragma comment(linker, "/nodefaultlib:libcmt.lib")
-#pragma comment(linker, "/nodefaultlib:libcmtd.lib")
-#pragma comment(linker, "/nodefaultlib:oldnames.lib")
-#endif
-
-// NOTE - this is value is not strongly correlated to the Windows CE OS version being targeted
-#define WINVER 0x0400
-
 [!if WTL_COM_SERVER]
-// The WTL wizard was instructed to create this project as a COM Server.
+// The WTL App Wizard was instructed to create this project as a COM Server.
 // On Windows CE, COM Servers are only available on platforms that include DCOM.
 // Pocket PC 2000, 2002, 2003 and SmarthPhone 2002, 2003 do not include DCOM.
 // The Standard SDK for Windows CE versions 3.0, 4.0, 4.1, and 4.2 do not include DCOM.
 // For Windows CE OSes released after 2003, please see the associated docs.
 
 [!endif]
+// Change this value to use different versions
+#define WINVER 0x0420
+
 [!if WTL_USE_AYGSHELL]
 #define _WIN32_WCE_AYGSHELL 1
 
@@ -59,4 +51,9 @@ extern CAppModule _Module;
 #include <atlframe.h>
 #include <atlctrls.h>
 #include <atldlgs.h>
+[!endif]
+[!if WTL_USE_AYGSHELL]
+
+#include <aygshell.h>
+#pragma comment(lib, "aygshell.lib")
 [!endif]

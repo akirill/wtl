@@ -13,8 +13,9 @@
 
 <HTML DIR="ltr">
 	<HEAD>
-		<TITLE>'ATL/WTL Application Wizard'</TITLE>
+		<TITLE>'ATL/WTL Application Wizard for Windows CE'</TITLE>
 		<META NAME="vs_targetSchema" CONTENT="http://schemas.microsoft.com/intellisense/ie5">
+		<META HTTP-EQUIV="MSThemeCompatible" CONTENT="Yes">
 		<STYLE TYPE="text/css">@import url();
 		</STYLE>
 		<SCRIPT>
@@ -110,6 +111,19 @@
 													<TD WIDTH="162">
 														<SPAN CLASS="ACTIVELINK" ID="Default" TITLE="Examine an overview of selections" onClick="Next(document, 'default.htm');" TABINDEX="1">
 															Overview</SPAN>
+													</TD>
+													<TD WIDTH="4">
+														<IMG SRC="../../Images/spacer.gif" HEIGHT="1" WIDTH="4">
+													</TD>
+												</TR>
+											</TABLE>
+										</DIV>
+										<DIV CLASS="LINK">
+											<TABLE WIDTH="166" HEIGHT="28" BORDER="0" CELLPADDING="0" CELLSPACING="0" CLASS="LINKTEXT">
+												<TR VALIGN="center">
+													<TD WIDTH="162">
+														<SPAN CLASS="ACTIVELINK" ID="Platforms" TITLE="Specify the platforms to be supported by your WTL project." onClick="Next(document, 'Platforms.htm');" TABINDEX="1">
+															Platforms</SPAN>
 													</TD>
 													<TD WIDTH="4">
 														<IMG SRC="../../Images/spacer.gif" HEIGHT="1" WIDTH="4">
@@ -346,8 +360,9 @@
 
 var tab_array = new Array();
 tab_array[0] = Default;
-tab_array[1] = AppType;
-tab_array[2] = UIFeatures;
+tab_array[1] = Platforms;
+tab_array[2] = AppType;
+tab_array[3] = UIFeatures;
 
 function InitDocument(document)
 {
@@ -392,13 +407,30 @@ function OnInit()
 	}
 	else
 	{
-		WTL_USE_TOOLBAR.disabled = false;
-		WTL_USE_STATUSBAR.disabled = false;
+		if(window.external.FindSymbol("WTL_USE_AYGSHELL"))
+		{
+			WTL_USE_TOOLBAR.checked = false;
+			WTL_USE_STATUSBAR.checked = false;
+
+			WTL_USE_TOOLBAR.disabled = true;
+			WTL_USE_STATUSBAR.disabled = true;
+			WTL_USE_TOOLBAR_LABEL.disabled = true;
+			WTL_USE_STATUSBAR_LABEL.disabled = true;
+		}
+		else
+		{
+			WTL_USE_TOOLBAR.disabled = false;
+			WTL_USE_STATUSBAR.disabled = false;
+			WTL_USE_TOOLBAR_LABEL.disabled = false;
+			WTL_USE_STATUSBAR_LABEL.disabled = false;
+
+			WTL_USE_TOOLBAR.checked = window.external.FindSymbol("WTL_USE_TOOLBAR");
+			WTL_USE_STATUSBAR.checked = window.external.FindSymbol("WTL_USE_STATUSBAR");
+		}
+
 		WTL_USE_VIEW.disabled = false;
 		WTL_USE_VIEW_LABEL.disabled = false;
 
-		WTL_USE_TOOLBAR.checked = window.external.FindSymbol("WTL_USE_TOOLBAR");
-		WTL_USE_STATUSBAR.checked = window.external.FindSymbol("WTL_USE_STATUSBAR");
 		WTL_USE_VIEW.checked = window.external.FindSymbol("WTL_USE_VIEW");
 	}
 
