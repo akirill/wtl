@@ -8527,7 +8527,7 @@ public:
 		return (BOOL)::SendMessage(m_hWnd, MCM_GETMINREQRECT, 0, (LPARAM)lpRectInfo);
 	}
 
-	int GetMonthRange() const
+	int GetMaxTodayWidth() const
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
 		return (int)::SendMessage(m_hWnd, MCM_GETMAXTODAYWIDTH, 0, 0L);
