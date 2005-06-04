@@ -397,9 +397,9 @@ public:
 		bool b = false;
 		if (hdm != NULL)
 		{
-			DEVMODE* pdm = (DEVMODE*)GlobalLock(hdm);
+			DEVMODE* pdm = (DEVMODE*)::GlobalLock(hdm);
 			b = CopyFromDEVMODE(pdm);
-			GlobalUnlock(hdm);
+			::GlobalUnlock(hdm);
 		}
 		return b;
 	}
@@ -409,11 +409,12 @@ public:
 		if ((m_hDevMode == NULL) || (m_pDevMode == NULL))
 			return NULL;
 		int nSize = m_pDevMode->dmSize + m_pDevMode->dmDriverExtra;
-		HANDLE h = GlobalAlloc(GMEM_MOVEABLE, nSize);
+		HANDLE h = ::GlobalAlloc(GMEM_MOVEABLE, nSize);
 		if (h != NULL)
 		{
-			void* p = GlobalLock(h);
+			void* p = ::GlobalLock(h);
 			memcpy(p, m_pDevMode, nSize);
+			::GlobalUnlock(h);
 		}
 		return h;
 	}
@@ -458,9 +459,9 @@ public:
 	{
 		if (m_hDevMode != NULL)
 		{
-			GlobalUnlock(m_hDevMode);
+			::GlobalUnlock(m_hDevMode);
 			if(t_bManaged)
-				GlobalFree(m_hDevMode);
+				::GlobalFree(m_hDevMode);
 			m_hDevMode = NULL;
 		}
 	}
