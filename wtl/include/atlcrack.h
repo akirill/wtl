@@ -1407,8 +1407,7 @@ public: \
 	if (uMsg == WM_APPCOMMAND) \
 	{ \
 		SetMsgHandled(TRUE); \
-		func((HWND)wParam, GET_APPCOMMAND_LPARAM(lParam), GET_DEVICE_LPARAM(lParam), GET_KEYSTATE_LPARAM(lParam)); \
-		lResult = 0; \
+		lResult = (LRESULT)func((HWND)wParam, GET_APPCOMMAND_LPARAM(lParam), GET_DEVICE_LPARAM(lParam), GET_KEYSTATE_LPARAM(lParam)); \
 		if(IsMsgHandled()) \
 			return TRUE; \
 	}
