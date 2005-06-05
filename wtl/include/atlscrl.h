@@ -966,7 +966,7 @@ public:
 		ATLASSERT(xMax > xMin && yMax > yMin);
 		ATLASSERT(m_nMapMode >= MM_MIN && m_nMapMode <= MM_MAX_FIXEDSCALE);
 
-		::SetRect(&m_rectLogAll, xMin, yMax, xMax, yMin);
+		::SetRect(&m_rectLogAll, xMin, yMin, xMax, yMax);
 
 		SIZE sizeAll = { 0 };
 		sizeAll.cx = xMax - xMin + 1;
@@ -1099,7 +1099,7 @@ public:
 				dc.SetViewportOrg(-m_ptOffset.x, -m_ptOffset.y);
 			else
 				dc.SetViewportOrg(-m_ptOffset.x, -m_ptOffset.y + m_sizeAll.cy);
-			dc.SetWindowOrg(m_rectLogAll.left, m_rectLogAll.bottom);
+			dc.SetWindowOrg(m_rectLogAll.left, m_rectLogAll.top);
 			pT->DoPaint(dc);
 		}
 		else
@@ -1110,7 +1110,7 @@ public:
 				dc.SetViewportOrg(-m_ptOffset.x, -m_ptOffset.y);
 			else
 				dc.SetViewportOrg(-m_ptOffset.x, -m_ptOffset.y + m_sizeAll.cy);
-			dc.SetWindowOrg(m_rectLogAll.left, m_rectLogAll.bottom);
+			dc.SetWindowOrg(m_rectLogAll.left, m_rectLogAll.top);
 			pT->DoPaint(dc.m_hDC);
 		}
 		return 0;
