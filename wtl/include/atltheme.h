@@ -210,7 +210,7 @@ public:
 	HRESULT GetThemeTextMetrics(HDC hDC, int nPartID, int nStateID, PTEXTMETRICW pTextMetric) const
 	{
 		ATLASSERT(m_hTheme != NULL);
-		// Note: The cast to PTEXTMETRIC is because uxtheme.h icorrectly uses it istead of PTEXTMETRICW
+		// Note: The cast to PTEXTMETRIC is because uxtheme.h incorrectly uses it instead of PTEXTMETRICW
 		return ::GetThemeTextMetrics(m_hTheme, hDC, nPartID, nStateID, (PTEXTMETRIC)pTextMetric);
 	}
 
@@ -296,14 +296,14 @@ public:
 	HRESULT GetThemeFont(int nPartID, HDC hDC, int nStateID, int nPropID, LOGFONTW* pFont) const
 	{
 		ATLASSERT(m_hTheme != NULL);
-		// Note: The cast to LOGFONT* is because uxtheme.h icorrectly uses it istead of LOGFONTW*
+		// Note: The cast to LOGFONT* is because uxtheme.h incorrectly uses it instead of LOGFONTW*
 		return ::GetThemeFont(m_hTheme, hDC, nPartID, nStateID, nPropID, (LOGFONT*)pFont);
 	}
 
 	HRESULT GetThemeFont(HDC hDC, int nPartID, int nStateID, int nPropID, LOGFONTW* pFont) const
 	{
 		ATLASSERT(m_hTheme != NULL);
-		// Note: The cast to LOGFONT* is because uxtheme.h icorrectly uses it istead of LOGFONTW*
+		// Note: The cast to LOGFONT* is because uxtheme.h incorrectly uses it instead of LOGFONTW*
 		return ::GetThemeFont(m_hTheme, hDC, nPartID, nStateID, nPropID, (LOGFONT*)pFont);
 	}
 
@@ -364,7 +364,7 @@ public:
 	HRESULT GetThemeSysFont(int nFontID, LOGFONTW* plf) const
 	{
 		ATLASSERT(m_hTheme != NULL);
-		// Note: The cast to LOGFONT* is because uxtheme.h icorrectly uses it istead of LOGFONTW*
+		// Note: The cast to LOGFONT* is because uxtheme.h incorrectly uses it instead of LOGFONTW*
 		return ::GetThemeSysFont(m_hTheme, nFontID, (LOGFONT*)plf);
 	}
 
