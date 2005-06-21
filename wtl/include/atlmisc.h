@@ -1575,7 +1575,11 @@ inline CString::CString(LPCTSTR lpsz)
 inline CString::CString(LPCSTR lpsz)
 {
 	Init();
+#if defined(_WIN32_WCE) && (_ATL_VER >= 0x0800)
+	int nSrcLen = (lpsz != NULL) ? ATL::lstrlenA(lpsz) : 0;
+#else
 	int nSrcLen = (lpsz != NULL) ? lstrlenA(lpsz) : 0;
+#endif
 	if (nSrcLen != 0)
 	{
 		if(AllocBuffer(nSrcLen))
@@ -1652,7 +1656,11 @@ inline CString& CString::operator =(LPCTSTR lpsz)
 #ifdef _UNICODE
 inline CString& CString::operator =(LPCSTR lpsz)
 {
+#if defined(_WIN32_WCE) && (_ATL_VER >= 0x0800)
+	int nSrcLen = (lpsz != NULL) ? ATL::lstrlenA(lpsz) : 0;
+#else
 	int nSrcLen = (lpsz != NULL) ? lstrlenA(lpsz) : 0;
+#endif
 	if(AllocBeforeWrite(nSrcLen))
 	{
 		_mbstowcsz(m_pchData, lpsz, nSrcLen + 1);
@@ -2252,7 +2260,11 @@ inline BOOL CString::FormatV(LPCTSTR lpszFormat, va_list argList)
 			}
 			else
 			{
+#if defined(_WIN32_WCE) && (_ATL_VER >= 0x0800)
+				nItemLen = ATL::lstrlenA(pstrNextArg);
+#else
 				nItemLen = lstrlenA(pstrNextArg);
+#endif
 				nItemLen = max(1, nItemLen);
 			}
 #endif //_UNICODE
@@ -2269,7 +2281,11 @@ inline BOOL CString::FormatV(LPCTSTR lpszFormat, va_list argList)
 			}
 			else
 			{
+#if defined(_WIN32_WCE) && (_ATL_VER >= 0x0800)
+				nItemLen = ATL::lstrlenA(pstrNextArg);
+#else
 				nItemLen = lstrlenA(pstrNextArg);
+#endif
 				nItemLen = max(1, nItemLen);
 			}
 			break;
@@ -2384,7 +2400,7 @@ inline BOOL CString::FormatV(LPCTSTR lpszFormat, va_list argList)
 	if(GetBuffer(nMaxLen) == NULL)
 		return FALSE;
 #ifndef _ATL_USE_CSTRING_FLOAT
-	int nRet = wvsprintf(m_pchData, lpszFormat, argListSave);
+	int nRet = ::wvsprintf(m_pchData, lpszFormat, argListSave);
 #else //_ATL_USE_CSTRING_FLOAT
 	int nRet = _vstprintf(m_pchData, lpszFormat, argListSave);
 #endif //_ATL_USE_CSTRING_FLOAT
