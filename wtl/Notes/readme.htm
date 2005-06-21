@@ -11,7 +11,7 @@
 <table border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111" id="AutoNumber3">
   <tr>
     <td><font face="Arial"><b>Windows Template Library - WTL Version 7.5</b></font><font face="Arial" size="2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
-(build 5160) 6/9/05<br>
+(build 5172) 6/21/05<br>
 	Development Release</font></td>
   </tr>
   <tr>
@@ -46,29 +46,27 @@ All rights reserved.</font></td>
 <p style=margin:0in><font face="Arial" size="2">Welcome to the Windows Template Library, version 
 7.5. This document contains the following topics:</font></p>
 <p style=margin:0in>&nbsp;</p>
-<ol style='margin-top:0in;margin-bottom:0in'>
-  <li><font face="Arial" size="2"><a href="#Introduction">Introduction</a></font></li>
-  <li><font face="Arial" size="2"><a href="#Features And Installation">Features 
+<ul style="margin-top:0in;margin-bottom:0in">
+	<li><font face="Arial" size="2"><a href="#Introduction">Introduction</a></font></li>
+	<li><font face="Arial" size="2"><a href="#Features And Installation">Features 
   And Installation</a></font></li>
-  <li><font face="Arial" size="2"><a href="#Packing List">Packing List</a></font></li>
-  <li><font face="Arial" size="2"><a href="#Class Overview">Class Overview</a></font></li>
-  <li><font face="Arial" size="2"><a href="#ATL/WTL AppWizard">ATL/WTL AppWizard</a></font></li>
-  <li><a href="#Support for Windows CE"><font face="Arial" size="2">S</font></a><font face="Arial" size="2"><a href="#Support for Windows CE">upport 
+	<li><font face="Arial" size="2"><a href="#Packing List">Packing List</a></font></li>
+	<li><font face="Arial" size="2"><a href="#Class Overview">Class Overview</a></font></li>
+	<li><font face="Arial" size="2"><a href="#ATL/WTL AppWizard">ATL/WTL AppWizard</a></font></li>
+	<li><a href="#Support for Windows CE"><font face="Arial" size="2">S</font></a><font face="Arial" size="2"><a href="#Support for Windows CE">upport 
   for Windows CE</a></font></li>
-  <li><font face="Arial" size="2"><a href="#Notes">Notes</a></font></li>
-	<li><font face="Arial" size="2"><a href="#Changes Between WTL 7.5 And 7.1">
-	Changes Between WTL 7.5 And 7.1</a></font></li>
-  <li><font face="Arial" size="2"><a href="#Changes Between WTL 7.1 And 7.0">Changes Between WTL 
+	<li><font face="Arial" size="2"><a href="#Notes">Notes</a></font></li>
+	<li><font face="Arial" size="2"><a href="#Changes Between WTL 7.5 And 7.1">Changes Between WTL 7.5 And 7.1</a></font></li>
+	<li><font face="Arial" size="2"><a href="#Changes Between WTL 7.1 And 7.0">Changes Between WTL 
   7.1 And 7.0</a></font></li>
-  <li><font face="Arial" size="2"><a href="#Changes Between WTL 7.0 And 3.1">Changes Between WTL 
+	<li><font face="Arial" size="2"><a href="#Changes Between WTL 7.0 And 3.1">Changes Between WTL 
   7.0 And 3.1</a></font></li>
-  <li><font face="Arial" size="2"><a href="#Changes Between WTL 3.1 And 3.0">
-  Changes Between WTL 3.1 And 3.0</a></font></li>
-</ol>
+	<li><font face="Arial" size="2"><a href="#Changes Between WTL 3.1 And 3.0">Changes Between WTL 3.1 And 3.0</a></font></li>
+</ul>
 <p style=margin:0in>&nbsp;</p>
 <p style=margin:0in>&nbsp;</p>
 <p style=margin:0in><font face="Arial">
-<b><a name="Introduction"></a>1. Introduction</b></font></p>
+<b><a name="Introduction"></a>Introduction</b></font></p>
 <p style=margin:0in>&nbsp;</p>
 <p style=margin:0in><font face="Arial" size="2">Windows Template Library, or WTL, is a set of 
 classes that extend ATL to support more complex user interfaces for either 
@@ -93,7 +91,7 @@ model to a programmer.</font></p>
 <p style=margin:0in>&nbsp;</p>
 <p style=margin:0in>&nbsp;</p>
 <p style=margin:0in><font face="Arial">
-<b><a name="Features And Installation"></a>2. Features And Installation</b></font></p>
+<b><a name="Features And Installation"></a>Features And Installation</b></font></p>
 <p style=margin:0in>&nbsp;</p>
 <p style=margin:0in><font face="Arial" size="2">This is the fifth public release 
 of WTL, after WTL 3.0, 3.1, 7.0, and 7.1. It is also the first release of WTL 
@@ -122,14 +120,11 @@ in VC++ IDE. The file AppWiz\setup70.js is the setup script for VC++ .NET 2002, 
 .NET 2003.</font></p>
 <p style=margin:0in>&nbsp;</p>
 <p style=margin:0in><font face="Arial" size="2">To manually install AppWizard 
-for VC++ .NET 2002, copy all WTLAppWiz.* files from AppWiz\Files to VC++ .NET 
+for VC++ .NET 2002/2003, copy all WTLAppWiz.* files from AppWiz\Files to VC++ .NET 
 projects directory, %VC7DIR%\Vc7\vcprojects, where %VC7DIR% is the directory 
-where VC++ .NET 2002 is installed. After that,&nbsp;open WTLAppWiz.vsz and modify the 
+where VC++ .NET 2002/2003 is installed. After that,&nbsp;open WTLAppWiz.vsz and modify the 
 like that contains ABSOLUTE_PATH to contain %WTLDIR%\AppWiz\Files, where 
 %WTLDIR% is the directory where WTL files are.</font></p>
-<p style=margin:0in>&nbsp;</p>
-<p style=margin:0in><font face="Arial" size="2">For VC++ .NET 2003 use the WTLApp71.* 
-files with the same steps.</font></p>
 <p style=margin:0in>&nbsp;</p>
 <p style=margin:0in><font face="Arial" size="2">This release also brings the 
 preliminary support for the Visual Studio 2005 (codename Whidbey) Beta2. App 
@@ -151,7 +146,7 @@ Visual C++ 2005 Beta2&nbsp;&nbsp; (ATL 8.0)&nbsp;&nbsp; [preliminary support]</f
 <p style=margin:0in><font face="Arial" size="2">&nbsp;&nbsp;&nbsp; SDK 
 (optional):</font></p>
 <p style=margin:0in><font face="Arial" size="2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
-Any Platform SDK from January 2000 release up to the latest (February 2003)</font></p>
+Any Platform SDK from January 2000 release up to the latest (April 2005)</font></p>
 <p style=margin:0in>&nbsp;</p>
 <p style=margin:0in><font face="Arial" size="2">&nbsp;&nbsp;&nbsp; Windows CE 
 development:</font></p>
@@ -168,7 +163,7 @@ Visual C++ 2005 Beta2 - Pocket PC 2003 SE, Smartphone 2003 SE&nbsp;&nbsp;
 <p style=margin:0in>&nbsp;</p>
 <p style=margin:0in>&nbsp;</p>
 <p style=margin:0in><font face="Arial">
-<b><a name="Packing List"></a>3. Packing List</b></font></p>
+<b><a name="Packing List"></a>Packing List</b></font></p>
 <p style=margin:0in>&nbsp;</p>
 <table border="0" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111" width="497" id="AutoNumber2">
   <tr>
@@ -357,7 +352,7 @@ Visual C++ 2005 Beta2 - Pocket PC 2003 SE, Smartphone 2003 SE&nbsp;&nbsp;
 <p style=margin:0in>&nbsp;</p>
 <p style=margin:0in>&nbsp;</p>
 <p style=margin:0in><font face="Arial">
-<b><a name="Class Overview"></a>4. Class Overview</b></font></p>
+<b><a name="Class Overview"></a>Class Overview</b></font></p>
 <p style=margin:0in>&nbsp;</p>
 <table border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111" id="AutoNumber4">
   <tr>
@@ -1228,7 +1223,7 @@ Visual C++ 2005 Beta2 - Pocket PC 2003 SE, Smartphone 2003 SE&nbsp;&nbsp;
 <p style=margin:0in>&nbsp;</p>
 <p style=margin:0in>&nbsp;</p>
 <p style=margin:0in><font face="Arial">
-<b><a name="ATL/WTL AppWizard"></a>5. ATL/WTL AppWizard</b></font></p>
+<b><a name="ATL/WTL AppWizard"></a>ATL/WTL AppWizard</b></font></p>
 <p style=margin:0in>&nbsp;</p>
 <p style=margin:0in><font face="Arial" size="2">ATL/WTL AppWizard generates starting code for a 
 WTL application. It has options to create code for different application types and features.</font></p>
@@ -1250,12 +1245,12 @@ WTL application. It has options to create code for different application types a
 </ul>
 <p style=margin:0in>&nbsp;</p>
 <p style=margin:0in><font face="Arial" size="2">ATL/WTL AppWizard supports VC++ 
-.NET 2002 and 2003. Preliminary version of AppWizards for VC++ 2005 Beta2 is 
+.NET 2002 and 2003. Preliminary version of AppWizards for VC++ 2005 Beta2 are 
 also provided.</font></p>
 <p style=margin:0in>&nbsp;</p>
 <p style=margin:0in>&nbsp;</p>
 <p style=margin:0in><b><font face="Arial">
-<a name="Support for Windows CE"></a>6. Support for 
+<a name="Support for Windows CE"></a>Support for 
 Windows CE</font></b></p>
 <p style=margin:0in>&nbsp;</p>
 <p style=margin:0in><font face="Arial" size="2">WTL now fully supports building 
@@ -1281,7 +1276,7 @@ provided.</font></p>
 <p style=margin:0in>&nbsp;</p>
 <p style=margin:0in>&nbsp;</p>
 <p style=margin:0in><b><font face="Arial">
-<a name="Notes"></a>7. Notes</font></b></p>
+<a name="Notes"></a>Notes</font></b></p>
 <p style=margin:0in>&nbsp;</p>
 <p style=margin:0in><font face="Arial" size="2"><b>~</b>&nbsp;&nbsp;&nbsp; WTL provides 
 several classes that are also present in ATL 7.0 and 7.1. The classes are: <b>
@@ -1335,7 +1330,7 @@ available in the previous release, WTL 7.1.</font></p>
 <p style=margin:0in>&nbsp;</p>
 <p style=margin:0in>&nbsp;</p>
 <p style=margin:0in><b><font face="Arial">
-<a name="Changes Between WTL 7.5 And 7.1"></a>8. Changes Between WTL 7.5 And 7.1</font></b></p>
+<a name="Changes Between WTL 7.5 And 7.1"></a>Changes Between WTL 7.5 And 7.1</font></b></p>
 <p style=margin:0in>&nbsp;</p>
   <p style=margin:0in><font face="Arial" size="2">New and improved:</font></p>
 <blockquote style='margin-top:0in;margin-bottom:0in'>
@@ -1349,7 +1344,7 @@ available in the previous release, WTL 7.1.</font></p>
 <p style=margin:0in>&nbsp;</p>
 <p style=margin:0in>&nbsp;</p>
 <p style=margin:0in><b><font face="Arial">
-<a name="Changes Between WTL 7.1 And 7.0"></a>9. Changes Between WTL 7.1 And 7.0</font></b></p>
+<a name="Changes Between WTL 7.1 And 7.0"></a>Changes Between WTL 7.1 And 7.0</font></b></p>
 <p style=margin:0in>&nbsp;</p>
   <p style=margin:0in><font face="Arial" size="2">New and improved:</font></p>
 <blockquote style='margin-top:0in;margin-bottom:0in'>
@@ -1784,7 +1779,7 @@ available in the previous release, WTL 7.1.</font></p>
   <p style=margin:0in>&nbsp;</p>
   <p style=margin:0in>&nbsp;</p>
 <p style=margin:0in><b><font face="Arial">
-<a name="Changes Between WTL 7.0 And 3.1"></a>10. Changes Between WTL 7.0 And 3.1</font></b></p>
+<a name="Changes Between WTL 7.0 And 3.1"></a>Changes Between WTL 7.0 And 3.1</font></b></p>
 <p style=margin:0in>&nbsp;</p>
 <p style=margin:0in><font face="Arial" size="2">New classes and features:</font></p>
 <blockquote style='margin-top:0in;margin-bottom:0in'>
@@ -2047,7 +2042,7 @@ available in the previous release, WTL 7.1.</font></p>
 <p style=margin:0in>&nbsp;</p>
 <p style=margin:0in>&nbsp;</p>
 <p style=margin:0in><b><font face="Arial">
-<a name="Changes Between WTL 3.1 And 3.0"></a>11. Changes Between WTL 3.1 And 
+<a name="Changes Between WTL 3.1 And 3.0"></a>Changes Between WTL 3.1 And 
 3.0</font></b></p>
 <p style=margin:0in>&nbsp;</p>
 <p style=margin:0in><font face="Arial" size="2">New classes:</font></p>
