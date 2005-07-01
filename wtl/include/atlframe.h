@@ -39,6 +39,8 @@
 // CUpdateUI<T>
 // CDynamicUpdateUI<T>
 // CDialogResize<T>
+// CDoubleBufferImpl<T>
+// CDoubleBufferWindowImpl<T, TBase, TWinTraits>
 //
 // Global functions:
 //   AtlCreateSimpleToolBar()
@@ -3423,6 +3425,72 @@ public:
 		return true;
 	}
 };
+
+
+///////////////////////////////////////////////////////////////////////////////
+// CDoubleBufferImpl - Provides double-buffer painting support to any window
+
+template <class T>
+class CDoubleBufferImpl
+{
+public:
+// Overrideables
+	void DoPaint(CDCHandle /*dc*/)
+	{
+		// must be implemented in a derived class
+		ATLASSERT(FALSE);
+	}
+
+// Message map and handlers
+	BEGIN_MSG_MAP(CDoubleBufferImpl)
+		MESSAGE_HANDLER(WM_ERASEBKGND, OnEraseBackground)
+		MESSAGE_HANDLER(WM_PAINT, OnPaint)
+#ifndef _WIN32_WCE
+		MESSAGE_HANDLER(WM_PRINTCLIENT, OnPaint)
+#endif //!_WIN32_WCE
+	END_MSG_MAP()
+
+	LRESULT OnEraseBackground(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+	{
+		return 1;   // no background painting needed
+	}
+
+	LRESULT OnPaint(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+	{
+		T* pT = static_cast<T*>(this);
+		ATLASSERT(::IsWindow(pT->m_hWnd));
+
+		if(wParam != NULL)
+		{
+			RECT rect = { 0 };
+			pT->GetClientRect(&rect);
+			CMemoryDC dcMem((HDC)wParam, rect);
+			pT->DoPaint(dcMem.m_hDC);
+		}
+		else
+		{
+			CPaintDC dc(pT->m_hWnd);
+			CMemoryDC dcMem(dc.m_hDC, dc.m_ps.rcPaint);
+			pT->DoPaint(dcMem.m_hDC);
+		}
+
+		return 0;
+	}
+};
+
+
+///////////////////////////////////////////////////////////////////////////////
+// CDoubleBufferWindowImpl - Implements a double-buffer painting window
+
+template <class T, class TBase = ATL::CWindow, class TWinTraits = ATL::CControlWinTraits>
+class ATL_NO_VTABLE CDoubleBufferWindowImpl : public ATL::CWindowImpl< T, TBase, TWinTraits >, public CDoubleBufferImpl< T >
+{
+public:
+	BEGIN_MSG_MAP(CDoubleBufferWindowImpl)
+		CHAIN_MSG_MAP(CDoubleBufferImpl< T >)
+	END_MSG_MAP()
+};
+
 
 // command bar support
 #if !defined(__ATLCTRLW_H__) && !defined(_WIN32_WCE)

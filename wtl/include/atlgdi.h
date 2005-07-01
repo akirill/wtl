@@ -57,6 +57,7 @@
 // CPaintDC
 // CClientDC
 // CWindowDC
+// CMemoryDC
 // CEnhMetaFileInfo
 // CEnhMetaFileT<t_bManaged>
 // CEnhMetaFileDC
@@ -3355,6 +3356,34 @@ public:
 	{
 		ATLASSERT(m_hDC != NULL);
 		::ReleaseDC(m_hWnd, Detach());
+	}
+};
+
+class CMemoryDC : public CDC
+{
+public:
+// Data members
+	HDC m_hDCOriginal;
+	RECT m_rcPaint;
+	CBitmap m_bmp;
+	HBITMAP m_hBmpOld;
+
+// Constructor/destructor
+	CMemoryDC(HDC hDC, RECT& rcPaint) : m_hDCOriginal(hDC), m_hBmpOld(NULL)
+	{
+		m_rcPaint = rcPaint;
+		CreateCompatibleDC(m_hDCOriginal);
+		ATLASSERT(m_hDC != NULL);
+		m_bmp.CreateCompatibleBitmap(m_hDCOriginal, m_rcPaint.right - m_rcPaint.left, m_rcPaint.bottom - m_rcPaint.top);
+		ATLASSERT(m_bmp.m_hBitmap != NULL);
+		m_hBmpOld = SelectBitmap(m_bmp);
+		SetViewportOrg(-m_rcPaint.left, -m_rcPaint.top);
+	}
+
+	~CMemoryDC()
+	{
+		::BitBlt(m_hDCOriginal, m_rcPaint.left, m_rcPaint.top, m_rcPaint.right - m_rcPaint.left, m_rcPaint.bottom - m_rcPaint.top, m_hDC, m_rcPaint.left, m_rcPaint.top, SRCCOPY);
+		SelectBitmap(m_hBmpOld);
 	}
 };
 
