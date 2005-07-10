@@ -17,6 +17,17 @@ function OnFinish(selProj, selObj)
 		var strProjectPath = wizard.FindSymbol('PROJECT_PATH');
 		var strProjectName = wizard.FindSymbol('PROJECT_NAME');
 
+		// Use embedded manifest for VS2005
+		var WizardVersion = wizard.FindSymbol('WIZARD_VERSION');
+		if(WizardVersion >= 8.0)
+		{
+			if(wizard.FindSymbol("WTL_USE_MANIFEST"))
+			{
+				wizard.AddSymbol("WTL_USE_EMBEDDED_MANIFEST", true);
+				wizard.AddSymbol("WTL_USE_MANIFEST", false);
+			}
+		}
+
 		// Create symbols based on the project name
 		var strSafeProjectName = CreateSafeName(strProjectName);
 		wizard.AddSymbol("SAFE_PROJECT_NAME", strSafeProjectName);
