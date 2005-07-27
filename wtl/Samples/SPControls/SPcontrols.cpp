@@ -10,7 +10,7 @@
 #include <atlmisc.h>
 
 #define _WTL_CE_NO_ZOOMSCROLL
-#include <atlce.h>
+#include <atlwince.h>
 
 #include "resource.h"
 #include "maindlg.h"
