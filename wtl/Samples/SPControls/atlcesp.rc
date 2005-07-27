@@ -1,0 +1,57 @@
+// Windows Template Library - WTL version 7.5
+// Copyright (C) Microsoft Corporation. All rights reserved.
+//
+// This file is a part of the Windows Template Library.
+// The use and distribution terms for this software are covered by the
+// Common Public License 1.0 (http://opensource.org/licenses/cpl.php)
+// which can be found in the file CPL.TXT at the root of this distribution.
+// By using this software in any fashion, you are agreeing to be bound by
+// the terms of this license. You must not remove this notice, or
+// any other, from this software.
+/////////////////////////////////////////////////////////////////////////////
+
+// WTL Smartphone compilable resources
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Smartphone Menubars
+//
+
+ATL_IDM_MENU_DONE RCDATA 
+BEGIN
+    ATL_IDM_MENU_DONE, 1,
+    I_IMAGENONE, ID_MENU_OK, TBSTATE_ENABLED, TBSTYLE_AUTOSIZE, 
+    ATL_IDS_DONE, 0, NOMENU,
+END
+
+
+ATL_IDM_MENU_CANCEL RCDATA 
+BEGIN
+    ATL_IDM_MENU_CANCEL, 1,
+    I_IMAGENONE, ID_MENU_CANCEL, TBSTATE_ENABLED, TBSTYLE_AUTOSIZE, 
+    ATL_IDS_CANCEL, 0, NOMENU,
+END
+
+
+ATL_IDM_MENU_DONECANCEL RCDATA 
+BEGIN
+    ATL_IDM_MENU_DONECANCEL, 2,
+    I_IMAGENONE, ID_MENU_OK, TBSTATE_ENABLED, TBSTYLE_AUTOSIZE, 
+    ATL_IDS_DONE, 0, NOMENU,
+    I_IMAGENONE, ID_MENU_CANCEL, TBSTATE_ENABLED, TBSTYLE_AUTOSIZE, 
+    ATL_IDS_CANCEL, 0, NOMENU,
+END
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Smartphone Strings
+//
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ATL_IDS_DONE       "Done"
+    ATL_IDS_CANCEL     "Cancel"
+END
+/////////////////////////////////////////////////////////////////////////////
+
+
