@@ -2304,8 +2304,7 @@ public:
 			pT->_CleanUpPages();
 
 #if defined(_AYGSHELL_H_) || defined(__AYGSHELL_H__) // PPC specific
-			if(*pT->m_psh.pszCaption != 0)
-				m_pszTitle = pT->m_psh.pszCaption;
+			m_pszTitle = pT->m_psh.pszCaption;
 			if(*pT->m_szLink != 0)
 				m_pszLink = pT->m_szLink;
 #endif  // defined(_AYGSHELL_H_) || defined(__AYGSHELL_H__) // PPC specific
