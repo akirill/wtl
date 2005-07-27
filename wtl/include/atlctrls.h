@@ -30,10 +30,11 @@
 	#error atlctrls.h requires IE Version 3.0 or higher
 #endif
 
-
 #ifndef _WIN32_WCE
-#include <richedit.h>
-#include <richole.h>
+	#include <richedit.h>
+	#include <richole.h>
+#elif defined(WIN32_PLATFORM_WFSP) && !defined(_WINUSERM_H_)
+	#error atlctrls.h SmartPhone support requires winuserm.h to be included first
 #endif //!_WIN32_WCE
 
 // protect template members from windowsx.h macros
@@ -707,6 +708,20 @@ public:
 		ATLASSERT(nFirstItem <= nLastItem);
 		return bSelect ? (int)::SendMessage(m_hWnd, LB_SELITEMRANGEEX, nFirstItem, nLastItem) : (int)::SendMessage(m_hWnd, LB_SELITEMRANGEEX, nLastItem, nFirstItem);
 	}
+
+#ifdef WIN32_PLATFORM_WFSP // SmartPhone only messages
+	
+	DWORD GetInputMode(BOOL bCurrentMode = TRUE)
+	{
+		return SendMessage(LB_GETINPUTMODE, 0, (LPARAM)bCurrentMode);
+	}
+
+	BOOL SetInputMode(DWORD dwMode)
+	{
+		return SendMessage(LB_SETINPUTMODE, 0, dwMode);
+	}
+
+#endif // WIN32_PLATFORM_WFSP // SmartPhone only messages
 };
 
 typedef CListBoxT<ATL::CWindow>   CListBox;
@@ -1455,6 +1470,39 @@ public:
 		ATLASSERT(::IsWindow(m_hWnd));
 		::SendMessage(m_hWnd, WM_PASTE, 0, 0L);
 	}
+
+#ifdef WIN32_PLATFORM_WFSP // SmartPhone only messages
+	
+	DWORD GetExtendedStyle()
+	{
+		return SendMessage(EM_GETEXTENDEDSTYLE);
+	}
+
+	DWORD SetExtendedStyle(DWORD dwMask, DWORD dwExStyle)
+	{
+		return SendMessage(EM_SETEXTENDEDSTYLE, (WPARAM)dwMask, (LPARAM)dwExStyle);
+	}
+
+	DWORD GetInputMode(BOOL bCurrentMode = TRUE)
+	{
+		return SendMessage(EM_GETINPUTMODE, 0, (LPARAM)bCurrentMode);
+	}
+
+	BOOL SetInputMode(DWORD dwMode)
+	{
+		return SendMessage(EM_SETINPUTMODE, 0, dwMode);
+	}
+
+	BOOL SetSymbols(LPCTSTR szSymbols)
+	{
+		return SendMessage(EM_SETSYMBOLS, 0, szSymbols);
+	}
+
+	BOOL ResetSymbols()
+	{
+		return SendMessage(EM_SETSYMBOLS);
+	}
+#endif // WIN32_PLATFORM_WFSP // SmartPhone only messages
 };
 
 typedef CEditT<ATL::CWindow>   CEdit;
