@@ -670,6 +670,35 @@ inline CRect CRect::MulDiv(int nMultiplier, int nDivisor) const
 
 #endif //!_WTL_NO_WTYPES
 
+#if !defined( _WTL_NO_SIZE_SCALAR ) && ( !defined(_WTL_NO_WTYPES) || defined(__ATLTYPES_H__))
+
+//  WTL::CSize or ATL::CSize scalar operators 
+
+template <class Num>
+inline CSize operator *(SIZE s, Num n) 
+{
+	return CSize((int)(s.cx * n), (int)(s.cy * n));
+};
+
+template <class Num>
+inline void operator *=(SIZE & s, Num n)
+{
+	s = s * n;
+};	
+
+template <class Num>
+inline CSize operator /(SIZE s, Num n) 
+{
+	return CSize((int)(s.cx / n), (int)(s.cy / n));
+};
+
+template <class Num>
+inline void operator /=(SIZE & s, Num n)
+{
+	s = s / n;
+};	
+
+#endif // !defined( _WTL_NO_SIZE_SCALAR ) && ( !defined(_WTL_NO_WTYPES) || defined(__ATLTYPES_H__))
 
 ///////////////////////////////////////////////////////////////////////////////
 // CString - String class
