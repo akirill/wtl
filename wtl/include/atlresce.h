@@ -56,4 +56,34 @@
 
 #include <atlres.h>
 
-#endif //__ATLRESCE_H__
+#ifdef APSTUDIO_INVOKED
+	#undef APSTUDIO_HIDDEN_SYMBOLS
+#endif //APSTUDIO_INVOKED
+
+#define IDC_INFOSTATIC 0xfffe // == IDC_STATIC -1
+
+
+#ifdef WIN32_PLATFORM_WFSP // SmartPhone resources
+/////////////////////////////////////////////////////////////////////////////
+//
+// Smartphone IDs
+//
+
+
+#define ID_MENU_OK				0xE790
+#define ID_MENU_CANCEL			0xE791
+
+
+#define ATL_IDW_SPIN_ID			9999
+
+#define ATL_IDS_DONE			0xEF20
+#define ATL_IDS_CANCEL			0xEF21
+
+#define ATL_IDM_MENU_DONE		0xE701
+#define ATL_IDM_MENU_CANCEL		0xE702
+#define ATL_IDM_MENU_DONECANCEL	0xE703
+
+
+#endif // WIN32_PLATFORM_WFSP  SmartPhone resources
+#endif // __ATLRESCE_H__
+
