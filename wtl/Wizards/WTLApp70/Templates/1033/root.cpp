@@ -179,7 +179,7 @@ public:
 				if(::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
 				{
 					if(msg.message == WM_USER)
-						AddThread("", SW_SHOWNORMAL);
+						AddThread(_T(""), SW_SHOWNORMAL);
 				}
 			}
 			else
