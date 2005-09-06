@@ -209,7 +209,7 @@ public:
 			LPTSTR lpsz = buffer;
 			while (*lpsz)
 			{
-				if (*lpsz == ',')
+				if (*lpsz == _T(','))
 				{
 					*lpsz = 0;
 					break;

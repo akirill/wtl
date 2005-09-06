@@ -945,7 +945,7 @@ protected:
 		if (::FindResource(_Module.GetResourceInstance(), MAKEINTRESOURCE((nID>>4) + 1), RT_STRING) == NULL)
 #endif //!(_ATL_VER >= 0x0700)
 		{
-			lpszBuf[0] = '\0';
+			lpszBuf[0] = _T('\0');
 			return 0; // not found
 		}
 #endif //_DEBUG
@@ -956,7 +956,7 @@ protected:
 		int nLen = ::LoadString(_Module.GetResourceInstance(), nID, lpszBuf, nMaxBuf);
 #endif //!(_ATL_VER >= 0x0700)
 		if (nLen == 0)
-			lpszBuf[0] = '\0';
+			lpszBuf[0] = _T('\0');
 		return nLen;
 	}
 
@@ -1019,7 +1019,7 @@ protected:
 	static TCHAR* _cstrrev(TCHAR* pStr)
 	{
 		// optimize NULL, zero-length, and single-char case
-		if ((pStr == NULL) || (pStr[0] == '\0') || (pStr[1] == '\0'))
+		if ((pStr == NULL) || (pStr[0] == _T('\0')) || (pStr[1] == _T('\0')))
 			return pStr;
 
 		TCHAR* p = pStr;
@@ -1485,7 +1485,7 @@ inline BOOL CString::AllocBuffer(int nLen)
 			return FALSE;
 
 		pData->nRefs = 1;
-		pData->data()[nLen] = '\0';
+		pData->data()[nLen] = _T('\0');
 		pData->nDataLength = nLen;
 		pData->nAllocLength = nLen;
 		m_pchData = pData->data();
@@ -1653,7 +1653,7 @@ inline void CString::AssignCopy(int nSrcLen, LPCTSTR lpszSrcData)
 	{
 		memcpy(m_pchData, lpszSrcData, nSrcLen * sizeof(TCHAR));
 		GetData()->nDataLength = nSrcLen;
-		m_pchData[nSrcLen] = '\0';
+		m_pchData[nSrcLen] = _T('\0');
 	}
 }
 
@@ -1791,7 +1791,7 @@ inline void CString::ConcatInPlace(int nSrcLen, LPCTSTR lpszSrcData)
 		memcpy(m_pchData + GetData()->nDataLength, lpszSrcData, nSrcLen * sizeof(TCHAR));
 		GetData()->nDataLength += nSrcLen;
 		ATLASSERT(GetData()->nDataLength <= GetData()->nAllocLength);
-		m_pchData[GetData()->nDataLength] = '\0';
+		m_pchData[GetData()->nDataLength] = _T('\0');
 	}
 }
 
@@ -1849,7 +1849,7 @@ inline void CString::ReleaseBuffer(int nNewLength)
 
 	ATLASSERT(nNewLength <= GetData()->nAllocLength);
 	GetData()->nDataLength = nNewLength;
-	m_pchData[nNewLength] = '\0';
+	m_pchData[nNewLength] = _T('\0');
 }
 
 inline LPTSTR CString::GetBufferSetLength(int nNewLength)
@@ -1860,7 +1860,7 @@ inline LPTSTR CString::GetBufferSetLength(int nNewLength)
 		return NULL;
 
 	GetData()->nDataLength = nNewLength;
-	m_pchData[nNewLength] = '\0';
+	m_pchData[nNewLength] = _T('\0');
 	return m_pchData;
 }
 
@@ -1873,7 +1873,7 @@ inline void CString::FreeExtra()
 		if(AllocBuffer(GetData()->nDataLength))
 		{
 			memcpy(m_pchData, pOldData->data(), pOldData->nDataLength * sizeof(TCHAR));
-			ATLASSERT(m_pchData[GetData()->nDataLength] == '\0');
+			ATLASSERT(m_pchData[GetData()->nDataLength] == _T('\0'));
 			CString::Release(pOldData);
 		}
 	}
@@ -2144,10 +2144,10 @@ inline BOOL CString::FormatV(LPCTSTR lpszFormat, va_list argList)
 
 	// make a guess at the maximum length of the resulting string
 	int nMaxLen = 0;
-	for (LPCTSTR lpsz = lpszFormat; *lpsz != '\0'; lpsz = ::CharNext(lpsz))
+	for (LPCTSTR lpsz = lpszFormat; *lpsz != _T('\0'); lpsz = ::CharNext(lpsz))
 	{
 		// handle '%' character, but watch out for '%%'
-		if (*lpsz != '%' || *(lpsz = ::CharNext(lpsz)) == '%')
+		if (*lpsz != _T('%') || *(lpsz = ::CharNext(lpsz)) == _T('%'))
 		{
 			// this is instead of _tclen()
 #if !defined(_UNICODE) && defined(_MBCS)
@@ -2162,14 +2162,14 @@ inline BOOL CString::FormatV(LPCTSTR lpszFormat, va_list argList)
 
 		// handle '%' character with format
 		int nWidth = 0;
-		for (; *lpsz != '\0'; lpsz = ::CharNext(lpsz))
+		for (; *lpsz != _T('\0'); lpsz = ::CharNext(lpsz))
 		{
 			// check for valid flags
-			if (*lpsz == '#')
+			if (*lpsz == _T('#'))
 				nMaxLen += 2;   // for '0x'
-			else if (*lpsz == '*')
+			else if (*lpsz == _T('*'))
 				nWidth = va_arg(argList, int);
-			else if (*lpsz == '-' || *lpsz == '+' || *lpsz == '0' || *lpsz == ' ')
+			else if (*lpsz == _T('-') || *lpsz == _T('+') || *lpsz == _T('0') || *lpsz == _T(' '))
 				;
 			else // hit non-flag character
 				break;
@@ -2179,19 +2179,19 @@ inline BOOL CString::FormatV(LPCTSTR lpszFormat, va_list argList)
 		{
 			// width indicated by
 			nWidth = _cstrtoi(lpsz);
-			for (; *lpsz != '\0' && _cstrisdigit(*lpsz); lpsz = ::CharNext(lpsz))
+			for (; *lpsz != _T('\0') && _cstrisdigit(*lpsz); lpsz = ::CharNext(lpsz))
 				;
 		}
 		ATLASSERT(nWidth >= 0);
 
 		int nPrecision = 0;
-		if (*lpsz == '.')
+		if (*lpsz == _T('.'))
 		{
 			// skip past '.' separator (width.precision)
 			lpsz = ::CharNext(lpsz);
 
 			// get precision and skip it
-			if (*lpsz == '*')
+			if (*lpsz == _T('*'))
 			{
 				nPrecision = va_arg(argList, int);
 				lpsz = ::CharNext(lpsz);
@@ -2199,7 +2199,7 @@ inline BOOL CString::FormatV(LPCTSTR lpszFormat, va_list argList)
 			else
 			{
 				nPrecision = _cstrtoi(lpsz);
-				for (; *lpsz != '\0' && _cstrisdigit(*lpsz); lpsz = ::CharNext(lpsz))
+				for (; *lpsz != _T('\0') && _cstrisdigit(*lpsz); lpsz = ::CharNext(lpsz))
 					;
 			}
 			ATLASSERT(nPrecision >= 0);
@@ -2217,19 +2217,19 @@ inline BOOL CString::FormatV(LPCTSTR lpszFormat, va_list argList)
 			switch (*lpsz)
 			{
 			// modifiers that affect size
-			case 'h':
+			case _T('h'):
 				nModifier = FORCE_ANSI;
 				lpsz = ::CharNext(lpsz);
 				break;
-			case 'l':
+			case _T('l'):
 				nModifier = FORCE_UNICODE;
 				lpsz = ::CharNext(lpsz);
 				break;
 
 			// modifiers that do not affect size
-			case 'F':
-			case 'N':
-			case 'L':
+			case _T('F'):
+			case _T('N'):
+			case _T('L'):
 				lpsz = ::CharNext(lpsz);
 				break;
 			}
@@ -2239,24 +2239,24 @@ inline BOOL CString::FormatV(LPCTSTR lpszFormat, va_list argList)
 		switch (*lpsz | nModifier)
 		{
 		// single characters
-		case 'c':
-		case 'C':
+		case _T('c'):
+		case _T('C'):
 			nItemLen = 2;
 			va_arg(argList, TCHAR);
 			break;
-		case 'c' | FORCE_ANSI:
-		case 'C' | FORCE_ANSI:
+		case _T('c') | FORCE_ANSI:
+		case _T('C') | FORCE_ANSI:
 			nItemLen = 2;
 			va_arg(argList, char);
 			break;
-		case 'c' | FORCE_UNICODE:
-		case 'C' | FORCE_UNICODE:
+		case _T('c') | FORCE_UNICODE:
+		case _T('C') | FORCE_UNICODE:
 			nItemLen = 2;
 			va_arg(argList, WCHAR);
 			break;
 
 		// strings
-		case 's':
+		case _T('s'):
 		{
 			LPCTSTR pstrNextArg = va_arg(argList, LPCTSTR);
 			if (pstrNextArg == NULL)
@@ -2271,7 +2271,7 @@ inline BOOL CString::FormatV(LPCTSTR lpszFormat, va_list argList)
 			break;
 		}
 
-		case 'S':
+		case _T('S'):
 		{
 #ifndef _UNICODE
 			LPWSTR pstrNextArg = va_arg(argList, LPWSTR);
@@ -2303,8 +2303,8 @@ inline BOOL CString::FormatV(LPCTSTR lpszFormat, va_list argList)
 			break;
 		}
 
-		case 's' | FORCE_ANSI:
-		case 'S' | FORCE_ANSI:
+		case _T('s') | FORCE_ANSI:
+		case _T('S') | FORCE_ANSI:
 		{
 			LPCSTR pstrNextArg = va_arg(argList, LPCSTR);
 			if (pstrNextArg == NULL)
@@ -2323,8 +2323,8 @@ inline BOOL CString::FormatV(LPCTSTR lpszFormat, va_list argList)
 			break;
 		}
 
-		case 's' | FORCE_UNICODE:
-		case 'S' | FORCE_UNICODE:
+		case _T('s') | FORCE_UNICODE:
+		case _T('S') | FORCE_UNICODE:
 		{
 			LPWSTR pstrNextArg = va_arg(argList, LPWSTR);
 			if (pstrNextArg == NULL)
@@ -2352,12 +2352,12 @@ inline BOOL CString::FormatV(LPCTSTR lpszFormat, va_list argList)
 			switch (*lpsz)
 			{
 			// integers
-			case 'd':
-			case 'i':
-			case 'u':
-			case 'x':
-			case 'X':
-			case 'o':
+			case _T('d'):
+			case _T('i'):
+			case _T('u'):
+			case _T('x'):
+			case _T('X'):
+			case _T('o'):
 				if (nModifier & FORCE_INT64)
 					va_arg(argList, __int64);
 				else
@@ -2367,11 +2367,11 @@ inline BOOL CString::FormatV(LPCTSTR lpszFormat, va_list argList)
 				break;
 
 #ifndef _ATL_USE_CSTRING_FLOAT
-			case 'e':
-			case 'E':
-			case 'f':
-			case 'g':
-			case 'G':
+			case _T('e'):
+			case _T('E'):
+			case _T('f'):
+			case _T('g'):
+			case _T('G'):
 				ATLASSERT(!"Floating point (%%e, %%E, %%f, %%g, and %%G) is not supported by the WTL::CString class.");
 #ifndef _DEBUG
 				::OutputDebugString(_T("Floating point (%%e, %%f, %%g, and %%G) is not supported by the WTL::CString class."));
@@ -2383,15 +2383,15 @@ inline BOOL CString::FormatV(LPCTSTR lpszFormat, va_list argList)
 #endif //!_DEBUG
 				break;
 #else //_ATL_USE_CSTRING_FLOAT
-			case 'e':
-			case 'E':
-			case 'g':
-			case 'G':
+			case _T('e'):
+			case _T('E'):
+			case _T('g'):
+			case _T('G'):
 				va_arg(argList, double);
 				nItemLen = 128;
 				nItemLen = max(nItemLen, nWidth + nPrecision);
 				break;
-			case 'f':
+			case _T('f'):
 				{
 					double f;
 					LPTSTR pszTemp;
@@ -2409,14 +2409,14 @@ inline BOOL CString::FormatV(LPCTSTR lpszFormat, va_list argList)
 				break;
 #endif //_ATL_USE_CSTRING_FLOAT
 
-			case 'p':
+			case _T('p'):
 				va_arg(argList, void*);
 				nItemLen = 32;
 				nItemLen = max(nItemLen, nWidth + nPrecision);
 				break;
 
 			// no output
-			case 'n':
+			case _T('n'):
 				va_arg(argList, int*);
 				break;
 
@@ -2521,7 +2521,7 @@ inline void CString::TrimRight()
 	// find beginning of trailing spaces by starting at beginning (DBCS aware)
 	LPTSTR lpsz = m_pchData;
 	LPTSTR lpszLast = NULL;
-	while (*lpsz != '\0')
+	while (*lpsz != _T('\0'))
 	{
 		if (_cstrisspace(*lpsz))
 		{
@@ -2538,7 +2538,7 @@ inline void CString::TrimRight()
 	if (lpszLast != NULL)
 	{
 		// truncate at trailing space start
-		*lpszLast = '\0';
+		*lpszLast = _T('\0');
 		GetData()->nDataLength = (int)(DWORD_PTR)(lpszLast - m_pchData);
 	}
 }
@@ -2567,7 +2567,7 @@ inline void CString::TrimRight(LPCTSTR lpszTargetList)
 	LPTSTR lpsz = m_pchData;
 	LPTSTR lpszLast = NULL;
 
-	while (*lpsz != '\0')
+	while (*lpsz != _T('\0'))
 	{
 		TCHAR* pNext = ::CharNext(lpsz);
 		if(pNext > lpsz + 1)
@@ -2601,7 +2601,7 @@ inline void CString::TrimRight(LPCTSTR lpszTargetList)
 	if (lpszLast != NULL)
 	{
 		// truncate at left-most matching character
-		*lpszLast = '\0';
+		*lpszLast = _T('\0');
 		GetData()->nDataLength = (int)(DWORD_PTR)(lpszLast - m_pchData);
 	}
 }
@@ -2615,7 +2615,7 @@ inline void CString::TrimRight(TCHAR chTarget)
 	LPTSTR lpsz = m_pchData;
 	LPTSTR lpszLast = NULL;
 
-	while (*lpsz != '\0')
+	while (*lpsz != _T('\0'))
 	{
 		if (*lpsz == chTarget)
 		{
@@ -2630,7 +2630,7 @@ inline void CString::TrimRight(TCHAR chTarget)
 	if (lpszLast != NULL)
 	{
 		// truncate at left-most matching character
-		*lpszLast = '\0';
+		*lpszLast = _T('\0');
 		GetData()->nDataLength = (int)(DWORD_PTR)(lpszLast - m_pchData);
 	}
 }
@@ -2644,7 +2644,7 @@ inline void CString::TrimLeft(LPCTSTR lpszTargets)
 	CopyBeforeWrite();
 	LPCTSTR lpsz = m_pchData;
 
-	while (*lpsz != '\0')
+	while (*lpsz != _T('\0'))
 	{
 		TCHAR* pNext = ::CharNext(lpsz);
 		if(pNext > lpsz + 1)
@@ -2851,12 +2851,12 @@ inline int CString::Replace(LPCTSTR lpszOld, LPCTSTR lpszNew)
 				memmove(lpszTarget + nReplacementLen, lpszTarget + nSourceLen, nBalance * sizeof(TCHAR));
 				memcpy(lpszTarget, lpszNew, nReplacementLen * sizeof(TCHAR));
 				lpszStart = lpszTarget + nReplacementLen;
-				lpszStart[nBalance] = '\0';
+				lpszStart[nBalance] = _T('\0');
 				nOldLength += (nReplacementLen - nSourceLen);
 			}
 			lpszStart += lstrlen(lpszStart) + 1;
 		}
-		ATLASSERT(m_pchData[nNewLength] == '\0');
+		ATLASSERT(m_pchData[nNewLength] == _T('\0'));
 		GetData()->nDataLength = nNewLength;
 	}
 
@@ -2880,7 +2880,7 @@ inline int CString::Remove(TCHAR chRemove)
 		}
 		pstrSource = ::CharNext(pstrSource);
 	}
-	*pstrDest = '\0';
+	*pstrDest = _T('\0');
 	int nCount = (int)(DWORD_PTR)(pstrSource - pstrDest);
 	GetData()->nDataLength -= nCount;
 
@@ -3351,7 +3351,7 @@ public:
 	BOOL m_bFound;
 
 // Constructor/destructor
-	CFindFile() : m_hFind(NULL), m_chDirSeparator('\\'), m_bFound(FALSE)
+	CFindFile() : m_hFind(NULL), m_chDirSeparator(_T('\\')), m_bFound(FALSE)
 	{ }
 
 	~CFindFile()
@@ -3396,7 +3396,7 @@ public:
 		if(nLen == 0)
 			return FALSE;
 
-		bool bAddSep = (m_lpszRoot[nLen - 1] != '\\' && m_lpszRoot[nLen - 1] != '/');
+		bool bAddSep = (m_lpszRoot[nLen - 1] != _T('\\') && m_lpszRoot[nLen - 1] != _T('/'));
 
 		if((lstrlen(m_lpszRoot) + (bAddSep ?  1 : 0)) >= cchLength)
 			return FALSE;
@@ -3479,7 +3479,7 @@ public:
 		ATLASSERT(m_hFind != NULL);
 
 		_CSTRING_NS::CString strResult = m_lpszRoot;
-		if(strResult[strResult.GetLength() - 1] != '\\' && strResult[strResult.GetLength() - 1] != '/')
+		if(strResult[strResult.GetLength() - 1] != _T('\\') && strResult[strResult.GetLength() - 1] != _T('/'))
 			strResult += m_chDirSeparator;
 		strResult += GetFileName();
 		return strResult;
@@ -3582,7 +3582,7 @@ public:
 		BOOL bResult = FALSE;
 		if(m_bFound && IsDirectory())
 		{
-			if(m_fd.cFileName[0] == '.' && (m_fd.cFileName[1] == '\0' || (m_fd.cFileName[1] == '.' && m_fd.cFileName[2] == '\0')))
+			if(m_fd.cFileName[0] == _T('.') && (m_fd.cFileName[1] == _T('\0') || (m_fd.cFileName[1] == _T('.') && m_fd.cFileName[2] == _T('\0'))))
 				bResult = TRUE;
 		}
 
@@ -3660,8 +3660,8 @@ public:
 		else
 		{
 			// find the last forward or backward whack
-			LPTSTR pstrBack  = _tcsrchr(m_lpszRoot, '\\');
-			LPTSTR pstrFront = _tcsrchr(m_lpszRoot, '/');
+			LPTSTR pstrBack  = _tcsrchr(m_lpszRoot, _T('\\'));
+			LPTSTR pstrFront = _tcsrchr(m_lpszRoot, _T('/'));
 
 			if(pstrFront != NULL || pstrBack != NULL)
 			{
@@ -3673,9 +3673,9 @@ public:
 				// from the start to the last whack is the root
 
 				if(pstrFront >= pstrBack)
-					*pstrFront = '\0';
+					*pstrFront = _T('\0');
 				else
-					*pstrBack = '\0';
+					*pstrBack = _T('\0');
 			}
 		}
 

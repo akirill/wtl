@@ -2225,7 +2225,7 @@ public:
 		int nTab = -1;
 		for(int i = 0; i < lstrlen(lpstrText); i++)
 		{
-			if(lpstrText[i] == '\t')
+			if(lpstrText[i] == _T('\t'))
 			{
 				nTab = i;
 				break;

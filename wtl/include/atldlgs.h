@@ -107,8 +107,8 @@ public:
 			HWND hWndParent = NULL)
 	{
 		memset(&m_ofn, 0, sizeof(m_ofn)); // initialize structure to 0/NULL
-		m_szFileName[0] = '\0';
-		m_szFileTitle[0] = '\0';
+		m_szFileName[0] = _T('\0');
+		m_szFileTitle[0] = _T('\0');
 
 		m_bOpenFileDialog = bOpenFileDialog;
 
@@ -1831,8 +1831,8 @@ public:
 	CFindReplaceDialogImpl()
 	{
 		memset(&m_fr, 0, sizeof(m_fr));
-		m_szFindWhat[0] = '\0';
-		m_szReplaceWith[0] = '\0';
+		m_szFindWhat[0] = _T('\0');
+		m_szReplaceWith[0] = _T('\0');
 
 		m_fr.lStructSize = sizeof(m_fr);
 		m_fr.Flags = FR_ENABLEHOOK;

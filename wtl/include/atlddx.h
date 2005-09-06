@@ -400,17 +400,17 @@ public:
 	static BOOL _AtlSimpleFloatParse(LPCTSTR lpszText, double& d)
 	{
 		ATLASSERT(lpszText != NULL);
-		while (*lpszText == ' ' || *lpszText == '\t')
+		while (*lpszText == _T(' ') || *lpszText == _T('\t'))
 			lpszText++;
 
 		TCHAR chFirst = lpszText[0];
 		d = _tcstod(lpszText, (LPTSTR*)&lpszText);
-		if (d == 0.0 && chFirst != '0')
+		if (d == 0.0 && chFirst != _T('0'))
 			return FALSE;   // could not convert
-		while (*lpszText == ' ' || *lpszText == '\t')
+		while (*lpszText == _T(' ') || *lpszText == _T('\t'))
 			lpszText++;
 
-		if (*lpszText != '\0')
+		if (*lpszText != _T('\0'))
 			return FALSE;   // not terminated properly
 
 		return TRUE;
