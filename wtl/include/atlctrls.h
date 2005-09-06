@@ -31,10 +31,10 @@
 #endif
 
 #ifndef _WIN32_WCE
-	#include <richedit.h>
-	#include <richole.h>
+  #include <richedit.h>
+  #include <richole.h>
 #elif defined(WIN32_PLATFORM_WFSP) && !defined(_WINUSERM_H_)
-	#error atlctrls.h SmartPhone support requires winuserm.h to be included first
+  #include <winuserm.h>
 #endif //!_WIN32_WCE
 
 // protect template members from windowsx.h macros
@@ -709,8 +709,7 @@ public:
 		return bSelect ? (int)::SendMessage(m_hWnd, LB_SELITEMRANGEEX, nFirstItem, nLastItem) : (int)::SendMessage(m_hWnd, LB_SELITEMRANGEEX, nLastItem, nFirstItem);
 	}
 
-#ifdef WIN32_PLATFORM_WFSP // SmartPhone only messages
-	
+#ifdef WIN32_PLATFORM_WFSP   // SmartPhone only messages
 	DWORD GetInputMode(BOOL bCurrentMode = TRUE)
 	{
 		return SendMessage(LB_GETINPUTMODE, 0, (LPARAM)bCurrentMode);
@@ -718,10 +717,9 @@ public:
 
 	BOOL SetInputMode(DWORD dwMode)
 	{
-		return SendMessage(LB_SETINPUTMODE, 0, dwMode);
+		return SendMessage(LB_SETINPUTMODE, 0, (LPARAM)dwMode);
 	}
-
-#endif // WIN32_PLATFORM_WFSP // SmartPhone only messages
+#endif //WIN32_PLATFORM_WFSP
 };
 
 typedef CListBoxT<ATL::CWindow>   CListBox;
@@ -1471,8 +1469,7 @@ public:
 		::SendMessage(m_hWnd, WM_PASTE, 0, 0L);
 	}
 
-#ifdef WIN32_PLATFORM_WFSP // SmartPhone only messages
-	
+#ifdef WIN32_PLATFORM_WFSP   // SmartPhone only messages
 	DWORD GetExtendedStyle()
 	{
 		return SendMessage(EM_GETEXTENDEDSTYLE);
@@ -1490,19 +1487,19 @@ public:
 
 	BOOL SetInputMode(DWORD dwMode)
 	{
-		return SendMessage(EM_SETINPUTMODE, 0, dwMode);
+		return SendMessage(EM_SETINPUTMODE, 0, (LPARAM)dwMode);
 	}
 
 	BOOL SetSymbols(LPCTSTR szSymbols)
 	{
-		return SendMessage(EM_SETSYMBOLS, 0, szSymbols);
+		return SendMessage(EM_SETSYMBOLS, 0, (LPARAM)szSymbols);
 	}
 
 	BOOL ResetSymbols()
 	{
 		return SendMessage(EM_SETSYMBOLS);
 	}
-#endif // WIN32_PLATFORM_WFSP // SmartPhone only messages
+#endif //WIN32_PLATFORM_WFSP
 };
 
 typedef CEditT<ATL::CWindow>   CEdit;

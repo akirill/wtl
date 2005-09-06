@@ -61,7 +61,6 @@
 // CEnhMetaFileInfo
 // CEnhMetaFileT<t_bManaged>
 // CEnhMetaFileDC
-// struct DIBINFO16
 //
 // Global functions:
 //   AtlGetBitmapResourceInfo()
@@ -75,7 +74,6 @@
 //   AtlCreatePackedDib16()
 //   AtlSetClipboardDib16()
 //   AtlGetClipboardDib()
-//
 
 
 namespace WTL
@@ -3604,15 +3602,15 @@ public:
 
 #endif //!_WIN32_WCE
 
-// --- WinCE compatible clipboard CF_DIB format support functions ---
+
+///////////////////////////////////////////////////////////////////////////////
+// WinCE compatible clipboard CF_DIB format support functions
 
 #ifndef _WTL_NO_DIB16
 
-///////////////////////////////////////////////////////////////////////////////
-// DIBINFO16 - To avoid color table problems in WinCE we only create this type of Dib
-
 #define DIBINFO16_BITFIELDS {31744, 992, 31}
 
+// DIBINFO16 - To avoid color table problems in WinCE we only create this type of Dib
 struct DIBINFO16 : public BITMAPINFO
 {
 	DWORD	 bitfields[2];    // 2 additional color bitfields
@@ -3628,8 +3626,8 @@ struct DIBINFO16 : public BITMAPINFO
 	}
 };
 
+
 // AtlxxxDibxxx minimal packed DIB implementation and helpers to copy and paste CF_DIB
-// 
  
 inline bool AtlIsDib16( LPBITMAPINFOHEADER pbmih)
 {
@@ -3797,7 +3795,6 @@ inline HBITMAP AtlGetClipboardDib( HWND hWnd)
 }
 
 #endif // _WTL_NO_DIB16
-///////////////////////////////////////////////////////////////////////////////
 
 }; //namespace WTL
 

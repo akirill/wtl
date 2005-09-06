@@ -32,17 +32,17 @@
 	#error atlwince.h requires Windows CE 3.0 or higher.
 #endif
 
-#ifdef WIN32_PLATFORM_WFSP // Smartphone code
+#ifdef WIN32_PLATFORM_WFSP   // Smartphone code
   #if (WIN32_PLATFORM_WFSP < 200)
 	#error atlwince.h requires Smartphone 2003 or higher
- #endif
-#endif // WIN32_PLATFORM_WFSP
+  #endif
+#endif //WIN32_PLATFORM_WFSP
 
-#ifdef WIN32_PLATFORM_PSPC // Pocket PC code
+#ifdef WIN32_PLATFORM_PSPC   // Pocket PC code
   #if (WIN32_PLATFORM_PSPC < 310)
 	#error atlwince.h requires Pocket PC 2002 or higher
   #endif
-#endif // WIN32_PLATFORM_PSPC
+#endif //WIN32_PLATFORM_PSPC
 
 #if !defined(_AYGSHELL_H_) && !defined(__AYGSHELL_H__)
 	#error atlwince.h requires aygshell.h to be included first
@@ -72,7 +72,7 @@
 
 #if !defined(WIN32_PLATFORM_WFSP) && !defined(WIN32_PLATFORM_PSPC)
   #define _WTL_CE_NO_CONTROLS
-#endif // !defined(WIN32_PLATFORM_WFSP) && !defined(WIN32_PLATFORM_PSPC)
+#endif //!defined(WIN32_PLATFORM_WFSP) && !defined(WIN32_PLATFORM_PSPC)
 
 #ifndef _WTL_CE_NO_CONTROLS
   #ifndef __ATLCTRLS_H__
@@ -155,15 +155,13 @@ HWND AtlCreateMenuBar(PSHMENUBARINFO pmbi)
 
 HWND AtlCreateMenuBar(HWND hWnd,UINT nToolBarId = ATL_IDW_TOOLBAR, DWORD dwFlags = 0, int nBmpId = 0, int cBmpImages = 0, COLORREF clrBk = 0)
 {
-	SHMENUBARINFO mbi = { sizeof(mbi),
-		hWnd, dwFlags, nToolBarId, _Module.GetResourceInstance(), nBmpId, cBmpImages, 0, clrBk};
-
+	SHMENUBARINFO mbi = { sizeof(mbi), hWnd, dwFlags, nToolBarId, _Module.GetResourceInstance(), nBmpId, cBmpImages, 0, clrBk };
 	return AtlCreateMenuBar(&mbi);
 }
 
 HWND AtlCreateEmptyMenuBar(HWND hWnd, bool bSip = true)
 {
-	SHMENUBARINFO	embi = { sizeof(SHMENUBARINFO), hWnd, SHCMBF_EMPTYBAR };
+	SHMENUBARINFO embi = { sizeof(SHMENUBARINFO), hWnd, SHCMBF_EMPTYBAR };
 	if (!bSip)
 		embi.dwFlags |= SHCMBF_HIDESIPBUTTON;
 	
@@ -185,7 +183,6 @@ template <class T, UINT t_shidiFlags, bool t_bModal = true>
 class CStdDialog
 {
 public:
-
 // Pocket PC only Dialog title handling
 #ifdef WIN32_PLATFORM_PSPC
 	const int nTitleHeight;
@@ -238,7 +235,7 @@ public:
 			wCtl = wCtl.GetWindow(GW_HWNDNEXT);
 		}
 	}
-#endif //WIN32_PLATFORM_PSPC  Pocket PC only Dialog title handling
+#endif //WIN32_PLATFORM_PSPC
 
 #ifdef WIN32_PLATFORM_WFSP
 // SmartPhone VK_TBACK key standard management
@@ -256,10 +253,14 @@ public:
 				TCHAR szClassName[8] = {0};
 				ATLVERIFY(::GetClassName(wCtrl.m_hWnd, szClassName, 8));
 				if (!_tcscmp(szClassName, _T("Edit")) || !_tcscmp(szClassName, WC_CAPEDIT))
+				{
 					::SHSendBackToFocusWindow(uMsg, wParam, lParam);
+				}
 				else
+				{
 					if (uModif & MOD_KEYUP)
 						pT->PostMessage(WM_COMMAND, IDCANCEL, 0);
+				}
 			}
 		}
 		return 1;
@@ -290,7 +291,7 @@ public:
 
 		if(hMenuBar != NULL)
 			::SendMessage(hMenuBar, SHCMBM_OVERRIDEKEY, VK_TBACK,
-				MAKELPARAM(SHMBOF_NODEFAULT | SHMBOF_NOTIFY, SHMBOF_NODEFAULT | SHMBOF_NOTIFY));
+			              MAKELPARAM(SHMBOF_NODEFAULT | SHMBOF_NOTIFY, SHMBOF_NODEFAULT | SHMBOF_NOTIFY));
 #endif
 	}
 
@@ -298,7 +299,7 @@ public:
 	void StdShidInit()
 	{
 		T* pT = static_cast<T*>(this);
-		SHINITDLGINFO shidi = { SHIDIM_FLAGS, pT->m_hWnd, t_shidiFlags};
+		SHINITDLGINFO shidi = { SHIDIM_FLAGS, pT->m_hWnd, t_shidiFlags };
 		::SHInitDialog(&shidi);
 	}
 
@@ -1078,8 +1079,7 @@ public:
 		destDC.SetViewportOrg(0,0);
 		CPoint ptOffset = GetScrollOffset();
 		CSize sizeZClient = m_sizeClient * GetZoom();
-		return destDC.StretchBlt(0, 0, m_sizeClient.cx, m_sizeClient.cy,
-			hsourceDC, ptOffset.x, ptOffset.y, sizeZClient.cx, sizeZClient.cy, dwROP);
+		return destDC.StretchBlt(0, 0, m_sizeClient.cx, m_sizeClient.cy, hsourceDC, ptOffset.x, ptOffset.y, sizeZClient.cx, sizeZClient.cy, dwROP);
 	}
 
 // Message map and handlers
@@ -1689,10 +1689,9 @@ public:
 		return *this;
 	}
 
-	HWND Create(HWND hWndParent, const POINT pt, LPTSTR pstrFileName,
-			UINT nID, DWORD dwStyle = 0)
+	HWND Create(HWND hWndParent, const POINT pt, LPTSTR pstrFileName, UINT nID, DWORD dwStyle = 0)
 	{
-		ATLASSERT(pstrFileName);
+		ATLASSERT(pstrFileName != NULL);
 		CM_VOICE_RECORDER cmvr = { 0 };
 		cmvr.cb = sizeof(CM_VOICE_RECORDER);
 		cmvr.dwStyle = dwStyle;
@@ -1771,7 +1770,7 @@ public:
 	}
 
 	HWND Create(HWND hWndParent, WORD wId, LPCTSTR pszFolder = NULL, LPCTSTR pstrFilter = NULL,
-		WORD wFilterIndex = 0, DWORD dwFlags = DLF_SHOWEXTENSION)
+			WORD wFilterIndex = 0, DWORD dwFlags = DLF_SHOWEXTENSION)
 	{
 		ATLASSERT(pstrFilter != NULL);   // It seems to need a filter badly!!
 		::ZeroMemory(&m_dlc, sizeof(DOCLISTCREATE));
@@ -2216,10 +2215,9 @@ public:
 		TBase::Create(hWndParent, rect, NULL, dwStyle, dwExStyle, MenuOrID, lpCreateParam);
 		ATLASSERT(pT->m_hWnd != NULL);
 
-		m_SpinCtrl.Create(hWndParent, pT->m_hWnd, m_dwSpinnedStyle,
-			ATL_IDW_SPIN_ID + (int)MenuOrID.m_hMenu, szExpandedName);
+		m_SpinCtrl.Create(hWndParent, pT->m_hWnd, m_dwSpinnedStyle, ATL_IDW_SPIN_ID + (int)MenuOrID.m_hMenu, szExpandedName);
 
-		ATLASSERT(m_SpinCtrl.m_hWnd != NULL);// Did you remember to call AtlInitCommonControls(ICC_UPDOWN_CLASS)?
+		ATLASSERT(m_SpinCtrl.m_hWnd != NULL);   // Did you remember to call AtlInitCommonControls(ICC_UPDOWN_CLASS)?
 
 		return pT->m_hWnd;
 	}
@@ -2249,8 +2247,9 @@ public:
 #endif // DEBUG
 		}
 		else
-			m_SpinCtrl.Create(pT->GetParent(), pT->m_hWnd, m_dwSpinnedStyle,
-				ATL_IDW_SPIN_ID + pT->GetDlgCtrlID());
+		{
+			m_SpinCtrl.Create(pT->GetParent(), pT->m_hWnd, m_dwSpinnedStyle, ATL_IDW_SPIN_ID + pT->GetDlgCtrlID());
+		}
 
 		return m_SpinCtrl.m_hWnd != NULL;
 	}
@@ -2263,10 +2262,10 @@ public:
 // CExpandEdit - SmartPhone expandable Edit control
 // CExpandCapEdit - SmartPhone expandable CapEdit control
 
-typedef CSpinned<CListBox,false> CSpinListBox;
-typedef CSpinned<CListBox,true> CExpandListBox;
-typedef CSpinned<CEdit,true> CExpandEdit;
-typedef CSpinned<CCapEdit,true> CExpandCapEdit;
+typedef CSpinned<CListBox,false>   CSpinListBox;
+typedef CSpinned<CListBox,true>    CExpandListBox;
+typedef CSpinned<CEdit,true>       CExpandEdit;
+typedef CSpinned<CCapEdit,true>    CExpandCapEdit;
 
 #endif // WIN32_PLATFORM_WFSP
 
