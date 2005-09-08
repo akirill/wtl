@@ -66,7 +66,6 @@
 #define IDS_CAP_MENU                    32792
 #define ID_VIEW_SCROLLBARS              32802
 #define ID_FILE_REGISTER                32807
-#define IDC_INFOSTATIC                  0xfffe
 
 // Next default values for new objects
 // 
