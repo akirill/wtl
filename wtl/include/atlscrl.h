@@ -83,7 +83,11 @@ public:
 	DWORD m_dwExtendedStyle;   // scroll specific extended styles
 
 // Constructor
-	CScrollImpl() : m_zDelta(0), m_nWheelLines(3), m_uScrollFlags(0U), m_dwExtendedStyle(0)
+	CScrollImpl() : m_zDelta(0), m_nWheelLines(3), 
+#if !((_WIN32_WINNT >= 0x0400) || (_WIN32_WINDOWS > 0x0400)) && !defined(_WIN32_WCE)
+			m_uMsgMouseWheel(0U), 
+#endif //!((_WIN32_WINNT >= 0x0400) || (_WIN32_WINDOWS > 0x0400)) && !defined(_WIN32_WCE)
+			m_uScrollFlags(0U), m_dwExtendedStyle(0)
 	{
 		m_ptOffset.x = 0;
 		m_ptOffset.y = 0;
@@ -824,7 +828,7 @@ public:
 		{
 			UINT uMsgScrollLines = ::RegisterWindowMessage(MSH_SCROLL_LINES);
 			if(uMsgScrollLines != 0)
-				m_nWheelLines = ::SendMessage(hWndWheel, uMsgScrollLines, 0, 0L);
+				m_nWheelLines = (int)::SendMessage(hWndWheel, uMsgScrollLines, 0, 0L);
 		}
 #endif //!((_WIN32_WINNT >= 0x0400) || (_WIN32_WINDOWS > 0x0400))
 #endif //!_WIN32_WCE
