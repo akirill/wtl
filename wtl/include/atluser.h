@@ -628,7 +628,7 @@ public:
 	HACCEL CreateAcceleratorTable(LPACCEL pAccel, int cEntries)
 	{
 		ATLASSERT(m_hAccel == NULL);
-		ATLASSERT(!::IsBadReadPtr(pAccel, sizeof(ACCEL) * cEntries));
+		ATLASSERT(pAccel != NULL);
 		m_hAccel = ::CreateAcceleratorTable(pAccel, cEntries);
 		return m_hAccel;
 	}
@@ -647,7 +647,7 @@ public:
 	int CopyAcceleratorTable(LPACCEL lpAccelDst, int cEntries)
 	{
 		ATLASSERT(m_hAccel != NULL);
-		ATLASSERT(!::IsBadWritePtr(lpAccelDst, sizeof(ACCEL) * cEntries));
+		ATLASSERT(lpAccelDst != NULL);
 		return ::CopyAcceleratorTable(m_hAccel, lpAccelDst, cEntries);
 	}
 #endif //!_WIN32_WCE
@@ -788,7 +788,7 @@ public:
 	HICON ExtractIcon(LPCTSTR lpszExeFileName, UINT nIconIndex)
 	{
 		ATLASSERT(m_hIcon == NULL);
-		ATLASSERT(!::IsBadStringPtr(lpszExeFileName, (UINT_PTR)-1));
+		ATLASSERT(lpszExeFileName != NULL);
 #if (_ATL_VER >= 0x0700)
 		m_hIcon = ::ExtractIcon(ATL::_AtlBaseModule.GetModuleInstance(), lpszExeFileName, nIconIndex);
 #else //!(_ATL_VER >= 0x0700)
@@ -800,7 +800,7 @@ public:
 	HICON ExtractAssociatedIcon(HINSTANCE hInst, LPTSTR lpIconPath, LPWORD lpiIcon)
 	{
 		ATLASSERT(m_hIcon == NULL);
-		ATLASSERT(!::IsBadStringPtr(lpIconPath, (UINT_PTR)-1));
+		ATLASSERT(lpIconPath != NULL);
 		ATLASSERT(lpiIcon != NULL);
 		m_hIcon = ::ExtractAssociatedIcon(hInst, lpIconPath, lpiIcon);
 		return m_hIcon;
@@ -964,7 +964,7 @@ public:
 	HCURSOR LoadCursorFromFile(LPCTSTR pstrFilename)
 	{
 		ATLASSERT(m_hCursor == NULL);
-		ATLASSERT(!::IsBadStringPtr(pstrFilename, (UINT_PTR)-1));
+		ATLASSERT(pstrFilename != NULL);
 		m_hCursor = ::LoadCursorFromFile(pstrFilename);
 		return m_hCursor;
 	}

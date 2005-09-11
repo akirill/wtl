@@ -849,7 +849,7 @@ public:
 	{
 		const int cchBuff = 12;
 		TCHAR szBuffer[cchBuff];
-		wsprintf(szBuffer,_T("%d"),n);
+		wsprintf(szBuffer,_T("%d"), n);
 		ConcatInPlace(SafeStrlen(szBuffer), szBuffer);
 		return *this;
 	}
@@ -893,28 +893,9 @@ public:
 	~CString();
 	int GetAllocLength() const;
 
-	static BOOL __stdcall _IsValidString(LPCWSTR lpsz, int nLength = -1)
+	static BOOL __stdcall _IsValidString(LPCTSTR lpsz, int /*nLength*/ = -1)
 	{
-		if(lpsz == NULL)
-			return FALSE;
-#ifndef _WIN32_WCE
-		return !::IsBadStringPtrW(lpsz, nLength);
-#else // CE specific
-		nLength;
-		return TRUE;
-#endif //_WIN32_WCE
-	}
-
-	static BOOL __stdcall _IsValidString(LPCSTR lpsz, int nLength = -1)
-	{
-		if(lpsz == NULL)
-			return FALSE;
-#ifndef _WIN32_WCE
-		return !::IsBadStringPtrA(lpsz, nLength);
-#else // CE specific
-		nLength;
-		return TRUE;
-#endif //_WIN32_WCE
+		return (lpsz != NULL) ? TRUE : FALSE;
 	}
 
 protected:
