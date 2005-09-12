@@ -327,8 +327,11 @@ public:
 // Dialogs and property sheet activation
 	LRESULT OnAppAbout(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 	{
-//		CStdSimpleDialog<IDD_ABOUTBOX, SHIDIF_DONEBUTTON | SHIDIF_FULLSCREENNOMENUBAR> dlg;
+#ifdef _WTL_CE_DRA
+		CStdSimpleOrientedDialog<IDD_ABOUTBOX, IDD_ABOUTBOX_L, SHIDIF_DONEBUTTON | SHIDIF_FULLSCREENNOMENUBAR> dlg;
+#else
 		CAboutDlg dlg;
+#endif
 		return FSDoModal( dlg);
 	}
 

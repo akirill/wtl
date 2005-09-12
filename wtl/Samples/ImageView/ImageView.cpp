@@ -25,7 +25,7 @@
 
 CAppModule _Module;
 
-LPCTSTR CMainFrame::m_szAppKey = L"Software\\WTL\\ImageView";
+LPCTSTR CAppWindow<CMainFrame>::m_szAppKey = L"Software\\WTL\\ImageView";
 
 int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lpstrCmdLine, int nCmdShow)
 {

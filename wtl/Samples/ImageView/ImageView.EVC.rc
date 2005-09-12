@@ -1,4 +1,4 @@
-//Microsoft Developer Studio generated resource script.
+//Microsoft eMbedded Visual C++ generated resource script.
 //
 #include "resource.h"
 
@@ -26,8 +26,8 @@ LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
 // Bitmap
 //
 
-IDB_BITMAP1             BITMAP  DISCARDABLE     "res\\bitmap1.bmp"
-IDB_BITMAP2             BITMAP  DISCARDABLE     "res\\bitmap2.bmp"
+IDB_BITMAP1             BITMAP  MOVEABLE PURE   "res\\bitmap1.bmp"
+IDB_BITMAP2             BITMAP  MOVEABLE PURE   "res\\bitmap2.bmp"
 #endif    // Neutral resources
 /////////////////////////////////////////////////////////////////////////////
 
@@ -47,18 +47,18 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 // TEXTINCLUDE
 //
 
-1 TEXTINCLUDE DISCARDABLE 
+1 TEXTINCLUDE MOVEABLE PURE 
 BEGIN
     "resource.h\0"
 END
 
-2 TEXTINCLUDE DISCARDABLE 
+2 TEXTINCLUDE MOVEABLE PURE 
 BEGIN
     "#include ""atlresce.h""\r\n"
     "\0"
 END
 
-3 TEXTINCLUDE DISCARDABLE 
+3 TEXTINCLUDE MOVEABLE PURE 
 BEGIN
     "\0"
 END
@@ -178,28 +178,6 @@ BEGIN
     ICON            "",IDC_FILEICON,126,4,21,20,SS_NOTIFY
 END
 
-IDD_REGISTER DIALOG DISCARDABLE  0, 0, 156, 204
-STYLE WS_POPUP | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_CAPTION
-CAPTION "Register ImageView"
-FONT 8, "Tahoma"
-BEGIN
-    CONTROL         "",IDC_BMP,"Button",BS_AUTOCHECKBOX | BS_LEFT | 
-                    BS_VCENTER | BS_NOTIFY | WS_TABSTOP,60,52,59,10
-    CONTROL         "",IDC_JPG,"Button",BS_AUTOCHECKBOX | BS_LEFT | 
-                    BS_VCENTER | BS_NOTIFY | WS_TABSTOP,60,87,59,10
-    CONTROL         "",IDC_PNG,"Button",BS_AUTOCHECKBOX | BS_LEFT | 
-                    BS_VCENTER | BS_NOTIFY | WS_TABSTOP,60,123,59,10
-    CONTROL         "",IDC_GIF,"Button",BS_AUTOCHECKBOX | BS_LEFT | 
-                    BS_VCENTER | BS_NOTIFY | WS_TABSTOP,60,160,59,10
-    CTEXT           "To register ImageView as the default program for image files, check the file type. To unregister uncheck.",
-                    65534,4,2,140,31,SS_NOTIFY | WS_BORDER | NOT WS_GROUP
-    ICON            "",IDC_IBMP,32,47,20,20
-    ICON            "",IDC_IJPG,32,81,20,20
-    ICON            "",IDC_IPNG,32,116,20,20
-    ICON            "",IDC_IGIF,32,152,20,20
-    GROUPBOX        "ImageView registration",IDC_REGISTER_H,4,32,140,156
-END
-
 IDD_MOVE DIALOG DISCARDABLE  0, 0, 159, 166
 STYLE DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CLIPSIBLINGS | 
     WS_CLIPCHILDREN | WS_CAPTION | WS_SYSMENU
@@ -253,6 +231,28 @@ BEGIN
     CONTROL         208,IDC_VIEW,"Static",SS_BITMAP | WS_BORDER,34,34,95,87
 END
 
+IDD_REGISTER DIALOG DISCARDABLE  0, 0, 156, 161
+STYLE WS_POPUP | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_CAPTION
+CAPTION "Register ImageView"
+FONT 8, "Tahoma"
+BEGIN
+    CONTROL         "",IDC_BMP,"Button",BS_AUTOCHECKBOX | BS_LEFT | 
+                    BS_VCENTER | WS_TABSTOP,60,43,59,10
+    CONTROL         "",IDC_JPG,"Button",BS_AUTOCHECKBOX | BS_LEFT | 
+                    BS_VCENTER | WS_TABSTOP,60,69,59,10
+    CONTROL         "",IDC_PNG,"Button",BS_AUTOCHECKBOX | BS_LEFT | 
+                    BS_VCENTER | WS_TABSTOP,60,95,59,10
+    CONTROL         "",IDC_GIF,"Button",BS_AUTOCHECKBOX | BS_LEFT | 
+                    BS_VCENTER | WS_TABSTOP,60,121,59,10
+    CTEXT           "To register ImageView as the default program for image files, check the file type. To unregister uncheck.",
+                    65534,4,2,141,27,SS_NOTIFY | WS_BORDER | NOT WS_GROUP
+    ICON            "",IDC_IBMP,32,38,20,20
+    ICON            "",IDC_IJPG,32,64,20,20
+    ICON            "",IDC_IPNG,32,90,20,20
+    ICON            "",IDC_IGIF,32,116,20,20
+    GROUPBOX        "ImageView registration",IDC_REGISTER_H,4,28,141,116
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -260,7 +260,7 @@ END
 //
 
 #ifdef APSTUDIO_INVOKED
-GUIDELINES DESIGNINFO DISCARDABLE 
+GUIDELINES DESIGNINFO MOVEABLE PURE 
 BEGIN
     IDD_ABOUTBOX, DIALOG
     BEGIN
@@ -275,14 +275,6 @@ BEGIN
         RIGHTMARGIN, 152
         TOPMARGIN, 4
         BOTTOMMARGIN, 128
-    END
-
-    IDD_REGISTER, DIALOG
-    BEGIN
-        LEFTMARGIN, 7
-        RIGHTMARGIN, 143
-        TOPMARGIN, 7
-        BOTTOMMARGIN, 197
     END
 
     IDD_MOVE, DIALOG
@@ -307,6 +299,14 @@ BEGIN
         TOPMARGIN, 7
         BOTTOMMARGIN, 143
     END
+
+    IDD_REGISTER, DIALOG
+    BEGIN
+        LEFTMARGIN, 4
+        RIGHTMARGIN, 152
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 153
+    END
 END
 #endif    // APSTUDIO_INVOKED
 
@@ -316,7 +316,7 @@ END
 // Accelerator
 //
 
-IDR_MAINFRAME ACCELERATORS PRELOAD MOVEABLE PURE 
+IDR_MAINFRAME ACCELERATORS MOVEABLE PURE 
 BEGIN
     "C",            ID_EDIT_COPY,           VIRTKEY, CONTROL, NOINVERT
     "O",            ID_FILE_OPEN,           VIRTKEY, CONTROL, NOINVERT
@@ -352,17 +352,13 @@ BEGIN
         BLOCK "040904b0"
         BEGIN
             VALUE "Comments", "The use and distribution terms for this software are covered by the Common Public License 1.0 (http://opensource.org/licenses/cpl.php).\0"
-            VALUE "CompanyName", "\0"
             VALUE "FileDescription", "WTL 7.5 ImageView sample\0"
             VALUE "FileVersion", "1, 1, 0, 1\0"
             VALUE "InternalName", "ImageView\0"
             VALUE "LegalCopyright", "© Alain Rist 2005\0"
-            VALUE "LegalTrademarks", "\0"
             VALUE "OriginalFilename", "ImageView.exe\0"
-            VALUE "PrivateBuild", "\0"
             VALUE "ProductName", "ImageView Module\0"
             VALUE "ProductVersion", "7, 5, 0, 1\0"
-            VALUE "SpecialBuild", "\0"
         END
     END
     BLOCK "VarFileInfo"
@@ -388,7 +384,7 @@ IDR_MAINFRAME           ICON    DISCARDABLE     "res\\BmpView.ico"
 // String Table
 //
 
-STRINGTABLE PRELOAD DISCARDABLE 
+STRINGTABLE DISCARDABLE 
 BEGIN
     IDR_MAINFRAME           "ImageView"
 END

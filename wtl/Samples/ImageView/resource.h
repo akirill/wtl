@@ -1,6 +1,6 @@
 //{{NO_DEPENDENCIES}}
-// Microsoft Developer Studio generated include file.
-// Used by ImageView.rc
+// Microsoft Visual C++ generated include file.
+// Used by ImageView.VS.rc
 //
 #define IDD_ABOUTBOX                    100
 #define IDR_MAINFRAME                   128
@@ -15,7 +15,8 @@
 #define IDD_PROP_VIEW                   208
 #define IDB_BITMAP1                     208
 #define IDB_BITMAP2                     209
-#define IDD_TEST                        216
+#define IDD_REGISTER_L                  215
+#define IDD_ABOUTBOX_L                  216
 #define IDC_IMAGE                       1000
 #define IDC_BMP                         1000
 #define IDC_JPG                         1001
@@ -74,6 +75,6 @@
 #define _APS_NEXT_RESOURCE_VALUE        217
 #define _APS_NEXT_COMMAND_VALUE         32820
 #define _APS_NEXT_CONTROL_VALUE         1043
-#define _APS_NEXT_SYMED_VALUE           103
+#define _APS_NEXT_SYMED_VALUE           104
 #endif
 #endif

@@ -63,13 +63,14 @@ CFG=ImageView - Win32 (WCE SH4) Debug
 # PROP Intermediate_Dir "SH4Rel"
 # PROP CPU_ID "{D6519021-710F-11D3-99F2-00105A0DF099}"
 # PROP Platform_ID "{8A9A2F80-6887-11D3-842E-005004848CBA}"
+# PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 RSC=rc.exe
 # ADD BASE RSC /l 0x409 /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "NDEBUG" /d "UNICODE" /d "_UNICODE" /d "$(CePlatform)" /d "SHx" /d "SH4" /d "_SH4_" /r
 # ADD RSC /l 0x409 /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "NDEBUG" /d "UNICODE" /d "_UNICODE" /d "$(CePlatform)" /d "SHx" /d "SH4" /d "_SH4_" /r
 CPP=shcl.exe
-# ADD BASE CPP /nologo /W3 /O2 /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "SHx" /D "SH4" /D "_SH4_" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "NDEBUG" /Yu"stdafx.h" /Qsh4 /M$(CECrtMT) /c
-# ADD CPP /nologo /W3 /O2 /I "C:\Documents and Settings\Alain1\Mes documents\Projets Visual Studio\WTL\CVS 7.5\include" /I "C:\Documents and Settings\Alain1\Mes documents\Projets Visual Studio\WTL\7.5.4291\include" /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "SHx" /D "SH4" /D "_SH4_" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "NDEBUG" /D "STRICT" /Yu"stdafx.h" /Qsh4 /M$(CECrtMT) /c
+# ADD BASE CPP /nologo /W3 /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "SHx" /D "SH4" /D "_SH4_" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "NDEBUG" /Yu"stdafx.h" /O2 /Qsh4 /M$(CECrtMT) /c
+# ADD CPP /nologo /W3 /I "C:\Documents and Settings\Alain1\Mes documents\Projets Visual Studio\WTL\CVS 7.5\include" /I "C:\Documents and Settings\Alain1\Mes documents\Projets Visual Studio\WTL\7.5.4291\include" /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "SHx" /D "SH4" /D "_SH4_" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "NDEBUG" /D "STRICT" /Yu"stdafx.h" /O2 /Qsh4 /M$(CECrtMT) /c
 MTL=midl.exe
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
@@ -95,6 +96,7 @@ LINK32=link.exe
 # PROP Intermediate_Dir "SH4Dbg"
 # PROP CPU_ID "{D6519021-710F-11D3-99F2-00105A0DF099}"
 # PROP Platform_ID "{8A9A2F80-6887-11D3-842E-005004848CBA}"
+# PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 RSC=rc.exe
 # ADD BASE RSC /l 0x409 /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "DEBUG" /d "UNICODE" /d "_UNICODE" /d "$(CePlatform)" /d "SHx" /d "SH4" /d "_SH4_" /r
@@ -127,13 +129,14 @@ LINK32=link.exe
 # PROP Intermediate_Dir "SH3Rel"
 # PROP CPU_ID "{D6519020-710F-11D3-99F2-00105A0DF099}"
 # PROP Platform_ID "{8A9A2F80-6887-11D3-842E-005004848CBA}"
+# PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 RSC=rc.exe
 # ADD BASE RSC /l 0x409 /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "UNICODE" /d "_UNICODE" /d "NDEBUG" /d "$(CePlatform)" /d "SHx" /d "SH3" /d "_SH3_" /r
 # ADD RSC /l 0x409 /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "UNICODE" /d "_UNICODE" /d "NDEBUG" /d "$(CePlatform)" /d "SHx" /d "SH3" /d "_SH3_" /r
 CPP=shcl.exe
-# ADD BASE CPP /nologo /W3 /O2 /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "SHx" /D "SH3" /D "_SH3_" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "NDEBUG" /Yu"stdafx.h" /M$(CECrtMT) /c
-# ADD CPP /nologo /W3 /O2 /I "C:\Documents and Settings\Alain1\Mes documents\Projets Visual Studio\WTL\CVS 7.5\include" /I "C:\Documents and Settings\Alain1\Mes documents\Projets Visual Studio\WTL\7.5.4291\include" /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "SHx" /D "SH3" /D "_SH3_" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "NDEBUG" /D "STRICT" /Yu"stdafx.h" /M$(CECrtMT) /c
+# ADD BASE CPP /nologo /W3 /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "SHx" /D "SH3" /D "_SH3_" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "NDEBUG" /Yu"stdafx.h" /O2 /M$(CECrtMT) /c
+# ADD CPP /nologo /W3 /I "C:\Documents and Settings\Alain1\Mes documents\Projets Visual Studio\WTL\CVS 7.5\include" /I "C:\Documents and Settings\Alain1\Mes documents\Projets Visual Studio\WTL\7.5.4291\include" /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "SHx" /D "SH3" /D "_SH3_" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "NDEBUG" /D "STRICT" /Yu"stdafx.h" /O2 /M$(CECrtMT) /c
 MTL=midl.exe
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
@@ -159,6 +162,7 @@ LINK32=link.exe
 # PROP Intermediate_Dir "SH3Dbg"
 # PROP CPU_ID "{D6519020-710F-11D3-99F2-00105A0DF099}"
 # PROP Platform_ID "{8A9A2F80-6887-11D3-842E-005004848CBA}"
+# PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 RSC=rc.exe
 # ADD BASE RSC /l 0x409 /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "UNICODE" /d "_UNICODE" /d "DEBUG" /d "$(CePlatform)" /d "SHx" /d "SH3" /d "_SH3_" /r
@@ -191,22 +195,23 @@ LINK32=link.exe
 # PROP Intermediate_Dir "emulatorRel"
 # PROP CPU_ID "{32E52003-403E-442D-BE48-DE10F8C6131D}"
 # PROP Platform_ID "{8A9A2F80-6887-11D3-842E-005004848CBA}"
+# PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
-LINK32=link.exe
-# ADD BASE LINK32 commctrl.lib coredll.lib $(CEx86Corelibc) /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /nodefaultlib:"OLDNAMES.lib" /nodefaultlib:$(CENoDefaultLib) /subsystem:$(CESubsystem) /MACHINE:IX86
-# ADD LINK32 commctrl.lib coredll.lib $(CEx86Corelibc) /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /nodefaultlib:"OLDNAMES.lib" /nodefaultlib:$(CENoDefaultLib) /subsystem:$(CESubsystem) /MACHINE:IX86
-BSC32=bscmake.exe
-# ADD BASE BSC32 /nologo
-# ADD BSC32 /nologo
-MTL=midl.exe
-# ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
-# ADD MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
-CPP=cl.exe
-# ADD BASE CPP /nologo /W3 /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "_i386_" /D UNDER_CE=$(CEVersion) /D "i_386_" /D "UNICODE" /D "_UNICODE" /D "_X86_" /D "x86" /D "NDEBUG" /Yu"stdafx.h" /Gs8192 /GF /O2 /c
-# ADD CPP /nologo /W3 /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "_i386_" /D UNDER_CE=$(CEVersion) /D "i_386_" /D "UNICODE" /D "_UNICODE" /D "_X86_" /D "x86" /D "NDEBUG" /D "STRICT" /Yu"stdafx.h" /Gs8192 /GF /O2 /c
 RSC=rc.exe
 # ADD BASE RSC /l 0x409 /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "UNICODE" /d "_UNICODE" /d "NDEBUG" /d "$(CePlatform)" /d "_X86_" /d "x86" /d "_i386_" /r
 # ADD RSC /l 0x409 /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "UNICODE" /d "_UNICODE" /d "NDEBUG" /d "$(CePlatform)" /d "_X86_" /d "x86" /d "_i386_" /r
+CPP=cl.exe
+# ADD BASE CPP /nologo /W3 /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "_i386_" /D UNDER_CE=$(CEVersion) /D "i_386_" /D "UNICODE" /D "_UNICODE" /D "_X86_" /D "x86" /D "NDEBUG" /Yu"stdafx.h" /Gs8192 /GF /O2 /c
+# ADD CPP /nologo /W3 /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "_i386_" /D UNDER_CE=$(CEVersion) /D "i_386_" /D "UNICODE" /D "_UNICODE" /D "_X86_" /D "x86" /D "NDEBUG" /D "STRICT" /Yu"stdafx.h" /Gs8192 /GF /O2 /c
+MTL=midl.exe
+# ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
+# ADD MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
+BSC32=bscmake.exe
+# ADD BASE BSC32 /nologo
+# ADD BSC32 /nologo
+LINK32=link.exe
+# ADD BASE LINK32 commctrl.lib coredll.lib $(CEx86Corelibc) /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /nodefaultlib:"OLDNAMES.lib" /nodefaultlib:$(CENoDefaultLib) /subsystem:$(CESubsystem) /MACHINE:IX86
+# ADD LINK32 commctrl.lib coredll.lib $(CEx86Corelibc) /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /nodefaultlib:"OLDNAMES.lib" /nodefaultlib:$(CENoDefaultLib) /subsystem:$(CESubsystem) /MACHINE:IX86
 
 !ELSEIF  "$(CFG)" == "ImageView - Win32 (WCE emulator) Debug"
 
@@ -223,22 +228,24 @@ RSC=rc.exe
 # PROP Intermediate_Dir "emulatorDbg"
 # PROP CPU_ID "{32E52003-403E-442D-BE48-DE10F8C6131D}"
 # PROP Platform_ID "{8A9A2F80-6887-11D3-842E-005004848CBA}"
+# PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
-LINK32=link.exe
-# ADD BASE LINK32 commctrl.lib coredll.lib $(CEx86Corelibc) /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /debug /nodefaultlib:"OLDNAMES.lib" /nodefaultlib:$(CENoDefaultLib) /subsystem:$(CESubsystem) /MACHINE:IX86
-# ADD LINK32 commctrl.lib coredll.lib $(CEx86Corelibc) /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /debug /nodefaultlib:"OLDNAMES.lib" /nodefaultlib:$(CENoDefaultLib) /subsystem:$(CESubsystem) /MACHINE:IX86
-BSC32=bscmake.exe
-# ADD BASE BSC32 /nologo
-# ADD BSC32 /nologo
+RSC=rc.exe
+# ADD BASE RSC /l 0x409 /d "$(CePlatform)" /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "UNICODE" /d "_UNICODE" /d "DEBUG" /d "_X86_" /d "x86" /d "_i386_" /r
+# ADD RSC /l 0x409 /fo"emulatorDbg/ImageView.res" /d "$(CePlatform)" /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "UNICODE" /d "_UNICODE" /d "DEBUG" /d "_X86_" /d "x86" /d "_i386_" /r
+CPP=cl.exe
+# ADD BASE CPP /nologo /W3 /Zi /Od /D "DEBUG" /D "_i386_" /D UNDER_CE=$(CEVersion) /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "i_386_" /D "UNICODE" /D "_UNICODE" /D "_X86_" /D "x86" /Yu"stdafx.h" /Gs8192 /GF /c
+# ADD CPP /W3 /Zi /Od /D "DEBUG" /D "_i386_" /D UNDER_CE=$(CEVersion) /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "i_386_" /D "UNICODE" /D "_UNICODE" /D "_X86_" /D "x86" /D "STRICT" /FR /Yu"stdafx.h" /Gs8192 /GF /c
+# SUBTRACT CPP /nologo
 MTL=midl.exe
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
-CPP=cl.exe
-# ADD BASE CPP /nologo /W3 /Zi /Od /D "DEBUG" /D "_i386_" /D UNDER_CE=$(CEVersion) /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "i_386_" /D "UNICODE" /D "_UNICODE" /D "_X86_" /D "x86" /Yu"stdafx.h" /Gs8192 /GF /c
-# ADD CPP /nologo /W3 /Zi /Od /D "DEBUG" /D "_i386_" /D UNDER_CE=$(CEVersion) /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "i_386_" /D "UNICODE" /D "_UNICODE" /D "_X86_" /D "x86" /D "STRICT" /FR /Yu"stdafx.h" /Gs8192 /GF /c
-RSC=rc.exe
-# ADD BASE RSC /l 0x409 /d "$(CePlatform)" /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "UNICODE" /d "_UNICODE" /d "DEBUG" /d "_X86_" /d "x86" /d "_i386_" /r
-# ADD RSC /l 0x409 /d "$(CePlatform)" /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "UNICODE" /d "_UNICODE" /d "DEBUG" /d "_X86_" /d "x86" /d "_i386_" /r
+BSC32=bscmake.exe
+# ADD BASE BSC32 /nologo
+# ADD BSC32 /nologo
+LINK32=link.exe
+# ADD BASE LINK32 commctrl.lib coredll.lib $(CEx86Corelibc) /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /debug /nodefaultlib:"OLDNAMES.lib" /nodefaultlib:$(CENoDefaultLib) /subsystem:$(CESubsystem) /MACHINE:IX86
+# ADD LINK32 commctrl.lib coredll.lib $(CEx86Corelibc) /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /debug /nodefaultlib:"OLDNAMES.lib" /nodefaultlib:$(CENoDefaultLib) /subsystem:$(CESubsystem) /MACHINE:IX86
 
 !ELSEIF  "$(CFG)" == "ImageView - Win32 (WCE ARMV4I) Release"
 
@@ -255,22 +262,23 @@ RSC=rc.exe
 # PROP Intermediate_Dir "ARMV4IRel"
 # PROP CPU_ID "{DC70F430-E78B-494F-A9D5-62ADC56443B8}"
 # PROP Platform_ID "{8A9A2F80-6887-11D3-842E-005004848CBA}"
+# PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
-LINK32=link.exe
-# ADD BASE LINK32 commctrl.lib coredll.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /nodefaultlib:"$(CENoDefaultLib)" /subsystem:$(CESubsystem) /MACHINE:THUMB
-# ADD LINK32 commctrl.lib coredll.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /nodefaultlib:"$(CENoDefaultLib)" /subsystem:$(CESubsystem) /MACHINE:THUMB
-BSC32=bscmake.exe
-# ADD BASE BSC32 /nologo
-# ADD BSC32 /nologo
-MTL=midl.exe
-# ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
-# ADD MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
-CPP=clarm.exe
-# ADD BASE CPP /nologo /W3 /D _WIN32_WCE=$(CEVersion) /D "ARM" /D "_ARM_" /D "$(CePlatform)" /D "ARMV4I" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "NDEBUG" /Yu"stdafx.h" /QRarch4T /QRinterwork-return /O2 /M$(CECrtMT) /c
-# ADD CPP /nologo /W3 /I "C:\Documents and Settings\Alain1\Mes documents\Projets Visual Studio\WTL\7.5.4291\include" /D _WIN32_WCE=$(CEVersion) /D "ARM" /D "_ARM_" /D "$(CePlatform)" /D "ARMV4I" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "NDEBUG" /D "STRICT" /Yu"stdafx.h" /QRarch4T /QRinterwork-return /O2 /M$(CECrtMT) /c
 RSC=rc.exe
 # ADD BASE RSC /l 0x409 /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "UNICODE" /d "_UNICODE" /d "NDEBUG" /d "$(CePlatform)" /d "THUMB" /d "_THUMB_" /d "ARM" /d "_ARM_" /d "ARMV4I" /r
 # ADD RSC /l 0x409 /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "UNICODE" /d "_UNICODE" /d "NDEBUG" /d "$(CePlatform)" /d "THUMB" /d "_THUMB_" /d "ARM" /d "_ARM_" /d "ARMV4I" /r
+CPP=clarm.exe
+# ADD BASE CPP /nologo /W3 /D _WIN32_WCE=$(CEVersion) /D "ARM" /D "_ARM_" /D "$(CePlatform)" /D "ARMV4I" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "NDEBUG" /Yu"stdafx.h" /QRarch4T /QRinterwork-return /O2 /M$(CECrtMT) /c
+# ADD CPP /nologo /W3 /I "C:\Documents and Settings\Alain1\Mes documents\Projets Visual Studio\WTL\7.5.4291\include" /D _WIN32_WCE=$(CEVersion) /D "ARM" /D "_ARM_" /D "$(CePlatform)" /D "ARMV4I" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "NDEBUG" /D "STRICT" /Yu"stdafx.h" /QRarch4T /QRinterwork-return /O2 /M$(CECrtMT) /c
+MTL=midl.exe
+# ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
+# ADD MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
+BSC32=bscmake.exe
+# ADD BASE BSC32 /nologo
+# ADD BSC32 /nologo
+LINK32=link.exe
+# ADD BASE LINK32 commctrl.lib coredll.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /nodefaultlib:"$(CENoDefaultLib)" /subsystem:$(CESubsystem) /MACHINE:THUMB
+# ADD LINK32 commctrl.lib coredll.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /nodefaultlib:"$(CENoDefaultLib)" /subsystem:$(CESubsystem) /MACHINE:THUMB
 
 !ELSEIF  "$(CFG)" == "ImageView - Win32 (WCE ARMV4I) Debug"
 
@@ -287,22 +295,23 @@ RSC=rc.exe
 # PROP Intermediate_Dir "ARMV4IDbg"
 # PROP CPU_ID "{DC70F430-E78B-494F-A9D5-62ADC56443B8}"
 # PROP Platform_ID "{8A9A2F80-6887-11D3-842E-005004848CBA}"
+# PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
-LINK32=link.exe
-# ADD BASE LINK32 commctrl.lib coredll.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /debug /nodefaultlib:"$(CENoDefaultLib)" /subsystem:$(CESubsystem) /MACHINE:THUMB
-# ADD LINK32 commctrl.lib coredll.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /debug /nodefaultlib:"$(CENoDefaultLib)" /subsystem:$(CESubsystem) /MACHINE:THUMB
-BSC32=bscmake.exe
-# ADD BASE BSC32 /nologo
-# ADD BSC32 /nologo
-MTL=midl.exe
-# ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
-# ADD MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
-CPP=clarm.exe
-# ADD BASE CPP /nologo /W3 /Zi /Od /D "DEBUG" /D "ARM" /D "_ARM_" /D "ARMV4I" /D UNDER_CE=$(CEVersion) /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "UNICODE" /D "_UNICODE" /Yu"stdafx.h" /QRarch4T /QRinterwork-return /M$(CECrtMTDebug) /c
-# ADD CPP /nologo /W3 /Zi /Od /I "C:\Documents and Settings\Alain1\Mes documents\Projets Visual Studio\WTL\7.5.4291\include" /D "DEBUG" /D "ARM" /D "_ARM_" /D "ARMV4I" /D UNDER_CE=$(CEVersion) /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "UNICODE" /D "_UNICODE" /D "STRICT" /Yu"stdafx.h" /QRarch4T /QRinterwork-return /M$(CECrtMTDebug) /c
 RSC=rc.exe
 # ADD BASE RSC /l 0x409 /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "UNICODE" /d "_UNICODE" /d "DEBUG" /d "$(CePlatform)" /d "THUMB" /d "_THUMB_" /d "ARM" /d "_ARM_" /d "ARMV4I" /r
 # ADD RSC /l 0x409 /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "UNICODE" /d "_UNICODE" /d "DEBUG" /d "$(CePlatform)" /d "THUMB" /d "_THUMB_" /d "ARM" /d "_ARM_" /d "ARMV4I" /r
+CPP=clarm.exe
+# ADD BASE CPP /nologo /W3 /Zi /Od /D "DEBUG" /D "ARM" /D "_ARM_" /D "ARMV4I" /D UNDER_CE=$(CEVersion) /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "UNICODE" /D "_UNICODE" /Yu"stdafx.h" /QRarch4T /QRinterwork-return /M$(CECrtMTDebug) /c
+# ADD CPP /nologo /W3 /Zi /Od /I "C:\Documents and Settings\Alain1\Mes documents\Projets Visual Studio\WTL\7.5.4291\include" /D "DEBUG" /D "ARM" /D "_ARM_" /D "ARMV4I" /D UNDER_CE=$(CEVersion) /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "UNICODE" /D "_UNICODE" /D "STRICT" /Yu"stdafx.h" /QRarch4T /QRinterwork-return /M$(CECrtMTDebug) /c
+MTL=midl.exe
+# ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
+# ADD MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
+BSC32=bscmake.exe
+# ADD BASE BSC32 /nologo
+# ADD BSC32 /nologo
+LINK32=link.exe
+# ADD BASE LINK32 commctrl.lib coredll.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /debug /nodefaultlib:"$(CENoDefaultLib)" /subsystem:$(CESubsystem) /MACHINE:THUMB
+# ADD LINK32 commctrl.lib coredll.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /debug /nodefaultlib:"$(CENoDefaultLib)" /subsystem:$(CESubsystem) /MACHINE:THUMB
 
 !ELSEIF  "$(CFG)" == "ImageView - Win32 (WCE ARMV4) Release"
 
@@ -319,22 +328,23 @@ RSC=rc.exe
 # PROP Intermediate_Dir "ARMV4Rel"
 # PROP CPU_ID "{ECBEA43D-CD7B-4852-AD55-D4227B5D624B}"
 # PROP Platform_ID "{8A9A2F80-6887-11D3-842E-005004848CBA}"
+# PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
-LINK32=link.exe
-# ADD BASE LINK32 commctrl.lib coredll.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /nodefaultlib:"$(CENoDefaultLib)" /subsystem:$(CESubsystem) /align:"4096" /MACHINE:ARM
-# ADD LINK32 commctrl.lib coredll.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /nodefaultlib:"$(CENoDefaultLib)" /subsystem:$(CESubsystem) /align:"4096" /MACHINE:ARM
-BSC32=bscmake.exe
-# ADD BASE BSC32 /nologo
-# ADD BSC32 /nologo
-MTL=midl.exe
-# ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
-# ADD MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
-CPP=clarm.exe
-# ADD BASE CPP /nologo /W3 /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "ARM" /D "_ARM_" /D "ARMV4" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "NDEBUG" /Yu"stdafx.h" /O2 /M$(CECrtMT) /c
-# ADD CPP /nologo /W3 /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "ARM" /D "_ARM_" /D "ARMV4" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "NDEBUG" /D "STRICT" /Yu"stdafx.h" /O2 /M$(CECrtMT) /c
 RSC=rc.exe
 # ADD BASE RSC /l 0x409 /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "NDEBUG" /d "UNICODE" /d "_UNICODE" /d "$(CePlatform)" /d "ARM" /d "_ARM_" /d "ARMV4" /r
 # ADD RSC /l 0x409 /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "NDEBUG" /d "UNICODE" /d "_UNICODE" /d "$(CePlatform)" /d "ARM" /d "_ARM_" /d "ARMV4" /r
+CPP=clarm.exe
+# ADD BASE CPP /nologo /W3 /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "ARM" /D "_ARM_" /D "ARMV4" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "NDEBUG" /Yu"stdafx.h" /O2 /M$(CECrtMT) /c
+# ADD CPP /nologo /W3 /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "ARM" /D "_ARM_" /D "ARMV4" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "NDEBUG" /D "STRICT" /Yu"stdafx.h" /O2 /M$(CECrtMT) /c
+MTL=midl.exe
+# ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
+# ADD MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
+BSC32=bscmake.exe
+# ADD BASE BSC32 /nologo
+# ADD BSC32 /nologo
+LINK32=link.exe
+# ADD BASE LINK32 commctrl.lib coredll.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /nodefaultlib:"$(CENoDefaultLib)" /subsystem:$(CESubsystem) /align:"4096" /MACHINE:ARM
+# ADD LINK32 commctrl.lib coredll.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /nodefaultlib:"$(CENoDefaultLib)" /subsystem:$(CESubsystem) /align:"4096" /MACHINE:ARM
 
 !ELSEIF  "$(CFG)" == "ImageView - Win32 (WCE ARMV4) Debug"
 
@@ -351,22 +361,23 @@ RSC=rc.exe
 # PROP Intermediate_Dir "ARMV4Dbg"
 # PROP CPU_ID "{ECBEA43D-CD7B-4852-AD55-D4227B5D624B}"
 # PROP Platform_ID "{8A9A2F80-6887-11D3-842E-005004848CBA}"
+# PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
-LINK32=link.exe
-# ADD BASE LINK32 commctrl.lib coredll.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /debug /nodefaultlib:"$(CENoDefaultLib)" /subsystem:$(CESubsystem) /align:"4096" /MACHINE:ARM
-# ADD LINK32 commctrl.lib coredll.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /debug /nodefaultlib:"$(CENoDefaultLib)" /subsystem:$(CESubsystem) /align:"4096" /MACHINE:ARM
-BSC32=bscmake.exe
-# ADD BASE BSC32 /nologo
-# ADD BSC32 /nologo
-MTL=midl.exe
-# ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
-# ADD MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
-CPP=clarm.exe
-# ADD BASE CPP /nologo /W3 /Zi /Od /D "DEBUG" /D "ARM" /D "_ARM_" /D "ARMV4" /D UNDER_CE=$(CEVersion) /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "UNICODE" /D "_UNICODE" /Yu"stdafx.h" /M$(CECrtMTDebug) /c
-# ADD CPP /nologo /W3 /Zi /Od /D "DEBUG" /D "ARM" /D "_ARM_" /D "ARMV4" /D UNDER_CE=$(CEVersion) /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "UNICODE" /D "_UNICODE" /D "STRICT" /FR /Yu"stdafx.h" /M$(CECrtMTDebug) /c
 RSC=rc.exe
 # ADD BASE RSC /l 0x409 /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "DEBUG" /d "UNICODE" /d "_UNICODE" /d "$(CePlatform)" /d "ARM" /d "_ARM_" /d "ARMV4" /r
 # ADD RSC /l 0x409 /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "DEBUG" /d "UNICODE" /d "_UNICODE" /d "$(CePlatform)" /d "ARM" /d "_ARM_" /d "ARMV4" /r
+CPP=clarm.exe
+# ADD BASE CPP /nologo /W3 /Zi /Od /D "DEBUG" /D "ARM" /D "_ARM_" /D "ARMV4" /D UNDER_CE=$(CEVersion) /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "UNICODE" /D "_UNICODE" /Yu"stdafx.h" /M$(CECrtMTDebug) /c
+# ADD CPP /nologo /W3 /Zi /Od /D "DEBUG" /D "ARM" /D "_ARM_" /D "ARMV4" /D UNDER_CE=$(CEVersion) /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "UNICODE" /D "_UNICODE" /D "STRICT" /FR /Yu"stdafx.h" /M$(CECrtMTDebug) /c
+MTL=midl.exe
+# ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
+# ADD MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
+BSC32=bscmake.exe
+# ADD BASE BSC32 /nologo
+# ADD BSC32 /nologo
+LINK32=link.exe
+# ADD BASE LINK32 commctrl.lib coredll.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /debug /nodefaultlib:"$(CENoDefaultLib)" /subsystem:$(CESubsystem) /align:"4096" /MACHINE:ARM
+# ADD LINK32 commctrl.lib coredll.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /debug /nodefaultlib:"$(CENoDefaultLib)" /subsystem:$(CESubsystem) /align:"4096" /MACHINE:ARM
 
 !ELSEIF  "$(CFG)" == "ImageView - Win32 (WCE ARMV4T) Release"
 
@@ -383,22 +394,23 @@ RSC=rc.exe
 # PROP Intermediate_Dir "ARMV4TRel"
 # PROP CPU_ID "{F52316A9-3B7C-4FE7-A67F-68350B41240D}"
 # PROP Platform_ID "{8A9A2F80-6887-11D3-842E-005004848CBA}"
+# PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
-LINK32=link.exe
-# ADD BASE LINK32 commctrl.lib coredll.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /nodefaultlib:"$(CENoDefaultLib)" /subsystem:$(CESubsystem) /MACHINE:THUMB
-# ADD LINK32 commctrl.lib coredll.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /nodefaultlib:"$(CENoDefaultLib)" /subsystem:$(CESubsystem) /MACHINE:THUMB
-BSC32=bscmake.exe
-# ADD BASE BSC32 /nologo
-# ADD BSC32 /nologo
-MTL=midl.exe
-# ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
-# ADD MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
-CPP=clthumb.exe
-# ADD BASE CPP /nologo /W3 /D _WIN32_WCE=$(CEVersion) /D "ARM" /D "_ARM_" /D "$(CePlatform)" /D "THUMB" /D "_THUMB_" /D "ARMV4T" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "NDEBUG" /Yu"stdafx.h" /QRarch4T /QRinterwork-return /O2 /M$(CECrtMT) /c
-# ADD CPP /nologo /W3 /I "C:\Documents and Settings\Alain1\Mes documents\Projets Visual Studio\WTL\7.5.4291\include" /D _WIN32_WCE=$(CEVersion) /D "ARM" /D "_ARM_" /D "$(CePlatform)" /D "THUMB" /D "_THUMB_" /D "ARMV4T" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "NDEBUG" /D "STRICT" /Yu"stdafx.h" /QRarch4T /QRinterwork-return /O2 /M$(CECrtMT) /c
 RSC=rc.exe
 # ADD BASE RSC /l 0x409 /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "UNICODE" /d "_UNICODE" /d "NDEBUG" /d "$(CePlatform)" /d "THUMB" /d "_THUMB_" /d "ARM" /d "_ARM_" /d "ARMV4T" /r
 # ADD RSC /l 0x409 /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "UNICODE" /d "_UNICODE" /d "NDEBUG" /d "$(CePlatform)" /d "THUMB" /d "_THUMB_" /d "ARM" /d "_ARM_" /d "ARMV4T" /r
+CPP=clthumb.exe
+# ADD BASE CPP /nologo /W3 /D _WIN32_WCE=$(CEVersion) /D "ARM" /D "_ARM_" /D "$(CePlatform)" /D "THUMB" /D "_THUMB_" /D "ARMV4T" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "NDEBUG" /Yu"stdafx.h" /QRarch4T /QRinterwork-return /O2 /M$(CECrtMT) /c
+# ADD CPP /nologo /W3 /I "C:\Documents and Settings\Alain1\Mes documents\Projets Visual Studio\WTL\7.5.4291\include" /D _WIN32_WCE=$(CEVersion) /D "ARM" /D "_ARM_" /D "$(CePlatform)" /D "THUMB" /D "_THUMB_" /D "ARMV4T" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "NDEBUG" /D "STRICT" /Yu"stdafx.h" /QRarch4T /QRinterwork-return /O2 /M$(CECrtMT) /c
+MTL=midl.exe
+# ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
+# ADD MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
+BSC32=bscmake.exe
+# ADD BASE BSC32 /nologo
+# ADD BSC32 /nologo
+LINK32=link.exe
+# ADD BASE LINK32 commctrl.lib coredll.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /nodefaultlib:"$(CENoDefaultLib)" /subsystem:$(CESubsystem) /MACHINE:THUMB
+# ADD LINK32 commctrl.lib coredll.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /nodefaultlib:"$(CENoDefaultLib)" /subsystem:$(CESubsystem) /MACHINE:THUMB
 
 !ELSEIF  "$(CFG)" == "ImageView - Win32 (WCE ARMV4T) Debug"
 
@@ -415,22 +427,23 @@ RSC=rc.exe
 # PROP Intermediate_Dir "ARMV4TDbg"
 # PROP CPU_ID "{F52316A9-3B7C-4FE7-A67F-68350B41240D}"
 # PROP Platform_ID "{8A9A2F80-6887-11D3-842E-005004848CBA}"
+# PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
-LINK32=link.exe
-# ADD BASE LINK32 commctrl.lib coredll.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /debug /nodefaultlib:"$(CENoDefaultLib)" /subsystem:$(CESubsystem) /MACHINE:THUMB
-# ADD LINK32 commctrl.lib coredll.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /debug /nodefaultlib:"$(CENoDefaultLib)" /subsystem:$(CESubsystem) /MACHINE:THUMB
-BSC32=bscmake.exe
-# ADD BASE BSC32 /nologo
-# ADD BSC32 /nologo
-MTL=midl.exe
-# ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
-# ADD MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
-CPP=clthumb.exe
-# ADD BASE CPP /nologo /W3 /Zi /Od /D "DEBUG" /D "THUMB" /D "_THUMB_" /D "ARMV4T" /D UNDER_CE=$(CEVersion) /D _WIN32_WCE=$(CEVersion) /D "ARM" /D "_ARM_" /D "$(CePlatform)" /D "UNICODE" /D "_UNICODE" /Yu"stdafx.h" /QRarch4T /QRinterwork-return /M$(CECrtMTDebug) /c
-# ADD CPP /nologo /W3 /Zi /Od /I "C:\Documents and Settings\Alain1\Mes documents\Projets Visual Studio\WTL\7.5.4291\include" /D "DEBUG" /D "THUMB" /D "_THUMB_" /D "ARMV4T" /D UNDER_CE=$(CEVersion) /D _WIN32_WCE=$(CEVersion) /D "ARM" /D "_ARM_" /D "$(CePlatform)" /D "UNICODE" /D "_UNICODE" /D "STRICT" /Yu"stdafx.h" /QRarch4T /QRinterwork-return /M$(CECrtMTDebug) /c
 RSC=rc.exe
 # ADD BASE RSC /l 0x409 /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "UNICODE" /d "_UNICODE" /d "DEBUG" /d "$(CePlatform)" /d "THUMB" /d "_THUMB_" /d "ARM" /d "_ARM_" /d "ARMV4T" /r
 # ADD RSC /l 0x409 /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "UNICODE" /d "_UNICODE" /d "DEBUG" /d "$(CePlatform)" /d "THUMB" /d "_THUMB_" /d "ARM" /d "_ARM_" /d "ARMV4T" /r
+CPP=clthumb.exe
+# ADD BASE CPP /nologo /W3 /Zi /Od /D "DEBUG" /D "THUMB" /D "_THUMB_" /D "ARMV4T" /D UNDER_CE=$(CEVersion) /D _WIN32_WCE=$(CEVersion) /D "ARM" /D "_ARM_" /D "$(CePlatform)" /D "UNICODE" /D "_UNICODE" /Yu"stdafx.h" /QRarch4T /QRinterwork-return /M$(CECrtMTDebug) /c
+# ADD CPP /nologo /W3 /Zi /Od /I "C:\Documents and Settings\Alain1\Mes documents\Projets Visual Studio\WTL\7.5.4291\include" /D "DEBUG" /D "THUMB" /D "_THUMB_" /D "ARMV4T" /D UNDER_CE=$(CEVersion) /D _WIN32_WCE=$(CEVersion) /D "ARM" /D "_ARM_" /D "$(CePlatform)" /D "UNICODE" /D "_UNICODE" /D "STRICT" /Yu"stdafx.h" /QRarch4T /QRinterwork-return /M$(CECrtMTDebug) /c
+MTL=midl.exe
+# ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
+# ADD MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
+BSC32=bscmake.exe
+# ADD BASE BSC32 /nologo
+# ADD BSC32 /nologo
+LINK32=link.exe
+# ADD BASE LINK32 commctrl.lib coredll.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /debug /nodefaultlib:"$(CENoDefaultLib)" /subsystem:$(CESubsystem) /MACHINE:THUMB
+# ADD LINK32 commctrl.lib coredll.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /debug /nodefaultlib:"$(CENoDefaultLib)" /subsystem:$(CESubsystem) /MACHINE:THUMB
 
 !ELSEIF  "$(CFG)" == "ImageView - Win32 (WCE x86) Release"
 
@@ -447,13 +460,14 @@ RSC=rc.exe
 # PROP Intermediate_Dir "X86Rel"
 # PROP CPU_ID "{D6518FF3-710F-11D3-99F2-00105A0DF099}"
 # PROP Platform_ID "{8A9A2F80-6887-11D3-842E-005004848CBA}"
+# PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 RSC=rc.exe
 # ADD BASE RSC /l 0x409 /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "UNICODE" /d "_UNICODE" /d "NDEBUG" /d "$(CePlatform)" /d "_X86_" /d "x86" /d "_i386_" /r
 # ADD RSC /l 0x409 /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "UNICODE" /d "_UNICODE" /d "NDEBUG" /d "$(CePlatform)" /d "_X86_" /d "x86" /d "_i386_" /r
 CPP=cl.exe
-# ADD BASE CPP /nologo /W3 /O2 /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "_i386_" /D UNDER_CE=$(CEVersion) /D "i_386_" /D "UNICODE" /D "_UNICODE" /D "_X86_" /D "x86" /D "NDEBUG" /Yu"stdafx.h" /Gs8192 /GF /c
-# ADD CPP /nologo /W3 /O2 /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "_i386_" /D UNDER_CE=$(CEVersion) /D "i_386_" /D "UNICODE" /D "_UNICODE" /D "_X86_" /D "x86" /D "NDEBUG" /D "STRICT" /Yu"stdafx.h" /Gs8192 /GF /c
+# ADD BASE CPP /nologo /W3 /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "_i386_" /D UNDER_CE=$(CEVersion) /D "i_386_" /D "UNICODE" /D "_UNICODE" /D "_X86_" /D "x86" /D "NDEBUG" /Yu"stdafx.h" /Gs8192 /O2 /GF /c
+# ADD CPP /nologo /W3 /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "_i386_" /D UNDER_CE=$(CEVersion) /D "i_386_" /D "UNICODE" /D "_UNICODE" /D "_X86_" /D "x86" /D "NDEBUG" /D "STRICT" /Yu"stdafx.h" /Gs8192 /O2 /GF /c
 MTL=midl.exe
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
@@ -486,7 +500,8 @@ RSC=rc.exe
 # ADD RSC /l 0x409 /d "$(CePlatform)" /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "UNICODE" /d "_UNICODE" /d "DEBUG" /d "_X86_" /d "x86" /d "_i386_" /r
 CPP=cl.exe
 # ADD BASE CPP /nologo /W3 /Zi /Od /D "DEBUG" /D "_i386_" /D UNDER_CE=$(CEVersion) /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "i_386_" /D "UNICODE" /D "_UNICODE" /D "_X86_" /D "x86" /Yu"stdafx.h" /Gs8192 /GF /c
-# ADD CPP /nologo /W3 /Zi /Od /D "DEBUG" /D "_i386_" /D UNDER_CE=$(CEVersion) /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "i_386_" /D "UNICODE" /D "_UNICODE" /D "_X86_" /D "x86" /D "STRICT" /FR /Yu"stdafx.h" /Gs8192 /GF /c
+# ADD CPP /W3 /Zi /Od /D "DEBUG" /D "_i386_" /D UNDER_CE=$(CEVersion) /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "i_386_" /D "UNICODE" /D "_UNICODE" /D "_X86_" /D "x86" /D "STRICT" /FR /Yu"stdafx.h" /Gs8192 /GF /c
+# SUBTRACT CPP /nologo
 MTL=midl.exe
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
@@ -514,21 +529,21 @@ LINK32=link.exe
 # PROP Platform_ID "{8A9A2F80-6887-11D3-842E-005004848CBA}"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
-RSC=rc.exe
-# ADD BASE RSC /l 0x409 /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "UNICODE" /d "_UNICODE" /d "NDEBUG" /d "$(CePlatform)" /d "ARM" /d "_ARM_" /r
-# ADD RSC /l 0x409 /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "UNICODE" /d "_UNICODE" /d "NDEBUG" /d "$(CePlatform)" /d "ARM" /d "_ARM_" /r
-CPP=clarm.exe
-# ADD BASE CPP /nologo /W3 /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "ARM" /D "_ARM_" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "NDEBUG" /YX /Oxs /M$(CECrtMT) /c
-# ADD CPP /nologo /W3 /Op /Ob2 /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "ARM" /D "_ARM_" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "NDEBUG" /FR /YX /Oxs /M$(CECrtMT) /c
-MTL=midl.exe
-# ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
-# ADD MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
-BSC32=bscmake.exe
-# ADD BASE BSC32 /nologo
-# ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 commctrl.lib coredll.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /nodefaultlib:"$(CENoDefaultLib)" /subsystem:$(CESubsystem) /align:"4096" /MACHINE:ARM
 # ADD LINK32 commctrl.lib coredll.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /nodefaultlib:"$(CENoDefaultLib)" /subsystem:$(CESubsystem) /align:"4096" /MACHINE:ARM
+BSC32=bscmake.exe
+# ADD BASE BSC32 /nologo
+# ADD BSC32 /nologo
+MTL=midl.exe
+# ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
+# ADD MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
+CPP=clarm.exe
+# ADD BASE CPP /nologo /W3 /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "ARM" /D "_ARM_" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "NDEBUG" /YX /Oxs /M$(CECrtMT) /c
+# ADD CPP /nologo /W3 /Op /Ob2 /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "ARM" /D "_ARM_" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "NDEBUG" /FR /YX /Oxs /M$(CECrtMT) /c
+RSC=rc.exe
+# ADD BASE RSC /l 0x409 /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "UNICODE" /d "_UNICODE" /d "NDEBUG" /d "$(CePlatform)" /d "ARM" /d "_ARM_" /r
+# ADD RSC /l 0x409 /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "UNICODE" /d "_UNICODE" /d "NDEBUG" /d "$(CePlatform)" /d "ARM" /d "_ARM_" /r
 
 !ELSEIF  "$(CFG)" == "ImageView - Win32 (WCE ARM) Debug"
 
@@ -546,21 +561,21 @@ LINK32=link.exe
 # PROP CPU_ID "{D6518FFC-710F-11D3-99F2-00105A0DF099}"
 # PROP Platform_ID "{8A9A2F80-6887-11D3-842E-005004848CBA}"
 # PROP Target_Dir ""
-RSC=rc.exe
-# ADD BASE RSC /l 0x409 /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "UNICODE" /d "_UNICODE" /d "DEBUG" /d "$(CePlatform)" /d "ARM" /d "_ARM_" /r
-# ADD RSC /l 0x409 /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "UNICODE" /d "_UNICODE" /d "DEBUG" /d "$(CePlatform)" /d "ARM" /d "_ARM_" /r
-CPP=clarm.exe
-# ADD BASE CPP /nologo /W3 /Zi /Od /D "DEBUG" /D "ARM" /D "_ARM_" /D UNDER_CE=$(CEVersion) /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "UNICODE" /D "_UNICODE" /YX /M$(CECrtMTDebug) /c
-# ADD CPP /nologo /W3 /Zi /Od /D "DEBUG" /D "ARM" /D "_ARM_" /D UNDER_CE=$(CEVersion) /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "UNICODE" /D "_UNICODE" /YX /M$(CECrtMTDebug) /c
-MTL=midl.exe
-# ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
-# ADD MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
-BSC32=bscmake.exe
-# ADD BASE BSC32 /nologo
-# ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 commctrl.lib coredll.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /debug /nodefaultlib:"$(CENoDefaultLib)" /subsystem:$(CESubsystem) /align:"4096" /MACHINE:ARM
 # ADD LINK32 commctrl.lib coredll.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /debug /nodefaultlib:"$(CENoDefaultLib)" /subsystem:$(CESubsystem) /align:"4096" /MACHINE:ARM
+BSC32=bscmake.exe
+# ADD BASE BSC32 /nologo
+# ADD BSC32 /nologo
+MTL=midl.exe
+# ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
+# ADD MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
+CPP=clarm.exe
+# ADD BASE CPP /nologo /W3 /Zi /Od /D "DEBUG" /D "ARM" /D "_ARM_" /D UNDER_CE=$(CEVersion) /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "UNICODE" /D "_UNICODE" /YX /M$(CECrtMTDebug) /c
+# ADD CPP /nologo /W3 /Zi /Od /D "DEBUG" /D "ARM" /D "_ARM_" /D UNDER_CE=$(CEVersion) /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "UNICODE" /D "_UNICODE" /YX /M$(CECrtMTDebug) /c
+RSC=rc.exe
+# ADD BASE RSC /l 0x409 /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "UNICODE" /d "_UNICODE" /d "DEBUG" /d "$(CePlatform)" /d "ARM" /d "_ARM_" /r
+# ADD RSC /l 0x409 /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "UNICODE" /d "_UNICODE" /d "DEBUG" /d "$(CePlatform)" /d "ARM" /d "_ARM_" /r
 
 !ENDIF 
 
@@ -668,29 +683,29 @@ DEP_CPP_IMAGE=\
 	".\ImageViewview.h"\
 	".\mainfrm.h"\
 	".\stdafx.h"\
+	{$(INCLUDE)}"atlapp.h"\
+	{$(INCLUDE)}"atlctrls.h"\
+	{$(INCLUDE)}"atldlgs.h"\
+	{$(INCLUDE)}"atlframe.h"\
+	{$(INCLUDE)}"atlgdi.h"\
+	{$(INCLUDE)}"atlmisc.h"\
+	{$(INCLUDE)}"atlres.h"\
+	{$(INCLUDE)}"atlresce.h"\
+	{$(INCLUDE)}"atlscrl.h"\
+	{$(INCLUDE)}"atluser.h"\
+	{$(INCLUDE)}"atlwince.h"\
+	{$(INCLUDE)}"atlwinx.h"\
+	{$(INCLUDE)}"aygshell.h"\
+	{$(INCLUDE)}"doclist.h"\
+	{$(INCLUDE)}"htmlctrl.h"\
+	{$(INCLUDE)}"inkx.h"\
+	{$(INCLUDE)}"richink.h"\
+	{$(INCLUDE)}"sipapi.h"\
+	{$(INCLUDE)}"voicectl.h"\
+	{$(INCLUDE)}"winuserm.h"\
 	
 NODEP_CPP_IMAGE=\
-	"..\..\..\..\..\Program Files\Windows CE Tools\wce420\POCKET PC 2003\Include\emulator\vibrate.h"\
-	".\ichink.h"\
-	".\inuserm.h"\
-	".\ipapi.h"\
-	".\nkx.h"\
-	".\oclist.h"\
-	".\oicectl.h"\
-	".\tlapp.h"\
-	".\tlctrls.h"\
-	".\tldlgs.h"\
-	".\tlframe.h"\
-	".\tlgdi.h"\
-	".\tlmisc.h"\
-	".\tlres.h"\
-	".\tlresce.h"\
-	".\tlscrl.h"\
-	".\tluser.h"\
-	".\tlwince.h"\
-	".\tlwinx.h"\
-	".\tmlctrl.h"\
-	".\ygshell.h"\
+	"..\..\..\..\..\..\Program Files\Windows CE Tools\wce420\POCKET PC 2003\Include\emulator\vibrate.h"\
 	
 
 !ELSEIF  "$(CFG)" == "ImageView - Win32 (WCE ARMV4I) Release"
@@ -740,12 +755,67 @@ DEP_CPP_IMAGE=\
 	".\ImageViewview.h"\
 	".\mainfrm.h"\
 	".\stdafx.h"\
+	{$(INCLUDE)}"atlapp.h"\
+	{$(INCLUDE)}"atlctrls.h"\
+	{$(INCLUDE)}"atldlgs.h"\
+	{$(INCLUDE)}"atlframe.h"\
+	{$(INCLUDE)}"atlgdi.h"\
+	{$(INCLUDE)}"atlmisc.h"\
+	{$(INCLUDE)}"atlres.h"\
+	{$(INCLUDE)}"atlresce.h"\
+	{$(INCLUDE)}"atlscrl.h"\
+	{$(INCLUDE)}"atluser.h"\
+	{$(INCLUDE)}"atlwince.h"\
+	{$(INCLUDE)}"atlwinx.h"\
+	{$(INCLUDE)}"aygshell.h"\
+	{$(INCLUDE)}"doclist.h"\
+	{$(INCLUDE)}"htmlctrl.h"\
+	{$(INCLUDE)}"inkx.h"\
+	{$(INCLUDE)}"richink.h"\
+	{$(INCLUDE)}"sipapi.h"\
+	{$(INCLUDE)}"voicectl.h"\
+	{$(INCLUDE)}"winuserm.h"\
 	
 NODEP_CPP_IMAGE=\
-	"..\..\..\..\..\Program Files\Windows CE Tools\wce420\POCKET PC 2003\Include\ARMV4\vibrate.h"\
-	".\atlppc.h"\
-	".\inuserm.h"\
+	"..\..\..\..\..\..\Program Files\Windows CE Tools\wce420\POCKET PC 2003\Include\ARMV4\vibrate.h"\
+	
+
+!ELSEIF  "$(CFG)" == "ImageView - Win32 (WCE ARMV4T) Release"
+
+DEP_CPP_IMAGE=\
+	".\ImageViewview.h"\
+	".\mainfrm.h"\
+	".\stdafx.h"\
+	
+NODEP_CPP_IMAGE=\
+	".\aboutdlg.h"\
+	
+
+!ELSEIF  "$(CFG)" == "ImageView - Win32 (WCE ARMV4T) Debug"
+
+DEP_CPP_IMAGE=\
+	".\ImageViewview.h"\
+	".\mainfrm.h"\
+	".\stdafx.h"\
+	
+NODEP_CPP_IMAGE=\
+	".\aboutdlg.h"\
+	
+
+!ELSEIF  "$(CFG)" == "ImageView - Win32 (WCE x86) Release"
+
+DEP_CPP_IMAGE=\
+	".\ImageViewdlg.h"\
+	".\ImageViewview.h"\
+	".\mainfrm.h"\
+	".\stdafx.h"\
+	
+NODEP_CPP_IMAGE=\
+	".\ichink.h"\
 	".\ipapi.h"\
+	".\nkx.h"\
+	".\oclist.h"\
+	".\oicectl.h"\
 	".\tlapp.h"\
 	".\tlctrls.h"\
 	".\tldlgs.h"\
@@ -756,59 +826,10 @@ NODEP_CPP_IMAGE=\
 	".\tlresce.h"\
 	".\tlscrl.h"\
 	".\tluser.h"\
+	".\tlwince.h"\
 	".\tlwinx.h"\
+	".\tmlctrl.h"\
 	".\ygshell.h"\
-	".\zoomscrl.h"\
-	
-
-!ELSEIF  "$(CFG)" == "ImageView - Win32 (WCE ARMV4T) Release"
-
-DEP_CPP_IMAGE=\
-	".\ImageViewview.h"\
-	".\mainfrm.h"\
-	".\stdafx.h"\
-	
-NODEP_CPP_IMAGE=\
-	".\aboutdlg.h"\
-	
-
-!ELSEIF  "$(CFG)" == "ImageView - Win32 (WCE ARMV4T) Debug"
-
-DEP_CPP_IMAGE=\
-	".\ImageViewview.h"\
-	".\mainfrm.h"\
-	".\stdafx.h"\
-	
-NODEP_CPP_IMAGE=\
-	".\aboutdlg.h"\
-	
-
-!ELSEIF  "$(CFG)" == "ImageView - Win32 (WCE x86) Release"
-
-DEP_CPP_IMAGE=\
-	".\ImageViewdlg.h"\
-	".\ImageViewview.h"\
-	".\mainfrm.h"\
-	".\stdafx.h"\
-	{$(INCLUDE)}"atlapp.h"\
-	{$(INCLUDE)}"atlctrls.h"\
-	{$(INCLUDE)}"atldlgs.h"\
-	{$(INCLUDE)}"atlframe.h"\
-	{$(INCLUDE)}"atlgdi.h"\
-	{$(INCLUDE)}"atlmisc.h"\
-	{$(INCLUDE)}"atlres.h"\
-	{$(INCLUDE)}"atlresce.h"\
-	{$(INCLUDE)}"atlscrl.h"\
-	{$(INCLUDE)}"atluser.h"\
-	{$(INCLUDE)}"atlwince.h"\
-	{$(INCLUDE)}"atlwinx.h"\
-	{$(INCLUDE)}"aygshell.h"\
-	{$(INCLUDE)}"doclist.h"\
-	{$(INCLUDE)}"htmlctrl.h"\
-	{$(INCLUDE)}"inkx.h"\
-	{$(INCLUDE)}"richink.h"\
-	{$(INCLUDE)}"sipapi.h"\
-	{$(INCLUDE)}"voicectl.h"\
 	
 
 !ELSEIF  "$(CFG)" == "ImageView - Win32 (WCE x86) Debug"
@@ -818,25 +839,27 @@ DEP_CPP_IMAGE=\
 	".\ImageViewview.h"\
 	".\mainfrm.h"\
 	".\stdafx.h"\
-	{$(INCLUDE)}"atlapp.h"\
-	{$(INCLUDE)}"atlctrls.h"\
-	{$(INCLUDE)}"atldlgs.h"\
-	{$(INCLUDE)}"atlframe.h"\
-	{$(INCLUDE)}"atlgdi.h"\
-	{$(INCLUDE)}"atlmisc.h"\
-	{$(INCLUDE)}"atlres.h"\
-	{$(INCLUDE)}"atlresce.h"\
-	{$(INCLUDE)}"atlscrl.h"\
-	{$(INCLUDE)}"atluser.h"\
-	{$(INCLUDE)}"atlwince.h"\
-	{$(INCLUDE)}"atlwinx.h"\
-	{$(INCLUDE)}"aygshell.h"\
-	{$(INCLUDE)}"doclist.h"\
-	{$(INCLUDE)}"htmlctrl.h"\
-	{$(INCLUDE)}"inkx.h"\
-	{$(INCLUDE)}"richink.h"\
-	{$(INCLUDE)}"sipapi.h"\
-	{$(INCLUDE)}"voicectl.h"\
+	
+NODEP_CPP_IMAGE=\
+	".\ichink.h"\
+	".\ipapi.h"\
+	".\nkx.h"\
+	".\oclist.h"\
+	".\oicectl.h"\
+	".\tlapp.h"\
+	".\tlctrls.h"\
+	".\tldlgs.h"\
+	".\tlframe.h"\
+	".\tlgdi.h"\
+	".\tlmisc.h"\
+	".\tlres.h"\
+	".\tlresce.h"\
+	".\tlscrl.h"\
+	".\tluser.h"\
+	".\tlwince.h"\
+	".\tlwinx.h"\
+	".\tmlctrl.h"\
+	".\ygshell.h"\
 	
 
 !ELSEIF  "$(CFG)" == "ImageView - Win32 (WCE ARM) Release"
@@ -846,25 +869,27 @@ DEP_CPP_IMAGE=\
 	".\ImageViewview.h"\
 	".\mainfrm.h"\
 	".\stdafx.h"\
-	{$(INCLUDE)}"atlapp.h"\
-	{$(INCLUDE)}"atlctrls.h"\
-	{$(INCLUDE)}"atldlgs.h"\
-	{$(INCLUDE)}"atlframe.h"\
-	{$(INCLUDE)}"atlgdi.h"\
-	{$(INCLUDE)}"atlmisc.h"\
-	{$(INCLUDE)}"atlres.h"\
-	{$(INCLUDE)}"atlresce.h"\
-	{$(INCLUDE)}"atlscrl.h"\
-	{$(INCLUDE)}"atluser.h"\
-	{$(INCLUDE)}"atlwince.h"\
-	{$(INCLUDE)}"atlwinx.h"\
-	{$(INCLUDE)}"aygshell.h"\
-	{$(INCLUDE)}"doclist.h"\
-	{$(INCLUDE)}"htmlctrl.h"\
-	{$(INCLUDE)}"inkx.h"\
-	{$(INCLUDE)}"richink.h"\
-	{$(INCLUDE)}"sipapi.h"\
-	{$(INCLUDE)}"voicectl.h"\
+	
+NODEP_CPP_IMAGE=\
+	".\ichink.h"\
+	".\ipapi.h"\
+	".\nkx.h"\
+	".\oclist.h"\
+	".\oicectl.h"\
+	".\tlapp.h"\
+	".\tlctrls.h"\
+	".\tldlgs.h"\
+	".\tlframe.h"\
+	".\tlgdi.h"\
+	".\tlmisc.h"\
+	".\tlres.h"\
+	".\tlresce.h"\
+	".\tlscrl.h"\
+	".\tluser.h"\
+	".\tlwince.h"\
+	".\tlwinx.h"\
+	".\tmlctrl.h"\
+	".\ygshell.h"\
 	
 
 !ELSEIF  "$(CFG)" == "ImageView - Win32 (WCE ARM) Debug"
@@ -874,25 +899,27 @@ DEP_CPP_IMAGE=\
 	".\ImageViewview.h"\
 	".\mainfrm.h"\
 	".\stdafx.h"\
-	{$(INCLUDE)}"atlapp.h"\
-	{$(INCLUDE)}"atlctrls.h"\
-	{$(INCLUDE)}"atldlgs.h"\
-	{$(INCLUDE)}"atlframe.h"\
-	{$(INCLUDE)}"atlgdi.h"\
-	{$(INCLUDE)}"atlmisc.h"\
-	{$(INCLUDE)}"atlres.h"\
-	{$(INCLUDE)}"atlresce.h"\
-	{$(INCLUDE)}"atlscrl.h"\
-	{$(INCLUDE)}"atluser.h"\
-	{$(INCLUDE)}"atlwince.h"\
-	{$(INCLUDE)}"atlwinx.h"\
-	{$(INCLUDE)}"aygshell.h"\
-	{$(INCLUDE)}"doclist.h"\
-	{$(INCLUDE)}"htmlctrl.h"\
-	{$(INCLUDE)}"inkx.h"\
-	{$(INCLUDE)}"richink.h"\
-	{$(INCLUDE)}"sipapi.h"\
-	{$(INCLUDE)}"voicectl.h"\
+	
+NODEP_CPP_IMAGE=\
+	".\ichink.h"\
+	".\ipapi.h"\
+	".\nkx.h"\
+	".\oclist.h"\
+	".\oicectl.h"\
+	".\tlapp.h"\
+	".\tlctrls.h"\
+	".\tldlgs.h"\
+	".\tlframe.h"\
+	".\tlgdi.h"\
+	".\tlmisc.h"\
+	".\tlres.h"\
+	".\tlresce.h"\
+	".\tlscrl.h"\
+	".\tluser.h"\
+	".\tlwince.h"\
+	".\tlwinx.h"\
+	".\tmlctrl.h"\
+	".\ygshell.h"\
 	
 
 !ENDIF 
@@ -900,29 +927,20 @@ DEP_CPP_IMAGE=\
 # End Source File
 # Begin Source File
 
-SOURCE=.\ImageView.rc
+SOURCE=.\ImageView.EVC.rc
 
 !IF  "$(CFG)" == "ImageView - Win32 (WCE SH4) Release"
 
-# ADD BASE RSC /l 0x409
-# ADD RSC /l 0x409 /i "C:\Documents and Settings\Alain1\Mes documents\Projets Visual Studio\WTL\7.5.4196\include"
-
 !ELSEIF  "$(CFG)" == "ImageView - Win32 (WCE SH4) Debug"
-
-# ADD BASE RSC /l 0x409
-# ADD RSC /l 0x409 /i "C:\Documents and Settings\Alain1\Mes documents\Projets Visual Studio\WTL\7.5.4196\include"
 
 !ELSEIF  "$(CFG)" == "ImageView - Win32 (WCE SH3) Release"
 
-# ADD BASE RSC /l 0x409
-# ADD RSC /l 0x409 /i "C:\Documents and Settings\Alain1\Mes documents\Projets Visual Studio\WTL\7.5.4196\include"
-
 !ELSEIF  "$(CFG)" == "ImageView - Win32 (WCE SH3) Debug"
 
-# ADD BASE RSC /l 0x409
-# ADD RSC /l 0x409 /i "C:\Documents and Settings\Alain1\Mes documents\Projets Visual Studio\WTL\7.5.4196\include"
-
 !ELSEIF  "$(CFG)" == "ImageView - Win32 (WCE emulator) Release"
+
+# ADD BASE RSC /l 0x409
+# ADD RSC /l 0x409 /fo"emulatorRel/ImageView.res"
 
 !ELSEIF  "$(CFG)" == "ImageView - Win32 (WCE emulator) Debug"
 
@@ -932,7 +950,13 @@ SOURCE=.\ImageView.rc
 
 !ELSEIF  "$(CFG)" == "ImageView - Win32 (WCE ARMV4) Release"
 
+# ADD BASE RSC /l 0x409
+# ADD RSC /l 0x409 /fo"ARMV4Rel/ImageView.res"
+
 !ELSEIF  "$(CFG)" == "ImageView - Win32 (WCE ARMV4) Debug"
+
+# ADD BASE RSC /l 0x409
+# ADD RSC /l 0x409 /fo"ARMV4Dbg/ImageView.res"
 
 !ELSEIF  "$(CFG)" == "ImageView - Win32 (WCE ARMV4T) Release"
 
@@ -940,13 +964,7 @@ SOURCE=.\ImageView.rc
 
 !ELSEIF  "$(CFG)" == "ImageView - Win32 (WCE x86) Release"
 
-# ADD BASE RSC /l 0x409
-# ADD RSC /l 0x409 /i "C:\Documents and Settings\Alain1\Mes documents\Projets Visual Studio\WTL\7.5.4196\include"
-
 !ELSEIF  "$(CFG)" == "ImageView - Win32 (WCE x86) Debug"
-
-# ADD BASE RSC /l 0x409
-# ADD RSC /l 0x409 /i "C:\Documents and Settings\Alain1\Mes documents\Projets Visual Studio\WTL\7.5.4196\include"
 
 !ELSEIF  "$(CFG)" == "ImageView - Win32 (WCE ARM) Release"
 
@@ -1010,18 +1028,18 @@ NODEP_CPP_STDAF=\
 
 DEP_CPP_STDAF=\
 	".\stdafx.h"\
+	{$(INCLUDE)}"atlapp.h"\
+	{$(INCLUDE)}"atlgdi.h"\
+	{$(INCLUDE)}"atlres.h"\
+	{$(INCLUDE)}"atlresce.h"\
+	{$(INCLUDE)}"atluser.h"\
+	{$(INCLUDE)}"atlwinx.h"\
+	{$(INCLUDE)}"aygshell.h"\
+	{$(INCLUDE)}"sipapi.h"\
+	{$(INCLUDE)}"winuserm.h"\
 	
 NODEP_CPP_STDAF=\
-	"..\..\..\..\..\Program Files\Windows CE Tools\wce420\POCKET PC 2003\Include\emulator\vibrate.h"\
-	".\inuserm.h"\
-	".\ipapi.h"\
-	".\tlapp.h"\
-	".\tlgdi.h"\
-	".\tlres.h"\
-	".\tlresce.h"\
-	".\tluser.h"\
-	".\tlwinx.h"\
-	".\ygshell.h"\
+	"..\..\..\..\..\..\Program Files\Windows CE Tools\wce420\POCKET PC 2003\Include\emulator\vibrate.h"\
 	
 # ADD CPP /Yc"stdafx.h"
 
@@ -1056,18 +1074,18 @@ NODEP_CPP_STDAF=\
 
 DEP_CPP_STDAF=\
 	".\stdafx.h"\
+	{$(INCLUDE)}"atlapp.h"\
+	{$(INCLUDE)}"atlgdi.h"\
+	{$(INCLUDE)}"atlres.h"\
+	{$(INCLUDE)}"atlresce.h"\
+	{$(INCLUDE)}"atluser.h"\
+	{$(INCLUDE)}"atlwinx.h"\
+	{$(INCLUDE)}"aygshell.h"\
+	{$(INCLUDE)}"sipapi.h"\
+	{$(INCLUDE)}"winuserm.h"\
 	
 NODEP_CPP_STDAF=\
-	"..\..\..\..\..\Program Files\Windows CE Tools\wce420\POCKET PC 2003\Include\ARMV4\vibrate.h"\
-	".\inuserm.h"\
-	".\ipapi.h"\
-	".\tlapp.h"\
-	".\tlgdi.h"\
-	".\tlres.h"\
-	".\tlresce.h"\
-	".\tluser.h"\
-	".\tlwinx.h"\
-	".\ygshell.h"\
+	"..\..\..\..\..\..\Program Files\Windows CE Tools\wce420\POCKET PC 2003\Include\ARMV4\vibrate.h"\
 	
 # ADD CPP /Yc"stdafx.h"
 
@@ -1089,14 +1107,16 @@ DEP_CPP_STDAF=\
 
 DEP_CPP_STDAF=\
 	".\stdafx.h"\
-	{$(INCLUDE)}"atlapp.h"\
-	{$(INCLUDE)}"atlgdi.h"\
-	{$(INCLUDE)}"atlres.h"\
-	{$(INCLUDE)}"atlresce.h"\
-	{$(INCLUDE)}"atluser.h"\
-	{$(INCLUDE)}"atlwinx.h"\
-	{$(INCLUDE)}"aygshell.h"\
-	{$(INCLUDE)}"sipapi.h"\
+	
+NODEP_CPP_STDAF=\
+	".\ipapi.h"\
+	".\tlapp.h"\
+	".\tlgdi.h"\
+	".\tlres.h"\
+	".\tlresce.h"\
+	".\tluser.h"\
+	".\tlwinx.h"\
+	".\ygshell.h"\
 	
 # ADD CPP /Yc"stdafx.h"
 
@@ -1104,14 +1124,16 @@ DEP_CPP_STDAF=\
 
 DEP_CPP_STDAF=\
 	".\stdafx.h"\
-	{$(INCLUDE)}"atlapp.h"\
-	{$(INCLUDE)}"atlgdi.h"\
-	{$(INCLUDE)}"atlres.h"\
-	{$(INCLUDE)}"atlresce.h"\
-	{$(INCLUDE)}"atluser.h"\
-	{$(INCLUDE)}"atlwinx.h"\
-	{$(INCLUDE)}"aygshell.h"\
-	{$(INCLUDE)}"sipapi.h"\
+	
+NODEP_CPP_STDAF=\
+	".\ipapi.h"\
+	".\tlapp.h"\
+	".\tlgdi.h"\
+	".\tlres.h"\
+	".\tlresce.h"\
+	".\tluser.h"\
+	".\tlwinx.h"\
+	".\ygshell.h"\
 	
 # ADD CPP /Yc"stdafx.h"
 
@@ -1119,28 +1141,32 @@ DEP_CPP_STDAF=\
 
 DEP_CPP_STDAF=\
 	".\stdafx.h"\
-	{$(INCLUDE)}"atlapp.h"\
-	{$(INCLUDE)}"atlgdi.h"\
-	{$(INCLUDE)}"atlres.h"\
-	{$(INCLUDE)}"atlresce.h"\
-	{$(INCLUDE)}"atluser.h"\
-	{$(INCLUDE)}"atlwinx.h"\
-	{$(INCLUDE)}"aygshell.h"\
-	{$(INCLUDE)}"sipapi.h"\
+	
+NODEP_CPP_STDAF=\
+	".\ipapi.h"\
+	".\tlapp.h"\
+	".\tlgdi.h"\
+	".\tlres.h"\
+	".\tlresce.h"\
+	".\tluser.h"\
+	".\tlwinx.h"\
+	".\ygshell.h"\
 	
 
 !ELSEIF  "$(CFG)" == "ImageView - Win32 (WCE ARM) Debug"
 
 DEP_CPP_STDAF=\
 	".\stdafx.h"\
-	{$(INCLUDE)}"atlapp.h"\
-	{$(INCLUDE)}"atlgdi.h"\
-	{$(INCLUDE)}"atlres.h"\
-	{$(INCLUDE)}"atlresce.h"\
-	{$(INCLUDE)}"atluser.h"\
-	{$(INCLUDE)}"atlwinx.h"\
-	{$(INCLUDE)}"aygshell.h"\
-	{$(INCLUDE)}"sipapi.h"\
+	
+NODEP_CPP_STDAF=\
+	".\ipapi.h"\
+	".\tlapp.h"\
+	".\tlgdi.h"\
+	".\tlres.h"\
+	".\tlresce.h"\
+	".\tluser.h"\
+	".\tlwinx.h"\
+	".\ygshell.h"\
 	
 
 !ENDIF 

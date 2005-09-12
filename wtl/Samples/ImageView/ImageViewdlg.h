@@ -97,15 +97,24 @@ public:
 /////////////////////
 // CRegisterDlg: Register ImageView.exe as standard program for image files 
 
+#ifdef _WTL_CE_DRA
+class CRegisterDlg : public  CStdOrientedDialogImpl<CRegisterDlg, SHIDIF_DONEBUTTON | SHIDIF_FULLSCREENNOMENUBAR>
+#else
 class CRegisterDlg : public  CStdDialogResizeImpl<CRegisterDlg, SHIDIF_DONEBUTTON | SHIDIF_FULLSCREENNOMENUBAR>
+#endif
 {
 public:
 
-	enum { IDD = IDD_REGISTER };
+#ifdef _WTL_CE_DRA
+	typedef CStdOrientedDialogImpl<CRegisterDlg, SHIDIF_DONEBUTTON | SHIDIF_FULLSCREENNOMENUBAR> baseClass;
+	enum {IDD = IDD_REGISTER, IDD_LANDSCAPE = IDD_REGISTER_L};
+#else
+	typedef CStdDialogResizeImpl<CRegisterDlg, SHIDIF_DONEBUTTON | SHIDIF_FULLSCREENNOMENUBAR> baseClass;
+	enum {IDD = IDD_REGISTER};
+#endif // _WTL_CE_DRA
+
 	CString m_sAppPath;
 	CString m_sApp;
-
-	typedef CStdDialogResizeImpl<CRegisterDlg, SHIDIF_DONEBUTTON | SHIDIF_FULLSCREENNOMENUBAR> baseClass;
 
 // Image type enumeration
 	enum ImageType { BMP = IDC_BMP, JPG, PNG, GIF } ;
@@ -139,14 +148,22 @@ public:
 
 		LPCTSTR GetCmd()
 		{
+#if _ATL_VER <0x800
 			QueryValue( m_sCmd.GetBuffer( size), L"", &size);
+#else
+			QueryStringValue(L"",  m_sCmd.GetBuffer( size), &size);
+#endif // _ATL_VER <0x800
 			m_sCmd.ReleaseBuffer();
 			return m_sCmd;
 		}
 
 		void SetCmd(LPCTSTR sCmd)
 		{
+#if _ATL_VER <0x800
 			SetValue( sCmd, L"");
+#else
+			SetStringValue(L"", sCmd);
+#endif // _ATL_VER <0x800
 		}
 	};
 
@@ -192,6 +209,7 @@ public:
 			info.Delete( key.GetTypeString( typ));
 	}
 	
+#ifndef _WTL_CE_DRA
 	BEGIN_DLGRESIZE_MAP(CMoveDlg)
 		BEGIN_DLGRESIZE_GROUP()
 			DLGRESIZE_CONTROL(IDC_INFOSTATIC, DLSZ_SIZE_X | DLSZ_SIZE_Y)
@@ -206,6 +224,20 @@ public:
 			DLGRESIZE_CONTROL(IDC_GIF, DLSZ_MOVE_X | DLSZ_MOVE_Y)
 		END_DLGRESIZE_GROUP()
 	END_DLGRESIZE_MAP()
+#else
+	void OnOrientation(DRA::DisplayMode mode)
+	{
+// Text controls re-initialization
+		for(int iBtn = IDC_BMP ; iBtn <= IDC_GIF ; iBtn++)
+		{
+			SHFILEINFO sfi;
+			::SHGetFileInfo( GetExtString( (ImageType)iBtn), FILE_ATTRIBUTE_NORMAL, &sfi, sizeof(sfi), 
+				SHGFI_USEFILEATTRIBUTES | SHGFI_TYPENAME );
+			SetDlgItemText( iBtn, sfi.szTypeName);
+			CheckDlgButton( iBtn, IsRegistered( (ImageType)iBtn));
+		}
+	}
+#endif // ndef _WTL_CE_DRA
 
 	BEGIN_MSG_MAP(CRegisterDlg)
 		MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
@@ -257,7 +289,7 @@ public:
 /////////////////////
 // CFilePage: Current image file propertes 
 
-class CFilePage : public CPropertyPageImpl<CFilePage>, CDialogResize<CFilePage>
+class CFilePage : public CPropertyPageImpl<CFilePage>, public CDialogResize<CFilePage>
 {
 public:
 	enum { IDD = IDD_PROP_FILE };
@@ -283,6 +315,7 @@ public:
 			DLGRESIZE_CONTROL(IDC_FILEATTRIB, DLSZ_MOVE_X | DLSZ_MOVE_Y)
 		END_DLGRESIZE_GROUP()
 	END_DLGRESIZE_MAP()
+
 	BEGIN_MSG_MAP(CFilePage)
 		MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
 		MESSAGE_HANDLER(WM_SIZE, CDialogResize<CFilePage>::OnSize)
@@ -351,7 +384,7 @@ public:
 /////////////////////
 // CImagePage: Current image properties 
 
-class CImagePage : public CPropertyPageImpl<CImagePage>, CDialogResize<CImagePage>
+class CImagePage : public CPropertyPageImpl<CImagePage>,public CDialogResize<CImagePage>
 {
 public:
 	enum { IDD = IDD_PROP_IMAGE };
@@ -460,8 +493,6 @@ public:
 		dc.SelectBitmap( bmpOld);
 		sImg.SetBitmap( hbm);
 		return TRUE;
-		::PostMessage(GetParent(), PSM_SETTITLE, 0, (LPARAM)L"Test Title");
-
 	}
 
 };
