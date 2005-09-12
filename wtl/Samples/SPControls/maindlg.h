@@ -35,6 +35,7 @@ public:
 	{
 		CAppInfo info;
 
+		// Save CapEdit text and selection 
 		CExpandCapEdit ece = GetDlgItem(IDC_CAPEDIT);
 		CString s;
 		int nLength = ece.GetWindowTextLength();
@@ -45,18 +46,24 @@ public:
 		DWORD dwSel = ece.GetSel();
 		info.Save(dwSel, L"CapSel");
 
+		// Save SpinListBox text and selection 
 		CSpinListBox slb = GetDlgItem(IDC_LISTBOX);
 		int iSel = slb.GetCurSel();
 		info.Save(iSel, L"Spin");
 		
+		// Save ExpandListBox multiple selection 
 		CExpandListBox elb = GetDlgItem(IDC_LISTBOX2);
 		int n = elb.GetSelCount();
-		int *aiSel = new int[n];
-		elb.GetSelItems(n, aiSel);
+		if (n)
+		{
+			int *aiSel = new int[n];
+			elb.GetSelItems(n, aiSel);
+			info.Save( n, (int&)*aiSel, L"MultSel");
+			delete[] aiSel;
+		}
 		info.Save( n, L"Mult");
-		info.Save( n, (int&)*aiSel, L"MultSel");
-		delete[] aiSel;
 
+		// Save ExpandEdit text and selection 
 		CExpandEdit eed= GetDlgItem(IDC_EDIT1);
 		nLength = eed.GetWindowTextLength();
 		eed.GetWindowText(s.GetBufferSetLength(nLength + 1), nLength + 1);

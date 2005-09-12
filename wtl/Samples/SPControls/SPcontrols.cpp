@@ -17,7 +17,7 @@
 
 CAppModule _Module;
 
-LPCTSTR CMainDlg::m_szAppKey = L"Software\\WTL\\SPcontrols";
+LPCTSTR CAppWindow<CMainDlg>::m_szAppKey = L"Software\\WTL\\SPcontrols";
 
 int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lpstrCmdLine, int nCmdShow)
 {

@@ -24,6 +24,7 @@ CFG=SPcontrols - Win32 (WCE ARMV4) Debug
 !MESSAGE "SPcontrols - Win32 (WCE x86) Release" (based on "Win32 (WCE x86) Application")
 !MESSAGE "SPcontrols - Win32 (WCE x86) Debug" (based on "Win32 (WCE x86) Application")
 !MESSAGE "SPcontrols - Win32 (WCE emulator) Debug" (based on "Win32 (WCE emulator) Application")
+!MESSAGE "SPcontrols - Win32 (WCE emulator) Release" (based on "Win32 (WCE emulator) Application")
 !MESSAGE 
 
 # Begin Project
@@ -79,6 +80,8 @@ LINK32=link.exe
 # PROP Intermediate_Dir "ARMV4Dbg"
 # PROP CPU_ID "{ECBEA43D-CD7B-4852-AD55-D4227B5D624B}"
 # PROP Platform_ID "{8A9A2F80-6887-11D3-842E-005004848CBA}"
+# PROP Sec_CertificateHash "3f43176d9094fc2262313793157f23515fe55686"
+# PROP Sec_ConfigureDevice 0
 # PROP Target_Dir ""
 RSC=rc.exe
 # ADD BASE RSC /l 0x409 /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "DEBUG" /d "UNICODE" /d "_UNICODE" /d "$(CePlatform)" /d "ARM" /d "_ARM_" /d "ARMV4" /r
@@ -192,6 +195,38 @@ LINK32=link.exe
 # ADD BASE LINK32 commctrl.lib coredll.lib $(CEx86Corelibc) /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /debug /nodefaultlib:"OLDNAMES.lib" /nodefaultlib:$(CENoDefaultLib) /subsystem:$(CESubsystem) /MACHINE:IX86
 # ADD LINK32 commctrl.lib coredll.lib $(CEx86Corelibc) /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /debug /nodefaultlib:"OLDNAMES.lib" /nodefaultlib:$(CENoDefaultLib) /subsystem:$(CESubsystem) /MACHINE:IX86
 
+!ELSEIF  "$(CFG)" == "SPcontrols - Win32 (WCE emulator) Release"
+
+# PROP BASE Use_MFC 0
+# PROP BASE Use_Debug_Libraries 0
+# PROP BASE Output_Dir "emulatorRel"
+# PROP BASE Intermediate_Dir "emulatorRel"
+# PROP BASE CPU_ID "{32E52003-403E-442D-BE48-DE10F8C6131D}"
+# PROP BASE Platform_ID "{8A9A2F80-6887-11D3-842E-005004848CBA}"
+# PROP BASE Target_Dir ""
+# PROP Use_MFC 0
+# PROP Use_Debug_Libraries 0
+# PROP Output_Dir "emulatorRel"
+# PROP Intermediate_Dir "emulatorRel"
+# PROP CPU_ID "{32E52003-403E-442D-BE48-DE10F8C6131D}"
+# PROP Platform_ID "{8A9A2F80-6887-11D3-842E-005004848CBA}"
+# PROP Target_Dir ""
+RSC=rc.exe
+# ADD BASE RSC /l 0x409 /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "UNICODE" /d "_UNICODE" /d "NDEBUG" /d "$(CePlatform)" /d "_X86_" /d "x86" /d "_i386_" /r
+# ADD RSC /l 0x409 /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "UNICODE" /d "_UNICODE" /d "NDEBUG" /d "$(CePlatform)" /d "_X86_" /d "x86" /d "_i386_" /r
+CPP=cl.exe
+# ADD BASE CPP /nologo /W3 /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "_i386_" /D UNDER_CE=$(CEVersion) /D "i_386_" /D "UNICODE" /D "_UNICODE" /D "_X86_" /D "x86" /D "NDEBUG" /YX /Gs8192 /GF /O2 /c
+# ADD CPP /nologo /W3 /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "_i386_" /D UNDER_CE=$(CEVersion) /D "i_386_" /D "UNICODE" /D "_UNICODE" /D "_X86_" /D "x86" /D "NDEBUG" /YX /Gs8192 /GF /O2 /c
+MTL=midl.exe
+# ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
+# ADD MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
+BSC32=bscmake.exe
+# ADD BASE BSC32 /nologo
+# ADD BSC32 /nologo
+LINK32=link.exe
+# ADD BASE LINK32 commctrl.lib coredll.lib $(CEx86Corelibc) /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /nodefaultlib:"OLDNAMES.lib" /nodefaultlib:$(CENoDefaultLib) /subsystem:$(CESubsystem) /MACHINE:IX86
+# ADD LINK32 commctrl.lib coredll.lib $(CEx86Corelibc) /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /nodefaultlib:"OLDNAMES.lib" /nodefaultlib:$(CENoDefaultLib) /subsystem:$(CESubsystem) /MACHINE:IX86
+
 !ENDIF 
 
 # Begin Target
@@ -201,6 +236,7 @@ LINK32=link.exe
 # Name "SPcontrols - Win32 (WCE x86) Release"
 # Name "SPcontrols - Win32 (WCE x86) Debug"
 # Name "SPcontrols - Win32 (WCE emulator) Debug"
+# Name "SPcontrols - Win32 (WCE emulator) Release"
 # Begin Group "Source Files"
 
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
@@ -238,14 +274,12 @@ DEP_CPP_SPCON=\
 	".\stdafx.h"\
 	
 NODEP_CPP_SPCON=\
-	".\aboutdlg.h"\
 	".\ibrate.h"\
 	".\inuserm.h"\
 	".\ipapi.h"\
 	".\oicectl.h"\
 	".\pcshell.h"\
 	".\tlapp.h"\
-	".\tlce.h"\
 	".\tlctrls.h"\
 	".\tldlgs.h"\
 	".\tlframe.h"\
@@ -254,6 +288,7 @@ NODEP_CPP_SPCON=\
 	".\tlres.h"\
 	".\tlresce.h"\
 	".\tluser.h"\
+	".\tlwince.h"\
 	".\tlwinx.h"\
 	".\tmlctrl.h"\
 	".\ygshell.h"\
@@ -310,27 +345,49 @@ NODEP_CPP_SPCON=\
 DEP_CPP_SPCON=\
 	".\maindlg.h"\
 	".\stdafx.h"\
+	{$(INCLUDE)}"atlapp.h"\
+	{$(INCLUDE)}"atlctrls.h"\
+	{$(INCLUDE)}"atldlgs.h"\
+	{$(INCLUDE)}"atlframe.h"\
+	{$(INCLUDE)}"atlgdi.h"\
+	{$(INCLUDE)}"atlmisc.h"\
+	{$(INCLUDE)}"atlres.h"\
+	{$(INCLUDE)}"atlresce.h"\
+	{$(INCLUDE)}"atluser.h"\
+	{$(INCLUDE)}"atlwince.h"\
+	{$(INCLUDE)}"atlwinx.h"\
+	{$(INCLUDE)}"aygshell.h"\
+	{$(INCLUDE)}"htmlctrl.h"\
+	{$(INCLUDE)}"sipapi.h"\
+	{$(INCLUDE)}"tpcshell.h"\
+	{$(INCLUDE)}"vibrate.h"\
+	{$(INCLUDE)}"voicectl.h"\
+	{$(INCLUDE)}"winuserm.h"\
 	
-NODEP_CPP_SPCON=\
-	".\aboutdlg.h"\
-	".\ibrate.h"\
-	".\inuserm.h"\
-	".\ipapi.h"\
-	".\oicectl.h"\
-	".\pcshell.h"\
-	".\tlapp.h"\
-	".\tlce.h"\
-	".\tlctrls.h"\
-	".\tldlgs.h"\
-	".\tlframe.h"\
-	".\tlgdi.h"\
-	".\tlmisc.h"\
-	".\tlres.h"\
-	".\tlresce.h"\
-	".\tluser.h"\
-	".\tlwinx.h"\
-	".\tmlctrl.h"\
-	".\ygshell.h"\
+
+!ELSEIF  "$(CFG)" == "SPcontrols - Win32 (WCE emulator) Release"
+
+DEP_CPP_SPCON=\
+	".\maindlg.h"\
+	".\stdafx.h"\
+	{$(INCLUDE)}"atlapp.h"\
+	{$(INCLUDE)}"atlctrls.h"\
+	{$(INCLUDE)}"atldlgs.h"\
+	{$(INCLUDE)}"atlframe.h"\
+	{$(INCLUDE)}"atlgdi.h"\
+	{$(INCLUDE)}"atlmisc.h"\
+	{$(INCLUDE)}"atlres.h"\
+	{$(INCLUDE)}"atlresce.h"\
+	{$(INCLUDE)}"atluser.h"\
+	{$(INCLUDE)}"atlwince.h"\
+	{$(INCLUDE)}"atlwinx.h"\
+	{$(INCLUDE)}"aygshell.h"\
+	{$(INCLUDE)}"htmlctrl.h"\
+	{$(INCLUDE)}"sipapi.h"\
+	{$(INCLUDE)}"tpcshell.h"\
+	{$(INCLUDE)}"vibrate.h"\
+	{$(INCLUDE)}"voicectl.h"\
+	{$(INCLUDE)}"winuserm.h"\
 	
 
 !ENDIF 
@@ -349,6 +406,8 @@ SOURCE=.\SPcontrols.rc
 !ELSEIF  "$(CFG)" == "SPcontrols - Win32 (WCE x86) Debug"
 
 !ELSEIF  "$(CFG)" == "SPcontrols - Win32 (WCE emulator) Debug"
+
+!ELSEIF  "$(CFG)" == "SPcontrols - Win32 (WCE emulator) Release"
 
 !ENDIF 
 
@@ -438,19 +497,34 @@ NODEP_CPP_STDAF=\
 
 DEP_CPP_STDAF=\
 	".\stdafx.h"\
+	{$(INCLUDE)}"atlapp.h"\
+	{$(INCLUDE)}"atlgdi.h"\
+	{$(INCLUDE)}"atlres.h"\
+	{$(INCLUDE)}"atlresce.h"\
+	{$(INCLUDE)}"atluser.h"\
+	{$(INCLUDE)}"atlwinx.h"\
+	{$(INCLUDE)}"aygshell.h"\
+	{$(INCLUDE)}"sipapi.h"\
+	{$(INCLUDE)}"tpcshell.h"\
+	{$(INCLUDE)}"vibrate.h"\
+	{$(INCLUDE)}"winuserm.h"\
 	
-NODEP_CPP_STDAF=\
-	".\ibrate.h"\
-	".\inuserm.h"\
-	".\ipapi.h"\
-	".\pcshell.h"\
-	".\tlapp.h"\
-	".\tlgdi.h"\
-	".\tlres.h"\
-	".\tlresce.h"\
-	".\tluser.h"\
-	".\tlwinx.h"\
-	".\ygshell.h"\
+
+!ELSEIF  "$(CFG)" == "SPcontrols - Win32 (WCE emulator) Release"
+
+DEP_CPP_STDAF=\
+	".\stdafx.h"\
+	{$(INCLUDE)}"atlapp.h"\
+	{$(INCLUDE)}"atlgdi.h"\
+	{$(INCLUDE)}"atlres.h"\
+	{$(INCLUDE)}"atlresce.h"\
+	{$(INCLUDE)}"atluser.h"\
+	{$(INCLUDE)}"atlwinx.h"\
+	{$(INCLUDE)}"aygshell.h"\
+	{$(INCLUDE)}"sipapi.h"\
+	{$(INCLUDE)}"tpcshell.h"\
+	{$(INCLUDE)}"vibrate.h"\
+	{$(INCLUDE)}"winuserm.h"\
 	
 
 !ENDIF 
