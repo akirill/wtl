@@ -150,7 +150,7 @@ namespace WTL
 // MenuBar creation functions for property sheets and dialogs
 // Frame windows use CreateSimpleCEMenuBar
 
-HWND AtlCreateMenuBar(PSHMENUBARINFO pmbi)
+inline HWND AtlCreateMenuBar(PSHMENUBARINFO pmbi)
 {
 	ATLASSERT(::IsWindow(pmbi->hwndParent));
 	HWND hWndMB = NULL;
@@ -161,13 +161,13 @@ HWND AtlCreateMenuBar(PSHMENUBARINFO pmbi)
 	return hWndMB;
 };
 
-HWND AtlCreateMenuBar(HWND hWnd,UINT nToolBarId = ATL_IDW_TOOLBAR, DWORD dwFlags = 0, int nBmpId = 0, int cBmpImages = 0, COLORREF clrBk = 0)
+inline HWND AtlCreateMenuBar(HWND hWnd,UINT nToolBarId = ATL_IDW_TOOLBAR, DWORD dwFlags = 0, int nBmpId = 0, int cBmpImages = 0, COLORREF clrBk = 0)
 {
 	SHMENUBARINFO mbi = { sizeof(mbi), hWnd, dwFlags, nToolBarId, _Module.GetResourceInstance(), nBmpId, cBmpImages, 0, clrBk };
 	return AtlCreateMenuBar(&mbi);
 }
 
-HWND AtlCreateEmptyMenuBar(HWND hWnd, bool bSip = true)
+inline HWND AtlCreateEmptyMenuBar(HWND hWnd, bool bSip = true)
 {
 	SHMENUBARINFO embi = { sizeof(SHMENUBARINFO), hWnd, SHCMBF_EMPTYBAR };
 	if (!bSip)
