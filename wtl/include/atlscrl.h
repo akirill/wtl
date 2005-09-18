@@ -996,7 +996,7 @@ public:
 		SetScrollSize(0, 0, cx, cy, bRedraw, bResetOffset);
 	}
 
-	void SetScrollSize(SIZE size, BOOL bRedraw = NULL, bool bResetOffset = true)
+	void SetScrollSize(SIZE size, BOOL bRedraw = TRUE, bool bResetOffset = true)
 	{
 		SetScrollSize(0, 0, size.cx, size.cy, bRedraw, bResetOffset);
 	}
