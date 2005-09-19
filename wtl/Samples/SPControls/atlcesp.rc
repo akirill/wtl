@@ -12,6 +12,12 @@
 
 // WTL Smartphone compilable resources
 
+#ifndef WIN32_PLATFORM_WFSP 
+#define WIN32_PLATFORM_WFSP 
+#undef __ATLRESCE_H__
+#include "atlresce.h"
+#endif
+
 /////////////////////////////////////////////////////////////////////////////
 //
 // Smartphone Menubars

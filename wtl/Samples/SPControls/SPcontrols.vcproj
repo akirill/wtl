@@ -5,6 +5,7 @@
 	Name="SPcontrols"
 	ProjectGUID="{D6214D58-C765-4A2D-827C-41AE5D5F1DE8}"
 	RootNamespace="SPcontrols"
+	SignManifests="true"
 	>
 	<Platforms>
 		<Platform
