@@ -105,13 +105,13 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Classes in this file:
 //
-// CStdDialog<T, t_shidiFlags, t_bModal> : Standard dialog base class
+// CStdDialogBase<T, t_shidiFlags, t_bModal> : Standard dialog base class
 // CStdDialogImpl<T, t_shidiFlags, t_bModal> : Standard dialog implementation
 // CStdSimpleDialog<t_wDlgTemplateID, t_shidiFlags> : Standard simple dialog
-// CStdDialogResize<T, t_shidiFlags, t_bModal> : Orientation aware standard dialog base class
+// CStdDialogResizeBase<T, t_shidiFlags, t_bModal> : Orientation aware standard dialog base class
 // CStdDialogResizeImpl<T, t_shidiFlags, t_bModal> : Orientation aware standard dialog implementation
 // CStdSimpleDialogResizeImpl<T, t_wDlgTemplateID, t_shidiFlags> : Standard resizing simple dialog implementation
-// CStdOrientedDialog<T, t_shidiFlags, t_bModal> : Orientable dialog base class
+// CStdOrientedDialogBase<T, t_shidiFlags, t_bModal> : Orientable dialog base class
 // CStdOrientedDialogImpl<T, t_shidiFlags, t_bModal> : Orientable dialog implementation
 // CStdSimpleOrientedDialog<t_wDlgTemplateID, t_wDlgLandscapeID, t_shidiFlags> : Standard simple orientable dialog
 //
@@ -182,20 +182,20 @@ inline HWND AtlCreateEmptyMenuBar(HWND hWnd, bool bSip = true)
 #ifndef _WTL_CE_NO_DIALOGS
 	
 ///////////////////////////////////////////////////////////////////////////////
-// CStdDialog - base class for standard PPC/SmartPhone dialogs
+// CStdDialogBase - base class for standard PPC/SmartPhone dialogs
 
 #define WTL_STD_SHIDIF SHIDIF_DONEBUTTON | SHIDIF_SIPDOWN | SHIDIF_SIZEDLGFULLSCREEN
 #define WTL_SP_SHIDIF SHIDIF_SIZEDLGFULLSCREEN
 
 template <class T, UINT t_shidiFlags, bool t_bModal = true>
-class CStdDialog
+class CStdDialogBase
 {
 public:
 // Pocket PC only Dialog title handling
 #ifdef WIN32_PLATFORM_PSPC
 	const int nTitleHeight;
 
-	CStdDialog() : nTitleHeight(24)
+	CStdDialogBase() : nTitleHeight(24)
 	{ }
 
 	// Title painting
@@ -370,7 +370,7 @@ public:
 template <class T, UINT t_shidiFlags = WTL_STD_SHIDIF, bool t_bModal = true>
 class ATL_NO_VTABLE CStdDialogImpl :
 		public CDialogImpl<T>,
-		public CStdDialog<T, t_shidiFlags, t_bModal>
+		public CStdDialogBase<T, t_shidiFlags, t_bModal>
 {
 public:
 	BEGIN_MSG_MAP(CStdDialogImpl)
@@ -392,10 +392,10 @@ public:
 template< WORD t_wDlgTemplateID, UINT t_shidiFlags = WTL_STD_SHIDIF>
 class CStdSimpleDialog :
 		public CSimpleDialog< t_wDlgTemplateID, FALSE>,
-		public CStdDialog< CStdSimpleDialog< t_wDlgTemplateID, t_shidiFlags>, t_shidiFlags >
+		public CStdDialogBase< CStdSimpleDialog< t_wDlgTemplateID, t_shidiFlags>, t_shidiFlags >
 {
 public:
-	typedef CStdDialog< CStdSimpleDialog< t_wDlgTemplateID, t_shidiFlags>, t_shidiFlags > baseClass;
+	typedef CStdDialogBase< CStdSimpleDialog< t_wDlgTemplateID, t_shidiFlags>, t_shidiFlags > baseClass;
 
 	BEGIN_MSG_MAP(CStdSimpleDialog)
 #ifdef WIN32_PLATFORM_PSPC // Pocket PC title
@@ -419,11 +419,11 @@ public:
 
 
 ///////////////////////////////////////////////////////////////////////////////
-// CStdDialogResize - base class for orientation aware standard PPC dialogs
+// CStdDialogResizeBase - base class for orientation aware standard PPC dialogs
 
 template <class T, UINT t_shidiFlags, bool t_bModal = true>
-class CStdDialogResize :
-		public CStdDialog<T, t_shidiFlags, t_bModal>,
+class CStdDialogResizeBase :
+		public CStdDialogBase<T, t_shidiFlags, t_bModal>,
 		public CDialogResize<T>
 {
 public:
@@ -454,7 +454,7 @@ public:
 template <class T, UINT t_shidiFlags = WTL_STD_SHIDIF, bool t_bModal = true>
 class ATL_NO_VTABLE CStdDialogResizeImpl :
 		public CDialogImpl<T>,
-		public CStdDialogResize<T, t_shidiFlags, t_bModal>
+		public CStdDialogResizeBase<T, t_shidiFlags, t_bModal>
 {
 public:
 
@@ -490,10 +490,10 @@ public:
 template< class T, WORD t_wDlgTemplateID, UINT t_shidiFlags = WTL_STD_SHIDIF>
 class ATL_NO_VTABLE CStdSimpleDialogResizeImpl :
 		public CSimpleDialog<t_wDlgTemplateID, FALSE>,
-		public CStdDialogResize<T, t_shidiFlags>
+		public CStdDialogResizeBase<T, t_shidiFlags>
 {
 public:
-	typedef CStdDialogResize< T, t_shidiFlags > baseClass;
+	typedef CStdDialogResizeBase< T, t_shidiFlags > baseClass;
 
 	BEGIN_MSG_MAP(CStdSimpleDialogResizeImpl)
 #ifdef WIN32_PLATFORM_PSPC // Pocket PC title
@@ -520,12 +520,12 @@ public:
 #if defined(_WTL_CE_DRA) && defined(WIN32_PLATFORM_PSPC)
 
 ///////////////////////////////////////////////////////////////////////////////
-// CStdOrientedDialog - Orientable dialog base class
+// CStdOrientedDialogBase - Orientable dialog base class
 
 using namespace DRA;
 
 template <class T, UINT t_shidiFlags, bool t_bModal = true>
-class CStdOrientedDialog : public CStdDialog<T, t_shidiFlags, t_bModal>
+class CStdOrientedDialogBase : public CStdDialogBase<T, t_shidiFlags, t_bModal>
 {
 public:
 // Operation
@@ -581,7 +581,7 @@ public:
 template <class T, UINT t_shidiFlags = WTL_STD_SHIDIF, bool t_bModal = true>
 class ATL_NO_VTABLE CStdOrientedDialogImpl :
 		public CDialogImpl<T>,
-		public CStdOrientedDialog<T, t_shidiFlags, t_bModal>
+		public CStdOrientedDialogBase<T, t_shidiFlags, t_bModal>
 {
 public:
 	BEGIN_MSG_MAP(CStdOrientedDialogImpl)
@@ -599,10 +599,10 @@ public:
 template< WORD t_wDlgTemplateID, WORD t_wDlgLandscapeID, UINT t_shidiFlags = WTL_STD_SHIDIF>
 class CStdSimpleOrientedDialog :
 		public CSimpleDialog< t_wDlgTemplateID, FALSE>,
-		public CStdOrientedDialog< CStdSimpleOrientedDialog< t_wDlgTemplateID, t_wDlgLandscapeID, t_shidiFlags>, t_shidiFlags >
+		public CStdOrientedDialogBase< CStdSimpleOrientedDialog< t_wDlgTemplateID, t_wDlgLandscapeID, t_shidiFlags>, t_shidiFlags >
 {
 public:
-	typedef CStdOrientedDialog< CStdSimpleOrientedDialog< t_wDlgTemplateID, t_wDlgLandscapeID, t_shidiFlags>, t_shidiFlags > baseClass;
+	typedef CStdOrientedDialogBase< CStdSimpleOrientedDialog< t_wDlgTemplateID, t_wDlgLandscapeID, t_shidiFlags>, t_shidiFlags > baseClass;
 	enum {IDD = t_wDlgTemplateID, IDD_LANDSCAPE = t_wDlgLandscapeID};
 
 	BEGIN_MSG_MAP(CStdSimpleDialog)
