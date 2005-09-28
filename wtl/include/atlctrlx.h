@@ -1941,8 +1941,8 @@ public:
 		{
 			if(pPanes[i] == ID_DEFAULT_PANE)
 			{
-				// will be resized later
-				pPanesPos[i] = 100 + cxLeft + arrBorders[2];
+				// make very large, will be resized later
+				pPanesPos[i] = INT_MAX / 2;
 			}
 			else
 			{
