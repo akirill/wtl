@@ -48,8 +48,7 @@ public:
 	typedef CFrameWindowImpl<CMainFrame,CWindow,CCeFrameTraits> BaseFrame;
 	typedef CFullScreenFrame<CMainFrame, false> BaseFullScreen;
 
-	DECLARE_FRAME_WND_CLASS(NULL, IDR_MAINFRAME)
-
+	DECLARE_APP_FRAME_CLASS(NULL, IDR_MAINFRAME, L"Software\\WTL\\ImageView")
 	CImageViewView m_view;
 	CString m_sFile;
 	CZoomMenuBar m_MenuBar;
