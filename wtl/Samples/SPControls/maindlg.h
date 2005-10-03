@@ -9,15 +9,12 @@
 
 /////////////////////////////////////////////////////////////////////////////
 
-class CMainDlg : public CStdDialogImpl<CMainDlg, WTL_SP_SHIDIF, false>,
-		public CMessageFilter, public CIdleHandler, 
-		public CAppWindow<CMainDlg>
+class CMainDlg : public CAppStdDialogImpl<CMainDlg>,
+		public CMessageFilter, public CIdleHandler 
 {
 public:
 
-	DECLARE_FRAME_DLG_CLASS(NULL,IDR_MAINFRAME);
-
-	typedef CStdDialogImpl<CMainDlg, WTL_SP_SHIDIF, false> baseDlg;
+	DECLARE_APP_DLG_CLASS(NULL,IDR_MAINFRAME, L"Software\\WTL\\SPcontrols")
 
 	enum { IDD = IDD_MAINDLG };
 
@@ -80,8 +77,7 @@ public:
 		COMMAND_RANGE_HANDLER(IDOK, IDCANCEL, OnClose)
 		COMMAND_RANGE_HANDLER(ID_MENU_OK, ID_MENU_CANCEL, OnMenuClose)
 		COMMAND_ID_HANDLER(ID_APP_ABOUT, OnAppAbout)
-		CHAIN_MSG_MAP(baseDlg)
-		CHAIN_MSG_MAP(CAppWindow<CMainDlg>)
+		CHAIN_MSG_MAP(CAppStdDialogImpl<CMainDlg>)
 	END_MSG_MAP()
 
 	LRESULT OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)

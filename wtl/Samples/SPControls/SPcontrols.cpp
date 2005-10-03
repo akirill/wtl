@@ -17,12 +17,10 @@
 
 CAppModule _Module;
 
-LPCTSTR CAppWindow<CMainDlg>::m_szAppKey = L"Software\\WTL\\SPcontrols";
-
 int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lpstrCmdLine, int nCmdShow)
 {
 
-	HRESULT hRes = CMainDlg::ActivatePreviousInstance(hInstance, lpstrCmdLine, true);
+	HRESULT hRes = CMainDlg::ActivatePreviousInstance(hInstance, lpstrCmdLine);
 	
 	if(FAILED(hRes) || S_FALSE == hRes)
 	{
@@ -38,7 +36,7 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
 	hRes = _Module.Init(NULL, hInstance);
 	ATLASSERT(SUCCEEDED(hRes));
 
-	int nRet = CMainDlg::DlgAppRun(lpstrCmdLine, nCmdShow);
+	int nRet = CMainDlg::AppRun(lpstrCmdLine, nCmdShow);
 
 	_Module.Term();
 	::CoUninitialize();
