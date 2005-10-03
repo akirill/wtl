@@ -46,10 +46,14 @@
 
 #if !defined(_AYGSHELL_H_) && !defined(__AYGSHELL_H__)
 	#error atlwince.h requires aygshell.h to be included first
+#else
+	#if defined(WIN32_PLATFORM_WFSP) && !defined(_TPCSHELL_H_)
+		#error SmartPhone dialog classes require tpcshell.h to be included first
+	#endif
 #endif
 
 #if _MSC_VER >= 1400 // VS2005
-	#include<DeviceResolutionAware.h>
+	#include <DeviceResolutionAware.h>
 	#define _WTL_CE_DRA
 #endif // _MSC_VER >= 1400
 
@@ -102,6 +106,7 @@
   #endif
 #endif
 
+
 ///////////////////////////////////////////////////////////////////////////////
 // Classes in this file:
 //
@@ -117,7 +122,10 @@
 //
 // CAppInfoBase	 : Helper for application state save/restore to registry
 // CAppInfoT<T> : CAppInfoBase constructed from a CAppWindow<T>
+// CAppWindowBase<T> : Base class for PPC/SmartPhone well-behaved application window or dialog
 // CAppWindow<T> : PPC/SmartPhone well-behaved application window class
+// CAppDialog<T> : PPC/SmartPhone well-behaved application non-modal dialog class
+// CAppStdDialogImpl<T, t_shidiFlags> : PPC/SmartPhone implementation of non-modal standard dialog application
 //
 // CFullScreenFrame<T, t_bHasSip> : Full screen frame class
 //
@@ -150,21 +158,17 @@ namespace WTL
 // MenuBar creation functions for property sheets and dialogs
 // Frame windows use CreateSimpleCEMenuBar
 
-inline HWND AtlCreateMenuBar(PSHMENUBARINFO pmbi)
+inline HWND AtlCreateMenuBar(SHMENUBARINFO& mbi)
 {
-	ATLASSERT(::IsWindow(pmbi->hwndParent));
-	HWND hWndMB = NULL;
-
-	if(::SHCreateMenuBar(pmbi) != FALSE)
-		hWndMB = pmbi->hwndMB;
-
-	return hWndMB;
+	ATLASSERT(::IsWindow(mbi.hwndParent));
+	ATLVERIFY(::SHCreateMenuBar(&mbi) != FALSE);
+	return mbi.hwndMB;
 };
 
-inline HWND AtlCreateMenuBar(HWND hWnd,UINT nToolBarId = ATL_IDW_TOOLBAR, DWORD dwFlags = 0, int nBmpId = 0, int cBmpImages = 0, COLORREF clrBk = 0)
+inline HWND AtlCreateMenuBar(HWND hWnd, UINT nToolBarId = ATL_IDW_TOOLBAR, DWORD dwFlags = 0, int nBmpId = 0, int cBmpImages = 0, COLORREF clrBk = 0)
 {
 	SHMENUBARINFO mbi = { sizeof(mbi), hWnd, dwFlags, nToolBarId, _Module.GetResourceInstance(), nBmpId, cBmpImages, 0, clrBk };
-	return AtlCreateMenuBar(&mbi);
+	return AtlCreateMenuBar(mbi);
 }
 
 inline HWND AtlCreateEmptyMenuBar(HWND hWnd, bool bSip = true)
@@ -173,7 +177,7 @@ inline HWND AtlCreateEmptyMenuBar(HWND hWnd, bool bSip = true)
 	if (!bSip)
 		embi.dwFlags |= SHCMBF_HIDESIPBUTTON;
 	
-	return AtlCreateMenuBar(&embi);
+	return AtlCreateMenuBar(embi);
 }
 
 
@@ -184,8 +188,8 @@ inline HWND AtlCreateEmptyMenuBar(HWND hWnd, bool bSip = true)
 ///////////////////////////////////////////////////////////////////////////////
 // CStdDialogBase - base class for standard PPC/SmartPhone dialogs
 
-#define WTL_STD_SHIDIF SHIDIF_DONEBUTTON | SHIDIF_SIPDOWN | SHIDIF_SIZEDLGFULLSCREEN
-#define WTL_SP_SHIDIF SHIDIF_SIZEDLGFULLSCREEN
+#define WTL_STD_SHIDIF   SHIDIF_DONEBUTTON | SHIDIF_SIPDOWN | SHIDIF_SIZEDLGFULLSCREEN
+#define WTL_SP_SHIDIF    SHIDIF_SIZEDLGFULLSCREEN
 
 template <class T, UINT t_shidiFlags, bool t_bModal = true>
 class CStdDialogBase
@@ -232,7 +236,7 @@ public:
 		T* pT = static_cast<T*>(this);
 		ATLASSERT(::IsWindow(pT->m_hWnd));
 
-		CWindow wCtl = pT->GetWindow(GW_CHILD);
+		ATL::CWindow wCtl = pT->GetWindow(GW_CHILD);
 		while (wCtl.IsWindow())
 		{
 			RECT rCtl;
@@ -253,9 +257,9 @@ public:
 		UINT uModif = (UINT)LOWORD(lParam);
 		UINT uVirtKey = (UINT)HIWORD(lParam);
 
-		if(HIWORD(lParam) == VK_TBACK)
+		if(uVirtKey == VK_TBACK)
 		{
-			CWindow wCtrl = GetFocus();
+			ATL::CWindow wCtrl = GetFocus();
 			if (wCtrl.IsWindow())
 			{
 				TCHAR szClassName[8] = {0};
@@ -289,7 +293,7 @@ public:
 
 		CFontHandle fontBold = AtlCreateBoldFont(pT->GetFont());
 
-		CWindow wCtl = pT->GetWindow(GW_CHILD);
+		ATL::CWindow wCtl = pT->GetWindow(GW_CHILD);
 
 		while (wCtl.IsWindow())
 		{
@@ -351,25 +355,15 @@ public:
 			pT->DestroyWindow();
 		return 0;
 	}
-
-	LRESULT OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
-	{
-		T* pT = static_cast<T*>(this);
-#ifdef _DEBUG // _DEBUG must be defined before atlwin.h inclusion
-		ATLASSERT(t_bModal == pT->m_bModal);
-#endif
-		StdPlatformInit();
-		StdShidInit();
-		return bHandled = FALSE;
-	}
 };
+
 
 ///////////////////////////////////////////////////////////////////////////////
 // CStdDialogImpl - implementation of standard PPC/SmartPhone dialog
 
 template <class T, UINT t_shidiFlags = WTL_STD_SHIDIF, bool t_bModal = true>
 class ATL_NO_VTABLE CStdDialogImpl :
-		public CDialogImpl<T>,
+		public ATL::CDialogImpl< T >,
 		public CStdDialogBase<T, t_shidiFlags, t_bModal>
 {
 public:
@@ -384,18 +378,30 @@ public:
 		MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
 		COMMAND_RANGE_HANDLER(IDOK, IDCANCEL, OnCloseCmd)
 	END_MSG_MAP()
+	
+	LRESULT OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
+	{
+#ifdef _DEBUG // _DEBUG must be defined before atlwin.h inclusion
+		T* pT = static_cast<T*>(this);
+		ATLASSERT(t_bModal == pT->m_bModal);
+#endif
+		StdPlatformInit();
+		StdShidInit();
+		return bHandled = FALSE;
+	}
 };
+
 
 ///////////////////////////////////////////////////////////////////////////////
 // CStdSimpleDialog - standard PPC/SmartPhone simple dialog with SHIDIF_xxx flags
 
-template< WORD t_wDlgTemplateID, UINT t_shidiFlags = WTL_STD_SHIDIF>
+template <WORD t_wDlgTemplateID, UINT t_shidiFlags = WTL_STD_SHIDIF>
 class CStdSimpleDialog :
-		public CSimpleDialog< t_wDlgTemplateID, FALSE>,
-		public CStdDialogBase< CStdSimpleDialog< t_wDlgTemplateID, t_shidiFlags>, t_shidiFlags >
+		public ATL::CSimpleDialog<t_wDlgTemplateID, FALSE>,
+		public CStdDialogBase<CStdSimpleDialog<t_wDlgTemplateID, t_shidiFlags>, t_shidiFlags>
 {
 public:
-	typedef CStdDialogBase< CStdSimpleDialog< t_wDlgTemplateID, t_shidiFlags>, t_shidiFlags > baseClass;
+	typedef CStdDialogBase<CStdSimpleDialog<t_wDlgTemplateID, t_shidiFlags>, t_shidiFlags> baseClass;
 
 	BEGIN_MSG_MAP(CStdSimpleDialog)
 #ifdef WIN32_PLATFORM_PSPC // Pocket PC title
@@ -424,28 +430,11 @@ public:
 template <class T, UINT t_shidiFlags, bool t_bModal = true>
 class CStdDialogResizeBase :
 		public CStdDialogBase<T, t_shidiFlags, t_bModal>,
-		public CDialogResize<T>
+		public CDialogResize< T >
 {
 public:
-
-	static const _AtlDlgResizeMap* GetDlgResizeMap()
-	{
-		return T::GetDlgResizeMap();
-	}
-
-	LRESULT OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
-	{
-		T* pT = static_cast<T*>(this);
-#ifdef _DEBUG // _DEBUG must be defined before atlwin.h inclusion
-		ATLASSERT(t_bModal == pT->m_bModal);
-#endif
-		StdPlatformInit();
-		DlgResize_Init(FALSE);
-		StdShidInit();
-		return bHandled = FALSE;
-	}
+	//Note: BEGIN_DLGRESIZE_MAP is required in the derived class.
 };
-
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -453,7 +442,7 @@ public:
 
 template <class T, UINT t_shidiFlags = WTL_STD_SHIDIF, bool t_bModal = true>
 class ATL_NO_VTABLE CStdDialogResizeImpl :
-		public CDialogImpl<T>,
+		public ATL::CDialogImpl< T >,
 		public CStdDialogResizeBase<T, t_shidiFlags, t_bModal>
 {
 public:
@@ -468,9 +457,20 @@ public:
 		MESSAGE_HANDLER(WM_CTLCOLORSTATIC, OnColorStatic)
 		MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
 		COMMAND_RANGE_HANDLER(IDOK, IDCANCEL, OnCloseCmd)
-		CHAIN_MSG_MAP(CDialogResize<T>)
+		CHAIN_MSG_MAP(CDialogResize< T >)
 	END_MSG_MAP()
 
+	LRESULT OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
+	{
+#ifdef _DEBUG // _DEBUG must be defined before atlwin.h inclusion
+		T* pT = static_cast<T*>(this);
+		ATLASSERT(t_bModal == pT->m_bModal);
+#endif
+		StdPlatformInit();
+		DlgResize_Init(FALSE);
+		StdShidInit();
+		return bHandled = FALSE;
+	}
 };
 
 
@@ -487,13 +487,13 @@ public:
 //		END_DLGRESIZE_MAP()
 //	};
 
-template< class T, WORD t_wDlgTemplateID, UINT t_shidiFlags = WTL_STD_SHIDIF>
+template <class T, WORD t_wDlgTemplateID, UINT t_shidiFlags = WTL_STD_SHIDIF>
 class ATL_NO_VTABLE CStdSimpleDialogResizeImpl :
-		public CSimpleDialog<t_wDlgTemplateID, FALSE>,
+		public ATL::CSimpleDialog<t_wDlgTemplateID, FALSE>,
 		public CStdDialogResizeBase<T, t_shidiFlags>
 {
 public:
-	typedef CStdDialogResizeBase< T, t_shidiFlags > baseClass;
+	typedef CStdDialogResizeBase<T, t_shidiFlags> baseClass;
 
 	BEGIN_MSG_MAP(CStdSimpleDialogResizeImpl)
 #ifdef WIN32_PLATFORM_PSPC // Pocket PC title
@@ -505,7 +505,7 @@ public:
 		MESSAGE_HANDLER(WM_CTLCOLORSTATIC, OnColorStatic)
 		MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
 		COMMAND_RANGE_HANDLER(IDOK, IDCANCEL, baseClass::OnCloseCmd)
-		CHAIN_MSG_MAP(CDialogResize<T>)
+		CHAIN_MSG_MAP(CDialogResize< T >)
 	END_MSG_MAP()
 
 	LRESULT OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
@@ -522,65 +522,50 @@ public:
 ///////////////////////////////////////////////////////////////////////////////
 // CStdOrientedDialogBase - Orientable dialog base class
 
-using namespace DRA;
-
 template <class T, UINT t_shidiFlags, bool t_bModal = true>
 class CStdOrientedDialogBase : public CStdDialogBase<T, t_shidiFlags, t_bModal>
 {
 public:
 // Operation
-	BOOL SetOrientation(DisplayMode mode)
+	BOOL SetOrientation(DRA::DisplayMode mode)
 	{
 		T* pT = static_cast<T*>(this);
 		ATLASSERT(pT->IsWindow());
-		ATLASSERT(mode == GetDisplayMode());
+		ATLASSERT(mode == DRA::GetDisplayMode());
 		
 		//Derived dialog must enumerate TWO dialog templates with the same control ids and types ie:
 		// enum {IDD = IDD_MYDLG, IDD_LANDSCAPE = IDD_MYDLG_L};
-		UINT iResource = (mode == Landscape)? T::IDD_LANDSCAPE : T::IDD;
+		UINT iResource = (mode == DRA::Landscape)? T::IDD_LANDSCAPE : T::IDD;
 
-		BOOL bRes = RelayoutDialog(_Module.GetResourceInstance(), pT->m_hWnd, MAKEINTRESOURCE(iResource));
+		BOOL bRes = DRA::RelayoutDialog(_Module.GetResourceInstance(), pT->m_hWnd, MAKEINTRESOURCE(iResource));
 		pT->OnOrientation(mode);
 		return bRes;
 	}
 
 // Override
-	void OnOrientation(DisplayMode)
+	void OnOrientation(DRA::DisplayMode /*mode*/)
 	{}
 
 // Message handlers
 	LRESULT OnSettingChange(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& bHandled)
 	{
-		T* pT = static_cast<T*>(this);
 		if (wParam & SETTINGCHANGE_RESET)
 		{
-			SetOrientation(GetDisplayMode());
+			SetOrientation(DRA::GetDisplayMode());
 			DialogTitleInit();
 			StdShidInit();
 		}
 		return bHandled = FALSE;
 	}
-
-	LRESULT OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
-	{
-		T* pT = static_cast<T*>(this);
-#ifdef _DEBUG // _DEBUG must be defined before atlwin.h inclusion
-		ATLASSERT(t_bModal == pT->m_bModal);
-#endif
-		if (GetDisplayMode() == Landscape)
-			SetOrientation(Landscape);
-		DialogTitleInit();
-		StdShidInit();
-		return bHandled = FALSE;
-	}
 };
+
 
 ///////////////////////////////////////////////////////////////////////////////
 // CStdOrientedDialogImpl - Orientable dialog implementation
 
 template <class T, UINT t_shidiFlags = WTL_STD_SHIDIF, bool t_bModal = true>
 class ATL_NO_VTABLE CStdOrientedDialogImpl :
-		public CDialogImpl<T>,
+		public ATL::CDialogImpl< T >,
 		public CStdOrientedDialogBase<T, t_shidiFlags, t_bModal>
 {
 public:
@@ -591,18 +576,32 @@ public:
 		MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
 		COMMAND_RANGE_HANDLER(IDOK, IDCANCEL, OnCloseCmd)
 	END_MSG_MAP()
+
+	LRESULT OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
+	{
+#ifdef _DEBUG // _DEBUG must be defined before atlwin.h inclusion
+		T* pT = static_cast<T*>(this);
+		ATLASSERT(t_bModal == pT->m_bModal);
+#endif
+		if (DRA::GetDisplayMode() == DRA::Landscape)
+			SetOrientation(DRA::Landscape);
+		DialogTitleInit();
+		StdShidInit();
+		return bHandled = FALSE;
+	}
 };
+
 
 ///////////////////////////////////////////////////////////////////////////////
 // CStdSimpleOrientedDialog - Standard simple orientable dialog
 
-template< WORD t_wDlgTemplateID, WORD t_wDlgLandscapeID, UINT t_shidiFlags = WTL_STD_SHIDIF>
+template <WORD t_wDlgTemplateID, WORD t_wDlgLandscapeID, UINT t_shidiFlags = WTL_STD_SHIDIF>
 class CStdSimpleOrientedDialog :
-		public CSimpleDialog< t_wDlgTemplateID, FALSE>,
-		public CStdOrientedDialogBase< CStdSimpleOrientedDialog< t_wDlgTemplateID, t_wDlgLandscapeID, t_shidiFlags>, t_shidiFlags >
+		public ATL::CSimpleDialog<t_wDlgTemplateID, FALSE>,
+		public CStdOrientedDialogBase<CStdSimpleOrientedDialog<t_wDlgTemplateID, t_wDlgLandscapeID, t_shidiFlags>, t_shidiFlags>
 {
 public:
-	typedef CStdOrientedDialogBase< CStdSimpleOrientedDialog< t_wDlgTemplateID, t_wDlgLandscapeID, t_shidiFlags>, t_shidiFlags > baseClass;
+	typedef CStdOrientedDialogBase<CStdSimpleOrientedDialog<t_wDlgTemplateID, t_wDlgLandscapeID, t_shidiFlags>, t_shidiFlags> baseClass;
 	enum {IDD = t_wDlgTemplateID, IDD_LANDSCAPE = t_wDlgLandscapeID};
 
 	BEGIN_MSG_MAP(CStdSimpleDialog)
@@ -615,16 +614,18 @@ public:
 
 		LRESULT OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
 	{
-		if (GetDisplayMode() == Landscape)
-			SetOrientation(Landscape);
+		if (DRA::GetDisplayMode() == DRA::Landscape)
+			SetOrientation(DRA::Landscape);
 		DialogTitleInit();
 		StdShidInit();
 		return bHandled = FALSE;
 	}
 };
+
 #endif // _WTL_CE_DRA
 
 #endif // _WTL_CE_NO_DIALOGS
+
 
 // --- PPC/SmartPhone application window and helpers ---
 
@@ -638,34 +639,34 @@ class CAppInfoBase
 public:
 	ATL::CRegKey m_Key;
 
-	CAppInfoBase(_U_STRINGorID sAppKey)
+	CAppInfoBase(ATL::_U_STRINGorID sAppKey)
 	{
 		m_Key.Create(HKEY_CURRENT_USER, sAppKey.m_lpstr);
 		ATLASSERT(m_Key.m_hKey);
 	}
 
-	template< class V>
-	LONG Save(V& val, _U_STRINGorID sName)
+	template <class V>
+	LONG Save(V& val, ATL::_U_STRINGorID sName)
 	{
 		return ::RegSetValueEx(m_Key, sName.m_lpstr, 0, REG_BINARY, (LPBYTE)&val, sizeof(V));
 	}
 
-	template< class V>
-	LONG Save(int nb, V& val0, _U_STRINGorID sName)
+	template <class V>
+	LONG Save(int nb, V& val0, ATL::_U_STRINGorID sName)
 	{
 		return ::RegSetValueEx(m_Key, sName.m_lpstr, 0, REG_BINARY, (LPBYTE)&val0, nb * sizeof(V));
 	}
 
-	template< class V>
-	LONG Restore(V& val, _U_STRINGorID sName)
+	template <class V>
+	LONG Restore(V& val, ATL::_U_STRINGorID sName)
 	{
 		DWORD valtype;
 		DWORD bufSize = sizeof(V);
 		return ::RegQueryValueEx(m_Key, sName.m_lpstr, 0, &valtype, (LPBYTE)&val, &bufSize);
 	}
 
-	template< class V>
-	LONG Restore(int nb, V& val0, _U_STRINGorID sName)
+	template <class V>
+	LONG Restore(int nb, V& val0, ATL::_U_STRINGorID sName)
 	{
 		DWORD valtype;
 		DWORD bufSize = nb * sizeof(V);
@@ -673,60 +674,60 @@ public:
 	}
 
 #if defined(_WTL_USE_CSTRING) || defined(__ATLSTR_H__)
-	#if _ATL_VER < 0x800
-	LONG Save(CString& sval, _U_STRINGorID sName)
+#if _ATL_VER < 0x800
+	LONG Save(CString& sval, ATL::_U_STRINGorID sName)
 	{
 		return m_Key.SetValue(sval, sName.m_lpstr);
 	}
 
-	LONG Restore(CString& sval, _U_STRINGorID sName)
+	LONG Restore(CString& sval, ATL::_U_STRINGorID sName)
 	{
 		DWORD size = MAX_PATH;
 		LONG res = m_Key.QueryValue(sval.GetBuffer(size), sName.m_lpstr, &size);
 		sval.ReleaseBuffer();
 		return res;
 	}
-	#else
-	LONG Save(CString& sval, _U_STRINGorID sName)
+#else
+	LONG Save(CString& sval, ATL::_U_STRINGorID sName)
 	{
 		return m_Key.SetStringValue(sName.m_lpstr, sval/*,REG_SZ*/);
 	}
 
-	LONG Restore(CString& sval, _U_STRINGorID sName)
+	LONG Restore(CString& sval, ATL::_U_STRINGorID sName)
 	{
 		DWORD size = MAX_PATH;
 		LONG res = m_Key.QueryStringValue(sName.m_lpstr, sval.GetBuffer(size), &size);
 		sval.ReleaseBuffer();
 		return res;
 	}
-	#endif //_ATL_VER <0x800
+#endif //_ATL_VER < 0x800
 #else
   #pragma message("Warning: CAppInfoBase compiles without CString support. Do not use CString in Save or Restore.")
 #endif // defined(_WTL_USE_CSTRING) || defined(__ATLSTR_H__)
 	
-#if _ATL_VER <0x800
-	LONG Save(LPCTSTR sval, _U_STRINGorID sName)
+#if _ATL_VER < 0x800
+	LONG Save(LPCTSTR sval, ATL::_U_STRINGorID sName)
 	{
 		return m_Key.SetValue(sval, sName.m_lpstr);
 	}
 
-	LONG Restore(LPTSTR sval, _U_STRINGorID sName, DWORD *plength)
+	LONG Restore(LPTSTR sval, ATL::_U_STRINGorID sName, DWORD *plength)
 	{
 		return m_Key.QueryValue(sval, sName.m_lpstr, plength);
 	}
 #else
-	LONG Save(LPCTSTR sval, _U_STRINGorID sName)
+	LONG Save(LPCTSTR sval, ATL::_U_STRINGorID sName)
 	{
 		return m_Key.SetStringValue(sName.m_lpstr, sval);
 	}
 
-	LONG Restore(LPTSTR sval, _U_STRINGorID sName, DWORD *plength)
+	LONG Restore(LPTSTR sval, ATL::_U_STRINGorID sName, DWORD *plength)
 	{
 		return m_Key.QueryStringValue(sName.m_lpstr, sval, plength);
 	}
-#endif // !_ATL_VER <0x800
+#endif // !_ATL_VER < 0x800
 	
-	LONG Delete(_U_STRINGorID sName)
+	LONG Delete(ATL::_U_STRINGorID sName)
 	{
 		return  m_Key.DeleteValue(sName.m_lpstr);
 	}
@@ -734,50 +735,49 @@ public:
 
 
 ///////////////////////////////////////////////////////////////////////////////
-// CAppInfoT - CAppInfoBase constructed from a CAppWindow<T>
+// CAppInfoT - CAppInfoBase constructed from a class with T::GetAppKey() 
 
-template < class T >
+// Macro for declaring AppKey
+#define DECLARE_APPKEY(uAppKey) \
+	static LPCTSTR GetAppKey() \
+	{ \
+		static LPCTSTR sAppKey = ATL::_U_STRINGorID(uAppKey).m_lpstr; \
+		return sAppKey; \
+	}
+
+template <class T>
 class CAppInfoT : public CAppInfoBase
 {
 public:
-	CAppInfoT() : CAppInfoBase(T::m_szAppKey){}
+	CAppInfoT() : CAppInfoBase(T::GetAppKey()){}
 };
 
 
 ///////////////////////////////////////////////////////////////////////////////
-// CAppWindow - PPC/SmartPhone "well-behaved" application window class
+// CAppWindowBase - Base class for PPC/SmartPhone "well-behaved" application window or dialog
 
-#ifndef _WTL_CE_NO_DIALOGS
+// Macros for declaring frame WNDCLASS and AppKey
+#define DECLARE_APP_FRAME_CLASS(WndClassName, uCommonResourceID, uAppKey) \
+	DECLARE_FRAME_WND_CLASS(WndClassName, uCommonResourceID) \
+	DECLARE_APPKEY(uAppKey)
 
-#define DECLARE_FRAME_DLG_CLASS(WndClassName, uCommonResourceID) \
-static CFrameWndClassInfo& GetWndClassInfo() \
-{ \
-	static CFrameWndClassInfo wc = \
-	{ \
-		{ 0, (WNDPROC)StartDialogProc, \
-		  0, 0, NULL, NULL, NULL, (HBRUSH)(COLOR_WINDOW + 1), NULL, WndClassName }, \
-		NULL, NULL, IDC_ARROW, TRUE, 0, _T(""), uCommonResourceID \
-	}; \
-	return wc; \
-}
-
-#endif // _WTL_CE_NO_DIALOGS
-
+#define DECLARE_APP_FRAME_CLASS_EX(WndClassName, uCommonResourceID, style, bkgnd, uAppKey) \
+	DECLARE_FRAME_WND_CLASS_EX(WndClassName, uCommonResourceID, style, bkgnd) \
+	DECLARE_APPKEY(uAppKey)
 
 template <class T>
-class CAppWindow
+class CAppWindowBase
 {
 public:
-	typedef class CAppInfoT<T> CAppInfo;
+	typedef class CAppInfoT< T > CAppInfo;
 
 #ifndef WIN32_PLATFORM_WFSP
 	SHACTIVATEINFO m_sai; // NoOp on SmartPhones
 #endif // WIN32_PLATFORM_WFSP
 
-	static LPCTSTR m_szAppKey;
 	bool m_bHibernate;
 
-	CAppWindow<T>() : m_bHibernate(false)
+	CAppWindowBase< T >() : m_bHibernate(false)
 	{
 #ifndef WIN32_PLATFORM_WFSP
 		SHACTIVATEINFO sai = { sizeof(SHACTIVATEINFO) };
@@ -785,59 +785,13 @@ public:
 #endif // WIN32_PLATFORM_WFSP
 	};
 
-// Same as WTL 7.1 AppWizard generated Run + lpstrCmdLine in CreateEx
-	static int AppRun(LPTSTR lpstrCmdLine = NULL, int nCmdShow = SW_SHOWNORMAL)
+	// Same as WTL 7.1 AppWizard generated ActivatePreviousInstance + SendMessage WM_COPYDATA
+	static HRESULT ActivatePreviousInstance(HINSTANCE hInstance, LPCTSTR  lpstrCmdLine, bool bDialog)
 	{
-		CMessageLoop theLoop;
-		_Module.AddMessageLoop(&theLoop);
-
-		T wndMain;
-
-		if(wndMain.CreateEx(NULL, NULL, 0, 0, lpstrCmdLine) == NULL)
-		{
-			ATLTRACE(_T("Main window creation failed!\n"));
-			return 0;
-		}
-
-		wndMain.ShowWindow(nCmdShow);
-
-		int nRet = theLoop.Run();
-
-		_Module.RemoveMessageLoop();
-		return nRet;
-	}
-
-#ifndef _WTL_CE_NO_DIALOGS
-	static int DlgAppRun(LPTSTR lpstrCmdLine = NULL, int nCmdShow = SW_SHOWNORMAL)
-	{
-		CMessageLoop theLoop;
-		_Module.AddMessageLoop(&theLoop);
-
-		T dlgMain;
-
-		if(dlgMain.Create(NULL, (LPARAM)lpstrCmdLine) == NULL)
-		{
-			ATLTRACE(_T("Main dialog creation failed!\n"));
-			return 0;
-		}
-
-		dlgMain.ShowWindow(nCmdShow);
-
-		int nRet = theLoop.Run();
-
-		_Module.RemoveMessageLoop();
-		return nRet;
-	}
-#endif // _WTL_CE_NO_DIALOGS
-
-// Same as WTL 7.1 AppWizard generated ActivatePreviousInstance + SendMessage WM_COPYDATA
-	static HRESULT ActivatePreviousInstance(HINSTANCE hInstance, LPCTSTR  lpstrCmdLine, bool bDialog = false)
-	{
-		// requires T does DECLARE_FRAME_WND_CLASS, DECLARE_FRAME_WND_CLASS_EX or DECLARE_FRAME_DLG_CLASS
+		// requires T does DECLARE_APP_FRAME_CLASS, DECLARE_APP_FRAME_CLASS_EX or DECLARE_APP_DLG_CLASS
 		CFrameWndClassInfo& classInfo = T::GetWndClassInfo();
 
-		int nRet = ::LoadString(hInstance, classInfo.m_uCommonResourceID, classInfo.m_szAutoName, sizeof(classInfo.m_szAutoName)/sizeof(classInfo.m_szAutoName[0]));
-		ATLASSERT(0 != nRet);
+		ATLVERIFY(::LoadString(hInstance, classInfo.m_uCommonResourceID, classInfo.m_szAutoName, sizeof(classInfo.m_szAutoName)/sizeof(classInfo.m_szAutoName[0])) != 0);
 
 		classInfo.m_wc.lpszClassName = classInfo.m_szAutoName;
 
@@ -910,17 +864,17 @@ public:
 			}
 		}
 		return S_OK;
-	};
+	}
 
 // Operations overriden in derived class
-	bool AppHibernate(bool bHibernate)
+	bool AppHibernate(bool /*bHibernate*/)
 	{
 		return false;
 	}
 
-	bool AppNewInstance(LPCTSTR lpstrCmdLine)
+	bool AppNewInstance(LPCTSTR /*lpstrCmdLine*/)
 	{
-		return 0;
+		return false;
 	}
 
 	void AppSave()
@@ -928,7 +882,7 @@ public:
 	}
 
 // Message map and handlers
-	BEGIN_MSG_MAP(CAppWindow)
+	BEGIN_MSG_MAP(CAppWindowBase)
 		MESSAGE_HANDLER(WM_ACTIVATE, OnActivate)
 #ifndef WIN32_PLATFORM_WFSP
 		MESSAGE_HANDLER(WM_SETTINGCHANGE, OnSettingChange)
@@ -938,19 +892,22 @@ public:
 		MESSAGE_HANDLER(WM_CLOSE, OnClose)
 	END_MSG_MAP()
 
-	LRESULT OnActivate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+	LRESULT OnActivate(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 	{
 		T* pT = static_cast<T*>(this);
 		if (m_bHibernate)
 			m_bHibernate = pT->AppHibernate(false);
 #ifndef WIN32_PLATFORM_WFSP
 		::SHHandleWMActivate(pT->m_hWnd, wParam, lParam, &m_sai, 0);
+#else
+		wParam;
+		lParam;
 #endif // WIN32_PLATFORM_WFSP
 		 return bHandled = FALSE;
 	}
 
 #ifndef WIN32_PLATFORM_WFSP
-	LRESULT OnSettingChange(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+	LRESULT OnSettingChange(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 	{
 		T* pT = static_cast<T*>(this);
 		bHandled = FALSE;
@@ -971,14 +928,143 @@ public:
 		return pT->AppNewInstance((LPCTSTR)pcds->lpData);
 	}
 
-	LRESULT OnClose(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+	LRESULT OnClose(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
 	{
 		T* pT = static_cast<T*>(this);
 		pT->AppSave();
+		bHandled = FALSE;
+		return 1;
+	}
+};
+
+
+///////////////////////////////////////////////////////////////////////////////
+// CAppWindow - PPC/SmartPhone "well-behaved" application window class
+
+template <class T>
+class CAppWindow : public CAppWindowBase< T >
+{
+public:
+	// Same as WTL 7.1 AppWizard generated Run + lpstrCmdLine in CreateEx
+	static int AppRun(LPTSTR lpstrCmdLine = NULL, int nCmdShow = SW_SHOWNORMAL)
+	{
+		CMessageLoop theLoop;
+		_Module.AddMessageLoop(&theLoop);
+
+		T wndMain;
+
+		if(wndMain.CreateEx(NULL, NULL, 0, 0, lpstrCmdLine) == NULL)
+		{
+			ATLTRACE(_T("Main window creation failed!\n"));
+			return 0;
+		}
+
+		wndMain.ShowWindow(nCmdShow);
+
+		int nRet = theLoop.Run();
+
+		_Module.RemoveMessageLoop();
+		return nRet;
+	}
+
+	static HRESULT ActivatePreviousInstance(HINSTANCE hInstance, LPCTSTR  lpstrCmdLine)
+	{
+		return CAppWindowBase< T >::ActivatePreviousInstance(hInstance, lpstrCmdLine, false);
+	}
+};
+
+
+#ifndef _WTL_CE_NO_DIALOGS
+
+///////////////////////////////////////////////////////////////////////////////
+// CAppDialog - PPC/SmartPhone "well-behaved" non-modal dialog application class
+
+// Macro for declaring dialog WNDCLASS and AppKey
+#define DECLARE_APP_DLG_CLASS(WndClassName, uCommonResourceID, uAppKey) \
+	static WTL::CFrameWndClassInfo& GetWndClassInfo() \
+	{ \
+		static WTL::CFrameWndClassInfo wc = \
+		{ \
+			{ 0, (WNDPROC)StartDialogProc, \
+			0, 0, NULL, NULL, NULL, (HBRUSH)(COLOR_WINDOW + 1), NULL, WndClassName }, \
+			NULL, NULL, IDC_ARROW, TRUE, 0, _T(""), uCommonResourceID \
+		}; \
+		return wc; \
+	}; \
+	DECLARE_APPKEY(uAppKey)
+
+template <class T>
+class CAppDialog : public CAppWindowBase< T >
+{
+public:
+	static int AppRun(LPTSTR lpstrCmdLine = NULL, int nCmdShow = SW_SHOWNORMAL)
+	{
+		CMessageLoop theLoop;
+		_Module.AddMessageLoop(&theLoop);
+
+		T dlgMain;
+
+		if(dlgMain.Create(NULL, (LPARAM)lpstrCmdLine) == NULL)
+		{
+			ATLTRACE(_T("Main dialog creation failed!\n"));
+			return 0;
+		}
+
+		dlgMain.ShowWindow(nCmdShow);
+
+		int nRet = theLoop.Run();
+
+		_Module.RemoveMessageLoop();
+		return nRet;
+	}
+
+	static HRESULT ActivatePreviousInstance(HINSTANCE hInstance, LPCTSTR  lpstrCmdLine)
+	{
+		return CAppWindowBase< T >::ActivatePreviousInstance(hInstance, lpstrCmdLine, true);
+	};
+};
+
+
+///////////////////////////////////////////////////////////////////////////////
+// CAppStdDialogImpl - PPC/SmartPhone implementation of non-modal standard dialog application
+
+#ifdef WIN32_PLATFORM_WFSP
+#define WTL_APP_SHIDIF WTL_SP_SHIDIF
+#else
+#define WTL_APP_SHIDIF WTL_STD_SHIDIF
+#endif
+
+template <class T, UINT t_shidiFlags = WTL_APP_SHIDIF>
+class ATL_NO_VTABLE CAppStdDialogImpl :
+		public ATL::CDialogImpl< T >,
+		public CStdDialogBase<T, t_shidiFlags, false>, 
+		public CAppDialog< T >
+{
+public:
+
+	BEGIN_MSG_MAP(CAppStdDialogImpl)
+#if defined(WIN32_PLATFORM_WFSP) // SmartPhone VK_TBACK key
+		MESSAGE_HANDLER(WM_HOTKEY, OnHotKey)
+		COMMAND_RANGE_HANDLER(ID_MENU_OK, ID_MENU_CANCEL, OnMenuClose)
+#endif
+		MESSAGE_HANDLER(WM_CTLCOLORSTATIC, OnColorStatic)
+		MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
+		COMMAND_RANGE_HANDLER(IDOK, IDCANCEL, OnCloseCmd)
+		CHAIN_MSG_MAP(CAppDialog< T >)
+	END_MSG_MAP()
+
+	LRESULT OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
+	{
+#ifdef WIN32_PLATFORM_WFSP
+		StdPlatformInit();
+#endif
+		StdShidInit();
 		return bHandled = FALSE;
 	}
 };
-	
+
+#endif // _WTL_CE_NO_DIALOGS
+
 #endif // _WTL_CE_NO_APPWINDOW
 
 
@@ -991,7 +1077,7 @@ public:
 
 #ifdef WIN32_PLATFORM_PSPC // Pocket PC code
 
-template < class T, bool t_bHasSip = true>
+template <class T, bool t_bHasSip = true>
 class CFullScreenFrame
 {
 public:
@@ -1027,7 +1113,7 @@ public:
 	{
 		T* pT = static_cast<T*>(this);
 		ATLASSERT(pT->IsWindow());
-		CWindow MenuBar = pT->m_hWndCECommandBar;
+		ATL::CWindow MenuBar = pT->m_hWndCECommandBar;
 		ATLASSERT(MenuBar.IsWindow());
 		MenuBar.ShowWindow(bShow ? SW_SHOWNORMAL : SW_HIDE);
 		pT->SizeToMenuBar();
@@ -1062,8 +1148,8 @@ public:
 			SetFullScreen(m_bFullScreen);
 		return bHandled = FALSE;
 	}
-
 };
+
 #endif // WIN32_PLATFORM_PSPC
 
 #endif // _WTL_CE_NO_FULLSCREEN
@@ -1076,8 +1162,8 @@ public:
 ///////////////////////////////////////////////////////////////////////////////
 // CZoomScrollImpl - WinCE zooming implementation on top of CScrollImpl
 
-template < class T >
-class  CZoomScrollImpl: public CScrollImpl<T>
+template <class T>
+class  CZoomScrollImpl: public CScrollImpl< T >
 {
 public:
 // Data members
@@ -1095,7 +1181,7 @@ public:
 		m_sizeTrue = sizeTrue;
 		m_fzoom = fzoom;
 
-		CScrollImpl<T>::SetScrollSize(sizeTrue / fzoom, bRedraw);
+		CScrollImpl< T >::SetScrollSize(sizeTrue / fzoom, bRedraw);
 	}
 
 	void SetZoomScrollSize(int cx, int cy, double fzoom=1., BOOL bRedraw = TRUE)
@@ -1125,7 +1211,7 @@ public:
 // CScrollImpl overrides
 	void SetScrollOffset(int x, int y, BOOL bRedraw = TRUE)
 	{
-		CScrollImpl<T>::SetScrollOffset((int)(x / m_fzoom), (int)(y / m_fzoom), bRedraw);
+		CScrollImpl< T >::SetScrollOffset((int)(x / m_fzoom), (int)(y / m_fzoom), bRedraw);
 	}
 
 	void SetScrollOffset(POINT ptOffset, BOOL bRedraw = TRUE)
@@ -1135,17 +1221,18 @@ public:
 
 	void GetScrollOffset(POINT& ptOffset)
 	{
-		ptOffset = m_ptOffset * m_fzoom;
+		ptOffset.x = (LONG)(m_ptOffset.x * m_fzoom);
+		ptOffset.y = (LONG)(m_ptOffset.y * m_fzoom);
 	}
 
 	void SetScrollSize(int cx, int cy, BOOL bRedraw = TRUE)
 	{
-		SetZScrollSize(cx, cy, GetZoom(), bRedraw);
+		SetZoomScrollSize(cx, cy, GetZoom(), bRedraw);
 	}
 
 	void SetScrollSize(SIZE sizeTrue, BOOL bRedraw = TRUE)
 	{
-		SetZScrollSize(sizeTrue, GetZoom(), bRedraw);
+		SetZoomScrollSize(sizeTrue, GetZoom(), bRedraw);
 	}
 
 	void GetScrollSize(SIZE& sizeTrue) const
@@ -1160,7 +1247,7 @@ public:
 
 	void SetScrollPage(SIZE sizePage)
 	{
-		CScrollImpl<T>::SetScrollPage(sizePage / m_fzoom);
+		CScrollImpl< T >::SetScrollPage(sizePage / m_fzoom);
 	}
 
 	void GetScrollPage(SIZE& sizePage) const
@@ -1175,7 +1262,7 @@ public:
 
 	void SetScrollLine(SIZE sizeLine)
 	{
-		CScrollImpl<T>::SetScrollLine(sizeLine / m_fzoom);
+		CScrollImpl< T >::SetScrollLine(sizeLine / m_fzoom);
 	}
 
 	void GetScrollLine(SIZE& sizeLine) const
@@ -1257,9 +1344,9 @@ public:
 	}
 
 // Message map and handlers
-	BEGIN_MSG_MAP(CZoomScrollImpl<T>)
+	BEGIN_MSG_MAP(CZoomScrollImpl< T >)
 		MESSAGE_HANDLER(WM_ERASEBKGND, OnEraseBkgnd)
-		CHAIN_MSG_MAP(CScrollImpl<T>)
+		CHAIN_MSG_MAP(CScrollImpl< T >)
 	END_MSG_MAP()
 	
 	LRESULT OnEraseBkgnd(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& bHandled)
@@ -1323,7 +1410,7 @@ public:
 ///////////////////////////////////////////////////////////////////////////////
 // CHtmlCtrl
 
-template< class TBase >
+template <class TBase>
 class CHtmlCtrlT : public TBase
 {
 public:
@@ -1342,7 +1429,7 @@ public:
 			ATL::_U_MENUorID MenuOrID = 0U, LPVOID lpCreateParam = NULL)
 	{
 		HWND hWnd = TBase::Create(GetWndClassName(), hWndParent, rect.m_lpRect, szWindowName, dwStyle, dwExStyle, MenuOrID.m_hMenu, lpCreateParam);
-		ATLASSERT(hWnd!=NULL);   // Did you remember to call InitHTMLControl(hInstance) ??
+		ATLASSERT(hWnd != NULL);   // Did you remember to call InitHTMLControl(hInstance) ??
 		return hWnd;
 	}
 
@@ -1352,11 +1439,13 @@ public:
 		return WC_HTML;
 	}
 
+#if (_WIN32_WCE >= 400)
 	void AddStyle(LPCWSTR pszStyle)
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
 		::SendMessage(m_hWnd, DTM_ADDSTYLE, 0, (LPARAM)pszStyle);
 	}
+#endif //(_WIN32_WCE >= 400)
 
 	void AddText(BOOL bPlainText, LPCSTR pszText)
 	{
@@ -1394,6 +1483,7 @@ public:
 		::SendMessage(m_hWnd, DTM_ANCHORW, 0, (LPARAM)pszAnchor);
 	}
 
+#if (_WIN32_WCE >= 400)
 	void GetBrowserDispatch(IDispatch** ppDispatch)
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
@@ -1401,6 +1491,7 @@ public:
 		ATLASSERT(*ppDispatch==NULL);
 		::SendMessage(m_hWnd, DTM_BROWSERDISPATCH, 0, (LPARAM)ppDispatch);
 	}
+#endif //(_WIN32_WCE >= 400)
 
 	void Clear()
 	{
@@ -1482,11 +1573,13 @@ public:
 		::SendMessage(m_hWnd, DTM_ZOOMLEVEL, 0, (LPARAM)iLevel);
 	}
 
+#if (_WIN32_WCE >= 400)
 	void Stop()
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
 		::SendMessage(m_hWnd, DTM_STOP, 0, 0L);
 	}
+#endif //(_WIN32_WCE >= 400)
 
 	void GetScriptDispatch(IDispatch** ppDispatch)
 	{
@@ -1505,7 +1598,7 @@ typedef CHtmlCtrlT<ATL::CWindow> CHtmlCtrl;
 ///////////////////////////////////////////////////////////////////////////////
 // CRichInkCtrl
 
-template< class TBase >
+template <class TBase>
 class CRichInkCtrlT : public TBase
 {
 public:
@@ -1524,7 +1617,7 @@ public:
 			ATL::_U_MENUorID MenuOrID = 0U, LPVOID lpCreateParam = NULL)
 	{
 		HWND hWnd = TBase::Create(GetWndClassName(), hWndParent, rect.m_lpRect, szWindowName, dwStyle, dwExStyle, MenuOrID.m_hMenu, lpCreateParam);
-		ATLASSERT(hWnd!=NULL);   // Did you remember to call InitRichInkDLL() ??
+		ATLASSERT(hWnd != NULL);   // Did you remember to call InitRichInkDLL() ??
 		return hWnd;
 	}
 
@@ -1598,7 +1691,7 @@ public:
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
 		if(cchLength == -1)
-			strLength = lstrlen(lpString);
+			cchLength = lstrlen(lpString);
 		::SendMessage(m_hWnd, EM_INSERTLINKS, (WPARAM)cchLength, (LPARAM)lpString);
 	}
 
@@ -1732,7 +1825,7 @@ typedef CRichInkCtrlT<ATL::CWindow> CRichInkCtrl;
 ///////////////////////////////////////////////////////////////////////////////
 // CInkXCtrl
 
-template< class TBase >
+template <class TBase>
 class CInkXCtrlT : public TBase
 {
 public:
@@ -1751,7 +1844,7 @@ public:
 			ATL::_U_MENUorID MenuOrID = 0U, LPVOID lpCreateParam = NULL)
 	{
 		HWND hWnd = TBase::Create(GetWndClassName(), hWndParent, rect.m_lpRect, szWindowName, dwStyle, dwExStyle, MenuOrID.m_hMenu, lpCreateParam);
-		ATLASSERT(hWnd!=NULL);   // Did you remember to call InitInkX() ??
+		ATLASSERT(hWnd != NULL);   // Did you remember to call InitInkX() ??
 		return hWnd;
 	}
 
@@ -1849,7 +1942,7 @@ typedef CInkXCtrlT<ATL::CWindow> CInkXCtrl;
 ///////////////////////////////////////////////////////////////////////////////
 // CVoiceRecorderCtrl
 
-template< class TBase >
+template <class TBase>
 class CVoiceRecorderCtrlT : public TBase
 {
 public:
@@ -1925,7 +2018,7 @@ typedef CVoiceRecorderCtrlT<ATL::CWindow> CVoiceRecorderCtrl;
 ///////////////////////////////////////////////////////////////////////////////
 // CDocListCtrl
 
-template< class TBase >
+template <class TBase>
 class CDocListCtrlT : public TBase
 {
 public:
@@ -2080,7 +2173,7 @@ public:
 	void SendIR(LPCTSTR pstrPath)
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
-		::SendMessage(m_hWnd, DLM_SENDIR, 0, (LPARM)pstrPath);
+		::SendMessage(m_hWnd, DLM_SENDIR, 0, (LPARAM)pstrPath);
 	}
 
 	HRESULT SetFilterIndex(int iIndex)
@@ -2109,7 +2202,7 @@ public:
 		LV_ITEM lvi = { 0 };
 		lvi.stateMask = uMask;
 		lvi.state = uState;
-		return (BOOL)::SendMessage(m_hWnd, DLM_SETITEMSTATE, (WPARAM)iIndex, (LPARAM)pItem);
+		return (BOOL)::SendMessage(m_hWnd, DLM_SETITEMSTATE, (WPARAM)iIndex, (LPARAM)&lvi);
 	}
 
 	void SetOneItem(int iIndex, LPCVOID pPA)
@@ -2171,7 +2264,7 @@ typedef CDocListCtrlT<ATL::CWindow> CDocListCtrl;
 ///////////////////////////////////////////////////////////////////////////////
 // CCapEdit
 
-template< class TBase >
+template <class TBase>
 class CCapEditT : public TBase
 {
 public:
@@ -2190,7 +2283,7 @@ public:
 			ATL::_U_MENUorID MenuOrID = 0U, LPVOID lpCreateParam = NULL)
 	{
 		HWND hWnd = /*TBase*/CWindow::Create(GetWndClassName(), hWndParent, rect.m_lpRect, szWindowName, dwStyle, dwExStyle, MenuOrID.m_hMenu, lpCreateParam);
-		ATLASSERT(hWnd!=NULL);   // Did you remember to call SHInitExtraControls() ??
+		ATLASSERT(hWnd != NULL);   // Did you remember to call SHInitExtraControls() ??
 		return hWnd;
 	}
 
@@ -2208,7 +2301,7 @@ typedef CCapEditT<WTL::CEdit> CCapEdit;
 
 #ifndef WIN32_PLATFORM_WFSP // Tooltips not supported on SmartPhone
 
-template< class TBase >
+template <class TBase>
 class CTTStaticT : public TBase
 {
 public:
@@ -2226,8 +2319,8 @@ public:
 			DWORD dwStyle = 0, DWORD dwExStyle = 0,
 			ATL::_U_MENUorID MenuOrID = 0U, LPVOID lpCreateParam = NULL)
 	{
-		HWND hWnd = TBase::Create(GetWndClassName(), hWndParent, rect.m_lpRect, szWindowName, dwStyle, dwExStyle, MenuOrID.m_hMenu, lpCreateParam);
-		ATLASSERT(hWnd!=NULL);   // Did you remember to call SHInitExtraControls() ??
+		HWND hWnd = TBase::Create(hWndParent, rect.m_lpRect, szWindowName, dwStyle, dwExStyle, MenuOrID.m_hMenu, lpCreateParam);
+		ATLASSERT(hWnd != NULL);   // Did you remember to call SHInitExtraControls() ??
 		return hWnd;
 	}
 
@@ -2242,8 +2335,8 @@ public:
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
 		ATLASSERT(pstrTipText);
-		ATLASSERT(lstrlen(pstrTipText)<=253);
-		LPTSTR pstr = _alloca((lstrlen(pstrTipText) + 3) * sizeof(TCHAR));
+		ATLASSERT(lstrlen(pstrTipText)<= 253);
+		LPTSTR pstr = (LPTSTR)_alloca((lstrlen(pstrTipText) + 3) * sizeof(TCHAR));
 		::lstrcpy(pstr, _T("~~"));
 		::lstrcat(pstr, pstrTipText);
 		return SetWindowText(pstr);
@@ -2256,7 +2349,7 @@ typedef CTTStaticT<WTL::CStatic> CTTStatic;
 ///////////////////////////////////////////////////////////////////////////////
 // CTTButton
 
-template< class TBase >
+template <class TBase>
 class CTTButtonT : public TBase
 {
 public:
@@ -2274,8 +2367,8 @@ public:
 			DWORD dwStyle = 0, DWORD dwExStyle = 0,
 			ATL::_U_MENUorID MenuOrID = 0U, LPVOID lpCreateParam = NULL)
 	{
-		HWND hWnd = TBase::Create(GetWndClassName(), hWndParent, rect.m_lpRect, szWindowName, dwStyle, dwExStyle, MenuOrID.m_hMenu, lpCreateParam);
-		ATLASSERT(hWnd!=NULL);   // Did you remember to call SHInitExtraControls() ??
+		HWND hWnd = TBase::Create(hWndParent, rect.m_lpRect, szWindowName, dwStyle, dwExStyle, MenuOrID.m_hMenu, lpCreateParam);
+		ATLASSERT(hWnd != NULL);   // Did you remember to call SHInitExtraControls() ??
 		return hWnd;
 	}
 
@@ -2290,8 +2383,8 @@ public:
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
 		ATLASSERT(pstrTipText);
-		ATLASSERT(lstrlen(pstrTipText)<=253);
-		LPTSTR pstr = _alloca((lstrlen(pstrTipText) + 3) * sizeof(TCHAR));
+		ATLASSERT(lstrlen(pstrTipText)<= 253);
+		LPTSTR pstr = (LPTSTR)_alloca((lstrlen(pstrTipText) + 3) * sizeof(TCHAR));
 		::lstrcpy(pstr, _T("~~"));
 		::lstrcat(pstr, pstrTipText);
 		return SetWindowText(pstr);
@@ -2311,11 +2404,11 @@ typedef CTTButtonT<WTL::CButton> CTTButton;
 // CSpinCtrlT - CSpinCtrl : SmartPhone adapted UpDown control
 
 template <class TBase>
-class CSpinCtrlT : public CUpDownCtrlT<TBase>
+class CSpinCtrlT : public CUpDownCtrlT< TBase >
 {
 public:
 // Constructors
-	CSpinCtrlT(HWND hWnd = NULL) : CUpDownCtrlT<TBase>(hWnd)
+	CSpinCtrlT(HWND hWnd = NULL) : CUpDownCtrlT< TBase >(hWnd)
 	{ }
 
 	CSpinCtrlT< TBase >& operator =(HWND hWnd)
@@ -2327,7 +2420,7 @@ public:
 	HWND Create(HWND hWndParent, HWND hBuddy, DWORD dwStyle, int nID, LPCTSTR szExpandedName = NULL)
 	{
 		ATLASSERT(::IsWindow(hWndParent));
-		CUpDownCtrlT<TBase>::Create(hWndParent, NULL, szExpandedName, dwStyle, 0, nID, NULL);
+		CUpDownCtrlT< TBase >::Create(hWndParent, NULL, szExpandedName, dwStyle, 0, nID, NULL);
 		ATLASSERT(m_hWnd != NULL);   // Did you remember to call AtlInitCommonControls(ICC_UPDOWN_CLASS)?
 		if (hBuddy != NULL)
 		{
@@ -2365,7 +2458,7 @@ public:
 			AttachOrCreateSpinCtrl();
 	}
 
-	CSpinned<TBase,t_bExpandOnly>& operator =(HWND hWnd)
+	CSpinned<TBase, t_bExpandOnly>& operator =(HWND hWnd)
 	{
 		Attach(hWnd);
 		return *this;
@@ -2436,10 +2529,10 @@ public:
 // CExpandEdit - SmartPhone expandable Edit control
 // CExpandCapEdit - SmartPhone expandable CapEdit control
 
-typedef CSpinned<CListBox,false>   CSpinListBox;
-typedef CSpinned<CListBox,true>    CExpandListBox;
-typedef CSpinned<CEdit,true>       CExpandEdit;
-typedef CSpinned<CCapEdit,true>    CExpandCapEdit;
+typedef CSpinned<CListBox, false>   CSpinListBox;
+typedef CSpinned<CListBox, true>    CExpandListBox;
+typedef CSpinned<CEdit, true>       CExpandEdit;
+typedef CSpinned<CCapEdit, true>    CExpandCapEdit;
 
 #endif // WIN32_PLATFORM_WFSP
 
