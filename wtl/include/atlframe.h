@@ -1284,6 +1284,17 @@ public:
 #endif //_WIN32_WCE
 	}
 
+#ifdef _WIN32_WCE
+	// CE specific variant that returns the handle of the toolbar
+	HWND CreateSimpleCEToolBar(UINT nResourceID = 0, DWORD dwStyle = ATL_SIMPLE_TOOLBAR_STYLE, UINT nID = ATL_IDW_TOOLBAR)
+	{
+		if(nResourceID == 0)
+			nResourceID = T::GetWndClassInfo().m_uCommonResourceID;
+
+		return T::CreateSimpleToolBarCtrl(m_hWndCECommandBar, nResourceID, TRUE, dwStyle, nID);
+	}
+#endif //_WIN32_WCE
+
 // message map and handlers
 	typedef CFrameWindowImplBase< TBase, TWinTraits >   _baseClass;
 
