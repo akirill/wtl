@@ -973,6 +973,10 @@ public:
 	LRESULT OnDestroy(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/)
 	{
 		LRESULT lRet = DefWindowProc(uMsg, wParam, lParam);
+
+		if(m_bAttachedMenu)   // nothing to do in this mode
+			return lRet;
+
 		CWindowCreateCriticalSectionLock lock;
 		if(FAILED(lock.Lock()))
 		{
