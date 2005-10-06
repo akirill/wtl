@@ -904,7 +904,7 @@ protected:
 	// implementation helpers
 	CStringData* GetData() const;
 	void Init();
-	void AllocCopy(CString& dest, int nCopyLen, int nCopyIndex, int nExtraLen) const;
+	BOOL AllocCopy(CString& dest, int nCopyLen, int nCopyIndex, int nExtraLen) const;
 	BOOL AllocBuffer(int nLen);
 	void AssignCopy(int nSrcLen, LPCTSTR lpszSrcData);
 	BOOL ConcatCopy(int nSrc1Len, LPCTSTR lpszSrc1Data, int nSrc2Len, LPCTSTR lpszSrc2Data);
@@ -1544,24 +1544,30 @@ inline CString::~CString()
 	}
 }
 
-inline void CString::AllocCopy(CString& dest, int nCopyLen, int nCopyIndex,
-	 int nExtraLen) const
+inline BOOL CString::AllocCopy(CString& dest, int nCopyLen, int nCopyIndex, int nExtraLen) const
 {
 	// will clone the data attached to this string
 	// allocating 'nExtraLen' characters
 	// Places results in uninitialized string 'dest'
 	// Will copy the part or all of original data to start of new string
 
+	BOOL bRet = FALSE;
 	int nNewLen = nCopyLen + nExtraLen;
 	if (nNewLen == 0)
 	{
 		dest.Init();
+		bRet = TRUE;
 	}
-	else
+	else if(nNewLen >= nCopyLen)
 	{
 		if(dest.AllocBuffer(nNewLen))
+		{
 			memcpy(dest.m_pchData, m_pchData + nCopyIndex, nCopyLen * sizeof(TCHAR));
+			bRet = TRUE;
+		}
 	}
+
+	return bRet;
 }
 
 inline CString::CString(LPCTSTR lpsz)
@@ -1702,8 +1708,7 @@ inline CString& CString::operator =(LPCWSTR lpsz)
 //          CString + ?
 //          ? + CString
 
-inline BOOL CString::ConcatCopy(int nSrc1Len, LPCTSTR lpszSrc1Data,
-	int nSrc2Len, LPCTSTR lpszSrc2Data)
+inline BOOL CString::ConcatCopy(int nSrc1Len, LPCTSTR lpszSrc1Data, int nSrc2Len, LPCTSTR lpszSrc2Data)
 {
   // -- master concatenation routine
   // Concatenate two sources
@@ -1711,7 +1716,11 @@ inline BOOL CString::ConcatCopy(int nSrc1Len, LPCTSTR lpszSrc1Data,
 
 	BOOL bRet = TRUE;
 	int nNewLen = nSrc1Len + nSrc2Len;
-	if (nNewLen != 0)
+	if(nNewLen < nSrc1Len || nNewLen < nSrc2Len)
+	{
+		bRet = FALSE;
+	}
+	else if(nNewLen != 0)
 	{
 		bRet = AllocBuffer(nNewLen);
 		if (bRet)
@@ -1884,7 +1893,7 @@ inline int CString::Find(TCHAR ch) const
 inline int CString::Find(TCHAR ch, int nStart) const
 {
 	int nLength = GetData()->nDataLength;
-	if (nStart >= nLength)
+	if (nStart < 0 || nStart >= nLength)
 		return -1;
 
 	// find first single character
@@ -1989,7 +1998,7 @@ inline CString::CString(LPCWSTR lpsz, int nLength)
 	Init();
 	if (nLength != 0)
 	{
-		if(AllocBuffer(nLength * 2))
+		if(((nLength * 2) > nLength) && AllocBuffer(nLength * 2))
 		{
 			int n = ::WideCharToMultiByte(CP_ACP, 0, lpsz, nLength, m_pchData, (nLength * 2) + 1, NULL, NULL);
 			ReleaseBuffer((n >= 0) ? n : -1);
@@ -2100,7 +2109,7 @@ inline int CString::Find(LPCTSTR lpszSub, int nStart) const
 	ATLASSERT(_IsValidString(lpszSub));
 
 	int nLength = GetData()->nDataLength;
-	if (nStart > nLength)
+	if (nStart < 0 || nStart > nLength)
 		return -1;
 
 	// find first matching substring
