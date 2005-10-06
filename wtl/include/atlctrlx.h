@@ -2789,6 +2789,7 @@ public:
 	HBITMAP m_hbmOldSortCol;
 	DWORD m_dwSortLVExtendedStyle;
 	ATL::CSimpleArray<WORD> m_arrColSortType;
+	bool m_bUseWaitCursor;
 	
 	CSortListViewImpl() :
 			m_bSortDescending(false),
@@ -2796,7 +2797,8 @@ public:
 			m_iSortColumn(-1), 
 			m_fmtOldSortCol(0),
 			m_hbmOldSortCol(NULL),
-			m_dwSortLVExtendedStyle(SORTLV_USESHELLBITMAPS)
+			m_dwSortLVExtendedStyle(SORTLV_USESHELLBITMAPS),
+			m_bUseWaitCursor(true)
 	{
 #ifndef _WIN32_WCE
 		DWORD dwMajor = 0;
@@ -2916,7 +2918,7 @@ public:
 	}
 
 // Operations
-	BOOL DoSortItems(int iCol, bool bDescending = false)
+	bool DoSortItems(int iCol, bool bDescending = false)
 	{
 		T* pT = static_cast<T*>(this);
 		ATLASSERT(::IsWindow(pT->m_hWnd));
@@ -2924,17 +2926,19 @@ public:
 
 		WORD wType = m_arrColSortType[iCol];
 		if(wType == LVCOLSORT_NONE)
-			return FALSE;
+			return false;
 
 		int nCount = pT->GetItemCount();
 		if(nCount < 2)
 		{
 			m_bSortDescending = bDescending;
 			SetSortColumn(iCol);
-			return TRUE;
+			return true;
 		}
 
-		CWaitCursor waitCursor;
+		CWaitCursor waitCursor(false);
+		if(m_bUseWaitCursor)
+			waitCursor.Set();
 
 		LVCompareParam* pParam = NULL;
 		ATLTRY(pParam = new LVCompareParam[nCount]);
@@ -3031,7 +3035,7 @@ public:
 
 		ATLASSERT(pFunc != NULL);
 		LVSortInfo lvsi = { pT, iCol, bDescending };
-		BOOL bRet = (BOOL)pT->DefWindowProc(LVM_SORTITEMS, (WPARAM)&lvsi, (LPARAM)pFunc);
+		bool bRet = ((BOOL)pT->DefWindowProc(LVM_SORTITEMS, (WPARAM)&lvsi, (LPARAM)pFunc) != FALSE);
 		for(int i = 0; i < nCount; i++)
 		{
 			DWORD_PTR dwItemData = pT->GetItemData(i);
@@ -3048,6 +3052,9 @@ public:
 			m_bSortDescending = bDescending;
 			SetSortColumn(iCol);
 		}
+
+		if(m_bUseWaitCursor)
+			waitCursor.Restore();
 
 		return bRet;
 	}
@@ -3114,7 +3121,7 @@ public:
 	{
 		T* pT = static_cast<T*>(this);
 		int nID = pT->GetDlgCtrlID();
-		NMSORTLISTVIEW nm = {{pT->m_hWnd, nID, SLVN_SORTCHANGED}, iNewSortCol, iOldSortCol};
+		NMSORTLISTVIEW nm = { { pT->m_hWnd, nID, SLVN_SORTCHANGED }, iNewSortCol, iOldSortCol };
 		::SendMessage(pT->GetParent(), WM_NOTIFY, (WPARAM)nID, (LPARAM)&nm);
 	}
 
@@ -3549,7 +3556,7 @@ class ATL_NO_VTABLE CSortListViewCtrlImpl: public ATL::CWindowImpl<T, TBase, TWi
 public:
 	DECLARE_WND_SUPERCLASS(NULL, TBase::GetWndClassName())
 
-	BOOL SortItems(int iCol, bool bDescending = false)
+	bool SortItems(int iCol, bool bDescending = false)
 	{
 		return DoSortItems(iCol, bDescending);
 	}
@@ -3561,7 +3568,6 @@ public:
 		NOTIFY_CODE_HANDLER(HDN_ITEMCLICKW, CSortListViewImpl<T>::OnHeaderItemClick)
 		MESSAGE_HANDLER(WM_SETTINGCHANGE, CSortListViewImpl<T>::OnSettingChange)
 	END_MSG_MAP()
-
 };
 
 class CSortListViewCtrl : public CSortListViewCtrlImpl<CSortListViewCtrl>
