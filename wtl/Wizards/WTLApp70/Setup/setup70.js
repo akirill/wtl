@@ -39,15 +39,23 @@ function main()
 		return;
 	}
 
-	var strVC7Key = "HKLM\\Software\\Microsoft\\VisualStudio\\7.0\\Setup\\VC\\ProductDir";
 	try
 	{
+		var strVC7Key = "HKLM\\Software\\Microsoft\\VisualStudio\\7.0\\Setup\\VC\\ProductDir";
 		strValue = WSShell.RegRead(strVC7Key);
 	}
 	catch(e)
 	{
-		WScript.Echo("ERROR: Cannot find where Visual Studio 7.0 is installed.");
-		return;
+		try
+		{
+			var strVC7Key_x64 = "HKLM\\Software\\Wow6432Node\\Microsoft\\VisualStudio\\7.0\\Setup\\VC\\ProductDir";
+			strValue = WSShell.RegRead(strVC7Key_x64);
+		}
+		catch(e)
+		{
+			WScript.Echo("ERROR: Cannot find where Visual Studio 7.0 is installed.");
+			return;
+		}
 	}
 
 	var strDestFolder = FileSys.BuildPath(strValue, "vcprojects");

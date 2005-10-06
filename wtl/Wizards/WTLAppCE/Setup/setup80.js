@@ -39,15 +39,23 @@ function main()
 		return;
 	}
 
-	var strVC8Key = "HKLM\\Software\\Microsoft\\VisualStudio\\8.0\\Setup\\VC\\ProductDir";
 	try
 	{
+		var strVC8Key = "HKLM\\Software\\Microsoft\\VisualStudio\\8.0\\Setup\\VC\\ProductDir";
 		strValue = WSShell.RegRead(strVC8Key);
 	}
 	catch(e)
 	{
-		WScript.Echo("ERROR: Cannot find where Visual Studio 8.0 is installed.");
-		return;
+		try
+		{
+			var strVC8Key_x64 = "HKLM\\Software\\Wow6432Node\\Microsoft\\VisualStudio\\8.0\\Setup\\VC\\ProductDir";
+			strValue = WSShell.RegRead(strVC8Key_x64);
+		}
+		catch(e)
+		{
+			WScript.Echo("ERROR: Cannot find where Visual Studio 8.0 is installed.");
+			return;
+		}
 	}
 
 	var strDestFolder = FileSys.BuildPath(strValue, "vcprojects");
