@@ -402,6 +402,9 @@ function OnAppType()
 		WTL_APPTYPE_DLG_MODAL_LABEL.disabled = false;
 
 		UIFeatures.className = "inactivelink";
+		var WizardVersion = window.external.FindSymbol('WIZARD_VERSION');
+		if(WizardVersion >= 8.0)
+			NextBtn.disabled = true;
 
 		window.external.AddSymbol("WTL_WAS_DLG", true);
 	}
@@ -414,6 +417,9 @@ function OnAppType()
 		if(window.external.FindSymbol("WTL_WAS_DLG"))
 		{
 			UIFeatures.className = "activelink";
+			var WizardVersion = window.external.FindSymbol('WIZARD_VERSION');
+			if(WizardVersion >= 8.0)
+				NextBtn.disabled = false;
 
 			window.external.AddSymbol("WTL_USE_TOOLBAR", true);
 			window.external.AddSymbol("WTL_USE_REBAR", true);
