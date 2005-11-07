@@ -11,8 +11,8 @@
 <table border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111" id="AutoNumber3">
   <tr>
     <td><font face="Arial"><b>Windows Template Library - WTL Version 7.5</b></font><font face="Arial" size="2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
-(build 5280) 10/07/05<br>
-	Beta1 Release</font></td>
+(build 5311) 11/07/05<br>
+	RC Release</font></td>
   </tr>
   <tr>
     <td><hr></td>
@@ -1527,15 +1527,351 @@ available in the previous release, WTL 7.1.</font></p>
 <p style=margin:0in>&nbsp;</p>
   <p style=margin:0in><font face="Arial" size="2">New and improved:</font></p>
 <blockquote style='margin-top:0in;margin-bottom:0in'>
-  <p style=margin:0in><font face="Arial" size="2">&lt;&lt; TODO: Add items &gt;&gt;</font></p>
+  <p style=margin:0in><font face="Arial" size="2">VS2005 Compatibility: 
+	Added support for Visual Studio 2005 - both desktop and Windows CE<br>
+	Classes for icons, cursors, accelerator tables<br>
+	CSortListViewImpl, CSortListViewCtrlImpl, and CSortListViewCtrl classes<br>
+	Impl classes for Wizard 97 style wizards: CWizard97Sheet, 
+	CWizard97Page, CWizard97ExteriorPage, CWizard97InteriorPage<br>
+	CMemoryDC and CDoubleBufferWindowImpl classes<br>
+	Windows CE specific classes in new header, atlwince.h<br>
+	CScrollContainer class<br>
+	CZoomScrollImpl and CZoomScrollWindowImpl classes<br>
+	CZoomPrintPreviewWindowImpl and CZoomPrintPreviewWindow classes<br>
+	Global functions: AtlGetBitmapResourceInfo, 
+	AtlGetBitmapResourceBitsPerPixel<br>
+	New REFLECT_* macros to enable selective reflection of messages<br>
+	App Wizard: Added App Wizard for VS2005<br>
+	App Wizard: Added App Wizard for Windows CE for VS2005<br>
+	New samples: WTLExplorer, ImageView, SPControls<br>
+&nbsp;</font></p>
 </blockquote>
-  <p style=margin:0in>&nbsp;</p>
   <p style=margin:0in><font face="Arial" size="2">Fixes and enhancements:</font></p>
   <blockquote style='margin-top:0in;margin-bottom:0in'>
-  <p style=margin:0in><font face="Arial" size="2">&lt;&lt; TODO: Add items &gt;&gt;</font></p>
+  <p style=margin:0in><font face="Arial" size="2">Command Bar:</font></p>
+	<ul style='margin-top:0in;margin-bottom:0in'>
+		<li>
+		<p style=margin:0in><font face="Arial" size="2">DrawBitmapDisabled() 
+		doesn't work correctly on Longhorn</font></p></li>
+		<li>
+		<p style=margin:0in><font face="Arial" size="2">Submenu size not correct if 
+	command bar is off-screen</font></p></li>
+		<li>
+		<p style=margin:0in><font face="Arial" size="2">Added handler for 
+	WM_SETTINGCHANGE to improve theme color changes</font></p></li>
+		<li>
+		<p style=margin:0in><font face="Arial" size="2">Better support for 
+	8/16/24-bit images</font></p></li>
+		<li>
+		<p style=margin:0in><font face="Arial" size="2">Command Bar with 2 Levels of 
+	submenus remains active</font></p></li>
+		<li>
+		<p style=margin:0in><font face="Arial" size="2">Hook procedure fails to call 
+	next hook</font></p></li>
+		<li>
+		<p style=margin:0in><font face="Arial" size="2">OnDestroy() should not 
+	decrement hook use if AttachToWindow() is used</font></p></li>
+	</ul>
+	<p style=margin:0in>&nbsp;</p>
+	<p style=margin:0in><font face="Arial" size="2">MDI Command Bar:</font></p>
+	<ul style='margin-top:0in;margin-bottom:0in'>
+		<li>
+		<p style=margin:0in><font face="Arial" size="2">Grows bigger if you 
+		switch between two maximized MDI child window types</font></p></li>
+		<li>
+		<p style=margin:0in><font face="Arial" size="2">Move all hook messages 
+		processing to a separate function and use pT</font></p></li>
+		<li>
+		<p style=margin:0in><font face="Arial" size="2">MDI icon &amp; buttons should 
+	have themed background</font></p></li>
+		<li>
+		<p style=margin:0in><font face="Arial" size="2">Should make MDI buttons gray 
+	when inactive<br>&nbsp;</font></p></li>
+	</ul>
+	<p style=margin:0in><font face="Arial" size="2">CString:</font></p>
+	<ul style='margin-top:0in;margin-bottom:0in'>
+		<li>
+		<p style=margin:0in><font face="Arial" size="2">Helper functions not 
+		overloaded properly</font></p></li>
+		<li>
+		<p style=margin:0in><font face="Arial" size="2">Some return types are 
+		'const CString&amp;' and could be just 'CString&amp;'</font></p></li>
+		<li>
+		<p style=margin:0in><font face="Arial" size="2">FormatV() passes size in 
+	characters to _alloca, should be in bytes</font></p></li>
+		<li>
+		<p style=margin:0in><font face="Arial" size="2">Fixed stack corruption in 
+	FormatV()</font></p></li>
+		<li>
+		<p style=margin:0in><font face="Arial" size="2">Improved boundaries checking 
+	for integer overflows/underflows<br>&nbsp;</font></p></li>
+	</ul>
+	<p style=margin:0in><font face="Arial" size="2">CScrollImpl:</font></p>
+	<ul style='margin-top:0in;margin-bottom:0in'>
+		<li>
+		<p style=margin:0in><font face="Arial" size="2">Scroll bars problem when 
+		changing range</font></p></li>
+		<li>
+		<p style=margin:0in><font face="Arial" size="2">SetScrollOffset() doesn't 
+	move child windows</font></p></li>
+		<li>
+		<p style=margin:0in><font face="Arial" size="2">Range and thumb drawing 
+	problems</font></p></li>
+		<li>
+		<p style=margin:0in><font face="Arial" size="2">Possible overflow in 
+	OnMouseWheel()</font></p></li>
+		<li>
+		<p style=margin:0in><font face="Arial" size="2">Support for 
+	SIF_DISABLENOSCROLL</font></p></li>
+		<li>
+		<p style=margin:0in><font face="Arial" size="2">Added ScrollToView methods</font></p>
+		</li>
+	</ul>
+	<p style=margin:0in>&nbsp;</p>
+	<p style=margin:0in><font face="Arial" size="2">CMapScrollImpl:</font></p>
+	<ul style='margin-top:0in;margin-bottom:0in'>
+		<li>
+		<p style=margin:0in><font face="Arial" size="2">SetScrollSize() incorrectly 
+	inverts xMin and xMax</font></p></li>
+		<li>
+		<p style=margin:0in><font face="Arial" size="2">SetScrollSize() uses bRedraw 
+	= NULL</font></p></li>
+	</ul>
+	<p style=margin:0in>&nbsp;</p>
+	<p style=margin:0in><font face="Arial" size="2">CTheme:</font></p>
+	<ul style='margin-top:0in;margin-bottom:0in'>
+		<li>
+		<p style=margin:0in><font face="Arial" size="2">GetThemeFont() bad parameter 
+	ordering</font></p></li>
+		<li>
+		<p style=margin:0in><font face="Arial" size="2">Uses LOGFONT and TEXTMETRIC 
+	incorrectly (SDK header problem)</font></p></li>
+	</ul>
+	<p style=margin:0in>&nbsp;</p>
+	<p style=margin:0in><font face="Arial" size="2">CFrameWindowImpl:</font></p>
+	<ul style='margin-top:0in;margin-bottom:0in'>
+		<li>
+		<p style=margin:0in><font face="Arial" size="2">Improved sizing for Windows 
+	CE</font></p></li>
+		<li>
+		<p style=margin:0in><font face="Arial" size="2">CreateSimpleToolBarCtrl() 
+	should handle 24-bit bitmaps</font></p></li>
+		<li>
+		<p style=margin:0in><font face="Arial" size="2">Changed WinCE 
+	CCECommandBarCtrl typedef and added a PPC CMenuBarCtrl</font></p></li>
+		<li>
+		<p style=margin:0in><font face="Arial" size="2">UpdatesBarPosition() doesn't 
+	take Windows CE command bar into account</font></p></li>
+	</ul>
+	<p style=margin:0in>&nbsp;</p>
+	<p style=margin:0in><font face="Arial" size="2">CDialogResize:</font></p>
+	<ul style='margin-top:0in;margin-bottom:0in'>
+		<li>
+		<p style=margin:0in><font face="Arial" size="2">Enabled use for Windows CE</font></p>
+		</li>
+		<li>
+		<p style=margin:0in><font face="Arial" size="2">Add WS_EX_DLGMODALFRAME to 
+	prevent empty icon</font></p></li>
+	</ul>
+	<p style=margin:0in>&nbsp;</p>
+	<p style=margin:0in><font face="Arial" size="2">CReBarCtrl:</font></p>
+	<ul style='margin-top:0in;margin-bottom:0in'>
+		<li>
+		<p style=margin:0in><font face="Arial" size="2">Background not painted when 
+	resized</font></p></li>
+		<li>
+		<p style=margin:0in><font face="Arial" size="2">Fixed typo in LockBands()</font></p>
+		</li>
+		<li>
+		<p style=margin:0in><font face="Arial" size="2">MaximizeBand needs BOOL 
+	fIdeal argument</font></p></li>
+	</ul>
+	<p style=margin:0in>&nbsp;</p>
+	<p style=margin:0in><font face="Arial" size="2">CRichEdit:</font></p>
+	<ul style='margin-top:0in;margin-bottom:0in'>
+		<li>
+		<p style=margin:0in><font face="Arial" size="2">GetSelText() should 
+		support UNICODE strings</font></p>
+		</li>
+		<li>
+		<p style=margin:0in><font face="Arial" size="2">GetSelText() uses lpstr instead of lpstrText</font></p></li>
+	</ul>
+  <p style=margin:0in>&nbsp;</p>
+	<p style=margin:0in><font face="Arial" size="2">CHyperLink:</font></p>
+	<ul style='margin-top:0in;margin-bottom:0in'>
+		<li>
+		<p style=margin:0in><font face="Arial" size="2">Added _xttoi() helper to 
+	avoid CRT in _ATL_MIN_CRT</font></p></li>
+		<li>
+		<p style=margin:0in><font face="Arial" size="2">Fixed resource leak by 
+	destroying tooltip window<br>&nbsp;</font></p></li>
+	</ul>
+	<p style=margin:0in><font face="Arial" size="2">CPropertySheetImpl:</font></p>
+	<ul style='margin-top:0in;margin-bottom:0in'>
+		<li>
+		<p style=margin:0in><font face="Arial" size="2">Improved support for Windows 
+	CE</font></p></li>
+		<li>
+		<p style=margin:0in><font face="Arial" size="2">Sheet without title 
+	generates a memory fault on Windows CE</font></p></li>
+	</ul>
+	<p style=margin:0in>&nbsp;</p>
+	<p style=margin:0in><font face="Arial" size="2">CFolderDialog:</font></p>
+	<ul style='margin-top:0in;margin-bottom:0in'>
+		<li>
+		<p style=margin:0in><font face="Arial" size="2">Add a way to set an initial 
+	folder</font></p></li>
+		<li>
+		<p style=margin:0in><font face="Arial" size="2">Uses BFFM_IUNKNOWN which is 
+	not always defined</font></p></li>
+	</ul>
+	<p style=margin:0in>&nbsp;</p>
+	<p style=margin:0in><font face="Arial" size="2">Update UI:</font></p>
+	<ul style='margin-top:0in;margin-bottom:0in'>
+		<li>
+		<p style=margin:0in><font face="Arial" size="2">Add support to 
+		dynamically add UpdateUI elements</font></p></li>
+		<li>
+		<p style=margin:0in><font face="Arial" size="2">UIUpdateMenuBarElement() 
+		should use EnableMenu() instead of SetMenuItemInfo() for Windows CE</font></p>
+		</li>
+	</ul>
+	<p style=margin:0in>&nbsp;</p>
+	<p style=margin:0in><font face="Arial" size="2">CDC:</font></p>
+	<ul style='margin-top:0in;margin-bottom:0in'>
+		<li>
+		<p style=margin:0in><font face="Arial" size="2">FillSolidRect() should 
+		restore background color</font></p></li>
+		<li>
+		<p style=margin:0in><font face="Arial" size="2">GetClipRgn() method 
+		missing</font></p></li>
+	</ul>
+	<p style=margin:0in>&nbsp;</p>
+	<p style=margin:0in><font face="Arial" size="2">Printing:</font></p>
+	<ul style='margin-top:0in;margin-bottom:0in'>
+		<li>
+		<p style=margin:0in><font face="Arial" size="2">
+		CPrinter::CreatePrinterDC() and CreatePrinterIC() members should be 
+		const</font></p></li>
+		<li>
+		<p style=margin:0in><font face="Arial" size="2">CDevMode::CopyToHDEVMODE() is missing a call to GlobalUnlock()</font></p>
+		</li>
+	</ul>
+  <p style=margin:0in>&nbsp;</p>
+	<p style=margin:0in><font face="Arial" size="2">AppWizard:</font></p>
+	<ul style='margin-top:0in;margin-bottom:0in'>
+		<li>
+		<p style=margin:0in><font face="Arial" size="2">Use WTL subfolder to 
+		create WTL category for VC7.x and VC8</font></p></li>
+		<li>
+		<p style=margin:0in><font face="Arial" size="2">Rename files from 
+		WTLApp7x to WTLAppWiz, and add VS2005 setup file</font></p></li>
+		<li>
+		<p style=margin:0in><font face="Arial" size="2">Fixed setup 
+		for x64</font></p></li>
+	</ul>
+  <p style=margin:0in>&nbsp;</p>
+	<p style=margin:0in><font face="Arial" size="2">General:</font></p>
+	<ul style='margin-top:0in;margin-bottom:0in'>
+		<li>
+		<p style=margin:0in><font face="Arial" size="2">Redefinition of _MAX_FNAME 
+		with Dinkumware Standard C++ Library on Windows CE</font></p></li>
+		<li>
+		<p style=margin:0in><font face="Arial" size="2">Added ATLVERIFY macro 
+		for ATL3</font></p></li>
+		<li>
+		<p style=margin:0in><font face="Arial" size="2">Support warning level 4</font></p>
+		</li>
+		<li>
+		<p style=margin:0in><font face="Arial" size="2">Missing methods 
+		CToolBarCtrl::SetButtonInfo, InsertButton, CTabCtrl::SetItem, 
+		CComboBoxEx::InsertItem, SetItem</font></p></li>
+		<li>
+		<p style=margin:0in><font face="Arial" size="2">Missing support for 
+		WM_PRINTCLIENT</font></p></li>
+		<li>
+		<p style=margin:0in><font face="Arial" size="2">Removed usage of IsBad* 
+		functions</font></p></li>
+		<li>
+		<p style=margin:0in><font face="Arial" size="2">Fixed various compiler 
+		warnings</font></p></li>
+		<li>
+		<p style=margin:0in><font face="Arial" size="2">TCHAR bugs in various 
+		files</font></p></li>
+		<li>
+		<p style=margin:0in><font face="Arial" size="2">Improved Windows CE support and changes for Visual Studio 2005</font></p></li>
+	</ul>
+	<p style=margin:0in>&nbsp;</p>
+	<p style=margin:0in><font face="Arial" size="2">Misc:</font></p>
+	<ul style='margin-top:0in;margin-bottom:0in'>
+		<li>
+		<p style=margin:0in><font face="Arial" size="2">CMDIChildWindowImpl: 
+		HMENU should be destroyed in OnDestroy()</font></p>
+		</li>
+		<li>
+		<p style=margin:0in><font face="Arial" size="2">CStatic: Should use 
+		STM_SETIMAGE instead of STM_SETICON for SetIcon() on Windows CE</font></p>
+		</li>
+		<li>
+		<p style=margin:0in><font face="Arial" size="2">CButton: GetButtonStyle() 
+		uses wrong mask</font></p></li>
+		<li>
+		<p style=margin:0in><font face="Arial" size="2">CImageList: Made 
+		Duplicate() method const</font></p></li>
+		<li>
+		<p style=margin:0in><font face="Arial" size="2">CListViewCtrl: Made 
+		SubItemHitTest() method const</font></p></li>
+		<li>
+		<p style=margin:0in><font face="Arial" size="2">CTreeViewCtrl: GetItem() 
+		and SetItem() incorrectly restricted to _WIN32_IE &gt;= 0x0500</font></p>
+		</li>
+		<li>
+		<p style=margin:0in><font face="Arial" size="2">CMonthCalendarCtrl: 
+		GetMonthRange() should be GetMaxTodayWidth()</font></p></li>
+		<li>
+		<p style=margin:0in><font face="Arial" size="2">CDateTimePickerCtrl: 
+		SetFormat() should have const argument</font></p></li>
+		<li>
+		<p style=margin:0in><font face="Arial" size="2">CBitmapButtonImpl: Fixed 
+		resource leak by destroying tooltip window</font></p></li>
+		<li>
+		<p style=margin:0in><font face="Arial" size="2">
+		CMultiPaneStatusBarCtrlImpl: Cannot handle wide panes without resource 
+		strings</font></p></li>
+		<li>
+		<p style=margin:0in><font face="Arial" size="2">CCheckListViewCtrlImpl: 
+		Call CheckSelectedItems() through pT</font></p></li>
+		<li>
+		<p style=margin:0in><font face="Arial" size="2">CPaneContainerImpl: 
+		SetPaneContainerExtendedStyle() should use pT to call CalcSize()</font></p></li>
+		<li>
+		<p style=margin:0in><font face="Arial" size="2">CFindFile: Enabled for 
+		Windows CE</font></p></li>
+		<li>
+		<p style=margin:0in><font face="Arial" size="2">CPropertyPageImpl: Added 
+		handlers for callback messages</font></p></li>
+		<li>
+		<p style=margin:0in><font face="Arial" size="2">atlcrack.h: Added return 
+		value for MSG_WM_APPCOMMAND</font></p></li>
+		<li>
+		<p style=margin:0in><font face="Arial" size="2">CMenu: New method variants: AppendMenu, InsterMenu, ModifyMenu</font></p></li>
+		<li>
+		<p style=margin:0in><font face="Arial" size="2">CFont: Added arguments 
+		for bold and italic to CreatePointFont()</font></p></li>
+		<li>
+		<p style=margin:0in><font face="Arial" size="2">CSize: Added scalar 
+		operators for WTL::CSize and ATL::CSize</font></p></li>
+		<li>
+		<p style=margin:0in><font face="Arial" size="2">CRecentDocumentList: 
+		Allow changing the &quot;DocumentCount&quot; and &quot;Document%i&quot; registry values 
+		strings</font></p></li>
+		<li>
+		<p style=margin:0in><font face="Arial" size="2">CSplitterWindowImpl: 
+		Enabled use for Windows CE</font></p></li>
+	</ul>
   </blockquote>
-<p style=margin:0in>&nbsp;</p>
-<p style=margin:0in>&nbsp;</p>
+<p style=margin:0in><br>
+&nbsp;</p>
 <p style=margin:0in><b><font face="Arial">
 <a name="Changes Between WTL 7.1 And 7.0"></a>Changes Between WTL 7.1 And 7.0</font></b></p>
 <p style=margin:0in>&nbsp;</p>
