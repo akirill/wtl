@@ -61,7 +61,7 @@ public:
 #else // CE specific
 	enum { cchAutoName = MAX_PATH };   // MAX_PATH because this can be set in the wizard generated CMainFrame::ActivatePreviousInstance to a user defined string.
 	WNDCLASS m_wc;
-#endif //!_WIN32_WCE
+#endif // !_WIN32_WCE
 	LPCTSTR m_lpszOrigName;
 	WNDPROC pWndProc;
 	LPCTSTR m_lpszCursorID;
@@ -87,9 +87,9 @@ public:
 			{
 #if (_ATL_VER >= 0x0700)
 				HINSTANCE hInst = ATL::_AtlBaseModule.GetModuleInstance();
-#else //!(_ATL_VER >= 0x0700)
+#else // !(_ATL_VER >= 0x0700)
 				HINSTANCE hInst = _Module.GetModuleInstance();
-#endif //!(_ATL_VER >= 0x0700)
+#endif // !(_ATL_VER >= 0x0700)
 				if (m_lpszOrigName != NULL)
 				{
 					ATLASSERT(pProc != NULL);
@@ -101,9 +101,9 @@ public:
 					// try process local class first
 #if (_ATL_VER >= 0x0700)
 					if(!::GetClassInfoEx(ATL::_AtlBaseModule.GetModuleInstance(), m_lpszOrigName, &wc))
-#else //!(_ATL_VER >= 0x0700)
+#else // !(_ATL_VER >= 0x0700)
 					if(!::GetClassInfoEx(_Module.GetModuleInstance(), m_lpszOrigName, &wc))
-#endif //!(_ATL_VER >= 0x0700)
+#endif // !(_ATL_VER >= 0x0700)
 					{
 						// try global class
 						if(!::GetClassInfoEx(NULL, m_lpszOrigName, &wc))
@@ -144,10 +144,10 @@ public:
 #if (_ATL_VER >= 0x0700)
 						m_wc.hIcon = (HICON)::LoadImage(ATL::_AtlBaseModule.GetResourceInstance(), MAKEINTRESOURCE(m_uCommonResourceID), IMAGE_ICON, 32, 32, LR_DEFAULTCOLOR);
 						m_wc.hIconSm = (HICON)::LoadImage(ATL::_AtlBaseModule.GetResourceInstance(), MAKEINTRESOURCE(m_uCommonResourceID), IMAGE_ICON, 16, 16, LR_DEFAULTCOLOR);
-#else //!(_ATL_VER >= 0x0700)
+#else // !(_ATL_VER >= 0x0700)
 						m_wc.hIcon = (HICON)::LoadImage(_Module.GetResourceInstance(), MAKEINTRESOURCE(m_uCommonResourceID), IMAGE_ICON, 32, 32, LR_DEFAULTCOLOR);
 						m_wc.hIconSm = (HICON)::LoadImage(_Module.GetResourceInstance(), MAKEINTRESOURCE(m_uCommonResourceID), IMAGE_ICON, 16, 16, LR_DEFAULTCOLOR);
-#endif //!(_ATL_VER >= 0x0700)
+#endif // !(_ATL_VER >= 0x0700)
 					}
 					m_atom = ::RegisterClassEx(&m_wc);
 				}
@@ -207,9 +207,9 @@ public:
 				{
 #if defined(GWES_CURSOR) || defined(GWES_MCURSOR)
 					m_wc.hCursor = ::LoadCursor(m_bSystemCursor ? NULL : hInst, m_lpszCursorID);
-#else //!(defined(GWES_CURSOR) || defined(GWES_MCURSOR))
+#else // !(defined(GWES_CURSOR) || defined(GWES_MCURSOR))
 					m_wc.hCursor = NULL;
-#endif //!(defined(GWES_CURSOR) || defined(GWES_MCURSOR))
+#endif // !(defined(GWES_CURSOR) || defined(GWES_MCURSOR))
 				}
 
 				m_wc.hInstance = hInst;
@@ -243,7 +243,7 @@ public:
 
 		return m_atom;
 	}
-#endif //_WIN32_WCE
+#endif // _WIN32_WCE
 };
 
 
@@ -326,7 +326,7 @@ static CFrameWndClassInfo& GetWndClassInfo() \
 	return wc; \
 }
 
-#endif //!_WIN32_WCE
+#endif // !_WIN32_WCE
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -350,7 +350,7 @@ static CFrameWndClassInfo& GetWndClassInfo() \
 #else
   #define ATL_SIMPLE_REBAR_STYLE \
 	(WS_CHILD | WS_VISIBLE | WS_BORDER | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | RBS_VARHEIGHT | RBS_BANDBORDERS)
-#endif //!(_WIN32_IE >= 0x0400)
+#endif // !(_WIN32_IE >= 0x0400)
 // rebar without borders
 #if (_WIN32_IE >= 0x0400)
   #define ATL_SIMPLE_REBAR_NOBORDER_STYLE \
@@ -358,7 +358,7 @@ static CFrameWndClassInfo& GetWndClassInfo() \
 #else
   #define ATL_SIMPLE_REBAR_NOBORDER_STYLE \
 	(WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | RBS_VARHEIGHT | RBS_BANDBORDERS | CCS_NODIVIDER)
-#endif //!(_WIN32_IE >= 0x0400)
+#endif // !(_WIN32_IE >= 0x0400)
 
 // command bar support
 #if !defined(__ATLCTRLW_H__) && !defined(_WIN32_WCE)
@@ -379,7 +379,7 @@ struct _AtlFrameWnd_CmdBarPopupMenu
 
 #define CBRPOPUPMENU _AtlFrameWnd_CmdBarPopupMenu
 
-#endif //!defined(__ATLCTRLW_H__) && !defined(_WIN32_WCE)
+#endif // !defined(__ATLCTRLW_H__) && !defined(_WIN32_WCE)
 
 
 template <class TBase = ATL::CWindow, class TWinTraits = ATL::CFrameWinTraits>
@@ -397,7 +397,7 @@ public:
 
 #ifdef _WIN32_WCE
 	HWND m_hWndCECommandBar;
-#endif //_WIN32_WCE
+#endif // _WIN32_WCE
 
 	struct _AtlToolBarData
 	{
@@ -418,13 +418,13 @@ public:
 		LPNMREBARCHEVRON lpnm;
 		bool bCmdBar;
 	};
-#endif //(_WIN32_IE >= 0x0500) && !defined(_WIN32_WCE)
+#endif // (_WIN32_IE >= 0x0500) && !defined(_WIN32_WCE)
 
 // Constructor
 	CFrameWindowImplBase() : 
 #ifdef _WIN32_WCE
 		m_hWndCECommandBar(NULL),
-#endif //_WIN32_WCE
+#endif // _WIN32_WCE
 		m_hWndToolBar(NULL), 
 		m_hWndStatusBar(NULL), 
 		m_hWndClient(NULL), 
@@ -441,9 +441,9 @@ public:
 
 #if (_ATL_VER >= 0x0700)
 		ATL::_AtlWinModule.AddCreateWndData(&m_thunk.cd, this);
-#else //!(_ATL_VER >= 0x0700)
+#else // !(_ATL_VER >= 0x0700)
 		_Module.AddCreateWndData(&m_thunk.cd, this);
-#endif //!(_ATL_VER >= 0x0700)
+#endif // !(_ATL_VER >= 0x0700)
 
 		if(MenuOrID.m_hMenu == NULL && (dwStyle & WS_CHILD))
 			MenuOrID.m_hMenu = (HMENU)(UINT_PTR)this;
@@ -455,12 +455,12 @@ public:
 			dwStyle, rect.m_lpRect->left, rect.m_lpRect->top, rect.m_lpRect->right - rect.m_lpRect->left,
 			rect.m_lpRect->bottom - rect.m_lpRect->top, hWndParent, MenuOrID.m_hMenu,
 			ATL::_AtlBaseModule.GetModuleInstance(), lpCreateParam);
-#else //!(_ATL_VER >= 0x0700)
+#else // !(_ATL_VER >= 0x0700)
 		HWND hWnd = ::CreateWindowEx(dwExStyle, MAKEINTATOM(atom), szWindowName,
 			dwStyle, rect.m_lpRect->left, rect.m_lpRect->top, rect.m_lpRect->right - rect.m_lpRect->left,
 			rect.m_lpRect->bottom - rect.m_lpRect->top, hWndParent, MenuOrID.m_hMenu,
 			_Module.GetModuleInstance(), lpCreateParam);
-#endif //!(_ATL_VER >= 0x0700)
+#endif // !(_ATL_VER >= 0x0700)
 
 		ATLASSERT(hWnd == NULL || m_hWnd == hWnd);
 
@@ -472,9 +472,9 @@ public:
 	{
 #if (_ATL_VER >= 0x0700)
 		HINSTANCE hInst = ATL::_AtlBaseModule.GetResourceInstance();
-#else //!(_ATL_VER >= 0x0700)
+#else // !(_ATL_VER >= 0x0700)
 		HINSTANCE hInst = _Module.GetResourceInstance();
-#endif //!(_ATL_VER >= 0x0700)
+#endif // !(_ATL_VER >= 0x0700)
 		HRSRC hRsrc = ::FindResource(hInst, MAKEINTRESOURCE(nResourceID), RT_TOOLBAR);
 		if (hRsrc == NULL)
 			return NULL;
@@ -532,10 +532,10 @@ public:
 #if (_ATL_VER >= 0x0700)
 		HWND hWnd = ::CreateWindowEx(0, TOOLBARCLASSNAME, NULL, dwStyle, 0,0,100,100,
 				hWndParent, (HMENU)LongToHandle(nID), ATL::_AtlBaseModule.GetModuleInstance(), NULL);
-#else //!(_ATL_VER >= 0x0700)
+#else // !(_ATL_VER >= 0x0700)
 		HWND hWnd = ::CreateWindowEx(0, TOOLBARCLASSNAME, NULL, dwStyle, 0,0,100,100,
 				hWndParent, (HMENU)LongToHandle(nID), _Module.GetModuleInstance(), NULL);
-#endif //!(_ATL_VER >= 0x0700)
+#endif // !(_ATL_VER >= 0x0700)
 		if(hWnd == NULL)
 		{
 			ATLASSERT(FALSE);
@@ -546,7 +546,7 @@ public:
 		nID;
 		// The toolbar must go onto the existing CommandBar or MenuBar
 		HWND hWnd = hWndParent;
-#endif //_WIN32_WCE
+#endif // _WIN32_WCE
 
 		::SendMessage(hWnd, TB_BUTTONSTRUCTSIZE, sizeof(TBBUTTON), 0L);
 
@@ -570,14 +570,14 @@ public:
 			}
 #if (_ATL_VER >= 0x0700)
 			HIMAGELIST hImageList = ImageList_LoadImage(ATL::_AtlBaseModule.GetResourceInstance(), MAKEINTRESOURCE(nResourceID), pData->wWidth, 1, crMask, IMAGE_BITMAP, LR_CREATEDIBSECTION | LR_DEFAULTSIZE);
-#else //!(_ATL_VER >= 0x0700)
+#else // !(_ATL_VER >= 0x0700)
 			HIMAGELIST hImageList = ImageList_LoadImage(_Module.GetResourceInstance(), MAKEINTRESOURCE(nResourceID), pData->wWidth, 1, crMask, IMAGE_BITMAP, LR_CREATEDIBSECTION | LR_DEFAULTSIZE);
-#endif //!(_ATL_VER >= 0x0700)
+#endif // !(_ATL_VER >= 0x0700)
 			ATLASSERT(hImageList != NULL);
 			::SendMessage(hWnd, TB_SETIMAGELIST, 0, (LPARAM)hImageList);
 		}
 		else
-#endif //!_WIN32_WCE
+#endif // !_WIN32_WCE
 		{
 			TBADDBITMAP tbab = { 0 };
 			tbab.hInst = hInst;
@@ -605,9 +605,9 @@ public:
 		// Create rebar window
 #if (_ATL_VER >= 0x0700)
 		HWND hWndReBar = ::CreateWindowEx(0, REBARCLASSNAME, NULL, dwStyle, 0, 0, 100, 100, hWndParent, (HMENU)LongToHandle(nID), ATL::_AtlBaseModule.GetModuleInstance(), NULL);
-#else //!(_ATL_VER >= 0x0700)
+#else // !(_ATL_VER >= 0x0700)
 		HWND hWndReBar = ::CreateWindowEx(0, REBARCLASSNAME, NULL, dwStyle, 0, 0, 100, 100, hWndParent, (HMENU)LongToHandle(nID), _Module.GetModuleInstance(), NULL);
-#endif //!(_ATL_VER >= 0x0700)
+#endif // !(_ATL_VER >= 0x0700)
 		if(hWndReBar == NULL)
 		{
 			ATLTRACE2(atlTraceUI, 0, _T("Failed to create rebar.\n"));
@@ -645,7 +645,7 @@ public:
 			::GetClassName(hWndReBar, lpszClassName, sizeof(REBARCLASSNAME));
 			ATLASSERT(lstrcmp(lpszClassName, REBARCLASSNAME) == 0);
 		}
-#endif //_DEBUG
+#endif // _DEBUG
 		ATLASSERT(::IsWindow(hWndBand));   // must be already created
 
 		// Get number of buttons on the toolbar
@@ -658,14 +658,14 @@ public:
 		rbBand.fMask = RBBIM_CHILD | RBBIM_CHILDSIZE | RBBIM_STYLE | RBBIM_ID | RBBIM_SIZE | RBBIM_IDEALSIZE;
 #else
 		rbBand.fMask = RBBIM_CHILD | RBBIM_CHILDSIZE | RBBIM_STYLE | RBBIM_ID | RBBIM_SIZE;
-#endif //!(_WIN32_IE >= 0x0400)
+#endif // !(_WIN32_IE >= 0x0400)
 		if(lpstrTitle != NULL)
 			rbBand.fMask |= RBBIM_TEXT;
 		rbBand.fStyle = RBBS_CHILDEDGE;
 #if (_WIN32_IE >= 0x0500)
 		if(nBtnCount > 0)   // add chevron style for toolbar with buttons
 			rbBand.fStyle |= RBBS_USECHEVRON;
-#endif //(_WIN32_IE >= 0x0500)
+#endif // (_WIN32_IE >= 0x0500)
 		if(bNewRow)
 			rbBand.fStyle |= RBBS_BREAK;
 
@@ -710,7 +710,7 @@ public:
 
 #if (_WIN32_IE >= 0x0400)
 		rbBand.cxIdeal = rbBand.cx;
-#endif //(_WIN32_IE >= 0x0400)
+#endif // (_WIN32_IE >= 0x0400)
 
 		// Add the band
 		LRESULT lRes = ::SendMessage(hWndReBar, RB_INSERTBAND, (WPARAM)-1, (LPARAM)&rbBand);
@@ -723,7 +723,7 @@ public:
 #if (_WIN32_IE >= 0x0501)
 		DWORD dwExStyle = (DWORD)::SendMessage(hWndBand, TB_GETEXTENDEDSTYLE, 0, 0L);
 		::SendMessage(hWndBand, TB_SETEXTENDEDSTYLE, 0, dwExStyle | TBSTYLE_EX_HIDECLIPPEDBUTTONS);
-#endif //(_WIN32_IE >= 0x0501)
+#endif // (_WIN32_IE >= 0x0501)
 
 		return TRUE;
 	}
@@ -756,14 +756,14 @@ public:
 			ATLASSERT(bRet);
 		}
 	}
-#endif //(_WIN32_IE >= 0x0400)
+#endif // (_WIN32_IE >= 0x0400)
 #endif // _WIN32_WCE
 
 #ifndef _WIN32_WCE
 	BOOL CreateSimpleStatusBar(LPCTSTR lpstrText, DWORD dwStyle = WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | SBARS_SIZEGRIP, UINT nID = ATL_IDW_STATUS_BAR)
 #else // CE specific
 	BOOL CreateSimpleStatusBar(LPCTSTR lpstrText, DWORD dwStyle = WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS, UINT nID = ATL_IDW_STATUS_BAR)
-#endif //_WIN32_WCE
+#endif // _WIN32_WCE
 	{
 		ATLASSERT(!::IsWindow(m_hWndStatusBar));
 		m_hWndStatusBar = ::CreateStatusWindow(dwStyle, lpstrText, m_hWnd, nID);
@@ -774,16 +774,16 @@ public:
 	BOOL CreateSimpleStatusBar(UINT nTextID = ATL_IDS_IDLEMESSAGE, DWORD dwStyle = WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | SBARS_SIZEGRIP, UINT nID = ATL_IDW_STATUS_BAR)
 #else // CE specific
 	BOOL CreateSimpleStatusBar(UINT nTextID = ATL_IDS_IDLEMESSAGE, DWORD dwStyle = WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS, UINT nID = ATL_IDW_STATUS_BAR)
-#endif //_WIN32_WCE
+#endif // _WIN32_WCE
 	{
 		const int cchMax = 128;   // max text length is 127 for status bars (+1 for null)
 		TCHAR szText[cchMax];
 		szText[0] = 0;
 #if (_ATL_VER >= 0x0700)
 		::LoadString(ATL::_AtlBaseModule.GetResourceInstance(), nTextID, szText, cchMax);
-#else //!(_ATL_VER >= 0x0700)
+#else // !(_ATL_VER >= 0x0700)
 		::LoadString(_Module.GetResourceInstance(), nTextID, szText, cchMax);
-#endif //!(_ATL_VER >= 0x0700)
+#endif // !(_ATL_VER >= 0x0700)
 		return CreateSimpleStatusBar(szText, dwStyle, nID);
 	}
 
@@ -846,8 +846,8 @@ public:
 		int cy = ::IsWindowVisible(m_hWndCECommandBar) ? rectMB.top - rect.top : rectMB.bottom - rect.top;
 		SetWindowPos(NULL, 0, 0, rect.right - rect.left, cy, SWP_NOZORDER | SWP_NOMOVE);
 	}
-#endif //defined(_AYGSHELL_H_) || defined(__AYGSHELL_H__)
-#endif //_WIN32_WCE
+#endif // defined(_AYGSHELL_H_) || defined(__AYGSHELL_H__)
+#endif // _WIN32_WCE
 
 	void UpdateLayout(BOOL bResizeBars = TRUE)
 	{
@@ -901,13 +901,13 @@ public:
 		MESSAGE_HANDLER(WM_ERASEBKGND, OnEraseBackground)
 #ifndef _WIN32_WCE
 		MESSAGE_HANDLER(WM_MENUSELECT, OnMenuSelect)
-#endif //!_WIN32_WCE
+#endif // !_WIN32_WCE
 		MESSAGE_HANDLER(WM_SETFOCUS, OnSetFocus)
 		MESSAGE_HANDLER(WM_DESTROY, OnDestroy)
 #ifndef _WIN32_WCE
 		NOTIFY_CODE_HANDLER(TTN_GETDISPINFOA, OnToolTipTextA)
 		NOTIFY_CODE_HANDLER(TTN_GETDISPINFOW, OnToolTipTextW)
-#endif //!_WIN32_WCE
+#endif // !_WIN32_WCE
 	END_MSG_MAP()
 
 	LRESULT OnEraseBackground(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
@@ -950,9 +950,9 @@ public:
 
 #if (_ATL_VER >= 0x0700)
 				int nRet = ::LoadString(ATL::_AtlBaseModule.GetResourceInstance(), wID, szBuff, cchBuff);
-#else //!(_ATL_VER >= 0x0700)
+#else // !(_ATL_VER >= 0x0700)
 				int nRet = ::LoadString(_Module.GetResourceInstance(), wID, szBuff, cchBuff);
-#endif //!(_ATL_VER >= 0x0700)
+#endif // !(_ATL_VER >= 0x0700)
 				for(int i = 0; i < nRet; i++)
 				{
 					if(szBuff[i] == _T('\n'))
@@ -968,7 +968,7 @@ public:
 
 		return 1;
 	}
-#endif //!_WIN32_WCE
+#endif // !_WIN32_WCE
 
 	LRESULT OnSetFocus(UINT, WPARAM, LPARAM, BOOL& bHandled)
 	{
@@ -1001,9 +1001,9 @@ public:
 			szBuff[0] = 0;
 #if (_ATL_VER >= 0x0700)
 			int nRet = ::LoadStringA(ATL::_AtlBaseModule.GetResourceInstance(), idCtrl, szBuff, cchBuff);
-#else //!(_ATL_VER >= 0x0700)
+#else // !(_ATL_VER >= 0x0700)
 			int nRet = ::LoadStringA(_Module.GetResourceInstance(), idCtrl, szBuff, cchBuff);
-#endif //!(_ATL_VER >= 0x0700)
+#endif // !(_ATL_VER >= 0x0700)
 			for(int i = 0; i < nRet; i++)
 			{
 				if(szBuff[i] == '\n')
@@ -1015,7 +1015,7 @@ public:
 #if (_WIN32_IE >= 0x0300)
 			if(nRet > 0)   // string was loaded, save it
 				pDispInfo->uFlags |= TTF_DI_SETITEM;
-#endif //(_WIN32_IE >= 0x0300)
+#endif // (_WIN32_IE >= 0x0300)
 		}
 
 		return 0;
@@ -1033,9 +1033,9 @@ public:
 			szBuff[0] = 0;
 #if (_ATL_VER >= 0x0700)
 			int nRet = ::LoadStringW(ATL::_AtlBaseModule.GetResourceInstance(), idCtrl, szBuff, cchBuff);
-#else //!(_ATL_VER >= 0x0700)
+#else // !(_ATL_VER >= 0x0700)
 			int nRet = ::LoadStringW(_Module.GetResourceInstance(), idCtrl, szBuff, cchBuff);
-#endif //!(_ATL_VER >= 0x0700)
+#endif // !(_ATL_VER >= 0x0700)
 			for(int i = 0; i < nRet; i++)
 			{
 				if(szBuff[i] == L'\n')
@@ -1047,12 +1047,12 @@ public:
 #if (_WIN32_IE >= 0x0300)
 			if(nRet > 0)   // string was loaded, save it
 				pDispInfo->uFlags |= TTF_DI_SETITEM;
-#endif //(_WIN32_IE >= 0x0300)
+#endif // (_WIN32_IE >= 0x0300)
 		}
 
 		return 0;
 	}
-#endif //!_WIN32_WCE
+#endif // !_WIN32_WCE
 
 // Implementation - chevron menu support
 #if (_WIN32_IE >= 0x0500) && !defined(_WIN32_WCE)
@@ -1133,9 +1133,9 @@ public:
 						lpstrText = _T("");
 #if (_ATL_VER >= 0x0700)
 						int nRet = ::LoadString(ATL::_AtlBaseModule.GetResourceInstance(), tbb.idCommand, szBuff, cchBuff);
-#else //!(_ATL_VER >= 0x0700)
+#else // !(_ATL_VER >= 0x0700)
 						int nRet = ::LoadString(_Module.GetResourceInstance(), tbb.idCommand, szBuff, cchBuff);
-#endif //!(_ATL_VER >= 0x0700)
+#endif // !(_ATL_VER >= 0x0700)
 						for(int n = 0; n < nRet; n++)
 						{
 							if(szBuff[n] == _T('\n'))
@@ -1212,7 +1212,7 @@ public:
 		if(::PeekMessage(&msg, m_hWnd, WM_LBUTTONDOWN, WM_LBUTTONDOWN, PM_NOREMOVE) && ::PtInRect(&rc, msg.pt))
 			::PeekMessage(&msg, m_hWnd, WM_LBUTTONDOWN, WM_LBUTTONDOWN, PM_REMOVE);
 	}
-#endif //(_WIN32_IE >= 0x0500) && !defined(_WIN32_WCE)
+#endif // (_WIN32_IE >= 0x0500) && !defined(_WIN32_WCE)
 };
 
 
@@ -1244,10 +1244,10 @@ public:
 #if (_ATL_VER >= 0x0700)
 		::LoadString(ATL::_AtlBaseModule.GetResourceInstance(), T::GetWndClassInfo().m_uCommonResourceID, szWindowName, cchName);
 		HMENU hMenu = ::LoadMenu(ATL::_AtlBaseModule.GetResourceInstance(), MAKEINTRESOURCE(T::GetWndClassInfo().m_uCommonResourceID));
-#else //!(_ATL_VER >= 0x0700)
+#else // !(_ATL_VER >= 0x0700)
 		::LoadString(_Module.GetResourceInstance(), T::GetWndClassInfo().m_uCommonResourceID, szWindowName, cchName);
 		HMENU hMenu = ::LoadMenu(_Module.GetResourceInstance(), MAKEINTRESOURCE(T::GetWndClassInfo().m_uCommonResourceID));
-#endif //!(_ATL_VER >= 0x0700)
+#endif // !(_ATL_VER >= 0x0700)
 #else // CE specific
 		::LoadString(_Module.GetResourceInstance(), T::GetWndClassInfo().m_uCommonResourceID, szWindowName, cchName);
 
@@ -1255,7 +1255,7 @@ public:
 		// Frame Window menus have to go onto the CommandBar.
 		// Use CreateSimpleCECommandBar
 		HMENU hMenu = NULL;
-#endif //_WIN32_WCE
+#endif // _WIN32_WCE
 
 		T* pT = static_cast<T*>(this);
 		HWND hWnd = pT->Create(hWndParent, rect, szWindowName, dwStyle, dwExStyle, hMenu, lpCreateParam);
@@ -1263,9 +1263,9 @@ public:
 		if(hWnd != NULL)
 #if (_ATL_VER >= 0x0700)
 			m_hAccel = ::LoadAccelerators(ATL::_AtlBaseModule.GetResourceInstance(), MAKEINTRESOURCE(T::GetWndClassInfo().m_uCommonResourceID));
-#else //!(_ATL_VER >= 0x0700)
+#else // !(_ATL_VER >= 0x0700)
 			m_hAccel = ::LoadAccelerators(_Module.GetResourceInstance(), MAKEINTRESOURCE(T::GetWndClassInfo().m_uCommonResourceID));
-#endif //!(_ATL_VER >= 0x0700)
+#endif // !(_ATL_VER >= 0x0700)
 
 		return hWnd;
 	}
@@ -1281,7 +1281,7 @@ public:
 #else // CE specific
 		HWND hWnd= T::CreateSimpleToolBarCtrl(m_hWndCECommandBar, nResourceID, TRUE, dwStyle, nID);
 		return (hWnd != NULL);
-#endif //_WIN32_WCE
+#endif // _WIN32_WCE
 	}
 
 #ifdef _WIN32_WCE
@@ -1293,7 +1293,7 @@ public:
 
 		return T::CreateSimpleToolBarCtrl(m_hWndCECommandBar, nResourceID, TRUE, dwStyle, nID);
 	}
-#endif //_WIN32_WCE
+#endif // _WIN32_WCE
 
 // message map and handlers
 	typedef CFrameWindowImplBase< TBase, TWinTraits >   _baseClass;
@@ -1303,11 +1303,11 @@ public:
 #ifndef _ATL_NO_REBAR_SUPPORT
 #if (_WIN32_IE >= 0x0400)
 		NOTIFY_CODE_HANDLER(RBN_AUTOSIZE, OnReBarAutoSize)
-#endif //(_WIN32_IE >= 0x0400)
+#endif // (_WIN32_IE >= 0x0400)
 #if (_WIN32_IE >= 0x0500) && !defined(_WIN32_WCE)
 		NOTIFY_CODE_HANDLER(RBN_CHEVRONPUSHED, OnChevronPushed)
-#endif //(_WIN32_IE >= 0x0500) && !defined(_WIN32_WCE)
-#endif //!_ATL_NO_REBAR_SUPPORT
+#endif // (_WIN32_IE >= 0x0500) && !defined(_WIN32_WCE)
+#endif // !_ATL_NO_REBAR_SUPPORT
 		CHAIN_MSG_MAP(_baseClass)
 	END_MSG_MAP()
 
@@ -1330,7 +1330,7 @@ public:
 		pT->UpdateLayout(FALSE);
 		return 0;
 	}
-#endif //(_WIN32_IE >= 0x0400)
+#endif // (_WIN32_IE >= 0x0400)
 
 #if (_WIN32_IE >= 0x0500) && !defined(_WIN32_WCE)
 	LRESULT OnChevronPushed(int /*idCtrl*/, LPNMHDR pnmh, BOOL& bHandled)
@@ -1348,8 +1348,8 @@ public:
 		pT->CleanupChevronMenu(cmi);
 		return 0;
 	}
-#endif //(_WIN32_IE >= 0x0500) && !defined(_WIN32_WCE)
-#endif //!_ATL_NO_REBAR_SUPPORT
+#endif // (_WIN32_IE >= 0x0500) && !defined(_WIN32_WCE)
+#endif // !_ATL_NO_REBAR_SUPPORT
 };
 
 
@@ -1364,7 +1364,7 @@ inline HWND AtlCreateSimpleToolBar(HWND hWndParent, UINT nResourceID, BOOL bInit
 	return CFrameWindowImplBase<>::CreateSimpleToolBarCtrl(hWndParent, nResourceID, bInitialSeparator, dwStyle, nID);
 }
 
-#endif //!_WIN32_WCE
+#endif // !_WIN32_WCE
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1496,7 +1496,7 @@ public:
 	}
 };
 
-#endif //!_WIN32_WCE
+#endif // !_WIN32_WCE
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1541,10 +1541,10 @@ public:
 #if (_ATL_VER >= 0x0700)
 		::LoadString(ATL::_AtlBaseModule.GetResourceInstance(), T::GetWndClassInfo().m_uCommonResourceID, szWindowName, cchName);
 		HMENU hMenu = ::LoadMenu(ATL::_AtlBaseModule.GetResourceInstance(), MAKEINTRESOURCE(T::GetWndClassInfo().m_uCommonResourceID));
-#else //!(_ATL_VER >= 0x0700)
+#else // !(_ATL_VER >= 0x0700)
 		::LoadString(_Module.GetResourceInstance(), T::GetWndClassInfo().m_uCommonResourceID, szWindowName, cchName);
 		HMENU hMenu = ::LoadMenu(_Module.GetResourceInstance(), MAKEINTRESOURCE(T::GetWndClassInfo().m_uCommonResourceID));
-#endif //!(_ATL_VER >= 0x0700)
+#endif // !(_ATL_VER >= 0x0700)
 
 		T* pT = static_cast<T*>(this);
 		HWND hWnd = pT->Create(hWndParent, rect, szWindowName, dwStyle, dwExStyle, hMenu, lpCreateParam);
@@ -1552,9 +1552,9 @@ public:
 		if(hWnd != NULL)
 #if (_ATL_VER >= 0x0700)
 			m_hAccel = ::LoadAccelerators(ATL::_AtlBaseModule.GetResourceInstance(), MAKEINTRESOURCE(T::GetWndClassInfo().m_uCommonResourceID));
-#else //!(_ATL_VER >= 0x0700)
+#else // !(_ATL_VER >= 0x0700)
 			m_hAccel = ::LoadAccelerators(_Module.GetResourceInstance(), MAKEINTRESOURCE(T::GetWndClassInfo().m_uCommonResourceID));
-#endif //!(_ATL_VER >= 0x0700)
+#endif // !(_ATL_VER >= 0x0700)
 
 		return hWnd;
 	}
@@ -1580,10 +1580,10 @@ public:
 #if (_ATL_VER >= 0x0700)
 		ATL::_ATL_MSG msg(pThis->m_hWnd, uMsg, wParam, lParam);
 		const ATL::_ATL_MSG* pOldMsg = pThis->m_pCurrentMsg;
-#else //!(_ATL_VER >= 0x0700)
+#else // !(_ATL_VER >= 0x0700)
 		MSG msg = { pThis->m_hWnd, uMsg, wParam, lParam, 0, { 0, 0 } };
 		const MSG* pOldMsg = pThis->m_pCurrentMsg;
-#endif //!(_ATL_VER >= 0x0700)
+#endif // !(_ATL_VER >= 0x0700)
 		pThis->m_pCurrentMsg = &msg;
 		// pass to the message map to process
 		LRESULT lRes = 0;
@@ -1606,13 +1606,13 @@ public:
 #if (_ATL_VER >= 0x0700)
 				// mark window as destryed
 				pThis->m_dwState |= WINSTATE_DESTROYED;
-#else //!(_ATL_VER >= 0x0700)
+#else // !(_ATL_VER >= 0x0700)
 				// clear out window handle
 				HWND hWnd = pThis->m_hWnd;
 				pThis->m_hWnd = NULL;
 				// clean up after window is destroyed
 				pThis->OnFinalMessage(hWnd);
-#endif //!(_ATL_VER >= 0x0700)
+#endif // !(_ATL_VER >= 0x0700)
 			}
 		}
 #if (_ATL_VER >= 0x0700)
@@ -1625,7 +1625,7 @@ public:
 			// clean up after window is destroyed
 			pThis->OnFinalMessage(hWnd);
 		}
-#endif //(_ATL_VER >= 0x0700)
+#endif // (_ATL_VER >= 0x0700)
 		return lRes;
 	}
 
@@ -1674,11 +1674,11 @@ public:
 		m_hWndClient = ::CreateWindowEx(dwExStyle, _T("MDIClient"), NULL,
 			dwStyle, 0, 0, 1, 1, m_hWnd, (HMENU)LongToHandle(nID),
 			ATL::_AtlBaseModule.GetModuleInstance(), (LPVOID)&ccs);
-#else //!(_ATL_VER >= 0x0700)
+#else // !(_ATL_VER >= 0x0700)
 		m_hWndClient = ::CreateWindowEx(dwExStyle, _T("MDIClient"), NULL,
 			dwStyle, 0, 0, 1, 1, m_hWnd, (HMENU)LongToHandle(nID),
 			_Module.GetModuleInstance(), (LPVOID)&ccs);
-#endif //!(_ATL_VER >= 0x0700)
+#endif // !(_ATL_VER >= 0x0700)
 		if (m_hWndClient == NULL)
 		{
 			ATLTRACE2(atlTraceUI, 0, _T("MDI Frame failed to create MDICLIENT.\n"));
@@ -1707,11 +1707,11 @@ public:
 #ifndef _ATL_NO_REBAR_SUPPORT
 #if (_WIN32_IE >= 0x0400)
 		NOTIFY_CODE_HANDLER(RBN_AUTOSIZE, OnReBarAutoSize)
-#endif //(_WIN32_IE >= 0x0400)
+#endif // (_WIN32_IE >= 0x0400)
 #if (_WIN32_IE >= 0x0500)
 		NOTIFY_CODE_HANDLER(RBN_CHEVRONPUSHED, OnChevronPushed)
-#endif //(_WIN32_IE >= 0x0500)
-#endif //!_ATL_NO_REBAR_SUPPORT
+#endif // (_WIN32_IE >= 0x0500)
+#endif // !_ATL_NO_REBAR_SUPPORT
 		CHAIN_MSG_MAP(_baseClass)
 	END_MSG_MAP()
 
@@ -1746,7 +1746,7 @@ public:
 		pT->UpdateLayout(FALSE);
 		return 0;
 	}
-#endif //(_WIN32_IE >= 0x0400)
+#endif // (_WIN32_IE >= 0x0400)
 
 #if (_WIN32_IE >= 0x0500)
 	LRESULT OnChevronPushed(int /*idCtrl*/, LPNMHDR pnmh, BOOL& bHandled)
@@ -1764,11 +1764,11 @@ public:
 		pT->CleanupChevronMenu(cmi);
 		return 0;
 	}
-#endif //(_WIN32_IE >= 0x0500)
-#endif //!_ATL_NO_REBAR_SUPPORT
+#endif // (_WIN32_IE >= 0x0500)
+#endif // !_ATL_NO_REBAR_SUPPORT
 };
 
-#endif //!_WIN32_WCE
+#endif // !_WIN32_WCE
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1789,9 +1789,9 @@ public:
 		if(nMenuID != 0)
 #if (_ATL_VER >= 0x0700)
 			m_hMenu = ::LoadMenu(ATL::_AtlBaseModule.GetResourceInstance(), MAKEINTRESOURCE(nMenuID));
-#else //!(_ATL_VER >= 0x0700)
+#else // !(_ATL_VER >= 0x0700)
 			m_hMenu = ::LoadMenu(_Module.GetResourceInstance(), MAKEINTRESOURCE(nMenuID));
-#endif //!(_ATL_VER >= 0x0700)
+#endif // !(_ATL_VER >= 0x0700)
 
 		dwStyle = T::GetWndStyle(dwStyle);
 		dwExStyle = T::GetWndExStyle(dwExStyle);
@@ -1839,9 +1839,9 @@ public:
 		{
 #if (_ATL_VER >= 0x0700)
 			::LoadString(ATL::_AtlBaseModule.GetResourceInstance(), T::GetWndClassInfo().m_uCommonResourceID, szWindowName, cchName);
-#else //!(_ATL_VER >= 0x0700)
+#else // !(_ATL_VER >= 0x0700)
 			::LoadString(_Module.GetResourceInstance(), T::GetWndClassInfo().m_uCommonResourceID, szWindowName, cchName);
-#endif //!(_ATL_VER >= 0x0700)
+#endif // !(_ATL_VER >= 0x0700)
 			lpcstrWindowName = szWindowName;
 		}
 
@@ -1851,9 +1851,9 @@ public:
 		if(hWnd != NULL)
 #if (_ATL_VER >= 0x0700)
 			m_hAccel = ::LoadAccelerators(ATL::_AtlBaseModule.GetResourceInstance(), MAKEINTRESOURCE(T::GetWndClassInfo().m_uCommonResourceID));
-#else //!(_ATL_VER >= 0x0700)
+#else // !(_ATL_VER >= 0x0700)
 			m_hAccel = ::LoadAccelerators(_Module.GetResourceInstance(), MAKEINTRESOURCE(T::GetWndClassInfo().m_uCommonResourceID));
-#endif //!(_ATL_VER >= 0x0700)
+#endif // !(_ATL_VER >= 0x0700)
 
 		return hWnd;
 	}
@@ -1914,11 +1914,11 @@ public:
 #ifndef _ATL_NO_REBAR_SUPPORT
 #if (_WIN32_IE >= 0x0400)
 		NOTIFY_CODE_HANDLER(RBN_AUTOSIZE, OnReBarAutoSize)
-#endif //(_WIN32_IE >= 0x0400)
+#endif // (_WIN32_IE >= 0x0400)
 #if (_WIN32_IE >= 0x0500)
 		NOTIFY_CODE_HANDLER(RBN_CHEVRONPUSHED, OnChevronPushed)
-#endif //(_WIN32_IE >= 0x0500)
-#endif //!_ATL_NO_REBAR_SUPPORT
+#endif // (_WIN32_IE >= 0x0500)
+#endif // !_ATL_NO_REBAR_SUPPORT
 		CHAIN_MSG_MAP(_baseClass)
 	END_MSG_MAP()
 
@@ -2005,7 +2005,7 @@ public:
 		pT->UpdateLayout(FALSE);
 		return 0;
 	}
-#endif //(_WIN32_IE >= 0x0400)
+#endif // (_WIN32_IE >= 0x0400)
 
 #if (_WIN32_IE >= 0x0500)
 	LRESULT OnChevronPushed(int /*idCtrl*/, LPNMHDR pnmh, BOOL& bHandled)
@@ -2023,11 +2023,11 @@ public:
 		pT->CleanupChevronMenu(cmi);
 		return 0;
 	}
-#endif //(_WIN32_IE >= 0x0500)
-#endif //!_ATL_NO_REBAR_SUPPORT
+#endif // (_WIN32_IE >= 0x0500)
+#endif // !_ATL_NO_REBAR_SUPPORT
 };
 
-#endif //!_WIN32_WCE
+#endif // !_WIN32_WCE
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -2048,7 +2048,7 @@ public:
 	{
 		m_bHandledOD = bHandled;
 	}
-#endif //(_ATL_VER < 0x0700)
+#endif // (_ATL_VER < 0x0700)
 
 // Message map and handlers
 	BEGIN_MSG_MAP(COwnerDraw< T >)
@@ -2625,7 +2625,7 @@ public:
 		m_wDirtyType &= ~UPDUI_MENUBAR;
 		return TRUE;
 	}
-#endif //!_WIN32_WCE
+#endif // !_WIN32_WCE
 
 	BOOL UIUpdateToolBar(BOOL bForceUpdate = FALSE)
 	{
@@ -2735,7 +2735,7 @@ public:
 			::SetMenuDefaultItem(hMenu, (UINT)-1, 0);
 			pUIData->m_wState &= ~UPDUI_CLEARDEFAULT;
 		}
-#endif //!_WIN32_WCE
+#endif // !_WIN32_WCE
 
 		CMenuItemInfo mii;
 		mii.fMask = MIIM_STATE;
@@ -2770,7 +2770,7 @@ public:
 		else
 			uCheck |= MF_UNCHECKED;
 		::CheckMenuItem(hMenu, nID, uCheck);
-#endif //_WIN32_WCE
+#endif // _WIN32_WCE
 
 		if((pUIData->m_wState & UPDUI_TEXT) != 0)
 		{
@@ -2785,7 +2785,7 @@ public:
 				mii.fType |= (miiNow.fType & ~(MFT_BITMAP | MFT_SEPARATOR)) | MFT_STRING;
 #else // CE specific
 				mii.fType |= (miiNow.fType & ~(MFT_SEPARATOR)) | MFT_STRING;
-#endif //_WIN32_WCE
+#endif // _WIN32_WCE
 				mii.dwTypeData = (LPTSTR)pUIData->m_lpData;
 			}
 		}
@@ -2863,7 +2863,7 @@ public:
 					ATLASSERT(m_pUIMap[j].m_nID != m_pUIMap[i].m_nID);
 			}
 		}
-#endif //_DEBUG
+#endif // _DEBUG
 
 		ATLTRY(m_pUIData = new _AtlUpdateUIData[nCount]);
 		ATLASSERT(m_pUIData != NULL);
@@ -2925,7 +2925,7 @@ public:
 					ATLASSERT(m_arrUIMap[j].m_nID != m_arrUIMap[i].m_nID);
 			}
 		}
-#endif //_DEBUG
+#endif // _DEBUG
 
 		// Set internal data pointers to point to the new data arrays
 		m_pUIMap = m_arrUIMap.m_aT;
@@ -3121,7 +3121,7 @@ public:
 		// Debug only: Check if top level dialogs have a resizeable border.
 		if(((dwStyle & WS_CHILD) == 0) && ((dwStyle & WS_THICKFRAME) == 0))
 			ATLTRACE2(atlTraceUI, 0, _T("DlgResize_Init - warning: top level dialog without the WS_THICKFRAME style - user cannot resize it\n"));
-#endif //_DEBUG
+#endif // _DEBUG
 
 		// Force specified styles (default WS_CLIPCHILDREN reduces flicker)
 		if((dwStyle & dwForceStyle) != dwForceStyle)
@@ -3177,7 +3177,7 @@ public:
 		}
 #else // CE specific
 		bAddGripper;   // avoid level 4 warning
-#endif //_WIN32_WCE
+#endif // _WIN32_WCE
 
 		// Get min track position if requested
 		if(bUseMinTrackSize)
@@ -3323,7 +3323,7 @@ public:
 		MESSAGE_HANDLER(WM_SIZE, OnSize)
 #ifndef _WIN32_WCE
 		MESSAGE_HANDLER(WM_GETMINMAXINFO, OnGetMinMaxInfo)
-#endif //_WIN32_WCE
+#endif // _WIN32_WCE
 	END_MSG_MAP()
 
 	LRESULT OnSize(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/)
@@ -3458,7 +3458,7 @@ public:
 		MESSAGE_HANDLER(WM_PAINT, OnPaint)
 #ifndef _WIN32_WCE
 		MESSAGE_HANDLER(WM_PRINTCLIENT, OnPaint)
-#endif //!_WIN32_WCE
+#endif // !_WIN32_WCE
 	END_MSG_MAP()
 
 	LRESULT OnEraseBackground(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
@@ -3509,8 +3509,8 @@ public:
 #undef CBRM_TRACKPOPUPMENU
 #undef CBRM_GETCMDBAR
 #undef CBRPOPUPMENU
-#endif //!defined(__ATLCTRLW_H__) && !defined(_WIN32_WCE)
+#endif // !defined(__ATLCTRLW_H__) && !defined(_WIN32_WCE)
 
-}; //namespace WTL
+}; // namespace WTL
 
 #endif // __ATLFRAME_H__

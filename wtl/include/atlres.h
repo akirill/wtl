@@ -29,34 +29,34 @@
 
     #ifdef APSTUDIO_INVOKED
       #define APSTUDIO_HIDDEN_SYMBOLS // Ignore following symbols
-    #endif //APSTUDIO_INVOKED
+    #endif // APSTUDIO_INVOKED
 
     #ifndef WINVER
       #define WINVER 0x0400   // default to Windows Version 4.0
-    #endif //!WINVER
+    #endif // !WINVER
 
     #include <winresrc.h>
 
     // operation messages sent to DLGINIT
     #define LB_ADDSTRING    (WM_USER+1)
     #define CB_ADDSTRING    (WM_USER+3)
-  #endif //!_WIN32_WCE
+  #endif // !_WIN32_WCE
 
   #ifdef APSTUDIO_INVOKED
     #undef APSTUDIO_HIDDEN_SYMBOLS
-  #endif //APSTUDIO_INVOKED
+  #endif // APSTUDIO_INVOKED
 
   #ifdef IDC_STATIC
     #undef IDC_STATIC
-  #endif //IDC_STATIC
+  #endif // IDC_STATIC
   #define IDC_STATIC      (-1)
 
-#endif //!_INC_WINDOWS
-#endif //RC_INVOKED
+#endif // !_INC_WINDOWS
+#endif // RC_INVOKED
 
 #ifdef APSTUDIO_INVOKED
   #define APSTUDIO_HIDDEN_SYMBOLS
-#endif //APSTUDIO_INVOKED
+#endif // APSTUDIO_INVOKED
 
 ///////////////////////////////////////////////////////////////////////////////
 // ATL resource types
@@ -64,13 +64,13 @@
 #ifndef RC_INVOKED
   #define RT_DLGINIT  MAKEINTRESOURCE(240)
   #define RT_TOOLBAR  MAKEINTRESOURCE(241)
-#endif //RC_INVOKED
+#endif // RC_INVOKED
 
 ///////////////////////////////////////////////////////////////////////////////
 
 #ifdef APSTUDIO_INVOKED
   #undef APSTUDIO_HIDDEN_SYMBOLS
-#endif //APSTUDIO_INVOKED
+#endif // APSTUDIO_INVOKED
 
 ///////////////////////////////////////////////////////////////////////////////
 // Standard window components
@@ -97,7 +97,7 @@
 // bands for a rebar
   #define ATL_IDW_BAND_FIRST            0xEB00
   #define ATL_IDW_BAND_LAST             0xEBFF
-#endif //!RC_INVOKED
+#endif // !RC_INVOKED
 
 ///////////////////////////////////////////////////////////////////////////////
 // Standard Commands
@@ -162,7 +162,7 @@
   #define ATL_IDM_WINDOW_FIRST          0xE130
   #define ATL_IDM_WINDOW_LAST           0xE13F
   #define ATL_IDM_FIRST_MDICHILD        0xFF00  // window list starts here
-#endif //!RC_INVOKED
+#endif // !RC_INVOKED
 
 // Help and App commands
 #define ID_APP_ABOUT                    0xE140
@@ -206,7 +206,7 @@
 #define ID_OLE_VERB_FIRST               0xE210     // range - 16 max
 #ifndef RC_INVOKED      // code only
   #define ID_OLE_VERB_LAST              0xE21F
-#endif //!RC_INVOKED
+#endif // !RC_INVOKED
 
 // View commands (same number used as IDW used for toolbar and status bar)
 #define ID_VIEW_TOOLBAR                 0xE800
@@ -218,7 +218,7 @@
 
 #ifdef IDC_STATIC
   #undef IDC_STATIC
-#endif //IDC_STATIC
+#endif // IDC_STATIC
 #define IDC_STATIC              (-1)     // all static controls
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -229,7 +229,7 @@
 
 #ifndef RC_INVOKED      // code only
   #define ATL_IDS_SCFIRST               0xEF00
-#endif //!RC_INVOKED
+#endif // !RC_INVOKED
 
 #define ATL_IDS_SCSIZE                  0xEF00
 #define ATL_IDS_SCMOVE                  0xEF01
@@ -254,4 +254,4 @@
 #define ID_WIZFINISH                    0x3025
 #define ATL_IDC_TAB_CONTROL             0x3020
 
-#endif //__ATLRES_H__
+#endif // __ATLRES_H__

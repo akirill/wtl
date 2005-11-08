@@ -32,7 +32,7 @@
 
 #if (_WIN32_WINNT < 0x0501)
 	#error atltheme.h requires _WIN32_WINNT >= 0x0501
-#endif //(_WIN32_WINNT < 0x0501)
+#endif // (_WIN32_WINNT < 0x0501)
 
 #include <tmschema.h>
 #include <uxtheme.h>
@@ -59,7 +59,7 @@
 #if (_MSC_VER < 1300) && !defined(_WTL_NO_THEME_DELAYLOAD)
   #pragma comment(lib, "delayimp.lib")
   #pragma comment(linker, "/delayload:uxtheme.dll")
-#endif //(_MSC_VER < 1300) && !defined(_WTL_NO_THEME_DELAYLOAD)
+#endif // (_MSC_VER < 1300) && !defined(_WTL_NO_THEME_DELAYLOAD)
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -672,6 +672,6 @@ public:
 	}
 };
 
-}; //namespace WTL
+}; // namespace WTL
 
 #endif // __ATLTHEME_H__

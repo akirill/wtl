@@ -29,21 +29,21 @@
 
 #if defined(_WTL_USE_CSTRING) && defined(_WTL_NO_CSTRING)
 	#error Conflicting options - both _WTL_USE_CSTRING and _WTL_NO_CSTRING are defined
-#endif //defined(_WTL_USE_CSTRING) && defined(_WTL_NO_CSTRING)
+#endif // defined(_WTL_USE_CSTRING) && defined(_WTL_NO_CSTRING)
 
 #if !defined(_WTL_USE_CSTRING) && !defined(_WTL_NO_CSTRING)
   #define _WTL_USE_CSTRING
-#endif //!defined(_WTL_USE_CSTRING) && !defined(_WTL_NO_CSTRING)
+#endif // !defined(_WTL_USE_CSTRING) && !defined(_WTL_NO_CSTRING)
 
 #ifndef _WTL_NO_CSTRING
   #if defined(_ATL_USE_CSTRING_FLOAT) && defined(_ATL_MIN_CRT)
 	#error Cannot use CString floating point formatting with _ATL_MIN_CRT defined
-  #endif //defined(_ATL_USE_CSTRING_FLOAT) && defined(_ATL_MIN_CRT)
+  #endif // defined(_ATL_USE_CSTRING_FLOAT) && defined(_ATL_MIN_CRT)
 
   #ifndef _DEBUG
     #include <stdio.h>
-  #endif //!_DEBUG
-#endif //!_WTL_NO_CSTRING
+  #endif // !_DEBUG
+#endif // !_WTL_NO_CSTRING
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -668,7 +668,7 @@ inline CRect CRect::MulDiv(int nMultiplier, int nDivisor) const
 		::MulDiv(bottom, nMultiplier, nDivisor));
 }
 
-#endif //!_WTL_NO_WTYPES
+#endif // !_WTL_NO_WTYPES
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -876,7 +876,7 @@ public:
 	// OLE BSTR support (use for OLE automation)
 	BSTR AllocSysString() const;
 	BSTR SetSysString(BSTR* pbstr) const;
-#endif //!_ATL_NO_COM
+#endif // !_ATL_NO_COM
 
 	// Access to string implementation buffer as "C" character array
 	LPTSTR GetBuffer(int nMinBufLength);
@@ -922,20 +922,20 @@ protected:
 		//  segment containing the string is not present
 #if (_ATL_VER >= 0x0700)
 		if (::FindResource(ATL::_AtlBaseModule.GetResourceInstance(), MAKEINTRESOURCE((nID>>4) + 1), RT_STRING) == NULL)
-#else //!(_ATL_VER >= 0x0700)
+#else // !(_ATL_VER >= 0x0700)
 		if (::FindResource(_Module.GetResourceInstance(), MAKEINTRESOURCE((nID>>4) + 1), RT_STRING) == NULL)
-#endif //!(_ATL_VER >= 0x0700)
+#endif // !(_ATL_VER >= 0x0700)
 		{
 			lpszBuf[0] = _T('\0');
 			return 0; // not found
 		}
-#endif //_DEBUG
+#endif // _DEBUG
 
 #if (_ATL_VER >= 0x0700)
 		int nLen = ::LoadString(ATL::_AtlBaseModule.GetResourceInstance(), nID, lpszBuf, nMaxBuf);
-#else //!(_ATL_VER >= 0x0700)
+#else // !(_ATL_VER >= 0x0700)
 		int nLen = ::LoadString(_Module.GetResourceInstance(), nID, lpszBuf, nMaxBuf);
-#endif //!(_ATL_VER >= 0x0700)
+#endif // !(_ATL_VER >= 0x0700)
 		if (nLen == 0)
 			lpszBuf[0] = _T('\0');
 		return nLen;
@@ -1170,7 +1170,7 @@ protected:
 		else
 			return total;   // return result, negated if necessary
 	}
-#else //!_ATL_MIN_CRT
+#else // !_ATL_MIN_CRT
 	static const TCHAR* _cstrchr(const TCHAR* p, TCHAR ch)
 	{
 		return _tcschr(p, ch);
@@ -1236,13 +1236,13 @@ protected:
 	{
 		return _tcsicoll(pstrOne, pstrOther);
 	}
-#endif //!_WIN32_WCE
+#endif // !_WIN32_WCE
 
 	static int _cstrtoi(const TCHAR* nptr)
 	{
 		return _ttoi(nptr);
 	}
-#endif //!_ATL_MIN_CRT
+#endif // !_ATL_MIN_CRT
 
 	static const TCHAR* _cstrchr_db(const TCHAR* p, TCHAR ch1, TCHAR ch2)
 	{
@@ -1323,7 +1323,7 @@ inline CString __stdcall operator +(const CString& string, char ch)
 
 inline CString __stdcall operator +(char ch, const CString& string)
 { return (TCHAR)ch + string; }
-#endif //_UNICODE
+#endif // _UNICODE
 
 inline int CString::GetLength() const
 { return GetData()->nDataLength; }
@@ -1355,7 +1355,7 @@ inline int CString::Collate(LPCTSTR lpsz) const
 
 inline int CString::CollateNoCase(LPCTSTR lpsz) const
 { return _cstrcolli(m_pchData, lpsz); }   // locale sensitive
-#endif //!_WIN32_WCE
+#endif // !_WIN32_WCE
 
 inline TCHAR CString::GetAt(int nIndex) const
 {
@@ -1608,7 +1608,7 @@ inline CString::CString(LPCSTR lpsz)
 		}
 	}
 }
-#else //_UNICODE
+#else // _UNICODE
 inline CString::CString(LPCWSTR lpsz)
 {
 	Init();
@@ -1622,7 +1622,7 @@ inline CString::CString(LPCWSTR lpsz)
 		}
 	}
 }
-#endif //!_UNICODE
+#endif // !_UNICODE
 
 // Assignment operators
 //  All assign a new value to the string
@@ -1687,7 +1687,7 @@ inline CString& CString::operator =(LPCSTR lpsz)
 	}
 	return *this;
 }
-#else //!_UNICODE
+#else // !_UNICODE
 inline CString& CString::operator =(LPCWSTR lpsz)
 {
 	int nSrcLen = (lpsz != NULL) ? (int)wcslen(lpsz) : 0;
@@ -1698,7 +1698,7 @@ inline CString& CString::operator =(LPCWSTR lpsz)
 	}
 	return *this;
 }
-#endif  //!_UNICODE
+#endif  // !_UNICODE
 
 // Concatenation
 // NOTE: "operator +" is done as friend functions for simplicity
@@ -1949,7 +1949,7 @@ inline void CString::OemToAnsi()
 	CopyBeforeWrite();
 	::OemToAnsi(m_pchData, m_pchData);
 }
-#endif //_UNICODE
+#endif // _UNICODE
 
 inline CString::CString(TCHAR ch, int nLength)
 {
@@ -1992,7 +1992,7 @@ inline CString::CString(LPCSTR lpsz, int nLength)
 		}
 	}
 }
-#else //_UNICODE
+#else // _UNICODE
 inline CString::CString(LPCWSTR lpsz, int nLength)
 {
 	Init();
@@ -2005,7 +2005,7 @@ inline CString::CString(LPCWSTR lpsz, int nLength)
 		}
 	}
 }
-#endif //!_UNICODE
+#endif // !_UNICODE
 
 inline CString& CString::operator =(TCHAR ch)
 {
@@ -2274,7 +2274,7 @@ inline BOOL CString::FormatV(LPCTSTR lpszFormat, va_list argList)
 				nItemLen = (int)wcslen(pstrNextArg);
 				nItemLen = max(1, nItemLen);
 			}
-#else //_UNICODE
+#else // _UNICODE
 			LPCSTR pstrNextArg = va_arg(argList, LPCSTR);
 			if (pstrNextArg == NULL)
 			{
@@ -2289,7 +2289,7 @@ inline BOOL CString::FormatV(LPCTSTR lpszFormat, va_list argList)
 #endif
 				nItemLen = max(1, nItemLen);
 			}
-#endif //_UNICODE
+#endif // _UNICODE
 			break;
 		}
 
@@ -2369,10 +2369,10 @@ inline BOOL CString::FormatV(LPCTSTR lpszFormat, va_list argList)
 				::DebugBreak();
 #else // CE specific
 				DebugBreak();
-#endif //_WIN32_WCE
-#endif //!_DEBUG
+#endif // _WIN32_WCE
+#endif // !_DEBUG
 				break;
-#else //_ATL_USE_CSTRING_FLOAT
+#else // _ATL_USE_CSTRING_FLOAT
 			case _T('e'):
 			case _T('E'):
 			case _T('g'):
@@ -2397,7 +2397,7 @@ inline BOOL CString::FormatV(LPCTSTR lpszFormat, va_list argList)
 					nItemLen = _tcslen(pszTemp);
 				}
 				break;
-#endif //_ATL_USE_CSTRING_FLOAT
+#endif // _ATL_USE_CSTRING_FLOAT
 
 			case _T('p'):
 				va_arg(argList, void*);
@@ -2423,9 +2423,9 @@ inline BOOL CString::FormatV(LPCTSTR lpszFormat, va_list argList)
 		return FALSE;
 #ifndef _ATL_USE_CSTRING_FLOAT
 	int nRet = ::wvsprintf(m_pchData, lpszFormat, argListSave);
-#else //_ATL_USE_CSTRING_FLOAT
+#else // _ATL_USE_CSTRING_FLOAT
 	int nRet = _vstprintf(m_pchData, lpszFormat, argListSave);
-#endif //_ATL_USE_CSTRING_FLOAT
+#endif // _ATL_USE_CSTRING_FLOAT
 	nRet;   // ref
 	ATLASSERT(nRet <= GetAllocLength());
 	ReleaseBuffer();
@@ -2941,9 +2941,9 @@ inline BSTR CString::SetSysString(BSTR* pbstr) const
 	ATLASSERT(*pbstr != NULL);
 	return *pbstr;
 }
-#endif //!_ATL_NO_COM
+#endif // !_ATL_NO_COM
 
-#endif //!_WTL_NO_CSTRING
+#endif // !_WTL_NO_CSTRING
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -3094,7 +3094,7 @@ public:
 		strDocName = m_arrDocs[nIndex].szDocName;
 		return TRUE;
 	}
-#endif //defined(_WTL_USE_CSTRING) || defined(__ATLSTR_H__)
+#endif // defined(_WTL_USE_CSTRING) || defined(__ATLSTR_H__)
 
 	BOOL RemoveFromList(int nItemID)
 	{
@@ -3427,7 +3427,7 @@ public:
 			return FALSE;
 		return (lstrcpy(lpstrFileTitle, szNameBuff) != NULL);
 	}
-#endif //!_WIN32_WCE
+#endif // !_WIN32_WCE
 
 	BOOL GetFileURL(LPTSTR lpstrFileURL, int cchLength) const
 	{
@@ -3491,7 +3491,7 @@ public:
 		strResult.ReleaseBuffer();
 		return strResult;
 	}
-#endif //!_WIN32_WCE
+#endif // !_WIN32_WCE
 
 	_CSTRING_NS::CString GetFileURL() const
 	{
@@ -3509,7 +3509,7 @@ public:
 		_CSTRING_NS::CString str = m_lpszRoot;
 		return str;
 	}
-#endif //defined(_WTL_USE_CSTRING) || defined(__ATLSTR_H__)
+#endif // defined(_WTL_USE_CSTRING) || defined(__ATLSTR_H__)
 
 	BOOL GetLastWriteTime(FILETIME* pTimeStamp) const
 	{
@@ -3637,7 +3637,7 @@ public:
 		LPCTSTR pstr = _tfullpath(m_lpszRoot, pstrName, MAX_PATH);
 #else // CE specific
 		LPCTSTR pstr = lstrcpyn(m_lpszRoot, pstrName, MAX_PATH);
-#endif //_WIN32_WCE
+#endif // _WIN32_WCE
 
 		// passed name isn't a valid path but was found by the API
 		ATLASSERT(pstr != NULL);
@@ -3709,27 +3709,27 @@ inline HACCEL AtlLoadAccelerators(ATL::_U_STRINGorID table)
 {
 #if (_ATL_VER >= 0x0700)
 	return ::LoadAccelerators(ATL::_AtlBaseModule.GetResourceInstance(), table.m_lpstr);
-#else //!(_ATL_VER >= 0x0700)
+#else // !(_ATL_VER >= 0x0700)
 	return ::LoadAccelerators(_Module.GetResourceInstance(), table.m_lpstr);
-#endif //!(_ATL_VER >= 0x0700)
+#endif // !(_ATL_VER >= 0x0700)
 }
 
 inline HMENU AtlLoadMenu(ATL::_U_STRINGorID menu)
 {
 #if (_ATL_VER >= 0x0700)
 	return ::LoadMenu(ATL::_AtlBaseModule.GetResourceInstance(), menu.m_lpstr);
-#else //!(_ATL_VER >= 0x0700)
+#else // !(_ATL_VER >= 0x0700)
 	return ::LoadMenu(_Module.GetResourceInstance(), menu.m_lpstr);
-#endif //!(_ATL_VER >= 0x0700)
+#endif // !(_ATL_VER >= 0x0700)
 }
 
 inline HBITMAP AtlLoadBitmap(ATL::_U_STRINGorID bitmap)
 {
 #if (_ATL_VER >= 0x0700)
 	return ::LoadBitmap(ATL::_AtlBaseModule.GetResourceInstance(), bitmap.m_lpstr);
-#else //!(_ATL_VER >= 0x0700)
+#else // !(_ATL_VER >= 0x0700)
 	return ::LoadBitmap(_Module.GetResourceInstance(), bitmap.m_lpstr);
-#endif //!(_ATL_VER >= 0x0700)
+#endif // !(_ATL_VER >= 0x0700)
 }
 
 #ifdef OEMRESOURCE
@@ -3738,18 +3738,18 @@ inline HBITMAP AtlLoadSysBitmap(ATL::_U_STRINGorID bitmap)
 #ifdef _DEBUG
 	WORD wID = (WORD)bitmap.m_lpstr;
 	ATLASSERT(wID >= 32734 && wID <= 32767);
-#endif //_DEBUG
+#endif // _DEBUG
 	return ::LoadBitmap(NULL, bitmap.m_lpstr);
 }
-#endif //OEMRESOURCE
+#endif // OEMRESOURCE
 
 inline HCURSOR AtlLoadCursor(ATL::_U_STRINGorID cursor)
 {
 #if (_ATL_VER >= 0x0700)
 	return ::LoadCursor(ATL::_AtlBaseModule.GetResourceInstance(), cursor.m_lpstr);
-#else //!(_ATL_VER >= 0x0700)
+#else // !(_ATL_VER >= 0x0700)
 	return ::LoadCursor(_Module.GetResourceInstance(), cursor.m_lpstr);
-#endif //!(_ATL_VER >= 0x0700)
+#endif // !(_ATL_VER >= 0x0700)
 }
 
 inline HCURSOR AtlLoadSysCursor(LPCTSTR lpCursorName)
@@ -3766,9 +3766,9 @@ inline HICON AtlLoadIcon(ATL::_U_STRINGorID icon)
 {
 #if (_ATL_VER >= 0x0700)
 	return ::LoadIcon(ATL::_AtlBaseModule.GetResourceInstance(), icon.m_lpstr);
-#else //!(_ATL_VER >= 0x0700)
+#else // !(_ATL_VER >= 0x0700)
 	return ::LoadIcon(_Module.GetResourceInstance(), icon.m_lpstr);
-#endif //!(_ATL_VER >= 0x0700)
+#endif // !(_ATL_VER >= 0x0700)
 }
 
 #ifndef _WIN32_WCE
@@ -3782,33 +3782,33 @@ inline HICON AtlLoadSysIcon(LPCTSTR lpIconName)
 		lpIconName == IDI_WINLOGO);
 	return ::LoadIcon(NULL, lpIconName);
 }
-#endif //!_WIN32_WCE
+#endif // !_WIN32_WCE
 
 inline HBITMAP AtlLoadBitmapImage(ATL::_U_STRINGorID bitmap, UINT fuLoad = LR_DEFAULTCOLOR)
 {
 #if (_ATL_VER >= 0x0700)
 	return (HBITMAP)::LoadImage(ATL::_AtlBaseModule.GetResourceInstance(), bitmap.m_lpstr, IMAGE_BITMAP, 0, 0, fuLoad);
-#else //!(_ATL_VER >= 0x0700)
+#else // !(_ATL_VER >= 0x0700)
 	return (HBITMAP)::LoadImage(_Module.GetResourceInstance(), bitmap.m_lpstr, IMAGE_BITMAP, 0, 0, fuLoad);
-#endif //!(_ATL_VER >= 0x0700)
+#endif // !(_ATL_VER >= 0x0700)
 }
 
 inline HCURSOR AtlLoadCursorImage(ATL::_U_STRINGorID cursor, UINT fuLoad = LR_DEFAULTCOLOR | LR_DEFAULTSIZE, int cxDesired = 0, int cyDesired = 0)
 {
 #if (_ATL_VER >= 0x0700)
 	return (HCURSOR)::LoadImage(ATL::_AtlBaseModule.GetResourceInstance(), cursor.m_lpstr, IMAGE_CURSOR, cxDesired, cyDesired, fuLoad);
-#else //!(_ATL_VER >= 0x0700)
+#else // !(_ATL_VER >= 0x0700)
 	return (HCURSOR)::LoadImage(_Module.GetResourceInstance(), cursor.m_lpstr, IMAGE_CURSOR, cxDesired, cyDesired, fuLoad);
-#endif //!(_ATL_VER >= 0x0700)
+#endif // !(_ATL_VER >= 0x0700)
 }
 
 inline HICON AtlLoadIconImage(ATL::_U_STRINGorID icon, UINT fuLoad = LR_DEFAULTCOLOR | LR_DEFAULTSIZE, int cxDesired = 0, int cyDesired = 0)
 {
 #if (_ATL_VER >= 0x0700)
 	return (HICON)::LoadImage(ATL::_AtlBaseModule.GetResourceInstance(), icon.m_lpstr, IMAGE_ICON, cxDesired, cyDesired, fuLoad);
-#else //!(_ATL_VER >= 0x0700)
+#else // !(_ATL_VER >= 0x0700)
 	return (HICON)::LoadImage(_Module.GetResourceInstance(), icon.m_lpstr, IMAGE_ICON, cxDesired, cyDesired, fuLoad);
-#endif //!(_ATL_VER >= 0x0700)
+#endif // !(_ATL_VER >= 0x0700)
 }
 
 #ifdef OEMRESOURCE
@@ -3818,7 +3818,7 @@ inline HBITMAP AtlLoadSysBitmapImage(WORD wBitmapID, UINT fuLoad = LR_DEFAULTCOL
 	ATLASSERT((fuLoad & LR_LOADFROMFILE) == 0);   // this one doesn't load from a file
 	return (HBITMAP)::LoadImage(NULL, MAKEINTRESOURCE(wBitmapID), IMAGE_BITMAP, 0, 0, fuLoad);
 }
-#endif //OEMRESOURCE
+#endif // OEMRESOURCE
 
 inline HCURSOR AtlLoadSysCursorImage(ATL::_U_STRINGorID cursor, UINT fuLoad = LR_DEFAULTCOLOR | LR_DEFAULTSIZE, int cxDesired = 0, int cyDesired = 0)
 {
@@ -3826,7 +3826,7 @@ inline HCURSOR AtlLoadSysCursorImage(ATL::_U_STRINGorID cursor, UINT fuLoad = LR
 	WORD wID = (WORD)cursor.m_lpstr;
 	ATLASSERT((wID >= 32512 && wID <= 32516) || (wID >= 32640 && wID <= 32648) || (wID == 32650) || (wID == 32651));
 	ATLASSERT((fuLoad & LR_LOADFROMFILE) == 0);   // this one doesn't load from a file
-#endif //_DEBUG
+#endif // _DEBUG
 	return (HCURSOR)::LoadImage(NULL, cursor.m_lpstr, IMAGE_CURSOR, cxDesired, cyDesired, fuLoad);
 }
 
@@ -3836,7 +3836,7 @@ inline HICON AtlLoadSysIconImage(ATL::_U_STRINGorID icon, UINT fuLoad = LR_DEFAU
 	WORD wID = (WORD)icon.m_lpstr;
 	ATLASSERT(wID >= 32512 && wID <= 32517);
 	ATLASSERT((fuLoad & LR_LOADFROMFILE) == 0);   // this one doesn't load from a file
-#endif //_DEBUG
+#endif // _DEBUG
 	return (HICON)::LoadImage(NULL, icon.m_lpstr, IMAGE_ICON, cxDesired, cyDesired, fuLoad);
 }
 
@@ -3845,11 +3845,11 @@ inline int AtlLoadString(UINT uID, LPTSTR lpBuffer, int nBufferMax)
 {
 #if (_ATL_VER >= 0x0700)
 	return ::LoadString(ATL::_AtlBaseModule.GetResourceInstance(), uID, lpBuffer, nBufferMax);
-#else //!(_ATL_VER >= 0x0700)
+#else // !(_ATL_VER >= 0x0700)
 	return ::LoadString(_Module.GetResourceInstance(), uID, lpBuffer, nBufferMax);
-#endif //!(_ATL_VER >= 0x0700)
+#endif // !(_ATL_VER >= 0x0700)
 }
-#endif //(_ATL_VER < 0x0700)
+#endif // (_ATL_VER < 0x0700)
 
 inline bool AtlLoadString(UINT uID, BSTR& bstrText)
 {
@@ -3865,9 +3865,9 @@ inline bool AtlLoadString(UINT uID, BSTR& bstrText)
 			break;
 #if (_ATL_VER >= 0x0700)
 		nRes = ::LoadString(ATL::_AtlBaseModule.GetResourceInstance(), uID, lpstrText, nLen);
-#else //!(_ATL_VER >= 0x0700)
+#else // !(_ATL_VER >= 0x0700)
 		nRes = ::LoadString(_Module.GetResourceInstance(), uID, lpstrText, nLen);
-#endif //!(_ATL_VER >= 0x0700)
+#endif // !(_ATL_VER >= 0x0700)
 		if(nRes < nLen - 1)
 			break;
 		delete [] lpstrText;
@@ -3914,7 +3914,7 @@ inline HFONT AtlGetStockFont(int nFont)
 	ATLASSERT((nFont >= OEM_FIXED_FONT && nFont <= SYSTEM_FIXED_FONT) || nFont == DEFAULT_GUI_FONT);
 #else // CE specific
 	ATLASSERT(nFont == SYSTEM_FONT);
-#endif //_WIN32_WCE
+#endif // _WIN32_WCE
 	return (HFONT)::GetStockObject(nFont);
 }
 
@@ -3939,10 +3939,10 @@ inline bool _IsDBCSTrailByte(LPCTSTR lpstr, int nChar)
 			break;
 	}
 	return ((nChar > 0) && (((nChar - i) & 1) != 0));
-#else //_UNICODE
+#else // _UNICODE
 	lpstr; nChar;
 	return false;
-#endif //_UNICODE
+#endif // _UNICODE
 }
 
 inline bool AtlCompactPath(LPTSTR lpstrOut, LPCTSTR lpstrIn, int cchLen)
@@ -3987,7 +3987,7 @@ inline bool AtlCompactPath(LPTSTR lpstrOut, LPCTSTR lpstrIn, int cchLen)
 #ifndef _UNICODE
 			if(_IsDBCSTrailByte(lpstrIn, cchLen - cchEndEllipsis))
 				lpstrOut[cchLen - cchEndEllipsis - 1] = 0;
-#endif //_UNICODE
+#endif // _UNICODE
 			bRet = (lstrcat(lpstrOut, szEllipsis) != NULL);
 		}
 		return bRet;
@@ -4011,7 +4011,7 @@ inline bool AtlCompactPath(LPTSTR lpstrOut, LPCTSTR lpstrIn, int cchLen)
 #ifndef _UNICODE
 	if(cchToCopy > 0 && _IsDBCSTrailByte(lpstrIn, cchToCopy))
 		cchToCopy--;
-#endif //_UNICODE
+#endif // _UNICODE
 
 	bool bRet = (lstrcpyn(lpstrOut, lpstrIn, cchToCopy) != NULL);
 	if(!bRet)
@@ -4037,7 +4037,7 @@ inline bool AtlCompactPath(LPTSTR lpstrOut, LPCTSTR lpstrIn, int cchLen)
 #ifndef _UNICODE
 		if(cchToCopy > 0 && _IsDBCSTrailByte(lpstrFileName, cchToCopy))
 			cchToCopy--;
-#endif //_UNICODE
+#endif // _UNICODE
 		bRet = (lstrcpyn(&lpstrOut[cchMidEllipsis], lpstrFileName, cchToCopy) != NULL);
 		if(bRet)
 			bRet = (lstrcat(lpstrOut, szEllipsis) != NULL);
@@ -4046,6 +4046,6 @@ inline bool AtlCompactPath(LPTSTR lpstrOut, LPCTSTR lpstrIn, int cchLen)
 	return bRet;
 }
 
-}; //namespace WTL
+}; // namespace WTL
 
 #endif // __ATLMISC_H__

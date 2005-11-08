@@ -24,14 +24,14 @@
 
 #if defined(_ATL_USE_DDX_FLOAT) && defined(_ATL_MIN_CRT)
 	#error Cannot use floating point DDX with _ATL_MIN_CRT defined
-#endif //defined(_ATL_USE_DDX_FLOAT) && defined(_ATL_MIN_CRT)
+#endif // defined(_ATL_USE_DDX_FLOAT) && defined(_ATL_MIN_CRT)
 
 #ifdef _ATL_USE_DDX_FLOAT
   #include <float.h>
   #ifndef _DEBUG
     #include <stdio.h>
-  #endif //!_DEBUG
-#endif //_ATL_USE_DDX_FLOAT
+  #endif // !_DEBUG
+#endif // _ATL_USE_DDX_FLOAT
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -123,7 +123,7 @@ namespace WTL
 			if(!DDX_Float(nID, var, bSaveAndValidate, TRUE, min, max, precision)) \
 				return FALSE; \
 		}
-#endif //_ATL_USE_DDX_FLOAT
+#endif // _ATL_USE_DDX_FLOAT
 
 #define DDX_CONTROL(nID, obj) \
 		if(nCtlID == (UINT)-1 || nCtlID == nID) \
@@ -356,7 +356,7 @@ public:
 		}
 		return bSuccess;
 	}
-#endif //defined(_WTL_USE_CSTRING) || defined(__ATLSTR_H__)
+#endif // defined(_WTL_USE_CSTRING) || defined(__ATLSTR_H__)
 
 // Numeric exchange
 	template <class Type>
@@ -501,7 +501,7 @@ public:
 		}
 		return bSuccess;
 	}
-#endif //_ATL_USE_DDX_FLOAT
+#endif // _ATL_USE_DDX_FLOAT
 
 // Full control subclassing (for CWindowImpl derived controls)
 	template <class TControl>
@@ -622,6 +622,6 @@ public:
 	}
 };
 
-}; //namespace WTL
+}; // namespace WTL
 
-#endif //__ATLDDX_H__
+#endif // __ATLDDX_H__

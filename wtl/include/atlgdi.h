@@ -32,15 +32,15 @@
   #undef SelectPen
   #undef SelectFont
   #undef SelectBitmap
-#endif //_INC_WINDOWSX
+#endif // _INC_WINDOWSX
 
 // required libraries
 #if !defined(_ATL_NO_MSIMG) && !defined(_WIN32_WCE)
   #pragma comment(lib, "msimg32.lib")
-#endif //!defined(_ATL_NO_MSIMG) && !defined(_WIN32_WCE)
+#endif // !defined(_ATL_NO_MSIMG) && !defined(_WIN32_WCE)
 #if !defined(_ATL_NO_OPENGL) && !defined(_WIN32_WCE)
   #pragma comment(lib, "opengl32.lib")
-#endif //!defined(_ATL_NO_OPENGL) && !defined(_WIN32_WCE)
+#endif // !defined(_ATL_NO_OPENGL) && !defined(_WIN32_WCE)
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -104,9 +104,9 @@ inline WORD AtlGetBitmapResourceBitsPerPixel(ATL::_U_STRINGorID image)
 {
 #if (_ATL_VER >= 0x0700)
 	return AtlGetBitmapResourceBitsPerPixel(ATL::_AtlBaseModule.GetResourceInstance(), image);
-#else //!(_ATL_VER >= 0x0700)
+#else // !(_ATL_VER >= 0x0700)
 	return AtlGetBitmapResourceBitsPerPixel(ATL::_pModule->GetResourceInstance(), image);
-#endif //!(_ATL_VER >= 0x0700)
+#endif // !(_ATL_VER >= 0x0700)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -181,7 +181,7 @@ public:
 		m_hPen = ::ExtCreatePen(nPenStyle, nWidth, pLogBrush, nStyleCount, lpStyle);
 		return m_hPen;
 	}
-#endif //!_WIN32_WCE
+#endif // !_WIN32_WCE
 
 	HPEN CreatePenIndirect(LPLOGPEN lpLogPen)
 	{
@@ -224,7 +224,7 @@ public:
 		ATLASSERT(m_hPen != NULL);
 		return (::GetObject(m_hPen, sizeof(EXTLOGPEN), &ExtLogPen) == sizeof(EXTLOGPEN));
 	}
-#endif //!_WIN32_WCE
+#endif // !_WIN32_WCE
 };
 
 typedef CPenT<false>   CPenHandle;
@@ -297,7 +297,7 @@ public:
 		m_hBrush = ::CreateBrushIndirect(lpLogBrush);
 		return m_hBrush;
 	}
-#endif //!_WIN32_WCE
+#endif // !_WIN32_WCE
 
 	HBRUSH CreatePatternBrush(HBITMAP hBitmap)
 	{
@@ -431,7 +431,7 @@ public:
 #else // CE specific
 		// DP and LP are always the same on CE
 		return ::MulDiv(abs(lfHeight), 720, ::GetDeviceCaps(hDC, LOGPIXELSY));   // 72 points/inch, 10 decipoints/point
-#endif //!_WIN32_WCE
+#endif // !_WIN32_WCE
 	}
 
 	void SetHeightFromDeciPoint(LONG nDeciPtHeight, HDC hDC = NULL)
@@ -446,7 +446,7 @@ public:
 #else // CE specific
 		// DP and LP are always the same on CE
 		lfHeight = -abs(::MulDiv(::GetDeviceCaps(hDC, LOGPIXELSY), nDeciPtHeight, 720));   // 72 points/inch, 10 decipoints/point
-#endif //!_WIN32_WCE
+#endif // !_WIN32_WCE
 	}
 
 #ifndef _WIN32_WCE
@@ -481,7 +481,7 @@ public:
 		::SystemParametersInfo(SPI_GETNONCLIENTMETRICS, sizeof(ncm), &ncm, 0);
 		Copy(&ncm.lfMessageFont);
 	}
-#endif //!_WIN32_WCE
+#endif // !_WIN32_WCE
 
 	void Copy(const LOGFONT* pLogFont)
 	{
@@ -585,7 +585,7 @@ public:
 		m_hFont = ::CreateFontIndirectEx(penumlfex);
 		return m_hFont;
 	}
-#endif //(_WIN32_WINNT >= 0x0500)
+#endif // (_WIN32_WINNT >= 0x0500)
 
 	HFONT CreateFont(int nHeight, int nWidth, int nEscapement,
 			int nOrientation, int nWeight, BYTE bItalic, BYTE bUnderline,
@@ -600,7 +600,7 @@ public:
 			nPitchAndFamily, lpszFacename);
 		return m_hFont;
 	}
-#endif //!_WIN32_WCE
+#endif // !_WIN32_WCE
 
 	HFONT CreatePointFont(int nPointSize, LPCTSTR lpszFaceName, HDC hDC = NULL, bool bBold = false, bool bItalic = false)
 	{
@@ -633,7 +633,7 @@ public:
 #else // CE specific
 		// DP and LP are always the same on CE
 		logFont.lfHeight = -abs(::MulDiv(::GetDeviceCaps(hDC1, LOGPIXELSY), logFont.lfHeight, 720));   // 72 points/inch, 10 decipoints/point
-#endif //!_WIN32_WCE
+#endif // !_WIN32_WCE
 
 		if(hDC == NULL)
 			::ReleaseDC(NULL, hDC1);
@@ -718,9 +718,9 @@ public:
 		ATLASSERT(m_hBitmap == NULL);
 #if (_ATL_VER >= 0x0700)
 		m_hBitmap = ::LoadBitmap(ATL::_AtlBaseModule.GetResourceInstance(), bitmap.m_lpstr);
-#else //!(_ATL_VER >= 0x0700)
+#else // !(_ATL_VER >= 0x0700)
 		m_hBitmap = ::LoadBitmap(_Module.GetResourceInstance(), bitmap.m_lpstr);
-#endif //!(_ATL_VER >= 0x0700)
+#endif // !(_ATL_VER >= 0x0700)
 		return m_hBitmap;
 	}
 
@@ -737,12 +737,12 @@ public:
 		ATLASSERT(m_hBitmap == NULL);
 #if (_ATL_VER >= 0x0700)
 		m_hBitmap = ::CreateMappedBitmap(ATL::_AtlBaseModule.GetResourceInstance(), nIDBitmap, (WORD)nFlags, lpColorMap, nMapSize);
-#else //!(_ATL_VER >= 0x0700)
+#else // !(_ATL_VER >= 0x0700)
 		m_hBitmap = ::CreateMappedBitmap(_Module.GetResourceInstance(), nIDBitmap, (WORD)nFlags, lpColorMap, nMapSize);
-#endif //!(_ATL_VER >= 0x0700)
+#endif // !(_ATL_VER >= 0x0700)
 		return m_hBitmap;
 	}
-#endif //!_WIN32_WCE
+#endif // !_WIN32_WCE
 
 	HBITMAP CreateBitmap(int nWidth, int nHeight, UINT nPlanes, UINT nBitsPerPixel, const void* lpBits)
 	{
@@ -758,7 +758,7 @@ public:
 		m_hBitmap = ::CreateBitmapIndirect(lpBitmap);
 		return m_hBitmap;
 	}
-#endif //!_WIN32_WCE
+#endif // !_WIN32_WCE
 
 	HBITMAP CreateCompatibleBitmap(HDC hDC, int nWidth, int nHeight)
 	{
@@ -774,7 +774,7 @@ public:
 		m_hBitmap = ::CreateDiscardableBitmap(hDC, nWidth, nHeight);
 		return m_hBitmap;
 	}
-#endif //!_WIN32_WCE
+#endif // !_WIN32_WCE
 
 	BOOL DeleteObject()
 	{
@@ -815,7 +815,7 @@ public:
 		ATLASSERT(m_hBitmap != NULL);
 		return ::GetBitmapBits(m_hBitmap, dwCount, lpBits);
 	}
-#endif //!_WIN32_WCE
+#endif // !_WIN32_WCE
 
 #if !defined(_WIN32_WCE) || (_WIN32_WCE >= 410)
 	DWORD SetBitmapBits(DWORD dwCount, const void* lpBits)
@@ -823,7 +823,7 @@ public:
 		ATLASSERT(m_hBitmap != NULL);
 		return ::SetBitmapBits(m_hBitmap, dwCount, lpBits);
 	}
-#endif //!defined(_WIN32_WCE) || (_WIN32_WCE >= 410)
+#endif // !defined(_WIN32_WCE) || (_WIN32_WCE >= 410)
 
 #ifndef _WIN32_WCE
 	BOOL GetBitmapDimension(LPSIZE lpSize) const
@@ -845,7 +845,7 @@ public:
 		m_hBitmap = ::CreateDIBitmap(hDC, lpbmih, dwInit, lpbInit, lpbmi, uColorUse);
 		return m_hBitmap;
 	}
-#endif //!_WIN32_WCE
+#endif // !_WIN32_WCE
 
 	HBITMAP CreateDIBSection(HDC hDC, CONST BITMAPINFO* lpbmi, UINT uColorUse, VOID** ppvBits, HANDLE hSection, DWORD dwOffset)
 	{
@@ -866,7 +866,7 @@ public:
 		ATLASSERT(m_hBitmap != NULL);
 		return ::SetDIBits(hDC, m_hBitmap, uStartScan, cScanLines, lpvBits, lpbmi, uColorUse);
 	}
-#endif //!_WIN32_WCE
+#endif // !_WIN32_WCE
 };
 
 typedef CBitmapT<false>   CBitmapHandle;
@@ -933,7 +933,7 @@ public:
 		m_hPalette = ::CreateHalftonePalette(hDC);
 		return m_hPalette;
 	}
-#endif //!_WIN32_WCE
+#endif // !_WIN32_WCE
 
 	BOOL DeleteObject()
 	{
@@ -978,7 +978,7 @@ public:
 		ATLASSERT(m_hPalette != NULL);
 		return ::ResizePalette(m_hPalette, nNumEntries);
 	}
-#endif //!_WIN32_WCE
+#endif // !_WIN32_WCE
 
 	UINT GetNearestPaletteIndex(COLORREF crColor) const
 	{
@@ -1100,7 +1100,7 @@ public:
 		m_hRgn = ::ExtCreateRegion(lpXForm, nCount, pRgnData);
 		return m_hRgn;
 	}
-#endif //!_WIN32_WCE
+#endif // !_WIN32_WCE
 
 	BOOL DeleteObject()
 	{
@@ -1247,7 +1247,7 @@ public:
 		ATLASSERT(m_hDC != NULL);
 		return ::WindowFromDC(m_hDC);
 	}
-#endif //!_WIN32_WCE
+#endif // !_WIN32_WCE
 
 	CPenHandle GetCurrentPen() const
 	{
@@ -1347,7 +1347,7 @@ public:
 		ATLASSERT(m_hDC != NULL);
 		return ::GetBrushOrgEx(m_hDC, lpPoint);
 	}
-#endif //!_WIN32_WCE
+#endif // !_WIN32_WCE
 
 	BOOL SetBrushOrg(int x, int y, LPPOINT lpPoint = NULL)
 	{
@@ -1371,7 +1371,7 @@ public:
 		return ::EnumObjects(m_hDC, nObjectType, (GOBJENUMPROC)lpfn, (LPVOID)lpData);
 #endif
 	}
-#endif //!_WIN32_WCE
+#endif // !_WIN32_WCE
 
 // Type-safe selection helpers
 	HPEN SelectPen(HPEN hPen)
@@ -1381,7 +1381,7 @@ public:
 		ATLASSERT(hPen == NULL || ::GetObjectType(hPen) == OBJ_PEN || ::GetObjectType(hPen) == OBJ_EXTPEN);
 #else // CE specific
 		ATLASSERT(hPen == NULL || ::GetObjectType(hPen) == OBJ_PEN);
-#endif //_WIN32_WCE
+#endif // _WIN32_WCE
 		return (HPEN)::SelectObject(m_hDC, hPen);
 	}
 
@@ -1421,7 +1421,7 @@ public:
 		ATLASSERT(nPen == WHITE_PEN || nPen == BLACK_PEN || nPen == NULL_PEN || nPen == DC_PEN);
 #else
 		ATLASSERT(nPen == WHITE_PEN || nPen == BLACK_PEN || nPen == NULL_PEN);
-#endif //!(_WIN32_WINNT >= 0x0500)
+#endif // !(_WIN32_WINNT >= 0x0500)
 		return SelectPen((HPEN)::GetStockObject(nPen));
 	}
 
@@ -1431,7 +1431,7 @@ public:
 		ATLASSERT((nBrush >= WHITE_BRUSH && nBrush <= HOLLOW_BRUSH) || nBrush == DC_BRUSH);
 #else
 		ATLASSERT(nBrush >= WHITE_BRUSH && nBrush <= HOLLOW_BRUSH);
-#endif //!(_WIN32_WINNT >= 0x0500)
+#endif // !(_WIN32_WINNT >= 0x0500)
 		return SelectBrush((HBRUSH)::GetStockObject(nBrush));
 	}
 
@@ -1441,7 +1441,7 @@ public:
 		ATLASSERT((nFont >= OEM_FIXED_FONT && nFont <= SYSTEM_FIXED_FONT) || nFont == DEFAULT_GUI_FONT);
 #else // CE specific
 		ATLASSERT(nFont == SYSTEM_FONT);
-#endif //_WIN32_WCE
+#endif // _WIN32_WCE
 		return SelectFont((HFONT)::GetStockObject(nFont));
 	}
 
@@ -1477,7 +1477,7 @@ public:
 		ATLASSERT(m_hDC != NULL);
 		::UpdateColors(m_hDC);
 	}
-#endif //!_WIN32_WCE
+#endif // !_WIN32_WCE
 
 // Drawing-Attribute Functions
 	COLORREF GetBkColor() const
@@ -1510,7 +1510,7 @@ public:
 		ATLASSERT(m_hDC != NULL);
 		return ::GetStretchBltMode(m_hDC);
 	}
-#endif //!_WIN32_WCE
+#endif // !_WIN32_WCE
 
 	COLORREF GetTextColor() const
 	{
@@ -1536,7 +1536,7 @@ public:
 		ATLASSERT(m_hDC != NULL);
 		return ::SetPolyFillMode(m_hDC, nPolyFillMode);
 	}
-#endif //!_WIN32_WCE
+#endif // !_WIN32_WCE
 
 	int SetROP2(int nDrawMode)
 	{
@@ -1550,7 +1550,7 @@ public:
 		ATLASSERT(m_hDC != NULL);
 		return ::SetStretchBltMode(m_hDC, nStretchMode);
 	}
-#endif //!_WIN32_WCE
+#endif // !_WIN32_WCE
 
 	COLORREF SetTextColor(COLORREF crColor)
 	{
@@ -1589,7 +1589,7 @@ public:
 		ATLASSERT(m_hDC != NULL);
 		return ::SetMapMode(m_hDC, nMapMode);
 	}
-#endif //!_WIN32_WCE
+#endif // !_WIN32_WCE
 
 	// Viewport Origin
 	BOOL SetViewportOrg(int x, int y, LPPOINT lpPoint = NULL)
@@ -1635,7 +1635,7 @@ public:
 		ATLASSERT(m_hDC != NULL);
 		return ::ScaleViewportExtEx(m_hDC, xNum, xDenom, yNum, yDenom, lpSize);
 	}
-#endif //!_WIN32_WCE
+#endif // !_WIN32_WCE
 
 	// Window Origin
 #ifndef _WIN32_WCE
@@ -1797,7 +1797,7 @@ public:
 		HIMETRICtoDP(lpSize);
 		DPtoLP(lpSize);
 	}
-#endif //!_WIN32_WCE
+#endif // !_WIN32_WCE
 
 // Region Functions
 	BOOL FillRgn(HRGN hRgn, HBRUSH hBrush)
@@ -1824,7 +1824,7 @@ public:
 		ATLASSERT(m_hDC != NULL);
 		return ::PaintRgn(m_hDC, hRgn);
 	}
-#endif //!_WIN32_WCE
+#endif // !_WIN32_WCE
 
 // Clipping Functions
 	int GetClipBox(LPRECT lpRect) const
@@ -1858,7 +1858,7 @@ public:
 		ATLASSERT(m_hDC != NULL);
 		return ::PtVisible(m_hDC, point.x, point.y);
 	}
-#endif //!_WIN32_WCE
+#endif // !_WIN32_WCE
 
 	BOOL RectVisible(LPCRECT lpRect) const
 	{
@@ -1890,7 +1890,7 @@ public:
 		ATLASSERT(m_hDC != NULL);
 		return ::ExcludeUpdateRgn(m_hDC, hWnd);
 	}
-#endif //!_WIN32_WCE
+#endif // !_WIN32_WCE
 
 	int IntersectClipRect(int x1, int y1, int x2, int y2)
 	{
@@ -1922,7 +1922,7 @@ public:
 		ATLASSERT(m_hDC != NULL);
 		return ::ExtSelectClipRgn(m_hDC, hRgn, nMode);
 	}
-#endif //!_WIN32_WCE
+#endif // !_WIN32_WCE
 
 // Line-Output Functions
 #if !defined(_WIN32_WCE) || (_WIN32_WCE >= 400)
@@ -1955,7 +1955,7 @@ public:
 		ATLASSERT(m_hDC != NULL);
 		return LineTo(point.x, point.y);
 	}
-#endif //!defined(_WIN32_WCE) || (_WIN32_WCE >= 400)
+#endif // !defined(_WIN32_WCE) || (_WIN32_WCE >= 400)
 
 #ifndef _WIN32_WCE
 	BOOL Arc(int x1, int y1, int x2, int y2, int x3, int y3, int x4, int y4)
@@ -1971,7 +1971,7 @@ public:
 			lpRect->right, lpRect->bottom, ptStart.x, ptStart.y,
 			ptEnd.x, ptEnd.y);
 	}
-#endif //!_WIN32_WCE
+#endif // !_WIN32_WCE
 
 	BOOL Polyline(LPPOINT lpPoints, int nCount)
 	{
@@ -2041,7 +2041,7 @@ public:
 		ATLASSERT(m_hDC != NULL);
 		return ::PolyBezierTo(m_hDC, lpPoints, nCount);
 	}
-#endif //!_WIN32_WCE
+#endif // !_WIN32_WCE
 
 // Simple Drawing Functions
 	BOOL FillRect(LPCRECT lpRect, HBRUSH hBrush)
@@ -2057,7 +2057,7 @@ public:
 		return ::FillRect(m_hDC, lpRect, (HBRUSH)LongToPtr(nColorIndex + 1));
 #else // CE specific
 		return ::FillRect(m_hDC, lpRect, ::GetSysColorBrush(nColorIndex));
-#endif //_WIN32_WCE
+#endif // _WIN32_WCE
 	}
 
 #ifndef _WIN32_WCE
@@ -2066,7 +2066,7 @@ public:
 		ATLASSERT(m_hDC != NULL);
 		return ::FrameRect(m_hDC, lpRect, hBrush);
 	}
-#endif //!_WIN32_WCE
+#endif // !_WIN32_WCE
 
 #if !defined(_WIN32_WCE) || (_WIN32_WCE >= 420)
 	BOOL InvertRect(LPCRECT lpRect)
@@ -2074,7 +2074,7 @@ public:
 		ATLASSERT(m_hDC != NULL);
 		return ::InvertRect(m_hDC, lpRect);
 	}
-#endif //!defined(_WIN32_WCE) || (_WIN32_WCE >= 420)
+#endif // !defined(_WIN32_WCE) || (_WIN32_WCE >= 420)
 
 	BOOL DrawIcon(int x, int y, HICON hIcon)
 	{
@@ -2083,7 +2083,7 @@ public:
 		return ::DrawIcon(m_hDC, x, y, hIcon);
 #else // CE specific
 		return ::DrawIconEx(m_hDC, x, y, hIcon, 0, 0, 0, NULL, DI_NORMAL);
-#endif //_WIN32_WCE
+#endif // _WIN32_WCE
 	}
 
 	BOOL DrawIcon(POINT point, HICON hIcon)
@@ -2093,7 +2093,7 @@ public:
 		return ::DrawIcon(m_hDC, point.x, point.y, hIcon);
 #else // CE specific
 		return ::DrawIconEx(m_hDC, point.x, point.y, hIcon, 0, 0, 0, NULL, DI_NORMAL);
-#endif //_WIN32_WCE
+#endif // _WIN32_WCE
 	}
 
 	BOOL DrawIconEx(int x, int y, HICON hIcon, int cxWidth, int cyWidth, UINT uStepIfAniCur = 0, HBRUSH hbrFlickerFreeDraw = NULL, UINT uFlags = DI_NORMAL)
@@ -2132,7 +2132,7 @@ public:
 		ATLASSERT(m_hDC != NULL);
 		return ::DrawState(m_hDC, hBrush, lpDrawProc, lData, 0, pt.x, pt.y, size.cx, size.cy, nFlags | DST_COMPLEX);
 	}
-#endif //!_WIN32_WCE
+#endif // !_WIN32_WCE
 
 // Ellipse and Polygon Functions
 #ifndef _WIN32_WCE
@@ -2147,7 +2147,7 @@ public:
 		ATLASSERT(m_hDC != NULL);
 		return ::Chord(m_hDC, lpRect->left, lpRect->top, lpRect->right, lpRect->bottom, ptStart.x, ptStart.y, ptEnd.x, ptEnd.y);
 	}
-#endif //!_WIN32_WCE
+#endif // !_WIN32_WCE
 
 	void DrawFocusRect(LPCRECT lpRect)
 	{
@@ -2179,7 +2179,7 @@ public:
 		ATLASSERT(m_hDC != NULL);
 		return ::Pie(m_hDC, lpRect->left, lpRect->top, lpRect->right, lpRect->bottom, ptStart.x, ptStart.y, ptEnd.x, ptEnd.y);
 	}
-#endif //!_WIN32_WCE
+#endif // !_WIN32_WCE
 
 	BOOL Polygon(LPPOINT lpPoints, int nCount)
 	{
@@ -2193,7 +2193,7 @@ public:
 		ATLASSERT(m_hDC != NULL);
 		return ::PolyPolygon(m_hDC, lpPoints, lpPolyCounts, nCount);
 	}
-#endif //!_WIN32_WCE
+#endif // !_WIN32_WCE
 
 	BOOL Rectangle(int x1, int y1, int x2, int y2)
 	{
@@ -2275,7 +2275,7 @@ public:
 		ATLASSERT(m_hDC != NULL);
 		return ::ExtFloodFill(m_hDC, x, y, crColor, nFillType);
 	}
-#endif //!_WIN32_WCE
+#endif // !_WIN32_WCE
 
 	BOOL MaskBlt(int x, int y, int nWidth, int nHeight, HDC hSrcDC, int xSrc, int ySrc, HBITMAP hMaskBitmap, int xMask, int yMask, DWORD dwRop)
 	{
@@ -2301,7 +2301,7 @@ public:
 		ATLASSERT(m_hDC != NULL);
 		return ::SetPixelV(m_hDC, point.x, point.y, crColor);
 	}
-#endif //!_WIN32_WCE
+#endif // !_WIN32_WCE
 
 #if !defined(_ATL_NO_MSIMG) && !defined(_WIN32_WCE)
 	BOOL AlphaBlend(int x, int y, int nWidth, int nHeight, HDC hSrcDC, int xSrc, int ySrc, int nSrcWidth, int nSrcHeight, BLENDFUNCTION bf)
@@ -2321,7 +2321,7 @@ public:
 		ATLASSERT(m_hDC != NULL);
 		return ::GradientFill(m_hDC, pVertices, nVertices, pMeshElements, nMeshElements, dwMode);
 	}
-#endif //!defined(_ATL_NO_MSIMG) && !defined(_WIN32_WCE)
+#endif // !defined(_ATL_NO_MSIMG) && !defined(_WIN32_WCE)
 
 // Extra bitmap functions
 	// Helper function for painting a disabled toolbar or menu bitmap
@@ -2444,7 +2444,7 @@ public:
 			nCount = lstrlen(lpszString);
 		return ::TextOut(m_hDC, x, y, lpszString, nCount);
 	}
-#endif //!_WIN32_WCE
+#endif // !_WIN32_WCE
 
 	BOOL ExtTextOut(int x, int y, UINT nOptions, LPCRECT lpRect, LPCTSTR lpszString, UINT nCount = -1, LPINT lpDxWidths = NULL)
 	{
@@ -2464,7 +2464,7 @@ public:
 		SIZE size = { GET_X_LPARAM(lRes), GET_Y_LPARAM(lRes) };
 		return size;
 	}
-#endif //!_WIN32_WCE
+#endif // !_WIN32_WCE
 
 	int DrawText(LPCTSTR lpstrText, int cchText, LPRECT lpRect, UINT uFormat)
 	{
@@ -2478,7 +2478,7 @@ public:
 		ATLASSERT(m_hDC != NULL);
 		return ::DrawTextEx(m_hDC, lpstrText, cchText, lpRect, uFormat, lpDTParams);
 	}
-#endif //!_WIN32_WCE
+#endif // !_WIN32_WCE
 
 #if (_WIN32_WINNT >= 0x0501)
 	int DrawShadowText(LPCWSTR lpstrText, int cchText, LPRECT lpRect, DWORD dwFlags, COLORREF clrText, COLORREF clrShadow, int xOffset, int yOffset)
@@ -2501,7 +2501,7 @@ public:
 		}
 		return nRet;
 	}
-#endif //(_WIN32_WINNT >= 0x0501)
+#endif // (_WIN32_WINNT >= 0x0501)
 
 	BOOL GetTextExtent(LPCTSTR lpszString, int nCount, LPSIZE lpSize) const
 	{
@@ -2531,7 +2531,7 @@ public:
 		ATLASSERT(m_hDC != NULL);
 		return ::GrayString(m_hDC, hBrush, (GRAYSTRINGPROC)lpfnOutput, lpData, nCount, x, y, nWidth, nHeight);
 	}
-#endif //!_WIN32_WCE
+#endif // !_WIN32_WCE
 
 #if !defined(_WIN32_WCE) || (_WIN32_WCE >= 400)
 	UINT GetTextAlign() const
@@ -2545,7 +2545,7 @@ public:
 		ATLASSERT(m_hDC != NULL);
 		return ::SetTextAlign(m_hDC, nFlags);
 	}
-#endif //!defined(_WIN32_WCE) || (_WIN32_WCE >= 400)
+#endif // !defined(_WIN32_WCE) || (_WIN32_WCE >= 400)
 
 	int GetTextFace(LPTSTR lpszFacename, int nCount) const
 	{
@@ -2580,7 +2580,7 @@ public:
 		return (bstrFace != NULL) ? TRUE : FALSE;
 	}
 #endif
-#endif //!_ATL_NO_COM
+#endif // !_ATL_NO_COM
 
 #if defined(_WTL_USE_CSTRING) || defined(__ATLSTR_H__)
 	int GetTextFace(_CSTRING_NS::CString& strFace) const
@@ -2598,7 +2598,7 @@ public:
 		strFace.ReleaseBuffer();
 		return nRet;
 	}
-#endif //defined(_WTL_USE_CSTRING) || defined(__ATLSTR_H__)
+#endif // defined(_WTL_USE_CSTRING) || defined(__ATLSTR_H__)
 
 	BOOL GetTextMetrics(LPTEXTMETRIC lpMetrics) const
 	{
@@ -2624,7 +2624,7 @@ public:
 		ATLASSERT(m_hDC != NULL);
 		return ::SetTextCharacterExtra(m_hDC, nCharExtra);
 	}
-#endif //!_WIN32_WCE
+#endif // !_WIN32_WCE
 
 // Advanced Drawing
 	BOOL DrawEdge(LPRECT lpRect, UINT nEdge, UINT nFlags)
@@ -2714,7 +2714,7 @@ public:
 		ATLASSERT(m_hDC != NULL);
 		return ::GetCharWidthFloat(m_hDC, nFirstChar, nLastChar, lpFloatBuffer);
 	}
-#endif //!_WIN32_WCE
+#endif // !_WIN32_WCE
 
 // Printer/Device Escape Functions
 #ifndef _WIN32_WCE
@@ -2723,7 +2723,7 @@ public:
 		ATLASSERT(m_hDC != NULL);
 		return ::Escape(m_hDC, nEscape, nCount, lpszInData, lpOutData);
 	}
-#endif //!_WIN32_WCE
+#endif // !_WIN32_WCE
 
 	int Escape(int nEscape, int nInputSize, LPCSTR lpszInputData,
 		int nOutputSize, LPSTR lpszOutputData)
@@ -2738,7 +2738,7 @@ public:
 		ATLASSERT(m_hDC != NULL);
 		return ::DrawEscape(m_hDC, nEscape, nInputSize, lpszInputData);
 	}
-#endif //!_WIN32_WCE
+#endif // !_WIN32_WCE
 
 	// Escape helpers
 #if !defined(_WIN32_WCE) || ((_WIN32_WCE >= 200) && defined(StartDoc))
@@ -2785,7 +2785,7 @@ public:
 		ATLASSERT(m_hDC != NULL);
 		return ::EndDoc(m_hDC);
 	}
-#endif //!defined(_WIN32_WCE) || ((_WIN32_WCE >= 200) && defined(StartDoc))
+#endif // !defined(_WIN32_WCE) || ((_WIN32_WCE >= 200) && defined(StartDoc))
 
 // MetaFile Functions
 #ifndef _WIN32_WCE
@@ -2901,7 +2901,7 @@ public:
 
 		return 1;
 	}
-#endif //!_WIN32_WCE
+#endif // !_WIN32_WCE
 
 // Path Functions
 #ifndef _WIN32_WCE
@@ -2982,7 +2982,7 @@ public:
 		ATLASSERT(m_hDC != NULL);
 		return ::SelectClipPath(m_hDC, nMode);
 	}
-#endif //!_WIN32_WCE
+#endif // !_WIN32_WCE
 
 // Misc Helper Functions
 	static CBrushHandle PASCAL GetHalftoneBrush()
@@ -3124,7 +3124,7 @@ public:
 		ATLASSERT(m_hDC != NULL);
 		return ::SetDIBColorTable(m_hDC, uStartIndex, cEntries, pColors);
 	}
-#endif //!defined(_WIN32_WCE) || (_WIN32_WCE >= 400)
+#endif // !defined(_WIN32_WCE) || (_WIN32_WCE >= 400)
 
 // OpenGL support
 #if !defined(_ATL_NO_OPENGL) && !defined(_WIN32_WCE)
@@ -3217,7 +3217,7 @@ public:
 		ATLASSERT(m_hDC != NULL);
 		return ::wglSwapLayerBuffers(m_hDC, uPlanes);
 	}
-#endif //!defined(_ATL_NO_OPENGL) && !defined(_WIN32_WCE)
+#endif // !defined(_ATL_NO_OPENGL) && !defined(_WIN32_WCE)
 
 // New for Windows 2000 only
 #if (_WIN32_WINNT >= 0x0500)
@@ -3251,7 +3251,7 @@ public:
 		ATLASSERT(m_hDC != NULL);
 		return ::GetFontUnicodeRanges(m_hDC, lpgs);
 	}
-#endif //!_WIN32_WCE
+#endif // !_WIN32_WCE
 
 	DWORD GetGlyphIndices(LPCTSTR lpstr, int cch, LPWORD pgi, DWORD dwFlags) const
 	{
@@ -3282,7 +3282,7 @@ public:
 		ATLASSERT(m_hDC != NULL);
 		return ::GetCharABCWidthsI(m_hDC, giFirst, cgi, pgi, lpabc);
 	}
-#endif //(_WIN32_WINNT >= 0x0500)
+#endif // (_WIN32_WINNT >= 0x0500)
 
 // New for Windows 2000 and Windows 98
 #if (WINVER >= 0x0500) && !defined(_WIN32_WCE)
@@ -3291,7 +3291,7 @@ public:
 		ATLASSERT(m_hDC != NULL);
 		return ::ColorCorrectPalette(m_hDC, hPalette, dwFirstEntry, dwNumOfEntries);
 	}
-#endif //(WINVER >= 0x0500) && !defined(_WIN32_WCE)
+#endif // (WINVER >= 0x0500) && !defined(_WIN32_WCE)
 };
 
 typedef CDCT<false>   CDCHandle;
@@ -3600,7 +3600,7 @@ public:
 	}
 };
 
-#endif //!_WIN32_WCE
+#endif // !_WIN32_WCE
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -3796,6 +3796,6 @@ inline HBITMAP AtlGetClipboardDib( HWND hWnd)
 
 #endif // _WTL_NO_DIB16
 
-}; //namespace WTL
+}; // namespace WTL
 
 #endif // __ATLGDI_H__

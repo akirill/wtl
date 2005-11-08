@@ -24,7 +24,7 @@
 
 #if (_ATL_VER >= 0x0700)
   #include <atlwin.h>
-#endif //(_ATL_VER >= 0x0700)
+#endif // (_ATL_VER >= 0x0700)
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -107,7 +107,7 @@ inline LRESULT WtlReflectNotificationsFiltered(HWND hWndParent, UINT uMsg, WPARA
 			break;
 		}
 		break;
-#endif //!_WIN32_WCE
+#endif // !_WIN32_WCE
 	case WM_DRAWITEM:
 		if(wParam)	// not from a menu
 		{
@@ -185,7 +185,7 @@ inline LRESULT WtlReflectNotificationsFiltered(HWND hWndParent, UINT uMsg, WPARA
 	return lResult;
 }
 
-}; //namespace WTL
+}; // namespace WTL
 
 // Try to prevent problems with WM_CTLCOLOR* messages when
 // the message wasn't really handled
@@ -425,7 +425,7 @@ inline LRESULT WtlReflectNotificationsFiltered(HWND hWndParent, UINT uMsg, WPARA
 			return TRUE; \
 	}
 
-#endif //(_ATL_VER < 0x0700)
+#endif // (_ATL_VER < 0x0700)
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -466,9 +466,9 @@ public:
 	LPCTSTR m_lpstr;
 };
 
-}; //namespace ATL
+}; // namespace ATL
 
-#endif //(_ATL_VER < 0x0700)
+#endif // (_ATL_VER < 0x0700)
 
 
 namespace WTL
@@ -497,7 +497,7 @@ static LRESULT Atl3ForwardNotifications(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
 	case WM_NOTIFY:
 #ifndef _WIN32_WCE
 	case WM_PARENTNOTIFY:
-#endif //!_WIN32_WCE
+#endif // !_WIN32_WCE
 	case WM_DRAWITEM:
 	case WM_MEASUREITEM:
 	case WM_COMPAREITEM:
@@ -522,8 +522,8 @@ static LRESULT Atl3ForwardNotifications(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
 	return lResult;
 }
 
-#endif //(_ATL_VER < 0x0700)
+#endif // (_ATL_VER < 0x0700)
 
-}; //namespace WTL
+}; // namespace WTL
 
 #endif // __ATLWINX_H__

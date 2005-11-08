@@ -1501,7 +1501,7 @@ public: \
 			return TRUE; \
 	}
 
-#endif //(_WIN32_WINNT >= 0x0500)
+#endif // (_WIN32_WINNT >= 0x0500)
 
 #if(_WIN32_WINNT >= 0x0501)
 
@@ -1986,4 +1986,4 @@ public: \
 			return TRUE; \
 	}
 
-#endif //__ATLCRACK_H__
+#endif // __ATLCRACK_H__

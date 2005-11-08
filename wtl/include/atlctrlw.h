@@ -237,7 +237,7 @@ public:
 
 #ifndef DT_HIDEPREFIX
 	enum { DT_HIDEPREFIX = 0x00100000 };
-#endif //!DT_HIDEPREFIX
+#endif // !DT_HIDEPREFIX
 
 // Data members
 	HMENU m_hMenu;
@@ -445,10 +445,10 @@ public:
 		dwStyle |= TBSTYLE_LIST | TBSTYLE_FLAT;
 #if (_MSC_VER >= 1300)
 		return ATL::CWindowImpl< T, TBase, TWinTraits >::Create(hWndParent, rcPos, szWindowName, dwStyle, dwExStyle, nID, lpCreateParam);
-#else //!(_MSC_VER >= 1300)
+#else // !(_MSC_VER >= 1300)
 		typedef ATL::CWindowImpl< T, TBase, TWinTraits >   _baseClass;
 		return _baseClass::Create(hWndParent, rcPos, szWindowName, dwStyle, dwExStyle, nID, lpCreateParam);
-#endif //!(_MSC_VER >= 1300)
+#endif // !(_MSC_VER >= 1300)
 	}
 
 	BOOL AttachToWindow(HWND hWnd)
@@ -476,9 +476,9 @@ public:
 
 #if (_ATL_VER >= 0x0700)
 		HMENU hMenu = ::LoadMenu(ATL::_AtlBaseModule.GetResourceInstance(), menu.m_lpstr);
-#else //!(_ATL_VER >= 0x0700)
+#else // !(_ATL_VER >= 0x0700)
 		HMENU hMenu = ::LoadMenu(_Module.GetResourceInstance(), menu.m_lpstr);
-#endif //!(_ATL_VER >= 0x0700)
+#endif // !(_ATL_VER >= 0x0700)
 		if(hMenu == NULL)
 			return FALSE;
 
@@ -584,9 +584,9 @@ public:
 		ATLASSERT(::IsWindow(m_hWnd));
 #if (_ATL_VER >= 0x0700)
 		HINSTANCE hInstance = ATL::_AtlBaseModule.GetResourceInstance();
-#else //!(_ATL_VER >= 0x0700)
+#else // !(_ATL_VER >= 0x0700)
 		HINSTANCE hInstance = _Module.GetResourceInstance();
-#endif //!(_ATL_VER >= 0x0700)
+#endif // !(_ATL_VER >= 0x0700)
 
 		HRSRC hRsrc = ::FindResource(hInstance, image.m_lpstr, (LPTSTR)RT_TOOLBAR);
 		if(hRsrc == NULL)
@@ -631,9 +631,9 @@ public:
 			if(m_bAlphaImages)
 #if (_ATL_VER >= 0x0700)
 				bmp = (HBITMAP)::LoadImage(ATL::_AtlBaseModule.GetResourceInstance(), image.m_lpstr, IMAGE_BITMAP, 0, 0, LR_CREATEDIBSECTION | LR_DEFAULTSIZE);
-#else //!(_ATL_VER >= 0x0700)
+#else // !(_ATL_VER >= 0x0700)
 				bmp = (HBITMAP)::LoadImage(_Module.GetResourceInstance(), image.m_lpstr, IMAGE_BITMAP, 0, 0, LR_CREATEDIBSECTION | LR_DEFAULTSIZE);
-#endif //!(_ATL_VER >= 0x0700)
+#endif // !(_ATL_VER >= 0x0700)
 			else
 				bmp.LoadBitmap(image.m_lpstr);
 		}
@@ -700,9 +700,9 @@ public:
 		ATLASSERT(::IsWindow(m_hWnd));
 #if (_ATL_VER >= 0x0700)
 		HICON hIcon = ::LoadIcon(ATL::_AtlBaseModule.GetResourceInstance(), icon.m_lpstr);
-#else //!(_ATL_VER >= 0x0700)
+#else // !(_ATL_VER >= 0x0700)
 		HICON hIcon = ::LoadIcon(_Module.GetResourceInstance(), icon.m_lpstr);
-#endif //!(_ATL_VER >= 0x0700)
+#endif // !(_ATL_VER >= 0x0700)
 		if(hIcon == NULL)
 			return FALSE;
 		return AddIcon(hIcon, nCommandID);
@@ -761,9 +761,9 @@ public:
 		ATLASSERT(::IsWindow(m_hWnd));
 #if (_ATL_VER >= 0x0700)
 		HICON hIcon = ::LoadIcon(ATL::_AtlBaseModule.GetResourceInstance(), icon.m_lpstr);
-#else //!(_ATL_VER >= 0x0700)
+#else // !(_ATL_VER >= 0x0700)
 		HICON hIcon = ::LoadIcon(_Module.GetResourceInstance(), icon.m_lpstr);
-#endif //!(_ATL_VER >= 0x0700)
+#endif // !(_ATL_VER >= 0x0700)
 		if(hIcon == NULL)
 			return FALSE;
 		return ReplaceIcon(hIcon, nCommandID);
@@ -942,9 +942,9 @@ public:
 				ATLASSERT(pData != NULL);
 #if (_ATL_VER >= 0x0700)
 				HHOOK hMsgHook = ::SetWindowsHookEx(WH_GETMESSAGE, MessageHookProc, ATL::_AtlBaseModule.GetModuleInstance(), dwThreadID);
-#else //!(_ATL_VER >= 0x0700)
+#else // !(_ATL_VER >= 0x0700)
 				HHOOK hMsgHook = ::SetWindowsHookEx(WH_GETMESSAGE, MessageHookProc, _Module.GetModuleInstance(), dwThreadID);
-#endif //!(_ATL_VER >= 0x0700)
+#endif // !(_ATL_VER >= 0x0700)
 				ATLASSERT(hMsgHook != NULL);
 				if(pData != NULL && hMsgHook != NULL)
 				{
@@ -965,7 +965,7 @@ public:
 		// Get layout
 #if (WINVER >= 0x0500)
 		m_bLayoutRTL = ((GetExStyle() & WS_EX_LAYOUTRTL) != 0);
-#endif //(WINVER >= 0x0500)
+#endif // (WINVER >= 0x0500)
 
 		return lRet;
 	}
@@ -1045,7 +1045,7 @@ public:
 				}
 			}
 		}
-#endif //(_WIN32_IE >= 0x0500)
+#endif // (_WIN32_IE >= 0x0500)
 		return 0;
 	}
 
@@ -1078,7 +1078,7 @@ public:
 		{
 #if (_WIN32_IE >= 0x0500)
 			if((TCHAR)LOWORD(wParam) != _chChevronShortcut)
-#endif //(_WIN32_IE >= 0x0500)
+#endif // (_WIN32_IE >= 0x0500)
 				::MessageBeep(0);
 		}
 		else
@@ -1092,7 +1092,7 @@ public:
 			GetButton(nBtn, &tbb);
 			if((tbb.fsState & TBSTATE_ENABLED) != 0 && (tbb.fsState & TBSTATE_HIDDEN) == 0 && rcBtn.right <= rcClient.right)
 			{
-#endif //(_WIN32_IE >= 0x0500)
+#endif // (_WIN32_IE >= 0x0500)
 				PostMessage(WM_KEYDOWN, VK_DOWN, 0L);
 				if(wParam != VK_RETURN)
 					SetHotItem(nBtn);
@@ -1103,7 +1103,7 @@ public:
 				::MessageBeep(0);
 				bHandled = TRUE;
 			}
-#endif //(_WIN32_IE >= 0x0500)
+#endif // (_WIN32_IE >= 0x0500)
 		}
 		return 0;
 	}
@@ -1324,10 +1324,10 @@ public:
 	{
 #ifndef SPI_GETKEYBOARDCUES
 		const UINT SPI_SETKEYBOARDCUES = 0x100B;
-#endif //!SPI_GETKEYBOARDCUES
+#endif // !SPI_GETKEYBOARDCUES
 #ifndef SPI_GETFLATMENU
 		const UINT SPI_SETFLATMENU = 0x1023;
-#endif //!SPI_GETFLATMENU
+#endif // !SPI_GETFLATMENU
 
 		if(wParam == SPI_SETNONCLIENTMETRICS || wParam == SPI_SETKEYBOARDCUES || wParam == SPI_SETFLATMENU)
 	{
@@ -1441,7 +1441,7 @@ public:
 					if(pT->DisplayChevronMenu())
 						bHandled = TRUE;
 				}
-#endif //(_WIN32_IE >= 0x0500)
+#endif // (_WIN32_IE >= 0x0500)
 			}
 			else if(m_wndParent.IsWindowEnabled())
 			{
@@ -1454,7 +1454,7 @@ public:
 				GetButton(nBtn, &tbb);
 				if((tbb.fsState & TBSTATE_ENABLED) != 0 && (tbb.fsState & TBSTATE_HIDDEN) == 0 && rcBtn.right <= rcClient.right)
 				{
-#endif //(_WIN32_IE >= 0x0500)
+#endif // (_WIN32_IE >= 0x0500)
 					if(m_bUseKeyboardCues && !m_bShowKeyboardCues)
 					{
 						m_bAllowKeyboardCues = true;
@@ -1469,7 +1469,7 @@ public:
 				{
 					::MessageBeep(0);
 				}
-#endif //(_WIN32_IE >= 0x0500)
+#endif // (_WIN32_IE >= 0x0500)
 			}
 		}
 
@@ -1710,7 +1710,7 @@ public:
 				{
 #ifndef COLOR_MENUHILIGHT
 					const int COLOR_MENUHILIGHT = 29;
-#endif //!COLOR_MENUHILIGHT
+#endif // !COLOR_MENUHILIGHT
 					bool bDisabled = ((lpTBCustomDraw->nmcd.uItemState & CDIS_DISABLED) == CDIS_DISABLED);
 					if(!bDisabled && ((lpTBCustomDraw->nmcd.uItemState & CDIS_HOT) == CDIS_HOT || 
 						(lpTBCustomDraw->nmcd.uItemState & CDIS_SELECTED) == CDIS_SELECTED))
@@ -1903,7 +1903,7 @@ public:
 								GetItemRect(nHot, &rect);
 								PostMessage(WM_LBUTTONDOWN, MK_LBUTTON, MAKELPARAM(rect.left, rect.top));
 							}
-#endif //(_WIN32_IE < 0x0500)
+#endif // (_WIN32_IE < 0x0500)
 							PostMessage(WM_KEYDOWN, VK_DOWN, 0L);
 							m_bSkipPostDown = true;
 						}
@@ -1970,7 +1970,7 @@ public:
 						m_nNextPopBtn = -1;
 						pT->DisplayChevronMenu();
 					}
-#endif //(_WIN32_IE >= 0x0500)
+#endif // (_WIN32_IE >= 0x0500)
 					bHandled = TRUE;
 				}
 			}
@@ -2133,7 +2133,7 @@ public:
 
 #ifndef COLOR_MENUHILIGHT
 		const int COLOR_MENUHILIGHT = 29;
-#endif //!COLOR_MENUHILIGHT
+#endif // !COLOR_MENUHILIGHT
 
 		BOOL bDisabled = lpDrawItemStruct->itemState & ODS_GRAYED;
 		BOOL bSelected = lpDrawItemStruct->itemState & ODS_SELECTED;
@@ -2266,7 +2266,7 @@ public:
 			::ImageList_DrawIndirect(&ildp);
 		}
 		else
-#endif //(_WIN32_WINNT >= 0x0501) && (_WIN32_IE >= 0x0501)
+#endif // (_WIN32_WINNT >= 0x0501) && (_WIN32_IE >= 0x0501)
 		{
 			// create memory DC
 			CDC dcMem;
@@ -2680,9 +2680,9 @@ public:
 
 #if (_ATL_VER >= 0x0700)
 		s_hCreateHook = ::SetWindowsHookEx(WH_CBT, CreateHookProc, ATL::_AtlBaseModule.GetModuleInstance(), GetCurrentThreadId());
-#else //!(_ATL_VER >= 0x0700)
+#else // !(_ATL_VER >= 0x0700)
 		s_hCreateHook = ::SetWindowsHookEx(WH_CBT, CreateHookProc, _Module.GetModuleInstance(), GetCurrentThreadId());
-#endif //!(_ATL_VER >= 0x0700)
+#endif // !(_ATL_VER >= 0x0700)
 		ATLASSERT(s_hCreateHook != NULL);
 
 		m_bPopupItem = false;
@@ -2756,7 +2756,7 @@ public:
 #if (_WIN32_IE >= 0x0500)
 		RECT rcClient;
 		GetClientRect(&rcClient);
-#endif //(_WIN32_IE >= 0x0500)
+#endif // (_WIN32_IE >= 0x0500)
 		int nNextBtn;
 		for(nNextBtn = nBtn - 1; nNextBtn != nBtn; nNextBtn--)
 		{
@@ -2772,7 +2772,7 @@ public:
 				nNextBtn = -2;   // chevron
 				break;
 			}
-#endif //(_WIN32_IE >= 0x0500)
+#endif // (_WIN32_IE >= 0x0500)
 			if((tbb.fsState & TBSTATE_ENABLED) != 0 && (tbb.fsState & TBSTATE_HIDDEN) == 0)
 				break;
 		}
@@ -2786,7 +2786,7 @@ public:
 #if (_WIN32_IE >= 0x0500)
 		RECT rcClient = { 0 };
 		GetClientRect(&rcClient);
-#endif //(_WIN32_IE >= 0x0500)
+#endif // (_WIN32_IE >= 0x0500)
 		int nNextBtn = 0;
 		int nCount = ::GetMenuItemCount(m_hMenu);
 		for(nNextBtn = nBtn + 1; nNextBtn != nBtn; nNextBtn++)
@@ -2803,7 +2803,7 @@ public:
 				nNextBtn = -2;   // chevron
 				break;
 			}
-#endif //(_WIN32_IE >= 0x0500)
+#endif // (_WIN32_IE >= 0x0500)
 			if((tbb.fsState & TBSTATE_ENABLED) != 0 && (tbb.fsState & TBSTATE_HIDDEN) == 0)
 				break;
 		}
@@ -2834,7 +2834,7 @@ public:
 		}
 		return bRet;
 	}
-#endif //(_WIN32_IE >= 0x0500)
+#endif // (_WIN32_IE >= 0x0500)
 
 	void GetSystemSettings()
 	{
@@ -2903,7 +2903,7 @@ public:
 		{
 #ifndef SPI_GETKEYBOARDCUES
 			const UINT SPI_GETKEYBOARDCUES = 0x100A;
-#endif //!SPI_GETKEYBOARDCUES
+#endif // !SPI_GETKEYBOARDCUES
 			BOOL bRetVal = TRUE;
 			bRet = ::SystemParametersInfo(SPI_GETKEYBOARDCUES, 0, &bRetVal, 0);
 			m_bUseKeyboardCues = (bRet && !bRetVal);
@@ -2916,7 +2916,7 @@ public:
 		{
 #ifndef SPI_GETFLATMENU
 			const UINT SPI_GETFLATMENU = 0x1022;
-#endif //!SPI_GETFLATMENU
+#endif // !SPI_GETFLATMENU
 			BOOL bRetVal = FALSE;
 			bRet = ::SystemParametersInfo(SPI_GETFLATMENU, 0, &bRetVal, 0);
 			m_bFlatMenus = (bRet && bRetVal);
@@ -3050,7 +3050,7 @@ public:
 #ifndef _WTL_NO_AUTO_THEME
 #ifndef _UXTHEME_H_
 	typedef HANDLE HTHEME;
-#endif //!_UXTHEME_H_
+#endif // !_UXTHEME_H_
 	typedef HTHEME (STDAPICALLTYPE *PFN_OpenThemeData)(HWND hwnd, LPCWSTR pszClassList);
 	typedef HRESULT (STDAPICALLTYPE *PFN_CloseThemeData)(HTHEME hTheme);
 	typedef HRESULT (STDAPICALLTYPE *PFN_DrawThemeBackground)(HTHEME hTheme, HDC hdc, int iPartId, int iStateId, const RECT *pRect, OPTIONAL const RECT *pClipRect);
@@ -3060,7 +3060,7 @@ public:
 	HTHEME m_hTheme;
 	PFN_DrawThemeBackground m_pfnDrawThemeBackground;
 	PFN_DrawThemeParentBackground m_pfnDrawThemeParentBackground;
-#endif //!_WTL_NO_AUTO_THEME
+#endif // !_WTL_NO_AUTO_THEME
 
 // Constructor/destructor
 	CMDICommandBarCtrlImpl() : 
@@ -3069,7 +3069,7 @@ public:
 			m_nBtnPressed(-1), m_nBtnWasPressed(-1),
 #ifndef _WTL_NO_AUTO_THEME
 			m_hThemeDLL(NULL), m_hTheme(NULL), m_pfnDrawThemeBackground(NULL), m_pfnDrawThemeParentBackground(NULL), 
-#endif //!_WTL_NO_AUTO_THEME
+#endif // !_WTL_NO_AUTO_THEME
 			m_cxyOffset(2),
 			m_cxIconWidth(16), m_cyIconHeight(16),
 			m_cxBtnWidth(16), m_cyBtnHeight(14),
@@ -3097,7 +3097,7 @@ public:
 		ATLASSERT(lstrcmpi(lpstrClassName, lpszMDIClientClass) == 0);
 		if(lstrcmpi(lpstrClassName, lpszMDIClientClass) != 0)
 			return FALSE;   // not an "MDIClient" window
-#endif //_DEBUG
+#endif // _DEBUG
 		if(m_wndMDIClient.IsWindow())
 /*scary!*/		m_wndMDIClient.UnsubclassWindow();
 
@@ -3111,7 +3111,7 @@ public:
 		MESSAGE_HANDLER(WM_DESTROY, OnDestroy)
 #ifndef _WTL_NO_AUTO_THEME
 		MESSAGE_HANDLER(_GetThemeChangedMsg(), OnThemeChanged)
-#endif //!_WTL_NO_AUTO_THEME
+#endif // !_WTL_NO_AUTO_THEME
 		MESSAGE_HANDLER(WM_SIZE, OnSize)
 		MESSAGE_HANDLER(WM_NCCALCSIZE, OnNcCalcSize)
 		MESSAGE_HANDLER(WM_NCPAINT, OnNcPaint)
@@ -3160,7 +3160,7 @@ public:
 			m_pfnDrawThemeParentBackground = (PFN_DrawThemeParentBackground)::GetProcAddress(m_hThemeDLL, "DrawThemeParentBackground");
 			ATLASSERT(m_pfnDrawThemeParentBackground != NULL);
 		}
-#endif //!_WTL_NO_AUTO_THEME
+#endif // !_WTL_NO_AUTO_THEME
 
 		return lRet;
 	}
@@ -3177,7 +3177,7 @@ public:
 			::FreeLibrary(m_hThemeDLL);
 			m_hThemeDLL = NULL;
 		}
-#endif //!_WTL_NO_AUTO_THEME
+#endif // !_WTL_NO_AUTO_THEME
 
 		return lRet;
 	}
@@ -3193,7 +3193,7 @@ public:
 		}
 		return 0;
 	}
-#endif //!_WTL_NO_AUTO_THEME
+#endif // !_WTL_NO_AUTO_THEME
 
 	LRESULT OnSize(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/)
 	{
@@ -3252,7 +3252,7 @@ public:
 				dc.FillRect(&rect, COLOR_WINDOW);
 		}
 		else
-#endif //!_WTL_NO_AUTO_THEME
+#endif // !_WTL_NO_AUTO_THEME
 		{
 			if((m_dwExtendedStyle & CBR_EX_TRANSPARENT) != 0)
 				dc.FillRect(&rect, COLOR_3DFACE);
@@ -3290,7 +3290,7 @@ public:
 			}
 		}
 		else
-#endif //!_WTL_NO_AUTO_THEME
+#endif // !_WTL_NO_AUTO_THEME
 		{
 			if((m_dwExtendedStyle & CBR_EX_TRANSPARENT) != 0)
 				dc.FillRect(&rect, COLOR_3DFACE);
@@ -3568,7 +3568,7 @@ public:
 #if (_WIN32_IE >= 0x0400)
 		T* pT = static_cast<T*>(this);
 		pT->UpdateRebarBandIdealSize();
-#endif //(_WIN32_IE >= 0x0400)
+#endif // (_WIN32_IE >= 0x0400)
 
 		return (LRESULT)hOldMenu;
 	}
@@ -3687,7 +3687,7 @@ public:
 					::SendMessage(GetParent(), RB_SETBANDINFO, i, (LPARAM)&rbi);
 					break;
 				}
-#else //(_WIN32_IE < 0x0400)
+#else // (_WIN32_IE < 0x0400)
 				REBARBANDINFO rbi = { sizeof(REBARBANDINFO), RBBIM_CHILD | RBBIM_CHILDSIZE };
 				::SendMessage(GetParent(), RB_GETBANDINFO, i, (LPARAM)&rbi);
 				if(rbi.hwndChild == m_hWnd)
@@ -3697,7 +3697,7 @@ public:
 					::SendMessage(GetParent(), RB_SETBANDINFO, i, (LPARAM)&rbi);
 					break;
 				}
-#endif //(_WIN32_IE < 0x0400)
+#endif // (_WIN32_IE < 0x0400)
 			}
 		}
 
@@ -3740,7 +3740,7 @@ public:
 				m_cxRight = 3 * m_cxBtnWidth;
 			}
 			else
-#endif //!_WTL_NO_AUTO_THEME
+#endif // !_WTL_NO_AUTO_THEME
 			{
 				m_cxBtnWidth = info.iCaptionWidth - m_cxyOffset;
 				m_cyBtnHeight = info.iCaptionHeight - 2 * m_cxyOffset;
@@ -3766,7 +3766,7 @@ public:
 				m_cxRight = 3 * m_cxBtnWidth;
 			}
 			else
-#endif //!_WTL_NO_AUTO_THEME
+#endif // !_WTL_NO_AUTO_THEME
 			{
 				m_cyBtnHeight = cyHeight;
 				m_cxBtnWidth = cyHeight + m_cxyOffset;
@@ -3809,7 +3809,7 @@ public:
 		if(m_hTheme != NULL)
 			::OffsetRect(&rcBtn, nDirection * m_cxBtnWidth, 0);
 		else
-#endif //!_WTL_NO_AUTO_THEME
+#endif // !_WTL_NO_AUTO_THEME
 			::OffsetRect(&rcBtn, nDirection * (m_cxBtnWidth + m_cxyOffset), 0);
 		arrRect[1] = rcBtn;
 		::OffsetRect(&rcBtn, nDirection * m_cxBtnWidth, 0);
@@ -3834,7 +3834,7 @@ public:
 			const int MINBS_NORMAL = 1;
 			const int MINBS_PUSHED = 3;
 			const int MINBS_DISABLED = 4;
-#endif //TMSCHEMA_H
+#endif // TMSCHEMA_H
 			if(nBtn == -1 || nBtn == 0)
 				m_pfnDrawThemeBackground(m_hTheme, dc, WP_MDICLOSEBUTTON, m_bParentActive ? ((m_nBtnPressed == 0) ? CBS_PUSHED : CBS_NORMAL) : CBS_DISABLED, &pRects[0], NULL);
 			if(nBtn == -1 || nBtn == 1)
@@ -3843,7 +3843,7 @@ public:
 				m_pfnDrawThemeBackground(m_hTheme, dc, WP_MDIMINBUTTON, m_bParentActive ? ((m_nBtnPressed == 2) ? MINBS_PUSHED : MINBS_NORMAL) : MINBS_DISABLED, &pRects[2], NULL);
 		}
 		else
-#endif //!_WTL_NO_AUTO_THEME
+#endif // !_WTL_NO_AUTO_THEME
 		{
 			if(nBtn == -1 || nBtn == 0)
 				dc.DrawFrameControl(&pRects[0], DFC_CAPTION, DFCS_CAPTIONCLOSE | ((m_nBtnPressed == 0) ? DFCS_PUSHED : 0));
@@ -3859,7 +3859,7 @@ public:
 	{
 #ifndef WM_THEMECHANGED
 		static const UINT WM_THEMECHANGED = 0x031A;
-#endif //!WM_THEMECHANGED
+#endif // !WM_THEMECHANGED
 		return WM_THEMECHANGED;
 	}
 
@@ -3888,7 +3888,7 @@ public:
 			m_hTheme = NULL;
 		}
 	}
-#endif //!_WTL_NO_AUTO_THEME
+#endif // !_WTL_NO_AUTO_THEME
 
 	bool _DebugCheckChild()
 	{
@@ -3896,9 +3896,9 @@ public:
 		BOOL bMaximized = FALSE;
 		HWND hWndChild = (HWND)::SendMessage(m_wndMDIClient, WM_MDIGETACTIVE, 0, (LPARAM)&bMaximized);
 		return (bMaximized && hWndChild == m_hWndChildMaximized);
-#else //!_DEBUG
+#else // !_DEBUG
 		return true;
-#endif //!_DEBUG
+#endif // !_DEBUG
 	}
 };
 
@@ -3908,6 +3908,6 @@ public:
 	DECLARE_WND_SUPERCLASS(_T("WTL_MDICommandBar"), GetWndClassName())
 };
 
-}; //namespace WTL
+}; // namespace WTL
 
 #endif // __ATLCTRLW_H__

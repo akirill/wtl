@@ -36,13 +36,13 @@
   #if (WIN32_PLATFORM_WFSP < 200)
 	#error atlwince.h requires Smartphone 2003 or higher
   #endif
-#endif //WIN32_PLATFORM_WFSP
+#endif // WIN32_PLATFORM_WFSP
 
 #if defined(WIN32_PLATFORM_PSPC) &&  _MSC_VER < 1400 // EVC compiling Pocket PC code
   #if (WIN32_PLATFORM_PSPC < 310)
 	#error atlwince.h requires Pocket PC 2002 or higher
   #endif
-#endif //WIN32_PLATFORM_PSPC
+#endif // WIN32_PLATFORM_PSPC
 
 #if !defined(_AYGSHELL_H_) && !defined(__AYGSHELL_H__)
 	#error atlwince.h requires aygshell.h to be included first
@@ -81,7 +81,7 @@
 
 #if !defined(WIN32_PLATFORM_WFSP) && !defined(WIN32_PLATFORM_PSPC)
   #define _WTL_CE_NO_CONTROLS
-#endif //!defined(WIN32_PLATFORM_WFSP) && !defined(WIN32_PLATFORM_PSPC)
+#endif // !defined(WIN32_PLATFORM_WFSP) && !defined(WIN32_PLATFORM_PSPC)
 
 #ifndef _WTL_CE_NO_CONTROLS
   #ifndef __ATLCTRLS_H__
@@ -247,7 +247,7 @@ public:
 			wCtl = wCtl.GetWindow(GW_HWNDNEXT);
 		}
 	}
-#endif //WIN32_PLATFORM_PSPC
+#endif // WIN32_PLATFORM_PSPC
 
 #ifdef WIN32_PLATFORM_WFSP
 // SmartPhone VK_TBACK key standard management
@@ -433,7 +433,7 @@ class CStdDialogResizeBase :
 		public CDialogResize< T >
 {
 public:
-	//Note: BEGIN_DLGRESIZE_MAP is required in the derived class.
+	// Note: BEGIN_DLGRESIZE_MAP is required in the derived class.
 };
 
 
@@ -533,8 +533,8 @@ public:
 		ATLASSERT(pT->IsWindow());
 		ATLASSERT(mode == DRA::GetDisplayMode());
 		
-		//Derived dialog must enumerate TWO dialog templates with the same control ids and types ie:
-		// enum {IDD = IDD_MYDLG, IDD_LANDSCAPE = IDD_MYDLG_L};
+		// Derived dialog must enumerate TWO dialog templates with the same control ids and types ie:
+		// enum { IDD = IDD_MYDLG, IDD_LANDSCAPE = IDD_MYDLG_L };
 		UINT iResource = (mode == DRA::Landscape)? T::IDD_LANDSCAPE : T::IDD;
 
 		BOOL bRes = DRA::RelayoutDialog(_Module.GetResourceInstance(), pT->m_hWnd, MAKEINTRESOURCE(iResource));
@@ -700,7 +700,7 @@ public:
 		sval.ReleaseBuffer();
 		return res;
 	}
-#endif //_ATL_VER < 0x800
+#endif // _ATL_VER < 0x800
 #else
   #pragma message("Warning: CAppInfoBase compiles without CString support. Do not use CString in Save or Restore.")
 #endif // defined(_WTL_USE_CSTRING) || defined(__ATLSTR_H__)
@@ -1445,7 +1445,7 @@ public:
 		ATLASSERT(::IsWindow(m_hWnd));
 		::SendMessage(m_hWnd, DTM_ADDSTYLE, 0, (LPARAM)pszStyle);
 	}
-#endif //(_WIN32_WCE >= 400)
+#endif // (_WIN32_WCE >= 400)
 
 	void AddText(BOOL bPlainText, LPCSTR pszText)
 	{
@@ -1491,7 +1491,7 @@ public:
 		ATLASSERT(*ppDispatch==NULL);
 		::SendMessage(m_hWnd, DTM_BROWSERDISPATCH, 0, (LPARAM)ppDispatch);
 	}
-#endif //(_WIN32_WCE >= 400)
+#endif // (_WIN32_WCE >= 400)
 
 	void Clear()
 	{
@@ -1579,7 +1579,7 @@ public:
 		ATLASSERT(::IsWindow(m_hWnd));
 		::SendMessage(m_hWnd, DTM_STOP, 0, 0L);
 	}
-#endif //(_WIN32_WCE >= 400)
+#endif // (_WIN32_WCE >= 400)
 
 	void GetScriptDispatch(IDispatch** ppDispatch)
 	{

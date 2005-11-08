@@ -232,7 +232,7 @@ public:
 #ifdef _DEBUG
 		if(IsProportional() && IsRightAligned())
 			ATLTRACE2(atlTraceUI, 0, _T("CSplitterImpl::SetSplitterExtendedStyle - SPLIT_PROPORTIONAL and SPLIT_RIGHTALIGNED are mutually exclusive, defaulting to SPLIT_PROPORTIONAL.\n"));
-#endif //_DEBUG
+#endif // _DEBUG
 		return dwPrevStyle;
 	}
 
@@ -405,7 +405,7 @@ public:
 		MESSAGE_HANDLER(WM_PAINT, OnPaint)
 #ifndef _WIN32_WCE
 		MESSAGE_HANDLER(WM_PRINTCLIENT, OnPaint)
-#endif //!_WIN32_WCE
+#endif // !_WIN32_WCE
 		if(IsInteractive())
 		{
 			MESSAGE_HANDLER(WM_SETCURSOR, OnSetCursor)
@@ -418,7 +418,7 @@ public:
 		MESSAGE_HANDLER(WM_SETFOCUS, OnSetFocus)
 #ifndef _WIN32_WCE
 		MESSAGE_HANDLER(WM_MOUSEACTIVATE, OnMouseActivate)
-#endif //!_WIN32_WCE
+#endif // !_WIN32_WCE
 		MESSAGE_HANDLER(WM_SETTINGCHANGE, OnSettingChange)
 	END_MSG_MAP()
 
@@ -581,7 +581,7 @@ public:
 		}
 		return lRet;
 	}
-#endif //!_WIN32_WCE
+#endif // !_WIN32_WCE
 
 	LRESULT OnSettingChange(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 	{
@@ -744,7 +744,7 @@ public:
 		m_cxySplitBar = ::GetSystemMetrics(t_bVertical ? SM_CXSIZEFRAME : SM_CYSIZEFRAME);
 #else // CE specific
 		m_cxySplitBar = 2 * ::GetSystemMetrics(t_bVertical ? SM_CXEDGE : SM_CYEDGE);
-#endif //_WIN32_WCE
+#endif // _WIN32_WCE
 
 		T* pT = static_cast<T*>(this);
 		if((pT->GetExStyle() & WS_EX_CLIENTEDGE))
@@ -760,7 +760,7 @@ public:
 
 #ifndef _WIN32_WCE
 		::SystemParametersInfo(SPI_GETDRAGFULLWINDOWS, 0, &m_bFullDrag, 0);
-#endif //!_WIN32_WCE
+#endif // !_WIN32_WCE
 
 		if(bUpdate)
 			UpdateSplitterLayout();
@@ -876,6 +876,6 @@ public:
 typedef CSplitterWindowT<true>    CSplitterWindow;
 typedef CSplitterWindowT<false>   CHorSplitterWindow;
 
-}; //namespace WTL
+}; // namespace WTL
 
 #endif // __ATLSPLIT_H__

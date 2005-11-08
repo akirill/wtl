@@ -26,11 +26,11 @@
 
   #ifdef APSTUDIO_INVOKED
     #define APSTUDIO_HIDDEN_SYMBOLS // Ignore following symbols
-  #endif //APSTUDIO_INVOKED
+  #endif // APSTUDIO_INVOKED
 
   #ifndef WINVER
     #define WINVER 0x0400   // default to Windows Version 4.0
-  #endif //!WINVER
+  #endif // !WINVER
 
   #if !defined(WCEOLE_ENABLE_DIALOGEX)
     #define DIALOGEX DIALOG DISCARDABLE
@@ -51,14 +51,14 @@
 
   #include <windows.h>
 
-#endif //!_INC_WINDOWS
-#endif //RC_INVOKED
+#endif // !_INC_WINDOWS
+#endif // RC_INVOKED
 
 #include <atlres.h>
 
 #ifdef APSTUDIO_INVOKED
 	#undef APSTUDIO_HIDDEN_SYMBOLS
-#endif //APSTUDIO_INVOKED
+#endif // APSTUDIO_INVOKED
 
 #define IDC_INFOSTATIC 0xFFFE   // == IDC_STATIC -1
 
@@ -79,6 +79,6 @@
 #define ATL_IDM_MENU_CANCEL             0xE702
 #define ATL_IDM_MENU_DONECANCEL         0xE703
 
-#endif //WIN32_PLATFORM_WFSP
+#endif // WIN32_PLATFORM_WFSP
 
 #endif // __ATLRESCE_H__

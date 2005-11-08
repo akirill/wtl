@@ -34,11 +34,11 @@
 
 #ifdef _ATL_NO_COMMODULE
 	#error WTL requires that _ATL_NO_COMMODULE is not defined
-#endif //_ATL_NO_COMMODULE
+#endif // _ATL_NO_COMMODULE
 
 #if defined(_WIN32_WCE) && defined(_ATL_MIN_CRT)
 	#pragma message("Warning: WTL for Windows CE doesn't use _ATL_MIN_CRT")
-#endif //defined(_WIN32_WCE) && defined(_ATL_MIN_CRT)
+#endif // defined(_WIN32_WCE) && defined(_ATL_MIN_CRT)
 
 #include <limits.h>
 #if !defined(_ATL_MIN_CRT) && defined(_MT) && !defined(_WIN32_WCE)
@@ -48,13 +48,13 @@
 #include <commctrl.h>
 #ifndef _WIN32_WCE
 #pragma comment(lib, "comctl32.lib")
-#endif //!_WIN32_WCE
+#endif // !_WIN32_WCE
 
 #ifndef _WIN32_WCE
   #include <atlres.h>
 #else // CE specific
   #include <atlresce.h>
-#endif //_WIN32_WCE
+#endif // _WIN32_WCE
 
 // We need to disable this warning because of template class arguments
 #pragma warning(disable: 4127)
@@ -89,7 +89,7 @@
 
 #ifndef SW_SHOWDEFAULT
   #define SW_SHOWDEFAULT	SW_SHOWNORMAL
-#endif //!SW_SHOWDEFAULT
+#endif // !SW_SHOWDEFAULT
 
 // These get's OR-ed in a constant and will have no effect.
 // Defining them reduces the number of #ifdefs required for CE.
@@ -121,16 +121,16 @@ inline int MulDiv(IN int nNumber, IN int nNumerator, IN int nDenominator)
   #ifdef WS_OVERLAPPEDWINDOW
     #undef WS_OVERLAPPEDWINDOW
     #define WS_OVERLAPPEDWINDOW	0
-  #endif //WS_OVERLAPPEDWINDOW
-#endif //!_WTL_KEEP_WS_OVERLAPPEDWINDOW
+  #endif // WS_OVERLAPPEDWINDOW
+#endif // !_WTL_KEEP_WS_OVERLAPPEDWINDOW
 
 #ifndef RDW_FRAME
   #define RDW_FRAME	0
-#endif //!RDW_FRAME
+#endif // !RDW_FRAME
 
 #ifndef WM_WINDOWPOSCHANGING
   #define WM_WINDOWPOSCHANGING	0
-#endif //!WM_WINDOWPOSCHANGING
+#endif // !WM_WINDOWPOSCHANGING
 
 #define FreeResource(x)
 #define UnlockResource(x)
@@ -145,7 +145,7 @@ namespace ATL
 
 #ifndef lstrlenW
   #define lstrlenW	(int)ATL::lstrlenW
-#endif //lstrlenW
+#endif // lstrlenW
 
 inline int WINAPI lstrlenA(LPCSTR lpszString)
 { return ATL::lstrlenA(lpszString); }
@@ -153,7 +153,7 @@ inline int WINAPI lstrlenA(LPCSTR lpszString)
 #ifdef lstrcpyn
   #undef lstrcpyn
   #define lstrcpyn	ATL::lstrcpynW
-#endif //lstrcpyn
+#endif // lstrcpyn
 
 #ifndef SetWindowLongPtrW
   inline LONG_PTR tmp_SetWindowLongPtrW( HWND hWnd, int nIndex, LONG_PTR dwNewLong )
@@ -179,12 +179,12 @@ inline int WINAPI lstrlenA(LPCSTR lpszString)
   #define PtrToInt( p ) ((INT)(INT_PTR) (p) )
 #endif
 
-#else //!(_ATL_VER >= 0x0800)
+#else // !(_ATL_VER >= 0x0800)
 
 #ifdef lstrlenW
   #undef lstrlenW
   #define lstrlenW (int)::wcslen
-#endif //lstrlenW
+#endif // lstrlenW
 
 #define lstrlenA (int)strlen
 
@@ -198,7 +198,7 @@ inline int WINAPI lstrlenA(LPCSTR lpszString)
 	lpstrDest[nLen] = 0;
 	return lpstrRet;
   }
-#endif //!lstrcpyn
+#endif // !lstrcpyn
 
 #ifdef TrackPopupMenu
   #undef TrackPopupMenu
@@ -218,14 +218,14 @@ static CWndClassInfo& GetWndClassInfo() \
 
 #ifndef _MAX_FNAME
   #define _MAX_FNAME	_MAX_PATH
-#endif //_MAX_FNAME
+#endif // _MAX_FNAME
 
 #if (_WIN32_WCE < 400)
   #define MAKEINTATOM(i)  (LPTSTR)((ULONG_PTR)((WORD)(i)))
 
   #define WHEEL_PAGESCROLL                (UINT_MAX)
   #define WHEEL_DELTA                     120
-#endif //(_WIN32_WCE < 400)
+#endif // (_WIN32_WCE < 400)
 
 #ifdef DrawIcon
   #undef DrawIcon
@@ -248,9 +248,9 @@ static CWndClassInfo& GetWndClassInfo() \
   #define RDW_ALLCHILDREN   0
 #endif
 
-#endif //!(_ATL_VER >= 0x0800)
+#endif // !(_ATL_VER >= 0x0800)
 
-#endif //_WIN32_WCE
+#endif // _WIN32_WCE
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -261,7 +261,7 @@ static CWndClassInfo& GetWndClassInfo() \
 
   #ifndef PSM_INSERTPAGE
     #define PSM_INSERTPAGE          (WM_USER + 119)
-  #endif //!PSM_INSERTPAGE
+  #endif // !PSM_INSERTPAGE
 
   #ifndef GetClassLongPtr
     #define GetClassLongPtrA   GetClassLongA
@@ -275,7 +275,7 @@ static CWndClassInfo& GetWndClassInfo() \
 
   #ifndef GCLP_HICONSM
     #define GCLP_HICONSM        (-34)
-  #endif //!GCLP_HICONSM
+  #endif // !GCLP_HICONSM
 
   #ifndef GetWindowLongPtr
     #define GetWindowLongPtrA   GetWindowLongA
@@ -361,8 +361,8 @@ static CWndClassInfo& GetWndClassInfo() \
     #define ULongToPtr( ul )  ((VOID *)(ULONG_PTR)((unsigned long)ul))
   #endif
 
-#endif //!defined(_WIN64) && (_ATL_VER < 0x0700)
-#endif //!_ATL_NO_OLD_HEADERS_WIN64
+#endif // !defined(_WIN64) && (_ATL_VER < 0x0700)
+#endif // !_ATL_NO_OLD_HEADERS_WIN64
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -371,12 +371,12 @@ static CWndClassInfo& GetWndClassInfo() \
 // define useful macros from winuser.h
 #ifndef IS_INTRESOURCE
   #define IS_INTRESOURCE(_r) (((ULONG_PTR)(_r) >> 16) == 0)
-#endif //IS_INTRESOURCE
+#endif // IS_INTRESOURCE
 
 // protect template members from windowsx.h macros
 #ifdef _INC_WINDOWSX
   #undef SubclassWindow
-#endif //_INC_WINDOWSX
+#endif // _INC_WINDOWSX
 
 // define useful macros from windowsx.h
 #ifndef GET_X_LPARAM
@@ -402,7 +402,7 @@ static CWndClassInfo& GetWndClassInfo() \
       #define ATLVERIFY(expr) (expr)
     #endif // DEBUG
   #endif // ATLVERIFY
-#endif //(_ATL_VER < 0x0700)
+#endif // (_ATL_VER < 0x0700)
 
 
 namespace WTL
@@ -413,12 +413,12 @@ namespace WTL
   #ifdef _DEBUG
     __declspec(selectany) ATL::CTraceCategory atlTraceUI(_T("atlTraceUI"));
   #endif // _DEBUG
-#else //!(_ATL_VER >= 0x0700)
+#else // !(_ATL_VER >= 0x0700)
   enum wtlTraceFlags
   {
 	atlTraceUI = 0x10000000
   };
-#endif //!(_ATL_VER >= 0x0700)
+#endif // !(_ATL_VER >= 0x0700)
 
 // Windows version helper
 inline bool AtlIsOldWindows()
@@ -436,7 +436,7 @@ inline HFONT AtlGetDefaultGuiFont()
 	return (HFONT)::GetStockObject(DEFAULT_GUI_FONT);
 #else // CE specific
 	return (HFONT)::GetStockObject(SYSTEM_FONT);
-#endif //_WIN32_WCE
+#endif // _WIN32_WCE
 }
 
 // bold font helper (NOTE: Caller owns the font, and should destroy it when done using it)
@@ -493,7 +493,7 @@ public:
   // for compatilibility with old names only
   typedef CIdleHandler CUpdateUIObject;
   #define DoUpdate OnIdle
-#endif //!_ATL_NO_OLD_NAMES
+#endif // !_ATL_NO_OLD_NAMES
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -541,7 +541,7 @@ public:
 		ATLTRACE2(atlTraceUI, 0, _T("CUpdateUIObject and RemoveUpdateUI are deprecated. Please change your code to use CIdleHandler and OnIdle\n"));
 		return RemoveIdleHandler(pIdleHandler);
 	}
-#endif //!_ATL_NO_OLD_NAMES
+#endif // !_ATL_NO_OLD_NAMES
 
 // message loop
 	int Run()
@@ -595,7 +595,7 @@ public:
 		case WM_MOUSEMOVE:
 #ifndef _WIN32_WCE
 		case WM_NCMOUSEMOVE:
-#endif //!_WIN32_WCE
+#endif // !_WIN32_WCE
 		case WM_PAINT:
 		case 0x0118:	// WM_SYSTIMER (caret blink)
 			return FALSE;
@@ -644,25 +644,25 @@ public:
 
 	CStaticDataInitCriticalSectionLock() : m_cslock(ATL::_pAtlModule->m_csStaticDataInitAndTypeInfo, false)
 	{ }
-#endif //(_ATL_VER >= 0x0700)
+#endif // (_ATL_VER >= 0x0700)
 
 	HRESULT Lock()
 	{
 #if (_ATL_VER >= 0x0700)
 		return m_cslock.Lock();
-#else //!(_ATL_VER >= 0x0700)
+#else // !(_ATL_VER >= 0x0700)
 		::EnterCriticalSection(&ATL::_pModule->m_csStaticDataInit);
 		return S_OK;
-#endif //!(_ATL_VER >= 0x0700)
+#endif // !(_ATL_VER >= 0x0700)
 	}
 
 	void Unlock()
 	{
 #if (_ATL_VER >= 0x0700)
 		m_cslock.Unlock();
-#else //!(_ATL_VER >= 0x0700)
+#else // !(_ATL_VER >= 0x0700)
 		::LeaveCriticalSection(&ATL::_pModule->m_csStaticDataInit);
-#endif //!(_ATL_VER >= 0x0700)
+#endif // !(_ATL_VER >= 0x0700)
 	}
 };
 
@@ -675,25 +675,25 @@ public:
 
 	CWindowCreateCriticalSectionLock() : m_cslock(ATL::_AtlWinModule.m_csWindowCreate, false)
 	{ }
-#endif //(_ATL_VER >= 0x0700)
+#endif // (_ATL_VER >= 0x0700)
 
 	HRESULT Lock()
 	{
 #if (_ATL_VER >= 0x0700)
 		return m_cslock.Lock();
-#else //!(_ATL_VER >= 0x0700)
+#else // !(_ATL_VER >= 0x0700)
 		::EnterCriticalSection(&ATL::_pModule->m_csWindowCreate);
 		return S_OK;
-#endif //!(_ATL_VER >= 0x0700)
+#endif // !(_ATL_VER >= 0x0700)
 	}
 
 	void Unlock()
 	{
 #if (_ATL_VER >= 0x0700)
 		m_cslock.Unlock();
-#else //!(_ATL_VER >= 0x0700)
+#else // !(_ATL_VER >= 0x0700)
 		::LeaveCriticalSection(&ATL::_pModule->m_csWindowCreate);
-#endif //!(_ATL_VER >= 0x0700)
+#endif // !(_ATL_VER >= 0x0700)
 	}
 };
 
@@ -926,7 +926,7 @@ public:
 				::SendMessageTimeout((*pModule->m_pSettingChangeNotify)[i], uMsg, wParam, lParam, SMTO_ABORTIFHUNG, uTimeout, NULL);
 #elif(_WIN32_WCE >= 400) // CE specific
 				::SendMessageTimeout((*pModule->m_pSettingChangeNotify)[i], uMsg, wParam, lParam, SMTO_NORMAL, uTimeout, NULL);
-#else //_WIN32_WCE < 400 specific
+#else // _WIN32_WCE < 400 specific
 				uTimeout;
 				::SendMessage((*pModule->m_pSettingChangeNotify)[i], uMsg, wParam, lParam);
 #endif
@@ -1046,7 +1046,7 @@ public:
 		}
 		return NULL;
 	}
-#endif //(_ATL_VER < 0x0700)
+#endif // (_ATL_VER < 0x0700)
 };
 
 
@@ -1055,11 +1055,11 @@ public:
 
 #if defined(_WTL_FORWARD_DECLARE_CSTRING) && !defined(_WTL_USE_CSTRING)
   #define _WTL_USE_CSTRING
-#endif //defined(_WTL_FORWARD_DECLARE_CSTRING) && !defined(_WTL_USE_CSTRING)
+#endif // defined(_WTL_FORWARD_DECLARE_CSTRING) && !defined(_WTL_USE_CSTRING)
 
 #ifdef _WTL_USE_CSTRING
 class CString;   // forward declaration (include atlmisc.h for the whole class)
-#endif //_WTL_USE_CSTRING
+#endif // _WTL_USE_CSTRING
 
 #ifndef _CSTRING_NS
   #ifdef __ATLSTR_H__
@@ -1067,9 +1067,9 @@ class CString;   // forward declaration (include atlmisc.h for the whole class)
   #else
   #define _CSTRING_NS	WTL
   #endif
-#endif //_CSTRING_NS
+#endif // _CSTRING_NS
 
-}; //namespace WTL
+}; // namespace WTL
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1169,9 +1169,9 @@ inline HRESULT AtlGetShellVersion(LPDWORD pdwMajor, LPDWORD pdwMinor)
 	return hRet;
 }
 
-}; //namespace ATL
+}; // namespace ATL
 
-#endif //(_ATL_VER < 0x0700) && defined(_ATL_DLL) && !defined(_WIN32_WCE)
+#endif // (_ATL_VER < 0x0700) && defined(_ATL_DLL) && !defined(_WIN32_WCE)
 
 
 // These are always included
@@ -1181,6 +1181,6 @@ inline HRESULT AtlGetShellVersion(LPDWORD pdwMajor, LPDWORD pdwMinor)
 
 #ifndef _WTL_NO_AUTOMATIC_NAMESPACE
 using namespace WTL;
-#endif //!_WTL_NO_AUTOMATIC_NAMESPACE
+#endif // !_WTL_NO_AUTOMATIC_NAMESPACE
 
 #endif // __ATLAPP_H__

@@ -71,7 +71,7 @@ template <> class _printer_info<7> { public: typedef PRINTER_INFO_7 infotype; };
 #ifdef _ATL_USE_NEW_PRINTER_INFO
 template <> class _printer_info<8> { public: typedef PRINTER_INFO_8 infotype; };
 template <> class _printer_info<9> { public: typedef PRINTER_INFO_9 infotype; };
-#endif //_ATL_USE_NEW_PRINTER_INFO
+#endif // _ATL_USE_NEW_PRINTER_INFO
 
 
 template <unsigned int t_nInfo>
@@ -245,7 +245,7 @@ public:
 		CPrinterInfo<5> pinfon5;
 		CPrinterInfo<2> pinfon2;
 		LPTSTR lpszPrinterName = NULL;
-		//Some printers fail for PRINTER_INFO_5 in some situations
+		// Some printers fail for PRINTER_INFO_5 in some situations
 		if (pinfon5.GetPrinterInfo(m_hPrinter))
 			lpszPrinterName = pinfon5.m_pi->pPrinterName;
 		else if (pinfon2.GetPrinterInfo(m_hPrinter))
@@ -260,7 +260,7 @@ public:
 			{
 				memset(pv, 0, nLen);
 				pdev->wDeviceOffset = sizeof(DEVNAMES) / sizeof(TCHAR);
-				pv = pv + sizeof(DEVNAMES); //now points to end
+				pv = pv + sizeof(DEVNAMES); // now points to end
 				lstrcpy((LPTSTR)pv, lpszPrinterName);
 				::GlobalUnlock(h);
 			}
@@ -274,7 +274,7 @@ public:
 		CPrinterInfo<2> pinfo2;
 		HDC hDC = NULL;
 		LPTSTR lpszPrinterName = NULL;
-		//Some printers fail for PRINTER_INFO_5 in some situations
+		// Some printers fail for PRINTER_INFO_5 in some situations
 		if (pinfo5.GetPrinterInfo(m_hPrinter))
 			lpszPrinterName = pinfo5.m_pi->pPrinterName;
 		else if (pinfo2.GetPrinterInfo(m_hPrinter))
@@ -290,7 +290,7 @@ public:
 		CPrinterInfo<2> pinfo2;
 		HDC hDC = NULL;
 		LPTSTR lpszPrinterName = NULL;
-		//Some printers fail for PRINTER_INFO_5 in some situations
+		// Some printers fail for PRINTER_INFO_5 in some situations
 		if (pinfo5.GetPrinterInfo(m_hPrinter))
 			lpszPrinterName = pinfo5.m_pi->pPrinterName;
 		else if (pinfo2.GetPrinterInfo(m_hPrinter))
@@ -505,7 +505,7 @@ public:
 // CPrintJob - Wraps a set of tasks for a specific printer (StartDoc/EndDoc)
 //             Handles aborting, background printing
 
-//Defines callbacks used by CPrintJob (not a COM interface)
+// Defines callbacks used by CPrintJob (not a COM interface)
 class ATL_NO_VTABLE IPrintJobInfo
 {
 public:
@@ -584,7 +584,7 @@ public:
 
 	~CPrintJob()
 	{
-		ATLASSERT(IsJobComplete()); //premature destruction?
+		ATLASSERT(IsJobComplete()); // premature destruction?
 	}
 
 // Operations
@@ -598,7 +598,7 @@ public:
 			unsigned long nStartPage, unsigned long nEndPage,
 			bool bPrintToFile = false, LPCTSTR lpstrOutputFile = NULL)
 	{
-		ATLASSERT(m_bComplete); //previous job not done yet?
+		ATLASSERT(m_bComplete); // previous job not done yet?
 		if (pInfo == NULL)
 			return false;
 
@@ -621,7 +621,7 @@ public:
 			return StartHelper();
 		}
 
-		//Create a thread and return
+		// Create a thread and return
 		DWORD dwThreadID = 0;
 		HANDLE hThread = ::CreateThread(NULL, 0, StartProc, (void*)this, 0, &dwThreadID);
 		::CloseHandle(hThread);
@@ -651,7 +651,7 @@ public:
 
 		m_pInfo->BeginPrintJob(dcPrinter);
 
-		//print all the pages now
+		// print all the pages now
 		unsigned long nLastPage = 0;
 		for (unsigned long nPage = m_nStartPage; nPage <= m_nEndPage; nPage++)
 		{
@@ -888,7 +888,7 @@ public:
 		GetClientRect(&rcClient);
 		RECT rcArea = rcClient;
 		T* pT = static_cast<T*>(this);
-		pT; // avoid level 4 warning
+		pT;   // avoid level 4 warning
 		::InflateRect(&rcArea, -pT->m_cxOffset, -pT->m_cyOffset);
 		if (rcArea.left > rcArea.right)
 			rcArea.right = rcArea.left;
@@ -951,7 +951,7 @@ public:
 		MESSAGE_HANDLER(WM_MOUSEWHEEL, CScrollImpl< T >::OnMouseWheel)
 #if !((_WIN32_WINNT >= 0x0400) || (_WIN32_WINDOWS > 0x0400))
 		MESSAGE_HANDLER(m_uMsgMouseWheel, CScrollImpl< T >::OnMouseWheel)
-#endif //!((_WIN32_WINNT >= 0x0400) || (_WIN32_WINDOWS > 0x0400))
+#endif // !((_WIN32_WINNT >= 0x0400) || (_WIN32_WINDOWS > 0x0400))
 		MESSAGE_HANDLER(WM_SETTINGCHANGE, CScrollImpl< T >::OnSettingChange)
 		MESSAGE_HANDLER(WM_LBUTTONDOWN, CZoomScrollImpl< T >::OnLButtonDown)
 		MESSAGE_HANDLER(WM_MOUSEMOVE, CZoomScrollImpl< T >::OnMouseMove)
@@ -1036,7 +1036,7 @@ public:
 		GetClientRect(&rcClient);
 		RECT rcArea = rcClient;
 		T* pT = static_cast<T*>(this);
-		pT; // avoid level 4 warning
+		pT;   // avoid level 4 warning
 		::InflateRect(&rcArea, -pT->m_cxOffset, -pT->m_cyOffset);
 		if (rcArea.left > rcArea.right)
 			rcArea.right = rcArea.left;
@@ -1074,8 +1074,8 @@ public:
 	DECLARE_WND_CLASS_EX(_T("WTL_ZoomPrintPreview"), CS_VREDRAW | CS_HREDRAW, -1)
 };
 
-#endif //__ATLSCRL_H__
+#endif // __ATLSCRL_H__
 
-}; //namespace WTL
+}; // namespace WTL
 
 #endif // __ATLPRINT_H__
