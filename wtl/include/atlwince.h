@@ -167,7 +167,11 @@ inline HWND AtlCreateMenuBar(SHMENUBARINFO& mbi)
 
 inline HWND AtlCreateMenuBar(HWND hWnd, UINT nToolBarId = ATL_IDW_TOOLBAR, DWORD dwFlags = 0, int nBmpId = 0, int cBmpImages = 0, COLORREF clrBk = 0)
 {
+#if (_ATL_VER >= 0x0700)
+	SHMENUBARINFO mbi = { sizeof(mbi), hWnd, dwFlags, nToolBarId, ATL::_AtlBaseModule.GetResourceInstance(), nBmpId, cBmpImages, 0, clrBk };
+#else // !(_ATL_VER >= 0x0700)
 	SHMENUBARINFO mbi = { sizeof(mbi), hWnd, dwFlags, nToolBarId, _Module.GetResourceInstance(), nBmpId, cBmpImages, 0, clrBk };
+#endif // !(_ATL_VER >= 0x0700)
 	return AtlCreateMenuBar(mbi);
 }
 
@@ -217,7 +221,7 @@ public:
 		int nWidth = dc.GetDeviceCaps(HORZRES);
 
 		// Display title text
-		RECT rTitle = { 8, 0, nWidth, nTitleHeight};
+		RECT rTitle = { 8, 0, nWidth, nTitleHeight };
 		dc.DrawText(sTitle, nLen, &rTitle, DT_VCENTER | DT_SINGLELINE);
 		dc.SelectFont(fontOld);
 
@@ -239,10 +243,10 @@ public:
 		ATL::CWindow wCtl = pT->GetWindow(GW_CHILD);
 		while (wCtl.IsWindow())
 		{
-			RECT rCtl;
+			RECT rCtl = { 0 };
 			wCtl.GetWindowRect(&rCtl);
-			pT->ScreenToClient(&rCtl);
-			OffsetRect(&rCtl, 0, nTitleHeight);
+			::MapWindowPoints(NULL, pT->m_hWnd, (LPPOINT)&rCtl, 2);
+			::OffsetRect(&rCtl, 0, nTitleHeight);
 			wCtl.MoveWindow(&rCtl, FALSE);
 			wCtl = wCtl.GetWindow(GW_HWNDNEXT);
 		}
@@ -537,7 +541,11 @@ public:
 		// enum { IDD = IDD_MYDLG, IDD_LANDSCAPE = IDD_MYDLG_L };
 		UINT iResource = (mode == DRA::Landscape)? T::IDD_LANDSCAPE : T::IDD;
 
+#if (_ATL_VER >= 0x0700)
+		BOOL bRes = DRA::RelayoutDialog(ATL::_AtlBaseModule.GetResourceInstance(), pT->m_hWnd, MAKEINTRESOURCE(iResource));
+#else // !(_ATL_VER >= 0x0700)
 		BOOL bRes = DRA::RelayoutDialog(_Module.GetResourceInstance(), pT->m_hWnd, MAKEINTRESOURCE(iResource));
+#endif // !(_ATL_VER >= 0x0700)
 		pT->OnOrientation(mode);
 		return bRes;
 	}
@@ -955,7 +963,7 @@ public:
 
 		if(wndMain.CreateEx(NULL, NULL, 0, 0, lpstrCmdLine) == NULL)
 		{
-			ATLTRACE(_T("Main window creation failed!\n"));
+			ATLTRACE2(atlTraceUI, 0, _T("Main window creation failed!\n"));
 			return 0;
 		}
 
@@ -1006,7 +1014,7 @@ public:
 
 		if(dlgMain.Create(NULL, (LPARAM)lpstrCmdLine) == NULL)
 		{
-			ATLTRACE(_T("Main dialog creation failed!\n"));
+			ATLTRACE2(atlTraceUI, 0, _T("Main dialog creation failed!\n"));
 			return 0;
 		}
 
@@ -1123,7 +1131,7 @@ public:
 	{
 		T* pT = static_cast<T*>(this);
 		ATLASSERT(pT->IsWindow());
-		RECT rect;
+		RECT rect = { 0 };
 		SystemParametersInfo(SPI_GETWORKAREA, NULL, &rect, FALSE);
 		if (!bShow)
 			rect.top = 0;

@@ -180,7 +180,11 @@ public:
 
 			if(m_atom == 0)
 			{
+#if (_ATL_VER >= 0x0700)
+				HINSTANCE hInst = ATL::_AtlBaseModule.GetModuleInstance();
+#else // !(_ATL_VER >= 0x0700)
 				HINSTANCE hInst = _Module.GetModuleInstance();
+#endif // !(_ATL_VER >= 0x0700)
 				if (m_lpszOrigName != NULL)
 				{
 					ATLASSERT(pProc != NULL);
@@ -189,7 +193,11 @@ public:
 
 					WNDCLASS wc = { 0 };
 					// try process local class first
+#if (_ATL_VER >= 0x0700)
+					if(!::GetClassInfo(ATL::_AtlBaseModule.GetModuleInstance(), m_lpszOrigName, &wc))
+#else // !(_ATL_VER >= 0x0700)
 					if(!::GetClassInfo(_Module.GetModuleInstance(), m_lpszOrigName, &wc))
+#endif // !(_ATL_VER >= 0x0700)
 					{
 						// try global class
 						if(!::GetClassInfo(NULL, m_lpszOrigName, &wc))
@@ -226,7 +234,11 @@ public:
 				if (m_atom == 0)
 				{
 					if(m_uCommonResourceID != 0)   // use it if not zero
+#if (_ATL_VER >= 0x0700)
+						m_wc.hIcon = (HICON)::LoadImage(ATL::_AtlBaseModule.GetResourceInstance(), MAKEINTRESOURCE(m_uCommonResourceID), IMAGE_ICON, 32, 32, LR_DEFAULTCOLOR);
+#else // !(_ATL_VER >= 0x0700)
 						m_wc.hIcon = (HICON)::LoadImage(_Module.GetResourceInstance(), MAKEINTRESOURCE(m_uCommonResourceID), IMAGE_ICON, 32, 32, LR_DEFAULTCOLOR);
+#endif // !(_ATL_VER >= 0x0700)
 					m_atom = ::RegisterClass(&m_wc);
 				}
 			}
@@ -793,7 +805,11 @@ public:
 		ATLASSERT(m_hWndCECommandBar == NULL);
 		ATLASSERT(m_hWndToolBar == NULL);
 
+#if (_ATL_VER >= 0x0700)
+		m_hWndCECommandBar = ::CommandBar_Create(ATL::_AtlBaseModule.GetModuleInstance(), m_hWnd, nCmdBarID);
+#else // !(_ATL_VER >= 0x0700)
 		m_hWndCECommandBar = ::CommandBar_Create(_Module.GetModuleInstance(), m_hWnd, nCmdBarID);
+#endif // !(_ATL_VER >= 0x0700)
 		if(m_hWndCECommandBar == NULL)
 			return FALSE;
 
@@ -802,7 +818,11 @@ public:
 		BOOL bRet = TRUE;
 
 		if(pszMenu != NULL)
+#if (_ATL_VER >= 0x0700)
+			bRet &= ::CommandBar_InsertMenubarEx(m_hWndCECommandBar, IS_INTRESOURCE(pszMenu) ? ATL::_AtlBaseModule.GetResourceInstance() : NULL, pszMenu, iButton);
+#else // !(_ATL_VER >= 0x0700)
 			bRet &= ::CommandBar_InsertMenubarEx(m_hWndCECommandBar, IS_INTRESOURCE(pszMenu) ? _Module.GetResourceInstance() : NULL, pszMenu, iButton);
+#endif // !(_ATL_VER >= 0x0700)
 
 		bRet &= ::CommandBar_AddAdornments(m_hWndCECommandBar, dwFlags, 0);
 
@@ -819,7 +839,11 @@ public:
 		mbi.hwndParent = m_hWnd;
 		mbi.dwFlags = dwFlags;
 		mbi.nToolBarId = nToolBarId;
+#if (_ATL_VER >= 0x0700)
+		mbi.hInstRes  = ATL::_AtlBaseModule.GetResourceInstance();
+#else // !(_ATL_VER >= 0x0700)
 		mbi.hInstRes  = _Module.GetResourceInstance();
+#endif // !(_ATL_VER >= 0x0700)
 		mbi.nBmpId = nBmpId;
 		mbi.cBmpImages = cBmpImages;
 		mbi.hwndMB = NULL;   // This gets set by SHCreateMenuBar
@@ -1249,7 +1273,11 @@ public:
 		HMENU hMenu = ::LoadMenu(_Module.GetResourceInstance(), MAKEINTRESOURCE(T::GetWndClassInfo().m_uCommonResourceID));
 #endif // !(_ATL_VER >= 0x0700)
 #else // CE specific
+#if (_ATL_VER >= 0x0700)
+		::LoadString(ATL::_AtlBaseModule.GetResourceInstance(), T::GetWndClassInfo().m_uCommonResourceID, szWindowName, cchName);
+#else // !(_ATL_VER >= 0x0700)
 		::LoadString(_Module.GetResourceInstance(), T::GetWndClassInfo().m_uCommonResourceID, szWindowName, cchName);
+#endif // !(_ATL_VER >= 0x0700)
 
 		// This always needs to be NULL for Windows CE.
 		// Frame Window menus have to go onto the CommandBar.
