@@ -10,14 +10,14 @@
 
 <table border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111" id="AutoNumber3">
   <tr>
-    <td><font face="Arial"><b>Windows Template Library - WTL Version 7.5</b></font><font face="Arial" size="2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
-(build 5333) 11/29/05</font></td>
+    <td><font face="Arial"><b>Windows Template Library - WTL Version 8.0</b></font><font face="Arial" size="2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+(build 5347) 12/13/05</font></td>
   </tr>
   <tr>
     <td><hr></td>
   </tr>
   <tr>
-    <td><font face="Arial" size="2">Copyright &#169; 2005 Microsoft Corporation.
+    <td><font face="Arial" size="2">Copyright &#169; 2006 Microsoft Corporation.
 All rights reserved.</font></td>
   </tr>
   <tr>
@@ -43,7 +43,7 @@ All rights reserved.</font></td>
 <p style=margin:0in>&nbsp;</p>
 
 <p style=margin:0in><font face="Arial" size="2">Welcome to the Windows Template Library, version 
-7.5. This document contains the following topics:</font></p>
+8.0. This document contains the following topics:</font></p>
 <p style=margin:0in>&nbsp;</p>
 <ul style="margin-top:0in;margin-bottom:0in">
 	<li><font face="Arial" size="2"><a href="#Introduction">Introduction</a></font></li>
@@ -55,6 +55,8 @@ All rights reserved.</font></td>
 	<li><a href="#Support for Windows CE"><font face="Arial" size="2">S</font></a><font face="Arial" size="2"><a href="#Support for Windows CE">upport 
   for Windows CE</a></font></li>
 	<li><font face="Arial" size="2"><a href="#Notes">Notes</a></font></li>
+	<li><font face="Arial" size="2"><a href="#Changes Between WTL 8.0 And 7.5">Changes Between WTL 
+	8.0 And 7.5</a></font></li>
 	<li><font face="Arial" size="2"><a href="#Changes Between WTL 7.5 And 7.1">Changes Between WTL 7.5 And 7.1</a></font></li>
 	<li><font face="Arial" size="2"><a href="#Changes Between WTL 7.1 And 7.0">Changes Between WTL 
   7.1 And 7.0</a></font></li>
@@ -92,14 +94,14 @@ model to a programmer.</font></p>
 <p style=margin:0in><font face="Arial">
 <b><a name="Features And Installation"></a>Features And Installation</b></font></p>
 <p style=margin:0in>&nbsp;</p>
-<p style=margin:0in><font face="Arial" size="2">This is the fifth public release 
-of WTL, after WTL 3.0, 3.1, 7.0, and 7.1. It is also the first release of WTL 
+<p style=margin:0in><font face="Arial" size="2">This is the sixth public release 
+of WTL, after WTL 3.0, 3.1, 7.0, 7.1, and 7.5. It is also the second release of WTL 
 under the Common Public License, enabling developers from the WTL community to 
 contribute to the library.</font></p>
 <p style=margin:0in>&nbsp;</p>
 <p style=margin:0in><font face="Arial" size="2">WTL classes can be used with either VC++ 6.0 and ATL 3.0, VC++ .NET 
-2002 and ATL 7.0, VC++ .NET 2003 and ATL 7.1, or EVC++ 4.0 or 3.0 with ATL for 
-Windows CE. AppWizard for VC++ .NET 2002 and 2003 is 
+2002 and ATL 7.0, VC++ .NET 2003 and ATL 7.1, VC++ 2005 with ATL 8.0, or EVC++ 4.0 or 3.0 with ATL for 
+Windows CE. AppWizard for VC++ .NET 2002 and 2003, and Visual C++ 2005 is 
 included.</font></p>
 <p style=margin:0in>&nbsp;</p>
 <p style=margin:0in><font face="Arial" size="2">The WTL classes are provided in 
@@ -115,8 +117,9 @@ directory</b> to the list of include directories in VC++, so that the compiler
 can find them when you include them in your projects..</font></p>
 <p style=margin:0in>&nbsp;</p>
 <p style=margin:0in><font face="Arial" size="2">Setup programs for the AppWizard are provided. After executing the setup scripts, ATL/WTL AppWizard will appear in the list of AppWizards when you select File.New.Project 
-in VC++ IDE. The file AppWiz\setup70.js is the setup script for VC++ .NET 2002, while AppWiz\setup71.js is for VC++ 
-.NET 2003.</font></p>
+in VC++ IDE. The file AppWiz\setup70.js is the setup script for VC++ .NET 2002, AppWiz\setup71.js is for VC++ 
+.NET 2003, and AppWiz\setup80.js is for VC++ 2005. AppWizCE\setup80.js is setup 
+script for VC++ 2005 SmartDevice projects.</font></p>
 <p style=margin:0in>&nbsp;</p>
 <p style=margin:0in><font face="Arial" size="2">To manually install AppWizard 
 for VC++ .NET 2002/2003, copy all WTLAppWiz.* files from AppWiz\Files to VC++ .NET 
@@ -124,10 +127,6 @@ projects directory, %VC7DIR%\Vc7\vcprojects, where %VC7DIR% is the directory
 where VC++ .NET 2002/2003 is installed. After that,&nbsp;open WTLAppWiz.vsz and modify the 
 like that contains ABSOLUTE_PATH to contain %WTLDIR%\AppWiz\Files, where 
 %WTLDIR% is the directory where WTL files are.</font></p>
-<p style=margin:0in>&nbsp;</p>
-<p style=margin:0in><font face="Arial" size="2">This release also brings the 
-preliminary support for the Visual Studio 2005 (codename Whidbey). App 
-Wizards for both Windows applications and SmartDevice projects are provided.</font></p>
 <p style=margin:0in>&nbsp;</p>
 <p style=margin:0in><font face="Arial" size="2">Platform support and 
 requirements:</font></p>
@@ -140,7 +139,7 @@ Visual C++.NET 2002&nbsp;&nbsp; (ATL 7.0)</font></p>
 <p style=margin:0in><font face="Arial" size="2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
 Visual C++.NET 2003&nbsp;&nbsp; (ATL 7.1)</font></p>
 <p style=margin:0in><font face="Arial" size="2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
-Visual C++ 2005&nbsp;&nbsp; (ATL 8.0)&nbsp;&nbsp; [preliminary support]</font></p>
+Visual C++ 2005&nbsp;&nbsp; (ATL 8.0)</font></p>
 <p style=margin:0in>&nbsp;</p>
 <p style=margin:0in><font face="Arial" size="2">&nbsp;&nbsp;&nbsp; SDK 
 (optional):</font></p>
@@ -157,8 +156,7 @@ eMbedded Visual C++ 4.0 - STANDARDSDK_410, Pocket PC 2003, Smartphone 2003,
 <p style=margin:0in><font face="Arial" size="2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
 STANDARDSDK_500, Pocket PC 2003 SE, Smartphone 2003 SE</font></p>
 <p style=margin:0in><font face="Arial" size="2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
-Visual C++ 2005 - Pocket PC 2003 SE, Smartphone 2003 SE&nbsp;&nbsp; 
-[preliminary support]</font></p>
+Visual C++ 2005 - Pocket PC 2003 SE, Smartphone 2003 SE</font></p>
 <p style=margin:0in>&nbsp;</p>
 <p style=margin:0in>&nbsp;</p>
 <p style=margin:0in><font face="Arial">
@@ -1436,8 +1434,7 @@ WTL application. It has options to create code for different application types a
 </ul>
 <p style=margin:0in>&nbsp;</p>
 <p style=margin:0in><font face="Arial" size="2">ATL/WTL AppWizard supports VC++ 
-.NET 2002 and 2003. Preliminary version of AppWizards for VC++ 2005 are 
-also provided.</font></p>
+.NET 2002 and 2003,and VC++ 2005.</font></p>
 <p style=margin:0in>&nbsp;</p>
 <p style=margin:0in>&nbsp;</p>
 <p style=margin:0in><b><font face="Arial">
@@ -1448,9 +1445,10 @@ Windows CE</font></b></p>
 projects for the Windows CE platforms. This initial support for Windows CE was implemented primarily for 
 eMbedded Visual C++ 4.0 with Pocket PC 2003 and 
 SmartPhone 2003 SDKs. However, it can be used with other versions and 
-configurations. For instance, Standard SDK 4.1 is supported as well. Considerable effort was made to provide the best Windows CE support, 
+configurations. For instance, Standard SDK 4.1 or 5.0 is supported as well. Considerable effort was made to provide the best Windows CE support, 
 however, there might be some limitations because different platforms provide different 
-programming support.</font></p>
+programming support. SmartDevice projects with Visual Studio 2005 are also 
+supported, and it also includes an AppWizard for VS2005.</font></p>
 <p style=margin:0in>&nbsp;</p>
 <p style=margin:0in><font face="Arial" size="2">The support for Windows CE was 
 not designed to port projects for the desktop version of Windows as-is to the 
@@ -1459,11 +1457,6 @@ desktop Windows and Windows CE. Applications for Windows CE are often designed
 in a different way, and they use different platform services. WTL depends on the 
 version of ATL provided with each Windows CE platform, and supports controls and 
 services that are appropriate and supported for each Windows CE platform.</font></p>
-<p style=margin:0in>&nbsp;</p>
-<p style=margin:0in><font face="Arial" size="2">WTL now also provides a 
-preliminary support for developing Windows CE applications with Visual Studio 
-2005 (codename Whidbey). AppWizard for SmartDevice projects is also 
-provided.</font></p>
 <p style=margin:0in>&nbsp;</p>
 <p style=margin:0in>&nbsp;</p>
 <p style=margin:0in><b><font face="Arial">
@@ -1480,7 +1473,7 @@ preprocessor symbol <b>_WTL_NO_WTYPES</b> for CSize, CPoint, and CRect; and <b>_
 for CString.</font></p>
 <p style=margin:0in>&nbsp;</p>
 <p style=margin:0in><font face="Arial" size="2"><b>~</b>&nbsp;&nbsp;&nbsp; If 
-you use WTL 7.5 with VC++ 6.0/ATL 3.0 and define _ATL_STATIC_REGISTRY, you'll 
+you use WTL 8.0 with VC++ 6.0/ATL 3.0 and define _ATL_STATIC_REGISTRY, you'll 
 get errors referring to the ambiguous symbol ATL. This is caused by a bug in ATL 
 3.0 - in atlbase.h, the file statreg.h is included inside of the ATL namespace, 
 and it contains another namespace ATL declaration. Because of that, the compiler 
@@ -1518,6 +1511,13 @@ required libraries.</font></p>
 old AppWizards for VC++ 6.0 and eVC++ 4.0/3.0 are not included in this version 
 of WTL because they cannot be a part of an Open Source project. They are still 
 available in the previous release, WTL 7.1.</font></p>
+<p style=margin:0in>&nbsp;</p>
+<p style=margin:0in>&nbsp;</p>
+<p style=margin:0in><b><font face="Arial">
+<a name="Changes Between WTL 8.0 And 7.5"></a>Changes Between WTL 8.0 And 7.5</font></b></p>
+<p style=margin:0in>&nbsp;</p>
+  <p style=margin:0in><font face="Arial" size="2">&lt;&lt;&lt; TODO: Add list of changes 
+	&gt;&gt;&gt;</font></p>
 <p style=margin:0in>&nbsp;</p>
 <p style=margin:0in>&nbsp;</p>
 <p style=margin:0in><b><font face="Arial">

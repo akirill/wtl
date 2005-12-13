@@ -1,4 +1,4 @@
-// Windows Template Library - WTL version 7.5
+// Windows Template Library - WTL version 8.0
 // Copyright (C) Microsoft Corporation. All rights reserved.
 //
 // This file is a part of the Windows Template Library.
@@ -63,7 +63,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 // WTL version number
 
-#define _WTL_VER	0x0750
+#define _WTL_VER	0x0800
 
 
 ///////////////////////////////////////////////////////////////////////////////
