@@ -3063,13 +3063,13 @@ public:
 		sizeSpacing.cy = GET_Y_LPARAM(dwRet);
 	}
 
-#ifdef _WIN32_WCE
+#if (_WIN32_WCE >= 410)
 	void SetItemSpacing(INT cySpacing)
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
 		ListView_SetItemSpacing(m_hWnd, cySpacing);
 	}
-#endif // _WIN32_WCE
+#endif // (_WIN32_WCE >= 410)
 
 	// single-selection only
 	int GetSelectedIndex() const

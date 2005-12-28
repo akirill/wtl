@@ -107,7 +107,9 @@ inline BOOL IsMenu(HMENU hMenu)
 	return bRet;
 }
 
+#if (_WIN32_WCE >= 410)
 extern "C" void WINAPI ListView_SetItemSpacing(HWND hwndLV, int iHeight);
+#endif // (_WIN32_WCE >= 410)
 
 inline int MulDiv(IN int nNumber, IN int nNumerator, IN int nDenominator)
 {
@@ -222,10 +224,12 @@ static CWndClassInfo& GetWndClassInfo() \
 
 #if (_WIN32_WCE < 400)
   #define MAKEINTATOM(i)  (LPTSTR)((ULONG_PTR)((WORD)(i)))
+#endif // (_WIN32_WCE < 400)
 
+#if (_WIN32_WCE < 410)
   #define WHEEL_PAGESCROLL                (UINT_MAX)
   #define WHEEL_DELTA                     120
-#endif // (_WIN32_WCE < 400)
+#endif // (_WIN32_WCE < 410)
 
 #ifdef DrawIcon
   #undef DrawIcon

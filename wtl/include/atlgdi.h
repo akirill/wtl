@@ -3100,13 +3100,15 @@ public:
 	}
 
 // DIB support
-#if !defined(_WIN32_WCE) || (_WIN32_WCE >= 400)
+#if !defined(_WIN32_WCE) || (_WIN32_WCE >= 410)
 	int SetDIBitsToDevice(int x, int y, DWORD dwWidth, DWORD dwHeight, int xSrc, int ySrc, UINT uStartScan, UINT cScanLines, CONST VOID* lpvBits, CONST BITMAPINFO* lpbmi, UINT uColorUse)
 	{
 		ATLASSERT(m_hDC != NULL);
 		return ::SetDIBitsToDevice(m_hDC, x, y, dwWidth, dwHeight, xSrc, ySrc, uStartScan, cScanLines, lpvBits, lpbmi, uColorUse);
 	}
+#endif // !defined(_WIN32_WCE) || (_WIN32_WCE >= 410)
 
+#if !defined(_WIN32_WCE) || (_WIN32_WCE >= 400)
 	int StretchDIBits(int x, int y, int nWidth, int nHeight, int xSrc, int ySrc, int nSrcWidth, int nSrcHeight, CONST VOID* lpvBits, CONST BITMAPINFO* lpbmi, UINT uColorUse, DWORD dwRop)
 	{
 		ATLASSERT(m_hDC != NULL);
