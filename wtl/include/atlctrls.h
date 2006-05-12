@@ -3361,7 +3361,7 @@ public:
 	}
 
 	int InsertColumn(int nCol, LPCTSTR lpszColumnHeading, int nFormat = LVCFMT_LEFT, 
-		int nWidth = -1, int nSubItem = -1, int iImage = -1, int iOrder = -1)
+			int nWidth = -1, int nSubItem = -1, int iImage = -1, int iOrder = -1)
 	{
 		LVCOLUMN column = { 0 };
 		column.mask = LVCF_TEXT|LVCF_FMT;
@@ -5177,7 +5177,7 @@ public:
 	}
 
 	BOOL SetButtonInfo(int nID, DWORD dwMask, BYTE Style, BYTE State, LPCTSTR lpszItem, 
-		int iImage, WORD cx, int iCommand, DWORD_PTR lParam)
+	                   int iImage, WORD cx, int iCommand, DWORD_PTR lParam)
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
 		TBBUTTONINFO tbbi = { 0 };
@@ -5437,7 +5437,7 @@ public:
 	}
 
 	BOOL InsertButton(int nIndex, int iCommand, BYTE Style, BYTE State, int iBitmap, 
-		INT_PTR iString, DWORD_PTR lParam)
+	                  INT_PTR iString, DWORD_PTR lParam)
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
 		TBBUTTON tbb = { 0 };
@@ -5451,7 +5451,7 @@ public:
 	}
 
 	BOOL InsertButton(int nIndex, int iCommand, BYTE Style, BYTE State, int iBitmap, 
-		LPCTSTR lpszItem, DWORD_PTR lParam)
+	                  LPCTSTR lpszItem, DWORD_PTR lParam)
 	{
 		return InsertButton(nIndex, iCommand, Style, State, iBitmap, (INT_PTR)lpszItem, lParam);
 	}
@@ -8234,7 +8234,7 @@ public:
 	}
 
 	int InsertItem(UINT nMask, int nIndex, LPCTSTR lpszItem, int nImage, int nSelImage, 
-		int iIndent, int iOverlay, DWORD lParam)
+	               int iIndent, int iOverlay, DWORD lParam)
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
 		COMBOBOXEXITEM cbex = { 0 };
@@ -8282,7 +8282,7 @@ public:
 	}
 
 	int SetItem(int nIndex, UINT nMask, LPCTSTR lpszItem, int nImage, int nSelImage, 
-		int iIndent, int iOverlay, DWORD lParam)
+	            int iIndent, int iOverlay, DWORD lParam)
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
 		COMBOBOXEXITEM cbex = { 0 };

@@ -68,7 +68,7 @@ namespace WTL
 	(WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | CBRWS_NODIVIDER | CBRWS_NORESIZE | CBRWS_NOPARENTALIGN)
 
 // Messages - support chevrons for frame windows
-#define CBRM_GETCMDBAR			(WM_USER + 301) // return command bar HWND
+#define CBRM_GETCMDBAR			(WM_USER + 301) // returns command bar HWND
 #define CBRM_GETMENU			(WM_USER + 302) // returns loaded or attached menu
 #define CBRM_TRACKPOPUPMENU		(WM_USER + 303) // displays a popup menu
 
@@ -1330,9 +1330,9 @@ public:
 #endif // !SPI_GETFLATMENU
 
 		if(wParam == SPI_SETNONCLIENTMETRICS || wParam == SPI_SETKEYBOARDCUES || wParam == SPI_SETFLATMENU)
-	{
-		T* pT = static_cast<T*>(this);
-		pT->GetSystemSettings();
+		{
+			T* pT = static_cast<T*>(this);
+			pT->GetSystemSettings();
 		}
 
 		return 0;

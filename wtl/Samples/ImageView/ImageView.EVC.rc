@@ -135,7 +135,7 @@ END
 // Dialog
 //
 
-IDD_ABOUTBOX DIALOG DISCARDABLE  0, 0, 164, 166
+IDD_ABOUTBOX DIALOGEX 0, 0, 164, 166
 STYLE DS_MODALFRAME | WS_POPUP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | 
     WS_CAPTION | WS_SYSMENU
 EXSTYLE 0x80000000L
@@ -143,13 +143,11 @@ CAPTION "About ImageView"
 FONT 8, "Tahoma"
 BEGIN
     CTEXT           "ImageView  v1.1\nWTL 7.5\nsample image viewer",IDC_HEAD,
-                    45,2,73,27,WS_BORDER | NOT WS_GROUP
-    CTEXT           "The use and distribution terms for this software are covered by the Common Public License 1.0 http://opensource.org/licenses/cpl.php",
-                    IDC_LICENSE,3,39,154,32,NOT WS_GROUP
+                    27,16,73,27,WS_BORDER | NOT WS_GROUP
     LTEXT           "Use the 'Action' key to toggle full screen.\nUse the arrow keys to zoom in and out, slowly with horizontal arrows, quickly with vertical.\nKeep the stylus pressed in place to get the menu.\nMove the pressed stylus to move the image.",
                     IDC_INFOSTATIC,3,77,153,56,SS_NOTIFY | WS_BORDER | NOT 
                     WS_GROUP
-    ICON            IDR_MAINFRAME,IDC_APPICON,133,6,20,20
+    ICON            IDR_MAINFRAME,IDC_APPICON,115,20,20,20
 END
 
 IDD_PROP_FILE DIALOG DISCARDABLE  0, 0, 159, 137
@@ -351,14 +349,18 @@ BEGIN
     BEGIN
         BLOCK "040904b0"
         BEGIN
-            VALUE "Comments", "The use and distribution terms for this software are covered by the Common Public License 1.0 (http://opensource.org/licenses/cpl.php).\0"
+            VALUE "Comments", "\0"
+            VALUE "CompanyName", "\0"
             VALUE "FileDescription", "WTL 7.5 ImageView sample\0"
             VALUE "FileVersion", "1, 1, 0, 1\0"
             VALUE "InternalName", "ImageView\0"
-            VALUE "LegalCopyright", "© Alain Rist 2005\0"
+            VALUE "LegalCopyright", "\0"
+            VALUE "LegalTrademarks", "\0"
             VALUE "OriginalFilename", "ImageView.exe\0"
+            VALUE "PrivateBuild", "\0"
             VALUE "ProductName", "ImageView Module\0"
             VALUE "ProductVersion", "7, 5, 0, 1\0"
+            VALUE "SpecialBuild", "\0"
         END
     END
     BLOCK "VarFileInfo"

@@ -638,7 +638,7 @@ public:
 
 ///////////////////////////////////////////////////////////////////////////////
 // CStaticDataInitCriticalSectionLock and CWindowCreateCriticalSectionLock
-// internal classes to manage critical sections for both ATL3 and ATl7
+// internal classes to manage critical sections for both ATL3 and ATL7
 
 class CStaticDataInitCriticalSectionLock
 {

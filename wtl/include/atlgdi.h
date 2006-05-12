@@ -3610,116 +3610,132 @@ public:
 
 #ifndef _WTL_NO_DIB16
 
-#define DIBINFO16_BITFIELDS {31744, 992, 31}
+#define DIBINFO16_BITFIELDS { 31744, 992, 31 }
 
 // DIBINFO16 - To avoid color table problems in WinCE we only create this type of Dib
 struct DIBINFO16 : public BITMAPINFO
 {
-	DWORD	 bitfields[2];    // 2 additional color bitfields
+	DWORD bitfields[2];    // 2 additional color bitfields
 
-	DIBINFO16( SIZE size) 
+	DIBINFO16(SIZE size) 
 	{
 		BITMAPINFOHEADER bmih = { sizeof(BITMAPINFOHEADER), size.cx, size.cy, 
-			1, 16, BI_BITFIELDS, 2 * size.cx * size.cy , 0, 0, 3};
+		                          1, 16, BI_BITFIELDS, 2 * size.cx * size.cy , 0, 0, 3 };
 		DWORD dw[3] = DIBINFO16_BITFIELDS ;
 
 		bmiHeader = bmih;
-		memcpy( bmiColors, dw, 3 * sizeof(DWORD));
+		memcpy(bmiColors, dw, 3 * sizeof(DWORD));
 	}
 };
 
 
 // AtlxxxDibxxx minimal packed DIB implementation and helpers to copy and paste CF_DIB
  
-inline bool AtlIsDib16( LPBITMAPINFOHEADER pbmih)
+inline bool AtlIsDib16(LPBITMAPINFOHEADER pbmih)
 {
-	return ( pbmih->biBitCount == 16) && ( pbmih->biCompression == BI_BITFIELDS);
+	return (pbmih->biBitCount == 16) && (pbmih->biCompression == BI_BITFIELDS);
 }
 
-inline int AtlGetDibColorTableSize( LPBITMAPINFOHEADER pbmih)
+inline int AtlGetDibColorTableSize(LPBITMAPINFOHEADER pbmih)
 {
-	switch ( pbmih->biBitCount) 
+	switch (pbmih->biBitCount) 
 	{
 		case  2:
 		case  4:
-		case  8: return pbmih->biClrUsed ? pbmih->biClrUsed : 1 << pbmih->biBitCount;
-		case 24: break;
+		case  8:
+			return pbmih->biClrUsed ? pbmih->biClrUsed : 1 << pbmih->biBitCount;
+		case 24:
+			break;
 		case 16:
-		case 32: return pbmih->biCompression == BI_BITFIELDS ? 3 : 0;
-		default: ATLASSERT( FALSE); // should never come here
+		case 32:
+			return pbmih->biCompression == BI_BITFIELDS ? 3 : 0;
+		default:
+			ATLASSERT(FALSE);   // should never come here
 	}
+
 	return 0;
 }
 
-inline int AtlGetDibNumColors( LPBITMAPINFOHEADER pbmih)
+inline int AtlGetDibNumColors(LPBITMAPINFOHEADER pbmih)
 {
-	switch ( pbmih->biBitCount) 
+	switch (pbmih->biBitCount) 
 	{
 		case  2:
 		case  4:
 		case  8: 
-			if ( pbmih->biClrUsed) return pbmih->biClrUsed;
-			else break;
+			if (pbmih->biClrUsed)
+				return pbmih->biClrUsed;
+			else
+				break;
 		case 16: 
-			if ( pbmih->biCompression == BI_BITFIELDS ) return 1 << 15;
-			else break;
-		case 24: break;
+			if (pbmih->biCompression == BI_BITFIELDS )
+				return 1 << 15;
+			else
+				break;
+		case 24:
+			break;
 		case 32: 
-			if ( pbmih->biCompression == BI_BITFIELDS ) return 1 << 24;
-			else break;
-		default: ATLASSERT( FALSE);
+			if (pbmih->biCompression == BI_BITFIELDS )
+				return 1 << 24;
+			else
+				break;
+		default:
+			ATLASSERT(FALSE);
 	}
+
 	return 1 << pbmih->biBitCount;
 }
 
-inline HBITMAP AtlGetDibBitmap( LPBITMAPINFO pbmi)
+inline HBITMAP AtlGetDibBitmap(LPBITMAPINFO pbmi)
 {
 	HBITMAP hbm = NULL;
 	CDC dc(NULL);
 	void * pBits = NULL;
 
-	LPBYTE pDibBits = (LPBYTE)pbmi + sizeof(BITMAPINFOHEADER) + AtlGetDibColorTableSize( &pbmi->bmiHeader) * sizeof(RGBQUAD);
-	if ( hbm = CreateDIBSection( dc, pbmi, DIB_RGB_COLORS, &pBits, NULL, NULL)) 
-		memcpy( pBits, pDibBits, pbmi->bmiHeader.biSizeImage);
+	LPBYTE pDibBits = (LPBYTE)pbmi + sizeof(BITMAPINFOHEADER) + AtlGetDibColorTableSize(&pbmi->bmiHeader) * sizeof(RGBQUAD);
+	if (hbm = CreateDIBSection(dc, pbmi, DIB_RGB_COLORS, &pBits, NULL, NULL)) 
+		memcpy(pBits, pDibBits, pbmi->bmiHeader.biSizeImage);
 
 	return hbm;
 }
 	
-inline HBITMAP AtlCopyBitmap( HBITMAP hbm , SIZE sizeDst, bool bAsBitmap = false)
+inline HBITMAP AtlCopyBitmap(HBITMAP hbm , SIZE sizeDst, bool bAsBitmap = false)
 {
-	CDC hdcSrc = CreateCompatibleDC( NULL);
-	CDC hdcDst = CreateCompatibleDC( NULL);
+	CDC hdcSrc = CreateCompatibleDC(NULL);
+	CDC hdcDst = CreateCompatibleDC(NULL);
 
 	CBitmapHandle hbmOld = NULL, hbmOld2 = NULL, bmSrc = hbm;
 
 	CBitmap bmNew = NULL;
 
-	SIZE sizeSrc = {0};
-	bmSrc.GetSize( sizeSrc);
+	SIZE sizeSrc = { 0 };
+	bmSrc.GetSize(sizeSrc);
 
-	hbmOld = hdcSrc.SelectBitmap( bmSrc);
+	hbmOld = hdcSrc.SelectBitmap(bmSrc);
 
-	if ( bAsBitmap)
-		bmNew.CreateCompatibleBitmap( hdcSrc, sizeDst.cx, sizeDst.cy);
+	if (bAsBitmap)
+	{
+		bmNew.CreateCompatibleBitmap(hdcSrc, sizeDst.cx, sizeDst.cy);
+	}
 	else
 	{
-		DIBINFO16 dib16( sizeDst);
-		LPVOID pBits;
-		bmNew = CreateDIBSection( hdcDst, (const BITMAPINFO *)&dib16, DIB_RGB_COLORS, &pBits, NULL, NULL);
+		DIBINFO16 dib16(sizeDst);
+		LPVOID pBits = NULL;
+		bmNew = CreateDIBSection(hdcDst, (const BITMAPINFO*)&dib16, DIB_RGB_COLORS, &pBits, NULL, NULL);
 	}
 	
-	ATLASSERT( !bmNew.IsNull());
+	ATLASSERT(!bmNew.IsNull());
 
-	hbmOld2 = hdcDst.SelectBitmap( bmNew);
+	hbmOld2 = hdcDst.SelectBitmap(bmNew);
 	BOOL bOK = FALSE;
 
-	if ( ( sizeDst.cx == sizeSrc.cx) && ( sizeDst.cy == sizeSrc.cy))
-		bOK = hdcDst.BitBlt( 0, 0, sizeDst.cx, sizeDst.cy, hdcSrc, 0, 0, SRCCOPY);
+	if ((sizeDst.cx == sizeSrc.cx) && (sizeDst.cy == sizeSrc.cy))
+		bOK = hdcDst.BitBlt(0, 0, sizeDst.cx, sizeDst.cy, hdcSrc, 0, 0, SRCCOPY);
 	else
-		bOK = hdcDst.StretchBlt( 0, 0, sizeDst.cx, sizeDst.cy, hdcSrc, 0, 0, sizeSrc.cx, sizeSrc.cy, SRCCOPY );
+		bOK = hdcDst.StretchBlt(0, 0, sizeDst.cx, sizeDst.cy, hdcSrc, 0, 0, sizeSrc.cx, sizeSrc.cy, SRCCOPY);
 
-	hdcSrc.SelectBitmap( hbmOld);
-	hdcDst.SelectBitmap( hbmOld2);
+	hdcSrc.SelectBitmap(hbmOld);
+	hdcDst.SelectBitmap(hbmOld2);
 
 	if (bOK == FALSE)
 		bmNew.DeleteObject();
@@ -3729,60 +3745,68 @@ inline HBITMAP AtlCopyBitmap( HBITMAP hbm , SIZE sizeDst, bool bAsBitmap = false
 
 inline HLOCAL AtlCreatePackedDib16(HBITMAP hbm, SIZE size)
 {
-	DIBSECTION ds = {0};
+	DIBSECTION ds = { 0 };
 	LPBYTE pDib = NULL;
 	bool bCopied = false;
 
 	bool bOK = GetObject(hbm, sizeof(ds), &ds) == sizeof(ds);
 	if ((bOK == FALSE) || (ds.dsBm.bmBits == NULL) || (AtlIsDib16(&ds.dsBmih) == FALSE) || 
-		(ds.dsBmih.biWidth != size.cx ) || (ds.dsBmih.biHeight != size.cy ))
-		if ((hbm = AtlCopyBitmap( hbm, size)) != NULL)
+	    (ds.dsBmih.biWidth != size.cx ) || (ds.dsBmih.biHeight != size.cy ))
+	{
+		if ((hbm = AtlCopyBitmap(hbm, size)) != NULL)
 		{
 			bCopied = true;
-			bOK = GetObject( hbm, sizeof(ds), &ds) == sizeof(ds);
+			bOK = GetObject(hbm, sizeof(ds), &ds) == sizeof(ds);
 		}
 		else
+		{
 			bOK = FALSE;
+		}
+	}
 
 	if((bOK == TRUE) && (AtlIsDib16(&ds.dsBmih) == TRUE) && (ds.dsBm.bmBits != NULL))
 	{
 		pDib = (LPBYTE)LocalAlloc(LMEM_ZEROINIT, sizeof(DIBINFO16) + ds.dsBmih.biSizeImage);
 		if (pDib != NULL)
 		{
-			memcpy( pDib , &ds.dsBmih, sizeof(DIBINFO16));
-			memcpy( pDib + sizeof(DIBINFO16), ds.dsBm.bmBits, ds.dsBmih.biSizeImage);
+			memcpy(pDib , &ds.dsBmih, sizeof(DIBINFO16));
+			memcpy(pDib + sizeof(DIBINFO16), ds.dsBm.bmBits, ds.dsBmih.biSizeImage);
 		}
 	}
+
 	if (bCopied == true)
-		DeleteObject( hbm);
+		DeleteObject(hbm);
 
 	return (HLOCAL)pDib;
 }
 
 inline bool AtlSetClipboardDib16(HBITMAP hbm, SIZE size, HWND hWnd)
 {
-	ATLASSERT( ::IsWindow(hWnd));
-	BOOL bOK = OpenClipboard( hWnd);
+	ATLASSERT(::IsWindow(hWnd));
+	BOOL bOK = OpenClipboard(hWnd);
 	if (bOK == TRUE)
 	{
 		if ((bOK = EmptyClipboard()) == TRUE)
 		{
-			HLOCAL hDib = AtlCreatePackedDib16( hbm, size);
+			HLOCAL hDib = AtlCreatePackedDib16(hbm, size);
 			if (hDib != NULL)
 			{
-				bOK = SetClipboardData( CF_DIB, hDib) != NULL;
+				bOK = SetClipboardData(CF_DIB, hDib) != NULL;
 				if (bOK == FALSE)  
 					LocalFree(hDib);
 			}
 			else
+			{
 				bOK = FALSE;
+			}
 		}
 		CloseClipboard();
 	}
+
 	return bOK == TRUE;
 }
 
-inline HBITMAP AtlGetClipboardDib( HWND hWnd)
+inline HBITMAP AtlGetClipboardDib(HWND hWnd)
 {
 	ATLASSERT(::IsWindow(hWnd) == TRUE);
 	HBITMAP hbm = NULL;
@@ -3793,6 +3817,7 @@ inline HBITMAP AtlGetClipboardDib( HWND hWnd)
 			hbm = AtlGetDibBitmap(pbmi);
 		CloseClipboard();
 	}
+
 	return hbm;
 }
 

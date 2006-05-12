@@ -375,7 +375,7 @@ static CFrameWndClassInfo& GetWndClassInfo() \
 // command bar support
 #if !defined(__ATLCTRLW_H__) && !defined(_WIN32_WCE)
 
-#define CBRM_GETCMDBAR			(WM_USER + 301) // return command bar HWND
+#define CBRM_GETCMDBAR			(WM_USER + 301) // returns command bar HWND
 #define CBRM_GETMENU			(WM_USER + 302) // returns loaded or attached menu
 #define CBRM_TRACKPOPUPMENU		(WM_USER + 303) // displays a popup menu
 
@@ -3533,10 +3533,10 @@ public:
 
 // command bar support
 #if !defined(__ATLCTRLW_H__) && !defined(_WIN32_WCE)
-#undef CBRM_GETMENU
-#undef CBRM_TRACKPOPUPMENU
-#undef CBRM_GETCMDBAR
-#undef CBRPOPUPMENU
+  #undef CBRM_GETMENU
+  #undef CBRM_TRACKPOPUPMENU
+  #undef CBRM_GETCMDBAR
+  #undef CBRPOPUPMENU
 #endif // !defined(__ATLCTRLW_H__) && !defined(_WIN32_WCE)
 
 }; // namespace WTL
