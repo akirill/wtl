@@ -151,19 +151,22 @@ function OnFinish(selProj, selObj)
 
 		selProj.Object.Save();
 
-		if(wizard.FindSymbol("WTL_APPTYPE_DLG"))
+		if(!wizard.FindSymbol('NO_RESOURCE_EDITOR'))
 		{
-			var strDialogID = "IDD_" + wizard.FindSymbol("UPPER_CASE_SAFE_PROJECT_NAME") + "_DIALOG";
-			var ResHelper = wizard.ResourceHelper;
-			ResHelper.OpenResourceFile(strProjectPath + "\\" + strProjectName + ".rc");
-			ResHelper.OpenResourceInEditor("DIALOG", "IDD_MAINDLG");
-		}
-		else if(wizard.FindSymbol("WTL_USE_VIEW") && wizard.FindSymbol("WTL_VIEWTYPE_FORM"))
-		{
-			var strDialogID = "IDD_" + wizard.FindSymbol("UPPERCASE_SAFE_PROJECT_NAME") + "_FORM";
-			var ResHelper = wizard.ResourceHelper;
-			ResHelper.OpenResourceFile(strProjectPath + "\\" + strProjectName + ".rc");
-			ResHelper.OpenResourceInEditor("DIALOG", strDialogID);
+			if(wizard.FindSymbol("WTL_APPTYPE_DLG"))
+			{
+				var strDialogID = "IDD_" + wizard.FindSymbol("UPPER_CASE_SAFE_PROJECT_NAME") + "_DIALOG";
+				var ResHelper = wizard.ResourceHelper;
+				ResHelper.OpenResourceFile(strProjectPath + "\\" + strProjectName + ".rc");
+				ResHelper.OpenResourceInEditor("DIALOG", "IDD_MAINDLG");
+			}
+			else if(wizard.FindSymbol("WTL_USE_VIEW") && wizard.FindSymbol("WTL_VIEWTYPE_FORM"))
+			{
+				var strDialogID = "IDD_" + wizard.FindSymbol("UPPERCASE_SAFE_PROJECT_NAME") + "_FORM";
+				var ResHelper = wizard.ResourceHelper;
+				ResHelper.OpenResourceFile(strProjectPath + "\\" + strProjectName + ".rc");
+				ResHelper.OpenResourceInEditor("DIALOG", strDialogID);
+			}
 		}
 	}
 	catch(e)
