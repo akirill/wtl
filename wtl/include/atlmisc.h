@@ -2139,12 +2139,7 @@ inline BOOL CString::FormatV(LPCTSTR lpszFormat, va_list argList)
 		// handle '%' character, but watch out for '%%'
 		if (*lpsz != _T('%') || *(lpsz = ::CharNext(lpsz)) == _T('%'))
 		{
-			// this is instead of _tclen()
-#if !defined(_UNICODE) && defined(_MBCS)
 			nMaxLen += (int)(::CharNext(lpsz) - lpsz);
-#else
-			nMaxLen++;
-#endif
 			continue;
 		}
 
