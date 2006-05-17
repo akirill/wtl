@@ -213,7 +213,11 @@ int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int nCmdShow = SW_SHOWNORMAL)
 }
 [!endif]
 
+[!if !WTL_APPTYPE_DLG_MODAL]
 int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lpstrCmdLine, int nCmdShow)
+[!else]
+int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR /*lpstrCmdLine*/, int /*nCmdShow*/)
+[!endif]
 {
 [!if WTL_USE_SINGLE_APP_INSTANCE]
 	HRESULT hRes = [!output WTL_FRAME_CLASS]::ActivatePreviousInstance(hInstance);
@@ -246,11 +250,6 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
 
 	hRes = _Module.Init(NULL, hInstance);
 	ATLASSERT(SUCCEEDED(hRes));
-
-[!endif]
-[!if WTL_USE_VIEW && WTL_VIEWTYPE_RICHEDIT]
-	HMODULE hInstRich = ::LoadLibrary(CRichEditCtrl::GetLibraryName());
-	ATLASSERT(hInstRich != NULL);
 
 [!endif]
 [!if WTL_ENABLE_AX]
@@ -347,10 +346,6 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
 [!endif]
 [!endif]
 [!if WTL_USE_VIEW]
-[!if WTL_VIEWTYPE_RICHEDIT]
-
-	::FreeLibrary(hInstRich);
-[!endif]
 [!endif]
 
 	_Module.Term();

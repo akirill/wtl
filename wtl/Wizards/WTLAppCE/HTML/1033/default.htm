@@ -18,6 +18,8 @@
 		<META HTTP-EQUIV="MSThemeCompatible" CONTENT="Yes">
 		<STYLE TYPE="text/css">@import url();
 		</STYLE>
+		<!-- This closing tag is here only to avoid security warning -->
+		</OBJECT>
 		<SCRIPT>
 		var strURL = window.external.FindSymbol("PRODUCT_INSTALLATION_DIR");
 		strURL += "VCWizards/";
@@ -52,7 +54,6 @@
 		<SYMBOL NAME='WTL_VIEWTYPE_EDIT' TYPE="checkbox" VALUE="false"></SYMBOL>
 		<SYMBOL NAME='WTL_VIEWTYPE_LISTVIEW' TYPE="checkbox" VALUE="false"></SYMBOL>
 		<SYMBOL NAME='WTL_VIEWTYPE_TREEVIEW' TYPE="checkbox" VALUE="false"></SYMBOL>
-		<SYMBOL NAME='WTL_VIEWTYPE_RICHEDIT' TYPE="checkbox" VALUE="false"></SYMBOL>
 		<SYMBOL NAME='WTL_VIEWTYPE_HTML' TYPE="checkbox" VALUE="false"></SYMBOL>
 
 		<SYMBOL NAME='WTL_FRAME_CLASS' TYPE="text" VALUE="CMainFrame"></SYMBOL>
@@ -499,9 +500,6 @@ function OnInit()
 			break;
 		case "WTL_VIEWTYPE_TREEVIEW":
 			strText += ", tree view based";
-			break;
-		case "WTL_VIEWTYPE_RICHEDIT":
-			strText += ", rich edit based";
 			break;
 		case "WTL_VIEWTYPE_HTML":
 			strText += ", HTML based";

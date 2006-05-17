@@ -157,15 +157,10 @@ LRESULT [!output WTL_FRAME_CLASS]::OnAppAbout(WORD /*wNotifyCode*/, WORD /*wID*/
 HRESULT [!output WTL_FRAME_CLASS]::ActivatePreviousInstance(HINSTANCE hInstance)
 {
 	CFrameWndClassInfo& classInfo = [!output WTL_FRAME_CLASS]::GetWndClassInfo();
-
-	int nRet = ::LoadString(hInstance, IDR_MAINFRAME, classInfo.m_szAutoName, sizeof(classInfo.m_szAutoName)/sizeof(classInfo.m_szAutoName[0]));
-	ATLASSERT(0 != nRet);
-
+	ATLVERIFY(::LoadString(hInstance, IDR_MAINFRAME, classInfo.m_szAutoName, sizeof(classInfo.m_szAutoName)/sizeof(classInfo.m_szAutoName[0])));
 	classInfo.m_wc.lpszClassName = classInfo.m_szAutoName;
-
 	const TCHAR* pszClass = classInfo.m_wc.lpszClassName;
-
-	if(NULL == pszClass || '\0' == *pszClass)
+	if(pszClass == NULL || *pszClass == _T('\0'))
 	{
 		return E_FAIL;
 	}
@@ -186,26 +181,15 @@ HRESULT [!output WTL_FRAME_CLASS]::ActivatePreviousInstance(HINSTANCE hInstance)
 
 		DWORD dw = GetLastError();
 
-		if(NULL == hMutex)
+		if(hMutex == NULL)
 		{
-			HRESULT hr;
-
-			switch(dw)
-			{
-			case ERROR_INVALID_HANDLE:
-				// A non-mutext object with this name already exists.
-				hr = E_INVALIDARG;
-				break;
-			default:
-				// This should never happen...
-				hr = E_FAIL;
-			}
-
+			// ERROR_INVALID_HANDLE - A non-mutex object with this name already exists.
+			HRESULT hr = (dw == ERROR_INVALID_HANDLE) ? E_INVALIDARG : E_FAIL;
 			return hr;
 		}
 
 		// If the mutex already exists, then there should be another instance running
-		if(ERROR_ALREADY_EXISTS == dw)
+		if(dw == ERROR_ALREADY_EXISTS)
 		{
 			// Just needed the error result, in this case, so close the handle.
 			CloseHandle(hMutex);
@@ -214,7 +198,7 @@ HRESULT [!output WTL_FRAME_CLASS]::ActivatePreviousInstance(HINSTANCE hInstance)
 			// Don't check title in case it is changed by app after init.
 			HWND hwnd = FindWindow(pszClass, NULL);
 
-			if(NULL == hwnd)
+			if(hwnd == NULL)
 			{
 				// It's possible that the other istance is in the process of starting up or shutting down.
 				// So wait a bit and try again.
@@ -228,7 +212,7 @@ HRESULT [!output WTL_FRAME_CLASS]::ActivatePreviousInstance(HINSTANCE hInstance)
 				// The "| 0x1" in the code below activates the correct owned window 
 				// of the previous instance's main window according to the SmartPhone 2003
 				// wizard generated code.
-				if(0 != SetForegroundWindow(reinterpret_cast<HWND>(reinterpret_cast<ULONG>(hwnd) | 0x1)))
+				if(SetForegroundWindow(reinterpret_cast<HWND>(reinterpret_cast<ULONG>(hwnd) | 0x1)) != 0)
 				{
 					// S_FALSE indicates that another instance was activated, so this instance should terminate.
 					return S_FALSE;
