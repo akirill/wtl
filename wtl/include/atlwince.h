@@ -47,14 +47,14 @@
 #if !defined(_AYGSHELL_H_) && !defined(__AYGSHELL_H__)
 	#error atlwince.h requires aygshell.h to be included first
 #else
-	#if defined(WIN32_PLATFORM_WFSP) && !defined(_TPCSHELL_H_)
-		#error SmartPhone dialog classes require tpcshell.h to be included first
-	#endif
+  #if defined(WIN32_PLATFORM_WFSP) && !defined(_TPCSHELL_H_)
+	#error SmartPhone dialog classes require tpcshell.h to be included first
+  #endif
 #endif
 
 #if _MSC_VER >= 1400 // VS2005
-	#include <DeviceResolutionAware.h>
-	#define _WTL_CE_DRA
+  #include <DeviceResolutionAware.h>
+  #define _WTL_CE_DRA
 #endif // _MSC_VER >= 1400
 
 #if !defined(_WTL_CE_NO_DIALOGS) &&  !defined(__ATLFRAME_H__)
@@ -69,15 +69,11 @@
 	#error ZoomScroll implementation requires atlscrl.h to be included first
 #endif
 
-#if !defined(_WTL_CE_NO_ZOOMSCROLL) && !defined(__ATLTYPES_H__)
-  #if !defined(__ATLMISC_H__) || defined(_WTL_NO_WTYPES)
-	#error ZoomScroll WTL::CSize usage requires _WTL_NO_WTYPES to be undefined and atlmisc.h to be included first
-  #elif defined(__ATLTYPES_H__)
-    #if !defined(__ATLMISC_H__) || !defined(_WTL_NO_WTYPES)
-	#error ZoomScroll ATL::CSize usage requires _WTL_NO_WTYPES to be defined and atlmisc.h to be included first
-    #endif			
-  #endif			
-#endif
+#if !defined(_WTL_CE_NO_ZOOMSCROLL)
+  #if !(defined(__ATLTYPES_H__) || (defined(__ATLMISC_H__) && !defined(_WTL_NO_WTYPES)))
+	#error ZoomScroll requires _WTL_NO_WTYPES not to be defined and either atlmisc.h or atltypes.h to be included first
+  #endif // !(defined(__ATLTYPES_H__) || (defined(__ATLMISC_H__) && !defined(_WTL_NO_WTYPES)))
+#endif // !defined(_WTL_CE_NO_ZOOMSCROLL)
 
 #if !defined(WIN32_PLATFORM_WFSP) && !defined(WIN32_PLATFORM_PSPC)
   #define _WTL_CE_NO_CONTROLS
@@ -95,14 +91,14 @@
   #pragma comment(lib, "voicectl.lib")
 
   #ifdef WIN32_PLATFORM_PSPC
-	#include <richink.h>
-	#pragma comment(lib, "richink.lib")
+    #include <richink.h>
+    #pragma comment(lib, "richink.lib")
 
-	#include <inkx.h>
-	#pragma comment(lib, "inkx.lib")
+    #include <inkx.h>
+    #pragma comment(lib, "inkx.lib")
 
-	#include <doclist.h>
-	#pragma comment(lib, "doclist.lib")
+    #include <doclist.h>
+    #pragma comment(lib, "doclist.lib")
   #endif
 #endif
 
@@ -1175,7 +1171,7 @@ class  CZoomScrollImpl: public CScrollImpl< T >
 {
 public:
 // Data members
-	CSize m_sizeTrue;
+	_WTYPES_NS::CSize m_sizeTrue;
 	double	m_fzoom;
 
 // Creation
@@ -1183,7 +1179,7 @@ public:
 	{ }
 
 // Zoom operations and access
-	void SetZoomScrollSize(CSize sizeTrue, double fzoom = 1., BOOL bRedraw = TRUE)
+	void SetZoomScrollSize(_WTYPES_NS::CSize sizeTrue, double fzoom = 1., BOOL bRedraw = TRUE)
 	{
 		ATLASSERT(fzoom > 0.);
 		m_sizeTrue = sizeTrue;
@@ -1194,20 +1190,20 @@ public:
 
 	void SetZoomScrollSize(int cx, int cy, double fzoom=1., BOOL bRedraw = TRUE)
 	{
-		SetZoomScrollSize(CSize(cx, cy), fzoom, bRedraw);
+		SetZoomScrollSize(_WTYPES_NS::CSize(cx, cy), fzoom, bRedraw);
 	}
 
 	void SetZoom(double fzoom, BOOL bRedraw = TRUE)
 	{
-		CPoint ptCenter = WndtoTrue(m_sizeClient / 2);
-		CSize sizePage = GetScrollPage();
-		CSize sizeLine = GetScrollLine();
+		_WTYPES_NS::CPoint ptCenter = WndtoTrue(m_sizeClient / 2);
+		_WTYPES_NS::CSize sizePage = GetScrollPage();
+		_WTYPES_NS::CSize sizeLine = GetScrollLine();
 
 		SetZoomScrollSize(GetScrollSize(), fzoom, bRedraw);
 
 		SetScrollLine(sizeLine);
 		SetScrollPage(sizePage);
-		CPoint ptOffset = ptCenter - (m_sizeClient / 2) * fzoom;
+		_WTYPES_NS::CPoint ptOffset = ptCenter - (m_sizeClient / 2) * fzoom;
 		SetScrollOffset(ptOffset, bRedraw);
 	}
 
@@ -1250,7 +1246,7 @@ public:
 
 	void SetScrollPage(int cxPage, int cyPage)
 	{
-		SetScrollPage(CSize(cxPage, cyPage));
+		SetScrollPage(_WTYPES_NS::CSize(cxPage, cyPage));
 	}
 
 	void SetScrollPage(SIZE sizePage)
@@ -1265,7 +1261,7 @@ public:
 
 	void SetScrollLine(int cxLine, int cyLine)
 	{
-		SetScrollLine(CSize(cxLine, cyLine));
+		SetScrollLine(_WTYPES_NS::CSize(cxLine, cyLine));
 	}
 
 	void SetScrollLine(SIZE sizeLine)
@@ -1279,30 +1275,30 @@ public:
 	}
 
 // Data access complements
-	CSize GetScrollSize()
+	_WTYPES_NS::CSize GetScrollSize()
 	{
 		return m_sizeTrue;
 	}
 
-	CSize GetScrollPage()
+	_WTYPES_NS::CSize GetScrollPage()
 	{
 		return m_sizePage * m_fzoom;
 	}
 
-	CSize GetScrollLine()
+	_WTYPES_NS::CSize GetScrollLine()
 	{
 		return m_sizeLine * m_fzoom;
 	}
 
-	CPoint GetScrollOffset()
+	_WTYPES_NS::CPoint GetScrollOffset()
 	{
-		return (CSize)m_ptOffset * m_fzoom;
+		return (_WTYPES_NS::CSize)m_ptOffset * m_fzoom;
 	}
 
 // Helper coordinate functions
-	CPoint WndtoTrue(CPoint ptW)
+	_WTYPES_NS::CPoint WndtoTrue(CPoint ptW)
 	{
-		return (CSize)ptW * GetZoom() + GetScrollOffset();
+		return (_WTYPES_NS::CSize)ptW * GetZoom() + GetScrollOffset();
 	}
 
 	void WndtoTrue(LPPOINT aptW, int nPts)   // in place coord transformation
@@ -1316,7 +1312,7 @@ public:
 		WndtoTrue((LPPOINT)prectW, 2);
 	}
 
-	CPoint TruetoWnd(CPoint ptT)
+	_WTYPES_NS::CPoint TruetoWnd(CPoint ptT)
 	{
 		return (ptT - GetScrollOffset()) / GetZoom();
 	}
@@ -1346,8 +1342,8 @@ public:
 	{
 		CDCHandle destDC = hdestDC;
 		destDC.SetViewportOrg(0,0);
-		CPoint ptOffset = GetScrollOffset();
-		CSize sizeZClient = m_sizeClient * GetZoom();
+		_WTYPES_NS::CPoint ptOffset = GetScrollOffset();
+		_WTYPES_NS::CSize sizeZClient = m_sizeClient * GetZoom();
 		return destDC.StretchBlt(0, 0, m_sizeClient.cx, m_sizeClient.cy, hsourceDC, ptOffset.x, ptOffset.y, sizeZClient.cx, sizeZClient.cy, dwROP);
 	}
 
@@ -1363,9 +1359,9 @@ public:
 		ATLASSERT(::IsWindow(pT->m_hWnd));
 		if ((GetScrollExtendedStyle() & SCRL_ERASEBACKGROUND))
 		{
-			CRect rect;
+			_WTYPES_NS::CRect rect;
 			pT->GetClientRect(rect);
-			CSize sizeClient=rect.Size();
+			_WTYPES_NS::CSize sizeClient=rect.Size();
 
 			if (m_sizeAll.cx < sizeClient.cx || m_sizeAll.cy < sizeClient.cy)
 			{
@@ -1374,13 +1370,13 @@ public:
 
 				if (m_sizeAll.cx < sizeClient.cx)
 				{
-					CRect rectBG(CPoint(m_sizeAll.cx, 0), sizeClient);
+					_WTYPES_NS::CRect rectBG(_WTYPES_NS::CPoint(m_sizeAll.cx, 0), sizeClient);
 					hdc.FillRect(rectBG, hbr);
 				}
 
 				if (m_sizeAll.cy < sizeClient.cy)
 				{
-					CRect rectBG(CPoint(0, m_sizeAll.cy), sizeClient);
+					_WTYPES_NS::CRect rectBG(_WTYPES_NS::CPoint(0, m_sizeAll.cy), sizeClient);
 					hdc.FillRect(rectBG, hbr);
 				}
 			}

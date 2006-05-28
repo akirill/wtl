@@ -1062,16 +1062,26 @@ public:
 #endif // defined(_WTL_FORWARD_DECLARE_CSTRING) && !defined(_WTL_USE_CSTRING)
 
 #ifdef _WTL_USE_CSTRING
-class CString;   // forward declaration (include atlmisc.h for the whole class)
+  class CString;   // forward declaration (include atlmisc.h for the whole class)
 #endif // _WTL_USE_CSTRING
 
+// CString namespace
 #ifndef _CSTRING_NS
   #ifdef __ATLSTR_H__
-  #define _CSTRING_NS	ATL
+    #define _CSTRING_NS	ATL
   #else
-  #define _CSTRING_NS	WTL
+    #define _CSTRING_NS	WTL
   #endif
 #endif // _CSTRING_NS
+
+// Type classes namespace
+#ifndef _WTYPES_NS
+  #ifdef __ATLTYPES_H__
+    #define _WTYPES_NS
+  #else
+    #define _WTYPES_NS	WTL
+  #endif
+#endif // _WTYPES_NS
 
 }; // namespace WTL
 
