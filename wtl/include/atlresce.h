@@ -54,7 +54,7 @@
 #endif // !_INC_WINDOWS
 #endif // RC_INVOKED
 
-#include <atlres.h>
+#include "atlres.h"
 
 #ifdef APSTUDIO_INVOKED
 	#undef APSTUDIO_HIDDEN_SYMBOLS

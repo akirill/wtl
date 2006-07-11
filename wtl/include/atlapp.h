@@ -51,9 +51,9 @@
 #endif // !_WIN32_WCE
 
 #ifndef _WIN32_WCE
-  #include <atlres.h>
+  #include "atlres.h"
 #else // CE specific
-  #include <atlresce.h>
+  #include "atlresce.h"
 #endif // _WIN32_WCE
 
 // We need to disable this warning because of template class arguments
@@ -1189,9 +1189,9 @@ inline HRESULT AtlGetShellVersion(LPDWORD pdwMajor, LPDWORD pdwMinor)
 
 
 // These are always included
-#include <atlwinx.h>
-#include <atluser.h>
-#include <atlgdi.h>
+#include "atlwinx.h"
+#include "atluser.h"
+#include "atlgdi.h"
 
 #ifndef _WTL_NO_AUTOMATIC_NAMESPACE
 using namespace WTL;
