@@ -937,16 +937,31 @@ public:
 		return m_hCursor;
 	}
 
-	HCURSOR LoadOEMCursor(LPCTSTR lpstrCursorName)
+	HCURSOR LoadSysCursor(LPCTSTR lpstrCursorName)
 	{
 		ATLASSERT(m_hCursor == NULL);
+#if (WINVER >= 0x0500)
+		ATLASSERT(lpstrCursorName == IDC_ARROW || lpstrCursorName == IDC_IBEAM || lpstrCursorName == IDC_WAIT ||
+			lpstrCursorName == IDC_CROSS || lpstrCursorName == IDC_UPARROW || lpstrCursorName == IDC_SIZE ||
+			lpstrCursorName == IDC_ICON || lpstrCursorName == IDC_SIZENWSE || lpstrCursorName == IDC_SIZENESW ||
+			lpstrCursorName == IDC_SIZEWE || lpstrCursorName == IDC_SIZENS || lpstrCursorName == IDC_SIZEALL ||
+			lpstrCursorName == IDC_NO || lpstrCursorName == IDC_APPSTARTING || lpstrCursorName == IDC_HELP ||
+			lpstrCursorName == IDC_HAND);
+#else // !(WINVER >= 0x0500)
 		ATLASSERT(lpstrCursorName == IDC_ARROW || lpstrCursorName == IDC_IBEAM || lpstrCursorName == IDC_WAIT ||
 			lpstrCursorName == IDC_CROSS || lpstrCursorName == IDC_UPARROW || lpstrCursorName == IDC_SIZE ||
 			lpstrCursorName == IDC_ICON || lpstrCursorName == IDC_SIZENWSE || lpstrCursorName == IDC_SIZENESW ||
 			lpstrCursorName == IDC_SIZEWE || lpstrCursorName == IDC_SIZENS || lpstrCursorName == IDC_SIZEALL ||
 			lpstrCursorName == IDC_NO || lpstrCursorName == IDC_APPSTARTING || lpstrCursorName == IDC_HELP);
+#endif // !(WINVER >= 0x0500)
 		m_hCursor = ::LoadCursor(NULL, lpstrCursorName);
 		return m_hCursor;
+	}
+
+	// deprecated
+	HCURSOR LoadOEMCursor(LPCTSTR lpstrCursorName)
+	{
+		return LoadSysCursor(lpstrCursorName);
 	}
 
 	HCURSOR LoadCursor(ATL::_U_STRINGorID cursor, int cxDesired, int cyDesired, UINT fuLoad = 0)
