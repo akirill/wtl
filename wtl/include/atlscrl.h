@@ -1515,7 +1515,7 @@ public:
 		}
 		else 
 		{
-			int xMax = max(m_sizeAll.cx - rect.right, 0);
+			int xMax = max((int)(m_sizeAll.cx - rect.right), 0);
 			if(xOfs > xMax)
 				xOfs = xMax;
 		}
@@ -1527,7 +1527,7 @@ public:
 		}
 		else 
 		{
-			int yMax = max(m_sizeAll.cy - rect.bottom, 0);
+			int yMax = max((int)(m_sizeAll.cy - rect.bottom), 0);
 			if(yOfs > yMax)
 				yOfs = yMax;
 		}
