@@ -3879,7 +3879,7 @@ public:
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
 #if (_WIN32_IE >= 0x0500) && !defined(_WIN32_WCE)
-		return (UINT)::SendMessage(m_hWnd, TVM_GETITEMSTATE, (WPARAM)hItem, (LPARAM)nStateMask);
+		return (((UINT)::SendMessage(m_hWnd, TVM_GETITEMSTATE, (WPARAM)hItem, (LPARAM)nStateMask)) & nStateMask);
 #else // !((_WIN32_IE >= 0x0500) && !defined(_WIN32_WCE))
 		TVITEM item = { 0 };
 		item.hItem = hItem;
