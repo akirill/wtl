@@ -3887,7 +3887,7 @@ public:
 		item.state = 0;
 		item.stateMask = nStateMask;
 		::SendMessage(m_hWnd, TVM_GETITEM, 0, (LPARAM)&item);
-		return item.state;
+		return (item.state & nStateMask);
 #endif // !((_WIN32_IE >= 0x0500) && !defined(_WIN32_WCE))
 	}
 
