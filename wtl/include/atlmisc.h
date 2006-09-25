@@ -2980,7 +2980,7 @@ public:
 	BOOL AddToList(LPCTSTR lpstrDocName)
 	{
 		_DocEntry de;
-		if(lstrcpy(de.szDocName, lpstrDocName) == NULL)
+		if(lstrcpyn(de.szDocName, lpstrDocName, t_cchItemLen) == NULL)
 			return FALSE;
 
 		for(int i = 0; i < m_arrDocs.GetSize(); i++)
@@ -3552,7 +3552,15 @@ public:
 		Close();
 
 		if(pstrName == NULL)
+		{
 			pstrName = _T("*.*");
+		}
+		else if(lstrlen(pstrName) >= MAX_PATH)
+		{
+			ATLASSERT(FALSE);
+			return FALSE;
+		}
+
 		lstrcpy(m_fd.cFileName, pstrName);
 
 		m_hFind = ::FindFirstFile(pstrName, &m_fd);
