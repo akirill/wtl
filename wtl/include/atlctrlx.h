@@ -236,12 +236,12 @@ public:
 		// set bitmap according to the current button state
 		int nImage = -1;
 		bool bHover = IsHoverMode();
-		if(m_fPressed == 1)
+		if(!IsWindowEnabled())
+			nImage = m_nImage[_nImageDisabled];
+		else if(m_fPressed == 1)
 			nImage = m_nImage[_nImagePushed];
 		else if((!bHover && m_fFocus == 1) || (bHover && m_fMouseOver == 1))
 			nImage = m_nImage[_nImageFocusOrHover];
-		else if(!IsWindowEnabled())
-			nImage = m_nImage[_nImageDisabled];
 		if(nImage == -1)   // not there, use default one
 			nImage = m_nImage[_nImageNormal];
 
