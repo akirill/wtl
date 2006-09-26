@@ -650,6 +650,12 @@ public:
 		ATLASSERT(lpAccelDst != NULL);
 		return ::CopyAcceleratorTable(m_hAccel, lpAccelDst, cEntries);
 	}
+
+	int GetEntriesCount() const
+	{
+		ATLASSERT(m_hAccel != NULL);
+		return ::CopyAcceleratorTable(m_hAccel, NULL, 0);
+	}
 #endif // !_WIN32_WCE
 
 	BOOL TranslateAccelerator(HWND hWnd, LPMSG pMsg)
