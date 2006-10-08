@@ -34,7 +34,12 @@
 	#error atltheme.h requires _WIN32_WINNT >= 0x0501
 #endif // (_WIN32_WINNT < 0x0501)
 
-#include <tmschema.h>
+#if defined(_WTL_USE_VSSYM32) || (defined(NTDDI_VERSION) && (NTDDI_VERSION >= NTDDI_LONGHORN))
+  #include <vssym32.h>
+#else
+  #include <tmschema.h>
+#endif
+
 #include <uxtheme.h>
 #pragma comment(lib, "uxtheme.lib")
 
@@ -60,6 +65,14 @@
   #pragma comment(lib, "delayimp.lib")
   #pragma comment(linker, "/delayload:uxtheme.dll")
 #endif // (_MSC_VER < 1300) && !defined(_WTL_NO_THEME_DELAYLOAD)
+
+// Hack: Signatures in uxtheme.h changed - the only way to check which variant of uxtheme.h
+// is included is to check for presence of new defines MAX_THEMECOLOR and MAX_THEMESIZE
+#ifndef _WTL_NEW_UXTHEME
+  #if defined(MAX_THEMECOLOR) && defined(MAX_THEMESIZE)
+    #define _WTL_NEW_UXTHEME
+  #endif // defined(MAX_THEMECOLOR) && defined(MAX_THEMESIZE)
+#endif // _WTL_NEW_UXTHEME
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -210,8 +223,12 @@ public:
 	HRESULT GetThemeTextMetrics(HDC hDC, int nPartID, int nStateID, PTEXTMETRICW pTextMetric) const
 	{
 		ATLASSERT(m_hTheme != NULL);
+#ifdef _WTL_NEW_UXTHEME
+		return ::GetThemeTextMetrics(m_hTheme, hDC, nPartID, nStateID, pTextMetric);
+#else // !_WTL_NEW_UXTHEME
 		// Note: The cast to PTEXTMETRIC is because uxtheme.h incorrectly uses it instead of PTEXTMETRICW
 		return ::GetThemeTextMetrics(m_hTheme, hDC, nPartID, nStateID, (PTEXTMETRIC)pTextMetric);
+#endif // !_WTL_NEW_UXTHEME
 	}
 
 	HRESULT GetThemeBackgroundRegion(HDC hDC, int nPartID, int nStateID, LPCRECT pRect, HRGN* pRegion) const
@@ -296,15 +313,23 @@ public:
 	HRESULT GetThemeFont(int nPartID, HDC hDC, int nStateID, int nPropID, LOGFONTW* pFont) const
 	{
 		ATLASSERT(m_hTheme != NULL);
+#ifdef _WTL_NEW_UXTHEME
+		return ::GetThemeFont(m_hTheme, hDC, nPartID, nStateID, nPropID, pFont);
+#else // !_WTL_NEW_UXTHEME
 		// Note: The cast to LOGFONT* is because uxtheme.h incorrectly uses it instead of LOGFONTW*
 		return ::GetThemeFont(m_hTheme, hDC, nPartID, nStateID, nPropID, (LOGFONT*)pFont);
+#endif // !_WTL_NEW_UXTHEME
 	}
 
 	HRESULT GetThemeFont(HDC hDC, int nPartID, int nStateID, int nPropID, LOGFONTW* pFont) const
 	{
 		ATLASSERT(m_hTheme != NULL);
+#ifdef _WTL_NEW_UXTHEME
+		return ::GetThemeFont(m_hTheme, hDC, nPartID, nStateID, nPropID, pFont);
+#else // !_WTL_NEW_UXTHEME
 		// Note: The cast to LOGFONT* is because uxtheme.h incorrectly uses it instead of LOGFONTW*
 		return ::GetThemeFont(m_hTheme, hDC, nPartID, nStateID, nPropID, (LOGFONT*)pFont);
+#endif // !_WTL_NEW_UXTHEME
 	}
 
 	HRESULT GetThemeRect(int nPartID, int nStateID, int nPropID, LPRECT pRect) const
@@ -364,8 +389,12 @@ public:
 	HRESULT GetThemeSysFont(int nFontID, LOGFONTW* plf) const
 	{
 		ATLASSERT(m_hTheme != NULL);
+#ifdef _WTL_NEW_UXTHEME
+		return ::GetThemeSysFont(m_hTheme, nFontID, plf);
+#else // !_WTL_NEW_UXTHEME
 		// Note: The cast to LOGFONT* is because uxtheme.h incorrectly uses it instead of LOGFONTW*
 		return ::GetThemeSysFont(m_hTheme, nFontID, (LOGFONT*)plf);
+#endif // !_WTL_NEW_UXTHEME
 	}
 
 	HRESULT GetThemeSysString(int nStringID, LPWSTR pszStringBuff, int cchMaxStringChars) const
