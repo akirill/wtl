@@ -1446,33 +1446,33 @@ public:
 			LONG lRet = rk.Open(HKEY_CURRENT_USER, _T("Software\\Microsoft\\Internet Explorer\\Settings"));
 			if(lRet == 0)
 			{
-				const int cchBuff = 12;
-				TCHAR szBuff[cchBuff] = { 0 };
+				const int cchValue = 12;
+				TCHAR szValue[cchValue] = { 0 };
 #if (_ATL_VER >= 0x0700)
-				ULONG ulCount = cchBuff;
-				lRet = rk.QueryStringValue(_T("Anchor Color"), szBuff, &ulCount);
+				ULONG ulCount = cchValue;
+				lRet = rk.QueryStringValue(_T("Anchor Color"), szValue, &ulCount);
 #else
-				DWORD dwCount = cchBuff * sizeof(TCHAR);
-				lRet = rk.QueryValue(szBuff, _T("Anchor Color"), &dwCount);
+				DWORD dwCount = cchValue * sizeof(TCHAR);
+				lRet = rk.QueryValue(szValue, _T("Anchor Color"), &dwCount);
 #endif
 				if(lRet == 0)
 				{
-					COLORREF clr = pT->_ParseColorString(szBuff);
+					COLORREF clr = pT->_ParseColorString(szValue);
 					ATLASSERT(clr != CLR_INVALID);
 					if(clr != CLR_INVALID)
 						m_clrLink = clr;
 				}
 
 #if (_ATL_VER >= 0x0700)
-				ulCount = cchBuff;
-				lRet = rk.QueryStringValue(_T("Anchor Color Visited"), szBuff, &ulCount);
+				ulCount = cchValue;
+				lRet = rk.QueryStringValue(_T("Anchor Color Visited"), szValue, &ulCount);
 #else
-				dwCount = cchBuff * sizeof(TCHAR);
-				lRet = rk.QueryValue(szBuff, _T("Anchor Color Visited"), &dwCount);
+				dwCount = cchValue * sizeof(TCHAR);
+				lRet = rk.QueryValue(szValue, _T("Anchor Color Visited"), &dwCount);
 #endif
 				if(lRet == 0)
 				{
-					COLORREF clr = pT->_ParseColorString(szBuff);
+					COLORREF clr = pT->_ParseColorString(szValue);
 					ATLASSERT(clr != CLR_INVALID);
 					if(clr != CLR_INVALID)
 						m_clrVisited = clr;
