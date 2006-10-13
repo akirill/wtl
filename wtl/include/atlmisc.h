@@ -3511,20 +3511,22 @@ public:
 		TCHAR szBuff[MAX_PATH] = { 0 };
 		if(!GetFileName(szBuff, MAX_PATH))
 			return FALSE;
-		TCHAR szNameBuff[_MAX_FNAME] = { 0 };
-#if _SECURE_ATL
-		ATL::Checked::tsplitpath_s(szBuff, NULL, 0, NULL, 0, szNameBuff, _countof(szNameBuff), NULL, 0);
-#else
-		_tsplitpath(szBuff, NULL, NULL, szNameBuff, NULL);
-#endif
-		if(lstrlen(szNameBuff) >= cchLength)
+
+		if(lstrlen(szBuff) >= cchLength || cchLength < 1)
 			return FALSE;
+
+		// find the last dot
+		LPTSTR pstrDot  = (LPTSTR)_cstrrchr(szBuff, _T('.'));
+		if(pstrDot != NULL)
+			*pstrDot = 0;
+
 #if _SECURE_ATL
-		ATL::Checked::tcscpy_s(lpstrFileTitle, cchLength, szNameBuff);
-		return TRUE;
+		ATL::Checked::tcscpy_s(lpstrFileTitle, cchLength, szBuff);
 #else
-		return (lstrcpy(lpstrFileTitle, szNameBuff) != NULL);
+		lstrcpy(lpstrFileTitle, szBuff);
 #endif
+
+		return TRUE;
 	}
 #endif // !_WIN32_WCE
 
@@ -3590,15 +3592,10 @@ public:
 	{
 		ATLASSERT(m_hFind != NULL);
 
-		_CSTRING_NS::CString strFullName = GetFileName();
 		_CSTRING_NS::CString strResult;
-
-#if _SECURE_ATL
-		ATL::Checked::tsplitpath_s(strFullName, NULL, 0, NULL, 0, strResult.GetBuffer(MAX_PATH), MAX_PATH, NULL, 0);
-#else
-		_tsplitpath(strFullName, NULL, NULL, strResult.GetBuffer(MAX_PATH), NULL);
-#endif
+		GetFileTitle(strResult.GetBuffer(MAX_PATH), MAX_PATH);
 		strResult.ReleaseBuffer();
+
 		return strResult;
 	}
 #endif // !_WIN32_WCE
@@ -3756,14 +3753,18 @@ public:
 			return FALSE;
 
 #ifndef _WIN32_WCE
-		LPCTSTR pstr = _tfullpath(m_lpszRoot, pstrName, MAX_PATH);
+		bool bFullPath = (::GetFullPathName(pstrName, MAX_PATH, m_lpszRoot, NULL) != 0);
 #else // CE specific
-		LPCTSTR pstr = lstrcpyn(m_lpszRoot, pstrName, MAX_PATH);
+  #if _SECURE_ATL
+		bool bFullPath = (ATL::Checked::tcsncpy_s(m_fd.cFileName, _countof(m_fd.cFileName), pstrName) == 0);
+  #else
+		bool bFullPath = (lstrcpyn(m_lpszRoot, pstrName, MAX_PATH) != NULL);
+  #endif
 #endif // _WIN32_WCE
 
 		// passed name isn't a valid path but was found by the API
-		ATLASSERT(pstr != NULL);
-		if(pstr == NULL)
+		ATLASSERT(bFullPath);
+		if(!bFullPath)
 		{
 			Close();
 			::SetLastError(ERROR_INVALID_NAME);
@@ -3772,8 +3773,8 @@ public:
 		else
 		{
 			// find the last forward or backward whack
-			LPTSTR pstrBack  = _tcsrchr(m_lpszRoot, _T('\\'));
-			LPTSTR pstrFront = _tcsrchr(m_lpszRoot, _T('/'));
+			LPTSTR pstrBack  = (LPTSTR)_cstrrchr(m_lpszRoot, _T('\\'));
+			LPTSTR pstrFront = (LPTSTR)_cstrrchr(m_lpszRoot, _T('/'));
 
 			if(pstrFront != NULL || pstrBack != NULL)
 			{
@@ -3820,6 +3821,23 @@ public:
 			::FindClose(m_hFind);
 			m_hFind = NULL;
 		}
+	}
+
+// Helper
+	static const TCHAR* _cstrrchr(const TCHAR* p, TCHAR ch)
+	{
+#ifdef _ATL_MIN_CRT
+		const TCHAR* lpsz = NULL;
+		while (*p != 0)
+		{
+			if (*p == ch)
+				lpsz = p;
+			p = ::CharNext(p);
+		}
+		return lpsz;
+#else // !_ATL_MIN_CRT
+		return _tcsrchr(p, ch);
+#endif // !_ATL_MIN_CRT
 	}
 };
 
