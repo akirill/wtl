@@ -176,7 +176,11 @@ public:
 		ATLASSERT(lpstrText != NULL);
 		if(m_lpstrToolTipText == NULL)
 			return false;
+#if _SECURE_ATL
+		return (ATL::Checked::tcsncpy_s(lpstrText, nLength, m_lpstrToolTipText, min(nLength, lstrlen(m_lpstrToolTipText) + 1)) == 0);
+#else
 		return (lstrcpyn(lpstrText, m_lpstrToolTipText, min(nLength, lstrlen(m_lpstrToolTipText) + 1)) != NULL);
+#endif
 	}
 
 	bool SetToolTipText(LPCTSTR lpstrText)
@@ -186,21 +190,30 @@ public:
 			delete [] m_lpstrToolTipText;
 			m_lpstrToolTipText = NULL;
 		}
+
 		if(lpstrText == NULL)
 		{
 			if(m_tip.IsWindow())
 				m_tip.Activate(FALSE);
 			return true;
 		}
-		ATLTRY(m_lpstrToolTipText = new TCHAR[lstrlen(lpstrText) + 1]);
+
+		int cchLen = lstrlen(lpstrText) + 1;
+		ATLTRY(m_lpstrToolTipText = new TCHAR[cchLen]);
 		if(m_lpstrToolTipText == NULL)
 			return false;
+#if _SECURE_ATL
+		ATL::Checked::tcscpy_s(m_lpstrToolTipText, cchLen, lpstrText);
+		bool bRet = true;
+#else
 		bool bRet = (lstrcpy(m_lpstrToolTipText, lpstrText) != NULL);
+#endif
 		if(bRet && m_tip.IsWindow())
 		{
 			m_tip.Activate(TRUE);
 			m_tip.AddTool(m_hWnd, m_lpstrToolTipText);
 		}
+
 		return bRet;
 	}
 
@@ -833,9 +846,13 @@ public:
 		if(m_lpstrLabel == NULL)
 			return false;
 		ATLASSERT(lpstrBuffer != NULL);
-		if(nLength > lstrlen(m_lpstrLabel) + 1)
+		if(nLength > lstrlen(m_lpstrLabel))
 		{
+#if _SECURE_ATL
+			ATL::Checked::tcscpy_s(lpstrBuffer, nLength, m_lpstrLabel);
+#else
 			lstrcpy(lpstrBuffer, m_lpstrLabel);
+#endif
 			return true;
 		}
 		return false;
@@ -843,12 +860,17 @@ public:
 
 	bool SetLabel(LPCTSTR lpstrLabel)
 	{
+		int cchLen = lstrlen(lpstrLabel) + 1;
 		free(m_lpstrLabel);
 		m_lpstrLabel = NULL;
-		ATLTRY(m_lpstrLabel = (LPTSTR)malloc((lstrlen(lpstrLabel) + 1) * sizeof(TCHAR)));
+		ATLTRY(m_lpstrLabel = (LPTSTR)malloc(cchLen * sizeof(TCHAR)));
 		if(m_lpstrLabel == NULL)
 			return false;
+#if _SECURE_ATL
+		ATL::Checked::tcscpy_s(m_lpstrLabel, cchLen, lpstrLabel);
+#else
 		lstrcpy(m_lpstrLabel, lpstrLabel);
+#endif
 		T* pT = static_cast<T*>(this);
 		pT->CalcLabelRect();
 
@@ -863,9 +885,13 @@ public:
 		if(m_lpstrHyperLink == NULL)
 			return false;
 		ATLASSERT(lpstrBuffer != NULL);
-		if(nLength > lstrlen(m_lpstrHyperLink) + 1)
+		if(nLength > lstrlen(m_lpstrHyperLink))
 		{
+#if _SECURE_ATL
+			ATL::Checked::tcscpy_s(lpstrBuffer, nLength, m_lpstrHyperLink);
+#else
 			lstrcpy(lpstrBuffer, m_lpstrHyperLink);
+#endif
 			return true;
 		}
 		return false;
@@ -873,12 +899,17 @@ public:
 
 	bool SetHyperLink(LPCTSTR lpstrLink)
 	{
+		int cchLen = lstrlen(lpstrLink) + 1;
 		free(m_lpstrHyperLink);
 		m_lpstrHyperLink = NULL;
-		ATLTRY(m_lpstrHyperLink = (LPTSTR)malloc((lstrlen(lpstrLink) + 1) * sizeof(TCHAR)));
+		ATLTRY(m_lpstrHyperLink = (LPTSTR)malloc(cchLen * sizeof(TCHAR)));
 		if(m_lpstrHyperLink == NULL)
 			return false;
+#if _SECURE_ATL
+		ATL::Checked::tcscpy_s(m_lpstrHyperLink, cchLen, lpstrLink);
+#else
 		lstrcpy(m_lpstrHyperLink, lpstrLink);
+#endif
 		if(m_lpstrLabel == NULL)
 		{
 			T* pT = static_cast<T*>(this);
@@ -1919,7 +1950,11 @@ public:
 		ATLASSERT(m_pPane != NULL);
 		if(m_pPane == NULL)
 			return FALSE;
+#if _SECURE_ATL
+		ATL::Checked::memcpy_s(m_pPane, nPanes * sizeof(int), pPanes, nPanes * sizeof(int));
+#else
 		memcpy(m_pPane, pPanes, nPanes * sizeof(int));
+#endif
 
 		int* pPanesPos = (int*)_alloca(nPanes * sizeof(int));
 
@@ -2295,13 +2330,21 @@ public:
 	BOOL GetTitle(LPTSTR lpstrTitle, int cchLength) const
 	{
 		ATLASSERT(lpstrTitle != NULL);
+#if _SECURE_ATL
+		return (ATL::Checked::tcsncpy_s(lpstrTitle, cchLength, m_szTitle, cchLength) == 0);
+#else
 		return (lstrcpyn(lpstrTitle, m_szTitle, cchLength) != NULL);
+#endif
 	}
 
 	BOOL SetTitle(LPCTSTR lpstrTitle)
 	{
 		ATLASSERT(lpstrTitle != NULL);
+#if _SECURE_ATL
+		BOOL bRet = (ATL::Checked::tcsncpy_s(m_szTitle, m_cchTitle, lpstrTitle, m_cchTitle) == 0);
+#else
 		BOOL bRet = (lstrcpyn(m_szTitle, lpstrTitle, m_cchTitle) != NULL);
+#endif
 		if(bRet && m_hWnd != NULL)
 		{
 			T* pT = static_cast<T*>(this);
@@ -2320,7 +2363,11 @@ public:
 			DWORD dwExStyle = 0, UINT nID = 0, LPVOID lpCreateParam = NULL)
 	{
 		if(lpstrTitle != NULL)
+#if _SECURE_ATL
+			ATL::Checked::tcsncpy_s(m_szTitle, m_cchTitle, lpstrTitle, m_cchTitle);
+#else
 			lstrcpyn(m_szTitle, lpstrTitle, m_cchTitle);
+#endif
 #if (_MSC_VER >= 1300)
 		return ATL::CWindowImpl< T, TBase, TWinTraits >::Create(hWndParent, rcDefault, NULL, dwStyle, dwExStyle, nID, lpCreateParam);
 #else // !(_MSC_VER >= 1300)

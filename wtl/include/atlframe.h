@@ -112,7 +112,7 @@ public:
 							return 0;
 						}
 					}
-					memcpy(&m_wc, &wc, sizeof(WNDCLASSEX));
+					m_wc = wc;
 					pWndProc = m_wc.lpfnWndProc;
 					m_wc.lpszClassName = lpsz;
 					m_wc.lpfnWndProc = proc;
@@ -127,15 +127,22 @@ public:
 				if (m_wc.lpszClassName == NULL)
 				{
 #if (_WIN32_WINNT >= 0x0500) || defined(_WIN64)
+  #if _SECURE_ATL && !defined(_ATL_MIN_CRT)
+					_stprintf_s(m_szAutoName, cchAutoName, _T("ATL:%p"), &m_wc);
+  #else
 					wsprintf(m_szAutoName, _T("ATL:%p"), &m_wc);
-#else
+  #endif
+#else // !((_WIN32_WINNT >= 0x0500) || defined(_WIN64))
+  #if _SECURE_ATL && !defined(_ATL_MIN_CRT) && !defined(_WIN32_WCE)
+					_stprintf_s(m_szAutoName, cchAutoName, _T("ATL:%8.8X"), (DWORD_PTR)&m_wc);
+  #else
 					wsprintf(m_szAutoName, _T("ATL:%8.8X"), (DWORD_PTR)&m_wc);
-#endif
+  #endif
+#endif // !((_WIN32_WINNT >= 0x0500) || defined(_WIN64))
 					m_wc.lpszClassName = m_szAutoName;
 				}
 
-				WNDCLASSEX wcTemp = { 0 };
-				memcpy(&wcTemp, &m_wc, sizeof(WNDCLASSEX));
+				WNDCLASSEX wcTemp = m_wc;
 				m_atom = (ATOM)::GetClassInfoEx(m_wc.hInstance, m_wc.lpszClassName, &wcTemp);
 				if (m_atom == 0)
 				{
@@ -206,7 +213,7 @@ public:
 							return 0;
 						}
 					}
-					memcpy(&m_wc, &wc, sizeof(WNDCLASS));
+					m_wc = wc;
 					pWndProc = m_wc.lpfnWndProc;
 					m_wc.lpszClassName = lpsz;
 					m_wc.lpfnWndProc = proc;
@@ -228,8 +235,7 @@ public:
 					m_wc.lpszClassName = m_szAutoName;
 				}
 
-				WNDCLASS wcTemp = { 0 };
-				memcpy(&wcTemp, &m_wc, sizeof(WNDCLASS));
+				WNDCLASS wcTemp = m_wc;
 				m_atom = (ATOM)::GetClassInfo(m_wc.hInstance, m_wc.lpszClassName, &wcTemp);
 				if (m_atom == 0)
 				{
@@ -1032,7 +1038,11 @@ public:
 			{
 				if(szBuff[i] == '\n')
 				{
+#if _SECURE_ATL
+					ATL::Checked::strncpy_s(pDispInfo->szText, _countof(pDispInfo->szText), &szBuff[i + 1], _countof(pDispInfo->szText));
+#else
 					lstrcpynA(pDispInfo->szText, &szBuff[i + 1], sizeof(pDispInfo->szText) / sizeof(pDispInfo->szText[0]));
+#endif
 					break;
 				}
 			}
@@ -1064,7 +1074,11 @@ public:
 			{
 				if(szBuff[i] == L'\n')
 				{
+#if _SECURE_ATL
+					ATL::Checked::wcsncpy_s(pDispInfo->szText, _countof(pDispInfo->szText), &szBuff[i + 1], _countof(pDispInfo->szText));
+#else
 					lstrcpynW(pDispInfo->szText, &szBuff[i + 1], sizeof(pDispInfo->szText) / sizeof(pDispInfo->szText[0]));
+#endif
 					break;
 				}
 			}
@@ -2524,7 +2538,11 @@ public:
 						ATLTRACE2(atlTraceUI, 0, _T("UISetText - malloc failed\n"));
 						break;
 					}
+#if _SECURE_ATL
+					ATL::Checked::tcscpy_s((LPTSTR)pUIData->m_lpData, nStrLen + 1, lpstrText);
+#else
 					lstrcpy((LPTSTR)pUIData->m_lpData, lpstrText);
+#endif
 					pUIData->m_wState |= (UPDUI_TEXT | pMap->m_wType);
 				}
 

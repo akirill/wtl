@@ -1222,11 +1222,16 @@ public:
 								break;
 							}
 						}
+						int cchLen = lstrlen(szString) + 1;
 						pMI->lpstrText = NULL;
-						ATLTRY(pMI->lpstrText = new TCHAR[lstrlen(szString) + 1]);
+						ATLTRY(pMI->lpstrText = new TCHAR[cchLen]);
 						ATLASSERT(pMI->lpstrText != NULL);
 						if(pMI->lpstrText != NULL)
+#if _SECURE_ATL
+							ATL::Checked::tcscpy_s(pMI->lpstrText, cchLen, szString);
+#else
 							lstrcpy(pMI->lpstrText, szString);
+#endif
 						mii.dwItemData = (ULONG_PTR)pMI;
 						bRet = menuPopup.SetMenuItemInfo(i, TRUE, &mii);
 						ATLASSERT(bRet);

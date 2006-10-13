@@ -435,7 +435,11 @@ public:
 		else
 		{
 			ATLASSERT(!bValidate || nVal >= nMin && nVal <= nMax);
+#if _SECURE_ATL && !defined(_ATL_MIN_CRT) && !defined(_WIN32_WCE)
+			_stprintf_s(szBuff, cchBuff, _T("%.*g"), nPrecision, nVal);
+#else
 			_stprintf(szBuff, _T("%.*g"), nPrecision, nVal);
+#endif
 			bSuccess = pT->SetDlgItemText(nID, szBuff);
 		}
 
@@ -478,7 +482,11 @@ public:
 		else
 		{
 			ATLASSERT(!bValidate || nVal >= nMin && nVal <= nMax);
+#if _SECURE_ATL && !defined(_ATL_MIN_CRT) && !defined(_WIN32_WCE)
+			_stprintf_s(szBuff, cchBuff, _T("%.*g"), nPrecision, nVal);
+#else
 			_stprintf(szBuff, _T("%.*g"), nPrecision, nVal);
+#endif
 			bSuccess = pT->SetDlgItemText(nID, szBuff);
 		}
 

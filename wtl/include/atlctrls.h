@@ -2195,12 +2195,14 @@ public:
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
 		ATLASSERT(hWnd != NULL);
+		ATLASSERT(puFlags != NULL);
+		ATLASSERT(lpRect != NULL);
 		CToolInfo ti(0, hWnd, nIDTool, NULL, lpstrText);
 		BOOL bRet = (BOOL)::SendMessage(m_hWnd, TTM_GETTOOLINFO, 0, ti);
-		if(bRet)
+		if(bRet != FALSE)
 		{
 			*puFlags = ti.uFlags;
-			memcpy(lpRect, &(ti.rect), sizeof(RECT));
+			*lpRect = ti.rect;
 		}
 		return bRet;
 	}
@@ -2385,9 +2387,9 @@ public:
 		hti.hwnd = hWnd;
 		hti.pt.x = pt.x;
 		hti.pt.y = pt.y;
-		if((BOOL)::SendMessage(m_hWnd, TTM_HITTEST, 0, (LPARAM)&hti))
+		if((BOOL)::SendMessage(m_hWnd, TTM_HITTEST, 0, (LPARAM)&hti) != FALSE)
 		{
-			memcpy(lpToolInfo, &hti.ti, sizeof(TOOLINFO));
+			*lpToolInfo = hti.ti;
 			return TRUE;
 		}
 		return FALSE;

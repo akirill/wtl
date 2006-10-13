@@ -486,7 +486,7 @@ public:
 	void Copy(const LOGFONT* pLogFont)
 	{
 		ATLASSERT(pLogFont != NULL);
-		memcpy(this, pLogFont, sizeof(LOGFONT));
+		*(LOGFONT*)this = *pLogFont;
 	}
 
 	CLogFont& operator =(const CLogFont& src)
@@ -607,7 +607,11 @@ public:
 		LOGFONT logFont = { 0 };
 		logFont.lfCharSet = DEFAULT_CHARSET;
 		logFont.lfHeight = nPointSize;
+#if _SECURE_ATL
+		ATL::Checked::tcsncpy_s(logFont.lfFaceName, _countof(logFont.lfFaceName), lpszFaceName, _countof(logFont.lfFaceName));
+#else
 		lstrcpyn(logFont.lfFaceName, lpszFaceName, sizeof(logFont.lfFaceName) / sizeof(TCHAR));
+#endif
 
 		if(bBold)
 			logFont.lfWeight = FW_BOLD;
