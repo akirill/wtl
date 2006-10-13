@@ -2763,7 +2763,7 @@ public:
 #define SORTLV_USESHELLBITMAPS	0x00000001
 
 // Notification sent to parent when sort column is changed by user clicking header.  
-#define SLVN_SORTCHANGED	(LVN_FIRST-201)
+#define SLVN_SORTCHANGED	LVN_LAST
 
 // A LPNMSORTLISTVIEW is sent with the SLVN_SORTCHANGED notification
 typedef struct tagNMSORTLISTVIEW
