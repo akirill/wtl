@@ -3756,7 +3756,7 @@ public:
 		bool bFullPath = (::GetFullPathName(pstrName, MAX_PATH, m_lpszRoot, NULL) != 0);
 #else // CE specific
   #if _SECURE_ATL
-		bool bFullPath = (ATL::Checked::tcsncpy_s(m_fd.cFileName, _countof(m_fd.cFileName), pstrName) == 0);
+		bool bFullPath = (ATL::Checked::tcsncpy_s(m_lpszRoot, _countof(m_lpszRoot), pstrName, MAX_PATH) == 0);
   #else
 		bool bFullPath = (lstrcpyn(m_lpszRoot, pstrName, MAX_PATH) != NULL);
   #endif
