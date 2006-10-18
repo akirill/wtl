@@ -8121,8 +8121,7 @@ public:
 		int nBandCount = GetBandCount();
 		for(int i =0; i < nBandCount; i++)
 		{
-			REBARBANDINFO rbbi = { 0 };
-			rbbi.cbSize = sizeof(REBARBANDINFO);
+			REBARBANDINFO rbbi = { RunTimeHelper::SizeOf_REBARBANDINFO() };
 			rbbi.fMask = RBBIM_STYLE;
 			BOOL bRet = GetBandInfo(i, &rbbi);
 			ATLASSERT(bRet);

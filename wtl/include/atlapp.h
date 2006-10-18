@@ -98,8 +98,7 @@
 
 inline BOOL IsMenu(HMENU hMenu)
 {
-	MENUITEMINFO mii = { 0 };
-	mii.cbSize = sizeof(mii);
+	MENUITEMINFO mii = { sizeof(MENUITEMINFO) };
 	::SetLastError(0);
 	BOOL bRet = ::GetMenuItemInfo(hMenu, 0, TRUE, &mii);
 	if(!bRet)
@@ -472,6 +471,102 @@ inline BOOL AtlInitCommonControls(DWORD dwFlags)
 	ATLASSERT(bRet);
 	return bRet;
 }
+
+
+///////////////////////////////////////////////////////////////////////////////
+// RunTimeHelper - helper functions for Windows version and structure sizes
+
+#ifndef _WTL_NO_RUNTIME_STRUCT_SIZE
+
+#ifndef _SIZEOF_STRUCT
+  #define _SIZEOF_STRUCT(structname, member)  (((int)((LPBYTE)(&((structname*)0)->member) - ((LPBYTE)((structname*)0)))) + sizeof(((structname*)0)->member))
+#endif
+
+#if (_WIN32_WINNT >= 0x0600) && !defined(REBARBANDINFO_V6_SIZE)
+  #define REBARBANDINFO_V6_SIZE   _SIZEOF_STRUCT(REBARBANDINFO, cxHeader)
+#endif // (_WIN32_WINNT >= 0x0600) && !defined(REBARBANDINFO_V6_SIZE)
+
+#if (_WIN32_WINNT >= 0x0600) && !defined(LVGROUP_V5_SIZE)
+  #define LVGROUP_V5_SIZE   _SIZEOF_STRUCT(LVGROUP, uAlign)
+#endif // (_WIN32_WINNT >= 0x0600) && !defined(LVGROUP_V5_SIZE)
+
+#if (_WIN32_WINNT >= 0x0600) && !defined(LVTILEINFO_V5_SIZE)
+  #define LVTILEINFO_V5_SIZE   _SIZEOF_STRUCT(LVTILEINFO, puColumns)
+#endif // (_WIN32_WINNT >= 0x0600) && !defined(LVTILEINFO_V5_SIZE)
+
+#if (NTDDI_VERSION >= NTDDI_LONGHORN) && !defined(MCHITTESTINFO_V1_SIZE)
+  #define MCHITTESTINFO_V1_SIZE   _SIZEOF_STRUCT(MCHITTESTINFO, st)
+#endif // (NTDDI_VERSION >= NTDDI_LONGHORN) && !defined(MCHITTESTINFO_V1_SIZE)
+
+#if !defined(_WIN32_WCE) && (WINVER >= 0x0600) && !defined(NONCLIENTMETRICS_V1_SIZE)
+  #define NONCLIENTMETRICS_V1_SIZE   _SIZEOF_STRUCT(NONCLIENTMETRICS, lfMessageFont)
+#endif // !defined(_WIN32_WCE) && (WINVER >= 0x0600) && !defined(NONCLIENTMETRICS_V1_SIZE)
+
+#endif // !_WTL_NO_RUNTIME_STRUCT_SIZE
+
+namespace RunTimeHelper
+{
+	inline bool IsVista()
+	{
+		OSVERSIONINFO ovi = { sizeof(OSVERSIONINFO) };
+		BOOL bRet = ::GetVersionEx(&ovi);
+		return ((bRet != FALSE) && (ovi.dwMajorVersion >= 6));
+	}
+
+	inline int SizeOf_REBARBANDINFO()
+	{
+		int nSize = sizeof(REBARBANDINFO);
+#if !defined(_WTL_NO_RUNTIME_STRUCT_SIZE) && (_WIN32_WINNT >= 0x0600)
+		if(!IsVista())
+			nSize = REBARBANDINFO_V6_SIZE;
+#endif // !defined(_WTL_NO_RUNTIME_STRUCT_SIZE) && (_WIN32_WINNT >= 0x0600)
+		return nSize;
+	}
+
+#if (_WIN32_WINNT >= 0x501)
+  	inline int SizeOf_LVGROUP()
+	{
+		int nSize = sizeof(LVGROUP);
+#if !defined(_WTL_NO_RUNTIME_STRUCT_SIZE) && (_WIN32_WINNT >= 0x0600)
+		if(!IsVista())
+			nSize = LVGROUP_V5_SIZE;
+#endif // !defined(_WTL_NO_RUNTIME_STRUCT_SIZE) && (_WIN32_WINNT >= 0x0600)
+		return nSize;
+	}
+
+	inline int SizeOf_LVTILEINFO()
+	{
+		int nSize = sizeof(LVTILEINFO);
+#if !defined(_WTL_NO_RUNTIME_STRUCT_SIZE) && (_WIN32_WINNT >= 0x0600)
+		if(!IsVista())
+			nSize = LVTILEINFO_V5_SIZE;
+#endif // !defined(_WTL_NO_RUNTIME_STRUCT_SIZE) && (_WIN32_WINNT >= 0x0600)
+		return nSize;
+	}
+#endif // (_WIN32_WINNT >= 0x501)
+
+	inline int SizeOf_MCHITTESTINFO()
+	{
+		int nSize = sizeof(MCHITTESTINFO);
+#if !defined(_WTL_NO_RUNTIME_STRUCT_SIZE) && (NTDDI_VERSION >= NTDDI_LONGHORN)
+		if(!IsVista())
+			nSize = MCHITTESTINFO_V1_SIZE;
+#endif // !defined(_WTL_NO_RUNTIME_STRUCT_SIZE) && (NTDDI_VERSION >= NTDDI_LONGHORN)
+		return nSize;
+	}
+
+#ifndef _WIN32_WCE
+	inline int SizeOf_NONCLIENTMETRICS()
+	{
+		int nSize = sizeof(NONCLIENTMETRICS);
+#if !defined(_WTL_NO_RUNTIME_STRUCT_SIZE) && (WINVER >= 0x0600)
+		if(!IsVista())
+			nSize = NONCLIENTMETRICS_V1_SIZE;
+#endif // !defined(_WTL_NO_RUNTIME_STRUCT_SIZE) && (WINVER >= 0x0600)
+		return nSize;
+	}
+#endif // !_WIN32_WCE
+};
 
 
 ///////////////////////////////////////////////////////////////////////////////
