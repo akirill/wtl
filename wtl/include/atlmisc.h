@@ -840,7 +840,7 @@ public:
 			{
 				if(AllocBuffer(nLen))
 #if _SECURE_ATL
-					ATL::Checked::memcpy_s(m_pchData, nLen * sizeof(TCHAR), lpsz, nLen * sizeof(TCHAR));
+					ATL::Checked::memcpy_s(m_pchData, (nLen + 1) * sizeof(TCHAR), lpsz, nLen * sizeof(TCHAR));
 #else
 					memcpy(m_pchData, lpsz, nLen * sizeof(TCHAR));
 #endif
@@ -889,7 +889,7 @@ public:
 		{
 			if(AllocBuffer(nLength))
 #if _SECURE_ATL
-				ATL::Checked::memcpy_s(m_pchData, nLength * sizeof(TCHAR), lpch, nLength * sizeof(TCHAR));
+				ATL::Checked::memcpy_s(m_pchData, (nLength + 1) * sizeof(TCHAR), lpch, nLength * sizeof(TCHAR));
 #else
 				memcpy(m_pchData, lpch, nLength * sizeof(TCHAR));
 #endif
@@ -1246,7 +1246,7 @@ public:
 		// fix up data and length
 		int nDataLength = GetData()->nDataLength - (int)(DWORD_PTR)(lpsz - m_pchData);
 #if _SECURE_ATL
-		ATL::Checked::memmove_s(m_pchData, GetData()->nAllocLength * sizeof(TCHAR), lpsz, (nDataLength + 1) * sizeof(TCHAR));
+		ATL::Checked::memmove_s(m_pchData, (GetData()->nAllocLength + 1) * sizeof(TCHAR), lpsz, (nDataLength + 1) * sizeof(TCHAR));
 #else
 		memmove(m_pchData, lpsz, (nDataLength + 1) * sizeof(TCHAR));
 #endif
@@ -1347,7 +1347,7 @@ public:
 			// fix up data and length
 			int nDataLength = GetData()->nDataLength - (int)(DWORD_PTR)(lpsz - m_pchData);
 #if _SECURE_ATL
-			ATL::Checked::memmove_s(m_pchData, GetData()->nAllocLength * sizeof(TCHAR), lpsz, (nDataLength + 1) * sizeof(TCHAR));
+			ATL::Checked::memmove_s(m_pchData, (GetData()->nAllocLength + 1) * sizeof(TCHAR), lpsz, (nDataLength + 1) * sizeof(TCHAR));
 #else
 			memmove(m_pchData, lpsz, (nDataLength + 1) * sizeof(TCHAR));
 #endif
@@ -1386,7 +1386,7 @@ public:
 			// fix up data and length
 			int nDataLength = GetData()->nDataLength - (int)(DWORD_PTR)(lpsz - m_pchData);
 #if _SECURE_ATL
-			ATL::Checked::memmove_s(m_pchData, GetData()->nAllocLength * sizeof(TCHAR), lpsz, (nDataLength + 1) * sizeof(TCHAR));
+			ATL::Checked::memmove_s(m_pchData, (GetData()->nAllocLength + 1) * sizeof(TCHAR), lpsz, (nDataLength + 1) * sizeof(TCHAR));
 #else
 			memmove(m_pchData, lpsz, (nDataLength + 1) * sizeof(TCHAR));
 #endif
@@ -1462,7 +1462,7 @@ public:
 				if(!AllocBuffer(nNewLength))
 					return -1;
 #if _SECURE_ATL
-				ATL::Checked::memcpy_s(m_pchData, nNewLength * sizeof(TCHAR), pstr, pOldData->nDataLength * sizeof(TCHAR));
+				ATL::Checked::memcpy_s(m_pchData, (nNewLength + 1) * sizeof(TCHAR), pstr, pOldData->nDataLength * sizeof(TCHAR));
 #else
 				memcpy(m_pchData, pstr, pOldData->nDataLength * sizeof(TCHAR));
 #endif
@@ -1480,8 +1480,8 @@ public:
 					int nBalance = nOldLength - ((int)(DWORD_PTR)(lpszTarget - m_pchData) + nSourceLen);
 #if _SECURE_ATL
 					int cchBuffLen = GetData()->nAllocLength - (int)(DWORD_PTR)(lpszTarget - m_pchData);
-					ATL::Checked::memmove_s(lpszTarget + nReplacementLen, (cchBuffLen - nReplacementLen) * sizeof(TCHAR), lpszTarget + nSourceLen, nBalance * sizeof(TCHAR));
-					ATL::Checked::memcpy_s(lpszTarget, cchBuffLen * sizeof(TCHAR), lpszNew, nReplacementLen * sizeof(TCHAR));
+					ATL::Checked::memmove_s(lpszTarget + nReplacementLen, (cchBuffLen - nReplacementLen + 1) * sizeof(TCHAR), lpszTarget + nSourceLen, nBalance * sizeof(TCHAR));
+					ATL::Checked::memcpy_s(lpszTarget, (cchBuffLen + 1) * sizeof(TCHAR), lpszNew, nReplacementLen * sizeof(TCHAR));
 #else
 					memmove(lpszTarget + nReplacementLen, lpszTarget + nSourceLen, nBalance * sizeof(TCHAR));
 					memcpy(lpszTarget, lpszNew, nReplacementLen * sizeof(TCHAR));
@@ -1544,7 +1544,7 @@ public:
 			if(!AllocBuffer(nNewLength))
 				return -1;
 #if _SECURE_ATL
-			ATL::Checked::memcpy_s(m_pchData, nNewLength * sizeof(TCHAR), pstr, (pOldData->nDataLength + 1) * sizeof(TCHAR));
+			ATL::Checked::memcpy_s(m_pchData, (nNewLength + 1) * sizeof(TCHAR), pstr, (pOldData->nDataLength + 1) * sizeof(TCHAR));
 #else
 			memcpy(m_pchData, pstr, (pOldData->nDataLength + 1) * sizeof(TCHAR));
 #endif
@@ -1553,7 +1553,7 @@ public:
 
 		// move existing bytes down
 #if _SECURE_ATL
-		ATL::Checked::memmove_s(m_pchData + nIndex + 1, (GetData()->nAllocLength - nIndex - 1) * sizeof(TCHAR), m_pchData + nIndex, (nNewLength - nIndex) * sizeof(TCHAR));
+		ATL::Checked::memmove_s(m_pchData + nIndex + 1, (GetData()->nAllocLength - nIndex) * sizeof(TCHAR), m_pchData + nIndex, (nNewLength - nIndex) * sizeof(TCHAR));
 #else
 		memmove(m_pchData + nIndex + 1, m_pchData + nIndex, (nNewLength - nIndex) * sizeof(TCHAR));
 #endif
@@ -1585,7 +1585,7 @@ public:
 				if(!AllocBuffer(nNewLength))
 					return -1;
 #if _SECURE_ATL
-				ATL::Checked::memcpy_s(m_pchData, nNewLength * sizeof(TCHAR), pstr, (pOldData->nDataLength + 1) * sizeof(TCHAR));
+				ATL::Checked::memcpy_s(m_pchData, (nNewLength + 1) * sizeof(TCHAR), pstr, (pOldData->nDataLength + 1) * sizeof(TCHAR));
 #else
 				memcpy(m_pchData, pstr, (pOldData->nDataLength + 1) * sizeof(TCHAR));
 #endif
@@ -1594,8 +1594,8 @@ public:
 
 			// move existing bytes down
 #if _SECURE_ATL
-			ATL::Checked::memmove_s(m_pchData + nIndex + nInsertLength, (GetData()->nAllocLength - nIndex - nInsertLength) * sizeof(TCHAR), m_pchData + nIndex, (nNewLength - nIndex - nInsertLength + 1) * sizeof(TCHAR));
-			ATL::Checked::memcpy_s(m_pchData + nIndex, (GetData()->nAllocLength - nIndex) * sizeof(TCHAR), pstr, nInsertLength * sizeof(TCHAR));
+			ATL::Checked::memmove_s(m_pchData + nIndex + nInsertLength, (GetData()->nAllocLength + 1 - nIndex - nInsertLength) * sizeof(TCHAR), m_pchData + nIndex, (nNewLength - nIndex - nInsertLength + 1) * sizeof(TCHAR));
+			ATL::Checked::memcpy_s(m_pchData + nIndex, (GetData()->nAllocLength + 1 - nIndex) * sizeof(TCHAR), pstr, nInsertLength * sizeof(TCHAR));
 #else
 			memmove(m_pchData + nIndex + nInsertLength, m_pchData + nIndex, (nNewLength - nIndex - nInsertLength + 1) * sizeof(TCHAR));
 			memcpy(m_pchData + nIndex, pstr, nInsertLength * sizeof(TCHAR));
@@ -1620,7 +1620,7 @@ public:
 			int nBytesToCopy = nLength - (nIndex + nCount) + 1;
 
 #if _SECURE_ATL
-			ATL::Checked::memmove_s(m_pchData + nIndex, (GetData()->nAllocLength - nIndex) * sizeof(TCHAR), m_pchData + nIndex + nCount, nBytesToCopy * sizeof(TCHAR));
+			ATL::Checked::memmove_s(m_pchData + nIndex, (GetData()->nAllocLength + 1 - nIndex) * sizeof(TCHAR), m_pchData + nIndex + nCount, nBytesToCopy * sizeof(TCHAR));
 #else
 			memmove(m_pchData + nIndex, m_pchData + nIndex + nCount, nBytesToCopy * sizeof(TCHAR));
 #endif
@@ -2030,13 +2030,13 @@ public:
 			return FALSE;
 #ifndef _ATL_USE_CSTRING_FLOAT
   #if _SECURE_ATL && !defined(_ATL_MIN_CRT) && !defined(_WIN32_WCE)
-		int nRet = _vstprintf_s(m_pchData, GetAllocLength(), lpszFormat, argListSave);
+		int nRet = _vstprintf_s(m_pchData, GetAllocLength() + 1, lpszFormat, argListSave);
   #else
 		int nRet = ::wvsprintf(m_pchData, lpszFormat, argListSave);
   #endif
 #else // _ATL_USE_CSTRING_FLOAT
   #if _SECURE_ATL && !defined(_ATL_MIN_CRT) && !defined(_WIN32_WCE)
-		int nRet = _vstprintf_s(m_pchData, GetAllocLength(), lpszFormat, argListSave);
+		int nRet = _vstprintf_s(m_pchData, GetAllocLength() + 1, lpszFormat, argListSave);
   #else
 		int nRet = _vstprintf(m_pchData, lpszFormat, argListSave);
   #endif
@@ -2195,7 +2195,7 @@ public:
 				return NULL;
 
 #if _SECURE_ATL
-			ATL::Checked::memcpy_s(m_pchData, nMinBufLength * sizeof(TCHAR), pOldData->data(), (nOldLen + 1) * sizeof(TCHAR));
+			ATL::Checked::memcpy_s(m_pchData, (nMinBufLength + 1) * sizeof(TCHAR), pOldData->data(), (nOldLen + 1) * sizeof(TCHAR));
 #else
 			memcpy(m_pchData, pOldData->data(), (nOldLen + 1) * sizeof(TCHAR));
 #endif
@@ -2242,7 +2242,7 @@ public:
 			if(AllocBuffer(GetData()->nDataLength))
 			{
 #if _SECURE_ATL
-				ATL::Checked::memcpy_s(m_pchData, GetData()->nAllocLength * sizeof(TCHAR), pOldData->data(), pOldData->nDataLength * sizeof(TCHAR));
+				ATL::Checked::memcpy_s(m_pchData, (GetData()->nAllocLength + 1) * sizeof(TCHAR), pOldData->data(), pOldData->nDataLength * sizeof(TCHAR));
 #else
 				memcpy(m_pchData, pOldData->data(), pOldData->nDataLength * sizeof(TCHAR));
 #endif
@@ -2324,7 +2324,7 @@ protected:
 			if(dest.AllocBuffer(nNewLen))
 			{
 #if _SECURE_ATL
-				ATL::Checked::memcpy_s(dest.m_pchData, nNewLen * sizeof(TCHAR), m_pchData + nCopyIndex, nCopyLen * sizeof(TCHAR));
+				ATL::Checked::memcpy_s(dest.m_pchData, (nNewLen + 1) * sizeof(TCHAR), m_pchData + nCopyIndex, nCopyLen * sizeof(TCHAR));
 #else
 				memcpy(dest.m_pchData, m_pchData + nCopyIndex, nCopyLen * sizeof(TCHAR));
 #endif
@@ -2377,7 +2377,7 @@ protected:
 		if(AllocBeforeWrite(nSrcLen))
 		{
 #if _SECURE_ATL
-			ATL::Checked::memcpy_s(m_pchData, nSrcLen * sizeof(TCHAR), lpszSrcData, nSrcLen * sizeof(TCHAR));
+			ATL::Checked::memcpy_s(m_pchData, (nSrcLen + 1) * sizeof(TCHAR), lpszSrcData, nSrcLen * sizeof(TCHAR));
 #else
 			memcpy(m_pchData, lpszSrcData, nSrcLen * sizeof(TCHAR));
 #endif
@@ -2411,8 +2411,8 @@ protected:
 			if (bRet)
 			{
 #if _SECURE_ATL
-				ATL::Checked::memcpy_s(m_pchData, nNewLen * sizeof(TCHAR), lpszSrc1Data, nSrc1Len * sizeof(TCHAR));
-				ATL::Checked::memcpy_s(m_pchData + nSrc1Len, (nNewLen - nSrc1Len) * sizeof(TCHAR), lpszSrc2Data, nSrc2Len * sizeof(TCHAR));
+				ATL::Checked::memcpy_s(m_pchData, (nNewLen + 1) * sizeof(TCHAR), lpszSrc1Data, nSrc1Len * sizeof(TCHAR));
+				ATL::Checked::memcpy_s(m_pchData + nSrc1Len, (nNewLen + 1 - nSrc1Len) * sizeof(TCHAR), lpszSrc2Data, nSrc2Len * sizeof(TCHAR));
 #else
 				memcpy(m_pchData, lpszSrc1Data, nSrc1Len * sizeof(TCHAR));
 				memcpy(m_pchData + nSrc1Len, lpszSrc2Data, nSrc2Len * sizeof(TCHAR));
@@ -2446,7 +2446,7 @@ protected:
 		{
 			// fast concatenation when buffer big enough
 #if _SECURE_ATL
-			ATL::Checked::memcpy_s(m_pchData + GetData()->nDataLength, GetData()->nAllocLength * sizeof(TCHAR), lpszSrcData, nSrcLen * sizeof(TCHAR));
+			ATL::Checked::memcpy_s(m_pchData + GetData()->nDataLength, (GetData()->nAllocLength + 1) * sizeof(TCHAR), lpszSrcData, nSrcLen * sizeof(TCHAR));
 #else
 			memcpy(m_pchData + GetData()->nDataLength, lpszSrcData, nSrcLen * sizeof(TCHAR));
 #endif
@@ -2464,7 +2464,7 @@ protected:
 			Release();
 			if(AllocBuffer(pData->nDataLength))
 #if _SECURE_ATL
-				ATL::Checked::memcpy_s(m_pchData, GetData()->nAllocLength * sizeof(TCHAR), pData->data(), (pData->nDataLength + 1) * sizeof(TCHAR));
+				ATL::Checked::memcpy_s(m_pchData, (GetData()->nAllocLength + 1) * sizeof(TCHAR), pData->data(), (pData->nDataLength + 1) * sizeof(TCHAR));
 #else
 				memcpy(m_pchData, pData->data(), (pData->nDataLength + 1) * sizeof(TCHAR));
 #endif
