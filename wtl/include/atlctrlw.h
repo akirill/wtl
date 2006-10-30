@@ -474,11 +474,7 @@ public:
 		if(menu.m_lpstr == NULL)
 			return FALSE;
 
-#if (_ATL_VER >= 0x0700)
-		HMENU hMenu = ::LoadMenu(ATL::_AtlBaseModule.GetResourceInstance(), menu.m_lpstr);
-#else // !(_ATL_VER >= 0x0700)
-		HMENU hMenu = ::LoadMenu(_Module.GetResourceInstance(), menu.m_lpstr);
-#endif // !(_ATL_VER >= 0x0700)
+		HMENU hMenu = ::LoadMenu(ModuleHelper::GetResourceInstance(), menu.m_lpstr);
 		if(hMenu == NULL)
 			return FALSE;
 
@@ -582,11 +578,7 @@ public:
 	BOOL _LoadImagesHelper(ATL::_U_STRINGorID image, bool bMapped, UINT nFlags = 0, LPCOLORMAP lpColorMap = NULL, int nMapSize = 0)
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
-#if (_ATL_VER >= 0x0700)
-		HINSTANCE hInstance = ATL::_AtlBaseModule.GetResourceInstance();
-#else // !(_ATL_VER >= 0x0700)
-		HINSTANCE hInstance = _Module.GetResourceInstance();
-#endif // !(_ATL_VER >= 0x0700)
+		HINSTANCE hInstance = ModuleHelper::GetResourceInstance();
 
 		HRSRC hRsrc = ::FindResource(hInstance, image.m_lpstr, (LPTSTR)RT_TOOLBAR);
 		if(hRsrc == NULL)
@@ -629,11 +621,7 @@ public:
 		else
 		{
 			if(m_bAlphaImages)
-#if (_ATL_VER >= 0x0700)
-				bmp = (HBITMAP)::LoadImage(ATL::_AtlBaseModule.GetResourceInstance(), image.m_lpstr, IMAGE_BITMAP, 0, 0, LR_CREATEDIBSECTION | LR_DEFAULTSIZE);
-#else // !(_ATL_VER >= 0x0700)
-				bmp = (HBITMAP)::LoadImage(_Module.GetResourceInstance(), image.m_lpstr, IMAGE_BITMAP, 0, 0, LR_CREATEDIBSECTION | LR_DEFAULTSIZE);
-#endif // !(_ATL_VER >= 0x0700)
+				bmp = (HBITMAP)::LoadImage(ModuleHelper::GetResourceInstance(), image.m_lpstr, IMAGE_BITMAP, 0, 0, LR_CREATEDIBSECTION | LR_DEFAULTSIZE);
 			else
 				bmp.LoadBitmap(image.m_lpstr);
 		}
@@ -698,11 +686,7 @@ public:
 	BOOL AddIcon(ATL::_U_STRINGorID icon, UINT nCommandID)
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
-#if (_ATL_VER >= 0x0700)
-		HICON hIcon = ::LoadIcon(ATL::_AtlBaseModule.GetResourceInstance(), icon.m_lpstr);
-#else // !(_ATL_VER >= 0x0700)
-		HICON hIcon = ::LoadIcon(_Module.GetResourceInstance(), icon.m_lpstr);
-#endif // !(_ATL_VER >= 0x0700)
+		HICON hIcon = ::LoadIcon(ModuleHelper::GetResourceInstance(), icon.m_lpstr);
 		if(hIcon == NULL)
 			return FALSE;
 		return AddIcon(hIcon, nCommandID);
@@ -759,11 +743,7 @@ public:
 	BOOL ReplaceIcon(ATL::_U_STRINGorID icon, UINT nCommandID)
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
-#if (_ATL_VER >= 0x0700)
-		HICON hIcon = ::LoadIcon(ATL::_AtlBaseModule.GetResourceInstance(), icon.m_lpstr);
-#else // !(_ATL_VER >= 0x0700)
-		HICON hIcon = ::LoadIcon(_Module.GetResourceInstance(), icon.m_lpstr);
-#endif // !(_ATL_VER >= 0x0700)
+		HICON hIcon = ::LoadIcon(ModuleHelper::GetResourceInstance(), icon.m_lpstr);
 		if(hIcon == NULL)
 			return FALSE;
 		return ReplaceIcon(hIcon, nCommandID);
@@ -940,11 +920,7 @@ public:
 			{
 				ATLTRY(pData = new _MsgHookData);
 				ATLASSERT(pData != NULL);
-#if (_ATL_VER >= 0x0700)
-				HHOOK hMsgHook = ::SetWindowsHookEx(WH_GETMESSAGE, MessageHookProc, ATL::_AtlBaseModule.GetModuleInstance(), dwThreadID);
-#else // !(_ATL_VER >= 0x0700)
-				HHOOK hMsgHook = ::SetWindowsHookEx(WH_GETMESSAGE, MessageHookProc, _Module.GetModuleInstance(), dwThreadID);
-#endif // !(_ATL_VER >= 0x0700)
+				HHOOK hMsgHook = ::SetWindowsHookEx(WH_GETMESSAGE, MessageHookProc, ModuleHelper::GetModuleInstance(), dwThreadID);
 				ATLASSERT(hMsgHook != NULL);
 				if(pData != NULL && hMsgHook != NULL)
 				{
@@ -2683,11 +2659,7 @@ public:
 
 		s_pCurrentBar = static_cast<CCommandBarCtrlBase*>(this);
 
-#if (_ATL_VER >= 0x0700)
-		s_hCreateHook = ::SetWindowsHookEx(WH_CBT, CreateHookProc, ATL::_AtlBaseModule.GetModuleInstance(), GetCurrentThreadId());
-#else // !(_ATL_VER >= 0x0700)
-		s_hCreateHook = ::SetWindowsHookEx(WH_CBT, CreateHookProc, _Module.GetModuleInstance(), GetCurrentThreadId());
-#endif // !(_ATL_VER >= 0x0700)
+		s_hCreateHook = ::SetWindowsHookEx(WH_CBT, CreateHookProc, ModuleHelper::GetModuleInstance(), GetCurrentThreadId());
 		ATLASSERT(s_hCreateHook != NULL);
 
 		m_bPopupItem = false;

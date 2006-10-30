@@ -58,11 +58,7 @@ inline int AtlMessageBox(HWND hWndOwner, ATL::_U_STRINGorID message, ATL::_U_STR
 				ATLASSERT(FALSE);
 				return 0;
 			}
-#if (_ATL_VER >= 0x0700)
-			int nRes = ::LoadString(ATL::_AtlBaseModule.GetResourceInstance(), LOWORD(message.m_lpstr), lpstrMessage, nLen);
-#else // !(_ATL_VER >= 0x0700)
-			int nRes = ::LoadString(ATL::_pModule->GetResourceInstance(), LOWORD(message.m_lpstr), lpstrMessage, nLen);
-#endif // !(_ATL_VER >= 0x0700)
+			int nRes = ::LoadString(ModuleHelper::GetResourceInstance(), LOWORD(message.m_lpstr), lpstrMessage, nLen);
 			if(nRes < nLen - 1)
 				break;
 			delete [] lpstrMessage;
@@ -83,11 +79,7 @@ inline int AtlMessageBox(HWND hWndOwner, ATL::_U_STRINGorID message, ATL::_U_STR
 				ATLASSERT(FALSE);
 				return 0;
 			}
-#if (_ATL_VER >= 0x0700)
-			int nRes = ::LoadString(ATL::_AtlBaseModule.GetResourceInstance(), LOWORD(title.m_lpstr), lpstrTitle, nLen);
-#else // !(_ATL_VER >= 0x0700)
-			int nRes = ::LoadString(ATL::_pModule->GetResourceInstance(), LOWORD(title.m_lpstr), lpstrTitle, nLen);
-#endif // !(_ATL_VER >= 0x0700)
+			int nRes = ::LoadString(ModuleHelper::GetResourceInstance(), LOWORD(title.m_lpstr), lpstrTitle, nLen);
 			if(nRes < nLen - 1)
 				break;
 			delete [] lpstrTitle;
@@ -212,11 +204,7 @@ public:
 	BOOL LoadMenu(ATL::_U_STRINGorID menu)
 	{
 		ATLASSERT(m_hMenu == NULL);
-#if (_ATL_VER >= 0x0700)
-		m_hMenu = ::LoadMenu(ATL::_AtlBaseModule.GetResourceInstance(), menu.m_lpstr);
-#else // !(_ATL_VER >= 0x0700)
-		m_hMenu = ::LoadMenu(_Module.GetResourceInstance(), menu.m_lpstr);
-#endif // !(_ATL_VER >= 0x0700)
+		m_hMenu = ::LoadMenu(ModuleHelper::GetResourceInstance(), menu.m_lpstr);
 		return (m_hMenu != NULL) ? TRUE : FALSE;
 	}
 
@@ -617,11 +605,7 @@ public:
 	HACCEL LoadAccelerators(ATL::_U_STRINGorID accel)
 	{
 		ATLASSERT(m_hAccel == NULL);
-#if (_ATL_VER >= 0x0700)
-		m_hAccel = ::LoadAccelerators(ATL::_AtlBaseModule.GetResourceInstance(), accel.m_lpstr);
-#else // !(_ATL_VER >= 0x0700)
-		m_hAccel = ::LoadAccelerators(ATL::_pModule->GetResourceInstance(), accel.m_lpstr);
-#endif // !(_ATL_VER >= 0x0700)
+		m_hAccel = ::LoadAccelerators(ModuleHelper::GetResourceInstance(), accel.m_lpstr);
 		return m_hAccel;
 	}
 
@@ -718,22 +702,14 @@ public:
 	HICON LoadIcon(ATL::_U_STRINGorID icon)
 	{
 		ATLASSERT(m_hIcon == NULL);
-#if (_ATL_VER >= 0x0700)
-		m_hIcon = ::LoadIcon(ATL::_AtlBaseModule.GetResourceInstance(), icon.m_lpstr);
-#else // !(_ATL_VER >= 0x0700)
-		m_hIcon = ::LoadIcon(ATL::_pModule->GetResourceInstance(), icon.m_lpstr);
-#endif // !(_ATL_VER >= 0x0700)
+		m_hIcon = ::LoadIcon(ModuleHelper::GetResourceInstance(), icon.m_lpstr);
 		return m_hIcon;
 	}
 
 	HICON LoadIcon(ATL::_U_STRINGorID icon, int cxDesired, int cyDesired, UINT fuLoad = 0)
 	{
 		ATLASSERT(m_hIcon == NULL);
-#if (_ATL_VER >= 0x0700)
-		m_hIcon = (HICON) ::LoadImage(ATL::_AtlBaseModule.GetResourceInstance(), icon.m_lpstr, IMAGE_ICON, cxDesired, cyDesired, fuLoad);
-#else // !(_ATL_VER >= 0x0700)
-		m_hIcon = (HICON) ::LoadImage(ATL::_pModule->GetResourceInstance(), icon.m_lpstr, IMAGE_ICON, cxDesired, cyDesired, fuLoad);
-#endif // !(_ATL_VER >= 0x0700)
+		m_hIcon = (HICON) ::LoadImage(ModuleHelper::GetResourceInstance(), icon.m_lpstr, IMAGE_ICON, cxDesired, cyDesired, fuLoad);
 		return m_hIcon;
 	}
 
@@ -756,11 +732,7 @@ public:
 		ATLASSERT(m_hIcon == NULL);
 		ATLASSERT(lpbANDbits != NULL);
 		ATLASSERT(lpbXORbits != NULL);
-#if (_ATL_VER >= 0x0700)
-		m_hIcon = ::CreateIcon(ATL::_AtlBaseModule.GetResourceInstance(), nWidth, nHeight, cPlanes, cBitsPixel, lpbANDbits, lpbXORbits);
-#else // !(_ATL_VER >= 0x0700)
-		m_hIcon = ::CreateIcon(ATL::_pModule->GetResourceInstance(), nWidth, nHeight, cPlanes, cBitsPixel, lpbANDbits, lpbXORbits);
-#endif // !(_ATL_VER >= 0x0700)
+		m_hIcon = ::CreateIcon(ModuleHelper::GetResourceInstance(), nWidth, nHeight, cPlanes, cBitsPixel, lpbANDbits, lpbXORbits);
 		return m_hIcon;
 	}
 
@@ -795,11 +767,7 @@ public:
 	{
 		ATLASSERT(m_hIcon == NULL);
 		ATLASSERT(lpszExeFileName != NULL);
-#if (_ATL_VER >= 0x0700)
-		m_hIcon = ::ExtractIcon(ATL::_AtlBaseModule.GetModuleInstance(), lpszExeFileName, nIconIndex);
-#else // !(_ATL_VER >= 0x0700)
-		m_hIcon = ::ExtractIcon(ATL::_pModule->GetModuleInstance(), lpszExeFileName, nIconIndex);
-#endif // !(_ATL_VER >= 0x0700)
+		m_hIcon = ::ExtractIcon(ModuleHelper::GetModuleInstance(), lpszExeFileName, nIconIndex);
 		return m_hIcon;
 	}
 
@@ -935,11 +903,7 @@ public:
 	HCURSOR LoadCursor(ATL::_U_STRINGorID cursor)
 	{
 		ATLASSERT(m_hCursor == NULL);
-#if (_ATL_VER >= 0x0700)
-		m_hCursor = ::LoadCursor(ATL::_AtlBaseModule.GetResourceInstance(), cursor.m_lpstr);
-#else // !(_ATL_VER >= 0x0700)
-		m_hCursor = ::LoadCursor(ATL::_pModule->GetResourceInstance(), cursor.m_lpstr);
-#endif // !(_ATL_VER >= 0x0700)
+		m_hCursor = ::LoadCursor(ModuleHelper::GetResourceInstance(), cursor.m_lpstr);
 		return m_hCursor;
 	}
 
@@ -973,11 +937,7 @@ public:
 	HCURSOR LoadCursor(ATL::_U_STRINGorID cursor, int cxDesired, int cyDesired, UINT fuLoad = 0)
 	{
 		ATLASSERT(m_hCursor == NULL);
-#if (_ATL_VER >= 0x0700)
-		m_hCursor = (HCURSOR) ::LoadImage(ATL::_AtlBaseModule.GetResourceInstance(), cursor.m_lpstr, IMAGE_CURSOR, cxDesired, cyDesired, fuLoad);
-#else // !(_ATL_VER >= 0x0700)
-		m_hCursor = (HCURSOR) ::LoadImage(ATL::_pModule->GetResourceInstance(), cursor.m_lpstr, IMAGE_CURSOR, cxDesired, cyDesired, fuLoad);
-#endif // !(_ATL_VER >= 0x0700)
+		m_hCursor = (HCURSOR) ::LoadImage(ModuleHelper::GetResourceInstance(), cursor.m_lpstr, IMAGE_CURSOR, cxDesired, cyDesired, fuLoad);
 		return m_hCursor;
 	}
 
@@ -995,11 +955,7 @@ public:
 	HCURSOR CreateCursor(int xHotSpot, int yHotSpot, int nWidth, int nHeight, CONST VOID *pvANDPlane, CONST VOID *pvXORPlane)
 	{
 		ATLASSERT(m_hCursor == NULL);
-#if (_ATL_VER >= 0x0700)
-		m_hCursor = ::CreateCursor(ATL::_AtlBaseModule.GetResourceInstance(), xHotSpot, yHotSpot, nWidth, nHeight, pvANDPlane, pvXORPlane);
-#else // !(_ATL_VER >= 0x0700)
-		m_hCursor = ::CreateCursor(ATL::_pModule->GetResourceInstance(), xHotSpot, yHotSpot, nWidth, nHeight, pvANDPlane, pvXORPlane);
-#endif // !(_ATL_VER >= 0x0700)
+		m_hCursor = ::CreateCursor(ModuleHelper::GetResourceInstance(), xHotSpot, yHotSpot, nWidth, nHeight, pvANDPlane, pvXORPlane);
 		return m_hCursor;
 	}
 #endif // !defined(_WIN32_WCE) || ((_WIN32_WCE >= 0x400) && !(defined(WIN32_PLATFORM_PSPC) || defined(WIN32_PLATFORM_WFSP)))
@@ -1086,19 +1042,11 @@ public:
 		ATLASSERT(m_hResource == NULL);
 		ATLASSERT(m_hGlobal == NULL);
 
-#if (_ATL_VER >= 0x0700)
-		m_hResource = ::FindResource(ATL::_AtlBaseModule.GetResourceInstance(), ID.m_lpstr, Type.m_lpstr);
-#else // !(_ATL_VER >= 0x0700)
-		m_hResource = ::FindResource(ATL::_pModule->GetResourceInstance(), ID.m_lpstr, Type.m_lpstr);
-#endif // !(_ATL_VER >= 0x0700)
+		m_hResource = ::FindResource(ModuleHelper::GetResourceInstance(), ID.m_lpstr, Type.m_lpstr);
 		if(m_hResource == NULL)
 			return false;
 
-#if (_ATL_VER >= 0x0700)
-		m_hGlobal = ::LoadResource(ATL::_AtlBaseModule.GetResourceInstance(), m_hResource);
-#else // !(_ATL_VER >= 0x0700)
-		m_hGlobal = ::LoadResource(ATL::_pModule->GetResourceInstance(), m_hResource);
-#endif // !(_ATL_VER >= 0x0700)
+		m_hGlobal = ::LoadResource(ModuleHelper::GetResourceInstance(), m_hResource);
 		if(m_hGlobal == NULL)
 		{
 			m_hResource = NULL;
@@ -1114,19 +1062,11 @@ public:
 		ATLASSERT(m_hResource == NULL);
 		ATLASSERT(m_hGlobal == NULL);
 
-#if (_ATL_VER >= 0x0700)
-		m_hResource = ::FindResourceEx(ATL::_AtlBaseModule.GetResourceInstance(), ID.m_lpstr, Type.m_lpstr, wLanguage);
-#else // !(_ATL_VER >= 0x0700)
-		m_hResource = ::FindResourceEx(ATL::_pModule->GetResourceInstance(), ID.m_lpstr, Type.m_lpstr, wLanguage);
-#endif // !(_ATL_VER >= 0x0700)
+		m_hResource = ::FindResourceEx(ModuleHelper::GetResourceInstance(), ID.m_lpstr, Type.m_lpstr, wLanguage);
 		if(m_hResource == NULL)
 			return false;
 
-#if (_ATL_VER >= 0x0700)
-		m_hGlobal = ::LoadResource(ATL::_AtlBaseModule.GetResourceInstance(), m_hResource);
-#else // !(_ATL_VER >= 0x0700)
-		m_hGlobal = ::LoadResource(ATL::_pModule->GetResourceInstance(), m_hResource);
-#endif // !(_ATL_VER >= 0x0700)
+		m_hGlobal = ::LoadResource(ModuleHelper::GetResourceInstance(), m_hResource);
 		if(m_hGlobal == NULL)
 		{
 			m_hResource = NULL;
@@ -1141,11 +1081,7 @@ public:
 	DWORD GetSize() const
 	{
 		ATLASSERT(m_hResource != NULL);
-#if (_ATL_VER >= 0x0700)
-		return ::SizeofResource(ATL::_AtlBaseModule.GetResourceInstance(), m_hResource);
-#else // !(_ATL_VER >= 0x0700)
-		return ::SizeofResource(ATL::_pModule->GetResourceInstance(), m_hResource);
-#endif // !(_ATL_VER >= 0x0700)
+		return ::SizeofResource(ModuleHelper::GetResourceInstance(), m_hResource);
 	}
 
 	LPVOID Lock()

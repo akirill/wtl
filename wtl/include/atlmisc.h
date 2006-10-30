@@ -852,11 +852,11 @@ public:
 	CString(LPCSTR lpsz)
 	{
 		Init();
-	#if defined(_WIN32_WCE) && (_ATL_VER >= 0x0800)
+#if defined(_WIN32_WCE) && (_ATL_VER >= 0x0800)
 		int nSrcLen = (lpsz != NULL) ? ATL::lstrlenA(lpsz) : 0;
-	#else
+#else
 		int nSrcLen = (lpsz != NULL) ? lstrlenA(lpsz) : 0;
-	#endif
+#endif
 		if (nSrcLen != 0)
 		{
 			if(AllocBuffer(nSrcLen))
@@ -1031,11 +1031,11 @@ public:
 #ifdef _UNICODE
 	CString& operator =(LPCSTR lpsz)
 	{
-	#if defined(_WIN32_WCE) && (_ATL_VER >= 0x0800)
+#if defined(_WIN32_WCE) && (_ATL_VER >= 0x0800)
 		int nSrcLen = (lpsz != NULL) ? ATL::lstrlenA(lpsz) : 0;
-	#else
+#else
 		int nSrcLen = (lpsz != NULL) ? lstrlenA(lpsz) : 0;
-	#endif
+#endif
 		if(AllocBeforeWrite(nSrcLen))
 		{
 			_mbstowcsz(m_pchData, lpsz, nSrcLen + 1);
@@ -2515,24 +2515,17 @@ protected:
 #ifdef _DEBUG
 		// LoadString without annoying warning from the Debug kernel if the
 		//  segment containing the string is not present
-#if (_ATL_VER >= 0x0700)
-		if (::FindResource(ATL::_AtlBaseModule.GetResourceInstance(), MAKEINTRESOURCE((nID>>4) + 1), RT_STRING) == NULL)
-#else // !(_ATL_VER >= 0x0700)
-		if (::FindResource(_Module.GetResourceInstance(), MAKEINTRESOURCE((nID>>4) + 1), RT_STRING) == NULL)
-#endif // !(_ATL_VER >= 0x0700)
+		if (::FindResource(ModuleHelper::GetResourceInstance(), MAKEINTRESOURCE((nID >> 4) + 1), RT_STRING) == NULL)
 		{
 			lpszBuf[0] = _T('\0');
 			return 0;   // not found
 		}
 #endif // _DEBUG
 
-#if (_ATL_VER >= 0x0700)
-		int nLen = ::LoadString(ATL::_AtlBaseModule.GetResourceInstance(), nID, lpszBuf, nMaxBuf);
-#else // !(_ATL_VER >= 0x0700)
-		int nLen = ::LoadString(_Module.GetResourceInstance(), nID, lpszBuf, nMaxBuf);
-#endif // !(_ATL_VER >= 0x0700)
+		int nLen = ::LoadString(ModuleHelper::GetResourceInstance(), nID, lpszBuf, nMaxBuf);
 		if (nLen == 0)
 			lpszBuf[0] = _T('\0');
+
 		return nLen;
 	}
 
@@ -3847,29 +3840,17 @@ public:
 
 inline HACCEL AtlLoadAccelerators(ATL::_U_STRINGorID table)
 {
-#if (_ATL_VER >= 0x0700)
-	return ::LoadAccelerators(ATL::_AtlBaseModule.GetResourceInstance(), table.m_lpstr);
-#else // !(_ATL_VER >= 0x0700)
-	return ::LoadAccelerators(_Module.GetResourceInstance(), table.m_lpstr);
-#endif // !(_ATL_VER >= 0x0700)
+	return ::LoadAccelerators(ModuleHelper::GetResourceInstance(), table.m_lpstr);
 }
 
 inline HMENU AtlLoadMenu(ATL::_U_STRINGorID menu)
 {
-#if (_ATL_VER >= 0x0700)
-	return ::LoadMenu(ATL::_AtlBaseModule.GetResourceInstance(), menu.m_lpstr);
-#else // !(_ATL_VER >= 0x0700)
-	return ::LoadMenu(_Module.GetResourceInstance(), menu.m_lpstr);
-#endif // !(_ATL_VER >= 0x0700)
+	return ::LoadMenu(ModuleHelper::GetResourceInstance(), menu.m_lpstr);
 }
 
 inline HBITMAP AtlLoadBitmap(ATL::_U_STRINGorID bitmap)
 {
-#if (_ATL_VER >= 0x0700)
-	return ::LoadBitmap(ATL::_AtlBaseModule.GetResourceInstance(), bitmap.m_lpstr);
-#else // !(_ATL_VER >= 0x0700)
-	return ::LoadBitmap(_Module.GetResourceInstance(), bitmap.m_lpstr);
-#endif // !(_ATL_VER >= 0x0700)
+	return ::LoadBitmap(ModuleHelper::GetResourceInstance(), bitmap.m_lpstr);
 }
 
 #ifdef OEMRESOURCE
@@ -3885,11 +3866,7 @@ inline HBITMAP AtlLoadSysBitmap(ATL::_U_STRINGorID bitmap)
 
 inline HCURSOR AtlLoadCursor(ATL::_U_STRINGorID cursor)
 {
-#if (_ATL_VER >= 0x0700)
-	return ::LoadCursor(ATL::_AtlBaseModule.GetResourceInstance(), cursor.m_lpstr);
-#else // !(_ATL_VER >= 0x0700)
-	return ::LoadCursor(_Module.GetResourceInstance(), cursor.m_lpstr);
-#endif // !(_ATL_VER >= 0x0700)
+	return ::LoadCursor(ModuleHelper::GetResourceInstance(), cursor.m_lpstr);
 }
 
 inline HCURSOR AtlLoadSysCursor(LPCTSTR lpCursorName)
@@ -3913,11 +3890,7 @@ inline HCURSOR AtlLoadSysCursor(LPCTSTR lpCursorName)
 
 inline HICON AtlLoadIcon(ATL::_U_STRINGorID icon)
 {
-#if (_ATL_VER >= 0x0700)
-	return ::LoadIcon(ATL::_AtlBaseModule.GetResourceInstance(), icon.m_lpstr);
-#else // !(_ATL_VER >= 0x0700)
-	return ::LoadIcon(_Module.GetResourceInstance(), icon.m_lpstr);
-#endif // !(_ATL_VER >= 0x0700)
+	return ::LoadIcon(ModuleHelper::GetResourceInstance(), icon.m_lpstr);
 }
 
 #ifndef _WIN32_WCE
@@ -3935,29 +3908,17 @@ inline HICON AtlLoadSysIcon(LPCTSTR lpIconName)
 
 inline HBITMAP AtlLoadBitmapImage(ATL::_U_STRINGorID bitmap, UINT fuLoad = LR_DEFAULTCOLOR)
 {
-#if (_ATL_VER >= 0x0700)
-	return (HBITMAP)::LoadImage(ATL::_AtlBaseModule.GetResourceInstance(), bitmap.m_lpstr, IMAGE_BITMAP, 0, 0, fuLoad);
-#else // !(_ATL_VER >= 0x0700)
-	return (HBITMAP)::LoadImage(_Module.GetResourceInstance(), bitmap.m_lpstr, IMAGE_BITMAP, 0, 0, fuLoad);
-#endif // !(_ATL_VER >= 0x0700)
+	return (HBITMAP)::LoadImage(ModuleHelper::GetResourceInstance(), bitmap.m_lpstr, IMAGE_BITMAP, 0, 0, fuLoad);
 }
 
 inline HCURSOR AtlLoadCursorImage(ATL::_U_STRINGorID cursor, UINT fuLoad = LR_DEFAULTCOLOR | LR_DEFAULTSIZE, int cxDesired = 0, int cyDesired = 0)
 {
-#if (_ATL_VER >= 0x0700)
-	return (HCURSOR)::LoadImage(ATL::_AtlBaseModule.GetResourceInstance(), cursor.m_lpstr, IMAGE_CURSOR, cxDesired, cyDesired, fuLoad);
-#else // !(_ATL_VER >= 0x0700)
-	return (HCURSOR)::LoadImage(_Module.GetResourceInstance(), cursor.m_lpstr, IMAGE_CURSOR, cxDesired, cyDesired, fuLoad);
-#endif // !(_ATL_VER >= 0x0700)
+	return (HCURSOR)::LoadImage(ModuleHelper::GetResourceInstance(), cursor.m_lpstr, IMAGE_CURSOR, cxDesired, cyDesired, fuLoad);
 }
 
 inline HICON AtlLoadIconImage(ATL::_U_STRINGorID icon, UINT fuLoad = LR_DEFAULTCOLOR | LR_DEFAULTSIZE, int cxDesired = 0, int cyDesired = 0)
 {
-#if (_ATL_VER >= 0x0700)
-	return (HICON)::LoadImage(ATL::_AtlBaseModule.GetResourceInstance(), icon.m_lpstr, IMAGE_ICON, cxDesired, cyDesired, fuLoad);
-#else // !(_ATL_VER >= 0x0700)
-	return (HICON)::LoadImage(_Module.GetResourceInstance(), icon.m_lpstr, IMAGE_ICON, cxDesired, cyDesired, fuLoad);
-#endif // !(_ATL_VER >= 0x0700)
+	return (HICON)::LoadImage(ModuleHelper::GetResourceInstance(), icon.m_lpstr, IMAGE_ICON, cxDesired, cyDesired, fuLoad);
 }
 
 #ifdef OEMRESOURCE
@@ -4008,11 +3969,7 @@ inline bool AtlLoadString(UINT uID, BSTR& bstrText)
 		ATLTRY(lpstrText = new TCHAR[nLen]);
 		if(lpstrText == NULL)
 			break;
-#if (_ATL_VER >= 0x0700)
-		nRes = ::LoadString(ATL::_AtlBaseModule.GetResourceInstance(), uID, lpstrText, nLen);
-#else // !(_ATL_VER >= 0x0700)
-		nRes = ::LoadString(_Module.GetResourceInstance(), uID, lpstrText, nLen);
-#endif // !(_ATL_VER >= 0x0700)
+		nRes = ::LoadString(ModuleHelper::GetResourceInstance(), uID, lpstrText, nLen);
 		if(nRes < nLen - 1)
 			break;
 		delete [] lpstrText;

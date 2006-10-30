@@ -102,11 +102,7 @@ inline WORD AtlGetBitmapResourceBitsPerPixel(HMODULE hModule, ATL::_U_STRINGorID
 
 inline WORD AtlGetBitmapResourceBitsPerPixel(ATL::_U_STRINGorID image)
 {
-#if (_ATL_VER >= 0x0700)
-	return AtlGetBitmapResourceBitsPerPixel(ATL::_AtlBaseModule.GetResourceInstance(), image);
-#else // !(_ATL_VER >= 0x0700)
-	return AtlGetBitmapResourceBitsPerPixel(ATL::_pModule->GetResourceInstance(), image);
-#endif // !(_ATL_VER >= 0x0700)
+	return AtlGetBitmapResourceBitsPerPixel(ModuleHelper::GetResourceInstance(), image);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -716,11 +712,7 @@ public:
 	HBITMAP LoadBitmap(ATL::_U_STRINGorID bitmap)
 	{
 		ATLASSERT(m_hBitmap == NULL);
-#if (_ATL_VER >= 0x0700)
-		m_hBitmap = ::LoadBitmap(ATL::_AtlBaseModule.GetResourceInstance(), bitmap.m_lpstr);
-#else // !(_ATL_VER >= 0x0700)
-		m_hBitmap = ::LoadBitmap(_Module.GetResourceInstance(), bitmap.m_lpstr);
-#endif // !(_ATL_VER >= 0x0700)
+		m_hBitmap = ::LoadBitmap(ModuleHelper::GetResourceInstance(), bitmap.m_lpstr);
 		return m_hBitmap;
 	}
 
@@ -735,11 +727,7 @@ public:
 	HBITMAP LoadMappedBitmap(UINT nIDBitmap, UINT nFlags = 0, LPCOLORMAP lpColorMap = NULL, int nMapSize = 0)
 	{
 		ATLASSERT(m_hBitmap == NULL);
-#if (_ATL_VER >= 0x0700)
-		m_hBitmap = ::CreateMappedBitmap(ATL::_AtlBaseModule.GetResourceInstance(), nIDBitmap, (WORD)nFlags, lpColorMap, nMapSize);
-#else // !(_ATL_VER >= 0x0700)
-		m_hBitmap = ::CreateMappedBitmap(_Module.GetResourceInstance(), nIDBitmap, (WORD)nFlags, lpColorMap, nMapSize);
-#endif // !(_ATL_VER >= 0x0700)
+		m_hBitmap = ::CreateMappedBitmap(ModuleHelper::GetResourceInstance(), nIDBitmap, (WORD)nFlags, lpColorMap, nMapSize);
 		return m_hBitmap;
 	}
 #endif // !_WIN32_WCE

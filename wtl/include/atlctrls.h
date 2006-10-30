@@ -1859,22 +1859,14 @@ public:
 	BOOL Create(ATL::_U_STRINGorID bitmap, int cx, int nGrow, COLORREF crMask)
 	{
 		ATLASSERT(m_hImageList == NULL);
-#if (_ATL_VER >= 0x0700)
-		m_hImageList = ImageList_LoadBitmap(ATL::_AtlBaseModule.GetResourceInstance(), bitmap.m_lpstr, cx, nGrow, crMask);
-#else // !(_ATL_VER >= 0x0700)
-		m_hImageList = ImageList_LoadBitmap(_Module.GetResourceInstance(), bitmap.m_lpstr, cx, nGrow, crMask);
-#endif // !(_ATL_VER >= 0x0700)
+		m_hImageList = ImageList_LoadBitmap(ModuleHelper::GetResourceInstance(), bitmap.m_lpstr, cx, nGrow, crMask);
 		return (m_hImageList != NULL) ? TRUE : FALSE;
 	}
 
 	BOOL CreateFromImage(ATL::_U_STRINGorID image, int cx, int nGrow, COLORREF crMask, UINT uType, UINT uFlags = LR_DEFAULTCOLOR | LR_DEFAULTSIZE)
 	{
 		ATLASSERT(m_hImageList == NULL);
-#if (_ATL_VER >= 0x0700)
-		m_hImageList = ImageList_LoadImage(ATL::_AtlBaseModule.GetResourceInstance(), image.m_lpstr, cx, nGrow, crMask, uType, uFlags);
-#else // !(_ATL_VER >= 0x0700)
-		m_hImageList = ImageList_LoadImage(_Module.GetResourceInstance(), image.m_lpstr, cx, nGrow, crMask, uType, uFlags);
-#endif // !(_ATL_VER >= 0x0700)
+		m_hImageList = ImageList_LoadImage(ModuleHelper::GetResourceInstance(), image.m_lpstr, cx, nGrow, crMask, uType, uFlags);
 		return (m_hImageList != NULL) ? TRUE : FALSE;
 	}
 
@@ -2134,11 +2126,7 @@ public:
 		}
 		if(lpRect != NULL)
 			rect = *lpRect;
-#if (_ATL_VER >= 0x0700)
-		hinst = ATL::_AtlBaseModule.GetResourceInstance();
-#else // !(_ATL_VER >= 0x0700)
-		hinst = _Module.GetResourceInstance();
-#endif // !(_ATL_VER >= 0x0700)
+		hinst = ModuleHelper::GetResourceInstance();
 		lpszText = lpstrText;
 		lParam = lUserParam;
 	}
@@ -5407,11 +5395,7 @@ public:
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
 		TBADDBITMAP tbab = { 0 };
-#if (_ATL_VER >= 0x0700)
-		tbab.hInst = ATL::_AtlBaseModule.GetResourceInstance();
-#else // !(_ATL_VER >= 0x0700)
-		tbab.hInst = _Module.GetResourceInstance();
-#endif // !(_ATL_VER >= 0x0700)
+		tbab.hInst = ModuleHelper::GetResourceInstance();
 		ATLASSERT(tbab.hInst != NULL);
 		tbab.nID = nBitmapID;
 		return (int)::SendMessage(m_hWnd, TB_ADDBITMAP, (WPARAM)nNumButtons, (LPARAM)&tbab);
@@ -5501,11 +5485,7 @@ public:
 	int AddString(UINT nStringID)
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
-#if (_ATL_VER >= 0x0700)
-		return (int)::SendMessage(m_hWnd, TB_ADDSTRING, (WPARAM)ATL::_AtlBaseModule.GetResourceInstance(), (LPARAM)nStringID);
-#else // !(_ATL_VER >= 0x0700)
-		return (int)::SendMessage(m_hWnd, TB_ADDSTRING, (WPARAM)_Module.GetResourceInstance(), (LPARAM)nStringID);
-#endif // !(_ATL_VER >= 0x0700)
+		return (int)::SendMessage(m_hWnd, TB_ADDSTRING, (WPARAM)ModuleHelper::GetResourceInstance(), (LPARAM)nStringID);
 	}
 
 	int AddStrings(LPCTSTR lpszStrings)
@@ -5529,11 +5509,7 @@ public:
 	int LoadImages(int nBitmapID)
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
-#if (_ATL_VER >= 0x0700)
-		return (int)::SendMessage(m_hWnd, TB_LOADIMAGES, nBitmapID, (LPARAM)ATL::_AtlBaseModule.GetResourceInstance());
-#else // !(_ATL_VER >= 0x0700)
-		return (int)::SendMessage(m_hWnd, TB_LOADIMAGES, nBitmapID, (LPARAM)_Module.GetResourceInstance());
-#endif // !(_ATL_VER >= 0x0700)
+		return (int)::SendMessage(m_hWnd, TB_LOADIMAGES, nBitmapID, (LPARAM)ModuleHelper::GetResourceInstance());
 	}
 
 	int LoadStdImages(int nBitmapID)
@@ -9260,11 +9236,7 @@ public:
 // Operations
 	HWND Create(HWND hWndParent, int nCmdBarID)
 	{
-#if (_ATL_VER >= 0x0700)
-		m_hWnd = ::CommandBar_Create(ATL::_AtlBaseModule.GetModuleInstance(), hWndParent, nCmdBarID);
-#else // !(_ATL_VER >= 0x0700)
-		m_hWnd = ::CommandBar_Create(_Module.GetModuleInstance(), hWndParent, nCmdBarID);
-#endif // !(_ATL_VER >= 0x0700)
+		m_hWnd = ::CommandBar_Create(ModuleHelper::GetModuleInstance(), hWndParent, nCmdBarID);
 		ATLASSERT(::IsWindow(m_hWnd));
 		return m_hWnd;
 	}
@@ -9295,11 +9267,7 @@ public:
 	int AddBitmap(int nBitmapID, int nNumImages)
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
-#if (_ATL_VER >= 0x0700)
-		return ::CommandBar_AddBitmap(m_hWnd, ATL::_AtlBaseModule.GetResourceInstance(), nBitmapID, nNumImages, 16, 16);
-#else // !(_ATL_VER >= 0x0700)
-		return ::CommandBar_AddBitmap(m_hWnd, _Module.GetResourceInstance(), nBitmapID, nNumImages, 16, 16);
-#endif // !(_ATL_VER >= 0x0700)
+		return ::CommandBar_AddBitmap(m_hWnd, ModuleHelper::GetResourceInstance(), nBitmapID, nNumImages, 16, 16);
 	}
 
 	BOOL AddButtons(UINT uNumButtons, LPTBBUTTON lpButtons)
@@ -9323,31 +9291,19 @@ public:
 	HWND InsertComboBox(int nWidth, UINT dwStyle, WORD wComboBoxID, WORD wButton)
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
-#if (_ATL_VER >= 0x0700)
-		return ::CommandBar_InsertComboBox(m_hWnd, ATL::_AtlBaseModule.GetModuleInstance(), nWidth, dwStyle, wComboBoxID, wButton);
-#else // !(_ATL_VER >= 0x0700)
-		return ::CommandBar_InsertComboBox(m_hWnd, _Module.GetModuleInstance(), nWidth, dwStyle, wComboBoxID, wButton);
-#endif // !(_ATL_VER >= 0x0700)
+		return ::CommandBar_InsertComboBox(m_hWnd, ModuleHelper::GetModuleInstance(), nWidth, dwStyle, wComboBoxID, wButton);
 	}
 
 	BOOL InsertMenubar(WORD wMenuID, WORD wButton)
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
-#if (_ATL_VER >= 0x0700)
-		return ::CommandBar_InsertMenubar(m_hWnd, ATL::_AtlBaseModule.GetResourceInstance(), wMenuID, wButton);
-#else // !(_ATL_VER >= 0x0700)
-		return ::CommandBar_InsertMenubar(m_hWnd, _Module.GetResourceInstance(), wMenuID, wButton);
-#endif // !(_ATL_VER >= 0x0700)
+		return ::CommandBar_InsertMenubar(m_hWnd, ModuleHelper::GetResourceInstance(), wMenuID, wButton);
 	}
 
 	BOOL InsertMenubarEx(ATL::_U_STRINGorID menu, WORD wButton)
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
-#if (_ATL_VER >= 0x0700)
-		return ::CommandBar_InsertMenubarEx(m_hWnd, ATL::_AtlBaseModule.GetResourceInstance(), (LPTSTR)menu.m_lpstr, wButton);
-#else // !(_ATL_VER >= 0x0700)
-		return ::CommandBar_InsertMenubarEx(m_hWnd, _Module.GetResourceInstance(), (LPTSTR)menu.m_lpstr, wButton);
-#endif // !(_ATL_VER >= 0x0700)
+		return ::CommandBar_InsertMenubarEx(m_hWnd, ModuleHelper::GetResourceInstance(), (LPTSTR)menu.m_lpstr, wButton);
 	}
 
 	BOOL IsCommandBarMessage(LPMSG lpMsg)
@@ -9408,11 +9364,7 @@ public:
 // Operations
 	HWND Create(HWND hWndParent, UINT wID, DWORD dwStyles, HIMAGELIST hImageList = NULL)
 	{
-#if (_ATL_VER >= 0x0700)
-		m_hWnd = ::CommandBands_Create(ATL::_AtlBaseModule.GetModuleInstance(), hWndParent, wID, dwStyles, hImageList);
-#else // !(_ATL_VER >= 0x0700)
-		m_hWnd = ::CommandBands_Create(_Module.GetModuleInstance(), hWndParent, wID, dwStyles, hImageList);
-#endif // !(_ATL_VER >= 0x0700)
+		m_hWnd = ::CommandBands_Create(ModuleHelper::GetModuleInstance(), hWndParent, wID, dwStyles, hImageList);
 		ATLASSERT(::IsWindow(m_hWnd));
 		return m_hWnd;
 	}
@@ -9420,21 +9372,13 @@ public:
 	BOOL AddAdornments(DWORD dwFlags = 0, LPREBARBANDINFO prbbi = NULL)
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
-#if (_ATL_VER >= 0x0700)
-		return ::CommandBands_AddAdornments(m_hWnd, ATL::_AtlBaseModule.GetModuleInstance(), dwFlags, prbbi);
-#else // !(_ATL_VER >= 0x0700)
-		return ::CommandBands_AddAdornments(m_hWnd, _Module.GetModuleInstance(), dwFlags, prbbi);
-#endif // !(_ATL_VER >= 0x0700)
+		return ::CommandBands_AddAdornments(m_hWnd, ModuleHelper::GetModuleInstance(), dwFlags, prbbi);
 	}
 
 	BOOL AddBands(UINT uBandCount, LPREBARBANDINFO prbbi)
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
-#if (_ATL_VER >= 0x0700)
-		return ::CommandBands_AddBands(m_hWnd, ATL::_AtlBaseModule.GetModuleInstance(), uBandCount, prbbi);
-#else // !(_ATL_VER >= 0x0700)
-		return ::CommandBands_AddBands(m_hWnd, _Module.GetModuleInstance(), uBandCount, prbbi);
-#endif // !(_ATL_VER >= 0x0700)
+		return ::CommandBands_AddBands(m_hWnd, ModuleHelper::GetModuleInstance(), uBandCount, prbbi);
 	}
 
 	BOOL Show(BOOL bShow = TRUE)

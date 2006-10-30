@@ -132,11 +132,7 @@ public:
 		m_ofn.Flags = dwFlags | OFN_EXPLORER | OFN_ENABLEHOOK;
 #endif // !_WIN32_WCE
 		m_ofn.lpstrFilter = lpszFilter;
-#if (_ATL_VER >= 0x0700)
-		m_ofn.hInstance = ATL::_AtlBaseModule.GetResourceInstance();
-#else // !(_ATL_VER >= 0x0700)
-		m_ofn.hInstance = _Module.GetResourceInstance();
-#endif // !(_ATL_VER >= 0x0700)
+		m_ofn.hInstance = ModuleHelper::GetResourceInstance();
 		m_ofn.lpfnHook = (LPOFNHOOKPROC)T::StartDialogProc;
 		m_ofn.hwndOwner = hWndParent;
 
@@ -160,11 +156,7 @@ public:
 			m_ofn.hwndOwner = hWndParent;
 
 		ATLASSERT(m_hWnd == NULL);
-#if (_ATL_VER >= 0x0700)
-		ATL::_AtlWinModule.AddCreateWndData(&m_thunk.cd, (ATL::CDialogImplBase*)this);
-#else // !(_ATL_VER >= 0x0700)
-		_Module.AddCreateWndData(&m_thunk.cd, (ATL::CDialogImplBase*)this);
-#endif // !(_ATL_VER >= 0x0700)
+		ModuleHelper::AddCreateWndData(&m_thunk.cd, (ATL::CDialogImplBase*)this);
 
 		BOOL bRet;
 		if(m_bOpenFileDialog)
@@ -608,11 +600,7 @@ public:
 	{
 		if(uMsg != WM_INITDIALOG)
 			return 0;
-#if (_ATL_VER >= 0x0700)
-		CCommonDialogImplBase* pT = (CCommonDialogImplBase*)ATL::_AtlWinModule.ExtractCreateWndData();
-#else // !(_ATL_VER >= 0x0700)
-		CCommonDialogImplBase* pT = (CCommonDialogImplBase*)_Module.ExtractCreateWndData();
-#endif // !(_ATL_VER >= 0x0700)
+		CCommonDialogImplBase* pT = (CCommonDialogImplBase*)ModuleHelper::ExtractCreateWndData();
 		ATLASSERT(pT != NULL);
 		ATLASSERT(pT->m_hWnd == NULL);
 		ATLASSERT(::IsWindow(hWnd));
@@ -716,11 +704,7 @@ public:
 			m_cf.hwndOwner = hWndParent;
 
 		ATLASSERT(m_hWnd == NULL);
-#if (_ATL_VER >= 0x0700)
-		ATL::_AtlWinModule.AddCreateWndData(&m_thunk.cd, (CCommonDialogImplBase*)this);
-#else // !(_ATL_VER >= 0x0700)
-		_Module.AddCreateWndData(&m_thunk.cd, (CCommonDialogImplBase*)this);
-#endif // !(_ATL_VER >= 0x0700)
+		ModuleHelper::AddCreateWndData(&m_thunk.cd, (CCommonDialogImplBase*)this);
 
 		BOOL bRet = ::ChooseFont(&m_cf);
 
@@ -1014,11 +998,7 @@ public:
 			m_cc.hwndOwner = hWndParent;
 
 		ATLASSERT(m_hWnd == NULL);
-#if (_ATL_VER >= 0x0700)
-		ATL::_AtlWinModule.AddCreateWndData(&m_thunk.cd, (CCommonDialogImplBase*)this);
-#else // !(_ATL_VER >= 0x0700)
-		_Module.AddCreateWndData(&m_thunk.cd, (CCommonDialogImplBase*)this);
-#endif // !(_ATL_VER >= 0x0700)
+		ModuleHelper::AddCreateWndData(&m_thunk.cd, (CCommonDialogImplBase*)this);
 
 		BOOL bRet = ::ChooseColor(&m_cc);
 
@@ -1051,11 +1031,7 @@ public:
 
 		if(uMsg == WM_INITDIALOG)
 		{
-#if (_ATL_VER >= 0x0700)
-			pT = (CCommonDialogImplBase*)ATL::_AtlWinModule.ExtractCreateWndData();
-#else // !(_ATL_VER >= 0x0700)
-			pT = (CCommonDialogImplBase*)_Module.ExtractCreateWndData();
-#endif // !(_ATL_VER >= 0x0700)
+			pT = (CCommonDialogImplBase*)ModuleHelper::ExtractCreateWndData();
 			lpCC->lCustData = (LPARAM)pT;
 			ATLASSERT(pT != NULL);
 			ATLASSERT(pT->m_hWnd == NULL);
@@ -1245,11 +1221,7 @@ public:
 			m_pd.hwndOwner = hWndParent;
 
 		ATLASSERT(m_hWnd == NULL);
-#if (_ATL_VER >= 0x0700)
-		ATL::_AtlWinModule.AddCreateWndData(&m_thunk.cd, (CCommonDialogImplBase*)this);
-#else // !(_ATL_VER >= 0x0700)
-		_Module.AddCreateWndData(&m_thunk.cd, (CCommonDialogImplBase*)this);
-#endif // !(_ATL_VER >= 0x0700)
+		ModuleHelper::AddCreateWndData(&m_thunk.cd, (CCommonDialogImplBase*)this);
 
 		BOOL bRet = ::PrintDlg(&m_pd);
 
@@ -1394,11 +1366,7 @@ public:
 	LRESULT OnPrintSetup(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& /*bHandled*/)
 	{
 		T dlgSetup(m_pd);
-#if (_ATL_VER >= 0x0700)
-		ATL::_AtlWinModule.AddCreateWndData(&dlgSetup.m_thunk.cd, (CCommonDialogImplBase*)&dlgSetup);
-#else // !(_ATL_VER >= 0x0700)
-		_Module.AddCreateWndData(&dlgSetup.m_thunk.cd, (CCommonDialogImplBase*)&dlgSetup);
-#endif // !(_ATL_VER >= 0x0700)
+		ModuleHelper::AddCreateWndData(&dlgSetup.m_thunk.cd, (CCommonDialogImplBase*)&dlgSetup);
 		return DefWindowProc(WM_COMMAND, MAKEWPARAM(wID, wNotifyCode), (LPARAM)hWndCtl);
 	}
 };
@@ -1772,11 +1740,7 @@ public:
 			m_psd.hwndOwner = hWndParent;
 
 		ATLASSERT(m_hWnd == NULL);
-#if (_ATL_VER >= 0x0700)
-		ATL::_AtlWinModule.AddCreateWndData(&m_thunk.cd, (CCommonDialogImplBase*)this);
-#else // !(_ATL_VER >= 0x0700)
-		_Module.AddCreateWndData(&m_thunk.cd, (CCommonDialogImplBase*)this);
-#endif // !(_ATL_VER >= 0x0700)
+		ModuleHelper::AddCreateWndData(&m_thunk.cd, (CCommonDialogImplBase*)this);
 
 		BOOL bRet = ::PageSetupDlg(&m_psd);
 
@@ -1910,13 +1874,9 @@ public:
 #endif
 
 		ATLASSERT(m_hWnd == NULL);
-#if (_ATL_VER >= 0x0700)
-		ATL::_AtlWinModule.AddCreateWndData(&m_thunk.cd, (CCommonDialogImplBase*)this);
-#else // !(_ATL_VER >= 0x0700)
-		_Module.AddCreateWndData(&m_thunk.cd, (CCommonDialogImplBase*)this);
-#endif // !(_ATL_VER >= 0x0700)
-		HWND hWnd;
+		ModuleHelper::AddCreateWndData(&m_thunk.cd, (CCommonDialogImplBase*)this);
 
+		HWND hWnd = NULL;
 		if(bFindDialogOnly)
 			hWnd = ::FindText(&m_fr);
 		else
@@ -2293,11 +2253,7 @@ public:
 		memset(&m_psh, 0, sizeof(PROPSHEETHEADER));
 		m_psh.dwSize = sizeof(PROPSHEETHEADER);
 		m_psh.dwFlags = PSH_USECALLBACK;
-#if (_ATL_VER >= 0x0700)
-		m_psh.hInstance = ATL::_AtlBaseModule.GetResourceInstance();
-#else // !(_ATL_VER >= 0x0700)
-		m_psh.hInstance = _Module.GetResourceInstance();
-#endif // !(_ATL_VER >= 0x0700)
+		m_psh.hInstance = ModuleHelper::GetResourceInstance();
 		m_psh.phpage = NULL;   // will be set later
 		m_psh.nPages = 0;      // will be set later
 		m_psh.pszCaption = title.m_lpstr;
@@ -2329,11 +2285,7 @@ public:
 		if(uMsg == PSCB_INITIALIZED)
 		{
 			ATLASSERT(hWnd != NULL);
-#if (_ATL_VER >= 0x0700)
-			T* pT = (T*)ATL::_AtlWinModule.ExtractCreateWndData();
-#else // !(_ATL_VER >= 0x0700)
-			T* pT = (T*)_Module.ExtractCreateWndData();
-#endif // !(_ATL_VER >= 0x0700)
+			T* pT = (T*)ModuleHelper::ExtractCreateWndData();
 			// subclass the sheet window
 			pT->SubclassWindow(hWnd);
 			// remove page handles array
@@ -2394,11 +2346,7 @@ public:
 		m_psh.nPages = m_arrPages.GetSize();
 
 		T* pT = static_cast<T*>(this);
-#if (_ATL_VER >= 0x0700)
-		ATL::_AtlWinModule.AddCreateWndData(&pT->m_thunk.cd, pT);
-#else // !(_ATL_VER >= 0x0700)
-		_Module.AddCreateWndData(&pT->m_thunk.cd, pT);
-#endif // !(_ATL_VER >= 0x0700)
+		ModuleHelper::AddCreateWndData(&pT->m_thunk.cd, pT);
 
 		HWND hWnd = (HWND)::PropertySheet(&m_psh);
 		_CleanUpPages();   // ensure clean-up, required if call failed
@@ -2419,11 +2367,7 @@ public:
 		m_psh.nPages = m_arrPages.GetSize();
 
 		T* pT = static_cast<T*>(this);
-#if (_ATL_VER >= 0x0700)
-		ATL::_AtlWinModule.AddCreateWndData(&pT->m_thunk.cd, pT);
-#else // !(_ATL_VER >= 0x0700)
-		_Module.AddCreateWndData(&pT->m_thunk.cd, pT);
-#endif // !(_ATL_VER >= 0x0700)
+		ModuleHelper::AddCreateWndData(&pT->m_thunk.cd, pT);
 
 		INT_PTR nRet = ::PropertySheet(&m_psh);
 		_CleanUpPages();   // ensure clean-up, required if call failed
@@ -2785,11 +2729,7 @@ public:
 		memset(&m_psp, 0, sizeof(PROPSHEETPAGE));
 		m_psp.dwSize = sizeof(PROPSHEETPAGE);
 		m_psp.dwFlags = PSP_USECALLBACK;
-#if (_ATL_VER >= 0x0700)
-		m_psp.hInstance = ATL::_AtlBaseModule.GetResourceInstance();
-#else // !(_ATL_VER >= 0x0700)
-		m_psp.hInstance = _Module.GetResourceInstance();
-#endif // !(_ATL_VER >= 0x0700)
+		m_psp.hInstance = ModuleHelper::GetResourceInstance();
 		T* pT = static_cast<T*>(this);
 		m_psp.pszTemplate = MAKEINTRESOURCE(pT->IDD);
 		m_psp.pfnDlgProc = (DLGPROC)T::StartDialogProc;
@@ -2813,11 +2753,7 @@ public:
 		case PSPCB_CREATE:
 			{
 				ATL::CDialogImplBaseT< TBase >* pPage = (ATL::CDialogImplBaseT< TBase >*)pT;
-#if (_ATL_VER >= 0x0700)
-				ATL::_AtlWinModule.AddCreateWndData(&pPage->m_thunk.cd, pPage);
-#else // !(_ATL_VER >= 0x0700)
-				_Module.AddCreateWndData(&pPage->m_thunk.cd, pPage);
-#endif // !(_ATL_VER >= 0x0700)
+				ModuleHelper::AddCreateWndData(&pPage->m_thunk.cd, pPage);
 				uRet = pT->OnPageCreate() ? 1 : 0;
 			}
 			break;
@@ -3224,11 +3160,7 @@ public:
 		// initialize ActiveX hosting and modify dialog template
 		ATL::AtlAxWinInit();
 
-#if (_ATL_VER >= 0x0700)
-		HINSTANCE hInstance = ATL::_AtlBaseModule.GetResourceInstance();
-#else // !(_ATL_VER >= 0x0700)
-		HINSTANCE hInstance = _Module.GetResourceInstance();
-#endif // !(_ATL_VER >= 0x0700)
+		HINSTANCE hInstance = ModuleHelper::GetResourceInstance();
 		LPCTSTR lpTemplateName = MAKEINTRESOURCE(pT->IDD);
 		HRSRC hDlg = ::FindResource(hInstance, lpTemplateName, (LPTSTR)RT_DIALOG);
 		if(hDlg != NULL)

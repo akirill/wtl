@@ -85,11 +85,8 @@ public:
 
 			if(m_atom == 0)
 			{
-#if (_ATL_VER >= 0x0700)
-				HINSTANCE hInst = ATL::_AtlBaseModule.GetModuleInstance();
-#else // !(_ATL_VER >= 0x0700)
-				HINSTANCE hInst = _Module.GetModuleInstance();
-#endif // !(_ATL_VER >= 0x0700)
+				HINSTANCE hInst = ModuleHelper::GetModuleInstance();
+
 				if (m_lpszOrigName != NULL)
 				{
 					ATLASSERT(pProc != NULL);
@@ -99,11 +96,7 @@ public:
 					WNDCLASSEX wc = { 0 };
 					wc.cbSize = sizeof(WNDCLASSEX);
 					// try process local class first
-#if (_ATL_VER >= 0x0700)
-					if(!::GetClassInfoEx(ATL::_AtlBaseModule.GetModuleInstance(), m_lpszOrigName, &wc))
-#else // !(_ATL_VER >= 0x0700)
-					if(!::GetClassInfoEx(_Module.GetModuleInstance(), m_lpszOrigName, &wc))
-#endif // !(_ATL_VER >= 0x0700)
+					if(!::GetClassInfoEx(ModuleHelper::GetModuleInstance(), m_lpszOrigName, &wc))
 					{
 						// try global class
 						if(!::GetClassInfoEx(NULL, m_lpszOrigName, &wc))
@@ -148,13 +141,8 @@ public:
 				{
 					if(m_uCommonResourceID != 0)   // use it if not zero
 					{
-#if (_ATL_VER >= 0x0700)
-						m_wc.hIcon = (HICON)::LoadImage(ATL::_AtlBaseModule.GetResourceInstance(), MAKEINTRESOURCE(m_uCommonResourceID), IMAGE_ICON, 32, 32, LR_DEFAULTCOLOR);
-						m_wc.hIconSm = (HICON)::LoadImage(ATL::_AtlBaseModule.GetResourceInstance(), MAKEINTRESOURCE(m_uCommonResourceID), IMAGE_ICON, 16, 16, LR_DEFAULTCOLOR);
-#else // !(_ATL_VER >= 0x0700)
-						m_wc.hIcon = (HICON)::LoadImage(_Module.GetResourceInstance(), MAKEINTRESOURCE(m_uCommonResourceID), IMAGE_ICON, 32, 32, LR_DEFAULTCOLOR);
-						m_wc.hIconSm = (HICON)::LoadImage(_Module.GetResourceInstance(), MAKEINTRESOURCE(m_uCommonResourceID), IMAGE_ICON, 16, 16, LR_DEFAULTCOLOR);
-#endif // !(_ATL_VER >= 0x0700)
+						m_wc.hIcon = (HICON)::LoadImage(ModuleHelper::GetResourceInstance(), MAKEINTRESOURCE(m_uCommonResourceID), IMAGE_ICON, 32, 32, LR_DEFAULTCOLOR);
+						m_wc.hIconSm = (HICON)::LoadImage(ModuleHelper::GetResourceInstance(), MAKEINTRESOURCE(m_uCommonResourceID), IMAGE_ICON, 16, 16, LR_DEFAULTCOLOR);
 					}
 					m_atom = ::RegisterClassEx(&m_wc);
 				}
@@ -187,11 +175,8 @@ public:
 
 			if(m_atom == 0)
 			{
-#if (_ATL_VER >= 0x0700)
-				HINSTANCE hInst = ATL::_AtlBaseModule.GetModuleInstance();
-#else // !(_ATL_VER >= 0x0700)
-				HINSTANCE hInst = _Module.GetModuleInstance();
-#endif // !(_ATL_VER >= 0x0700)
+				HINSTANCE hInst = ModuleHelper::GetModuleInstance();
+
 				if (m_lpszOrigName != NULL)
 				{
 					ATLASSERT(pProc != NULL);
@@ -200,11 +185,7 @@ public:
 
 					WNDCLASS wc = { 0 };
 					// try process local class first
-#if (_ATL_VER >= 0x0700)
-					if(!::GetClassInfo(ATL::_AtlBaseModule.GetModuleInstance(), m_lpszOrigName, &wc))
-#else // !(_ATL_VER >= 0x0700)
-					if(!::GetClassInfo(_Module.GetModuleInstance(), m_lpszOrigName, &wc))
-#endif // !(_ATL_VER >= 0x0700)
+					if(!::GetClassInfo(ModuleHelper::GetModuleInstance(), m_lpszOrigName, &wc))
 					{
 						// try global class
 						if(!::GetClassInfo(NULL, m_lpszOrigName, &wc))
@@ -240,11 +221,7 @@ public:
 				if (m_atom == 0)
 				{
 					if(m_uCommonResourceID != 0)   // use it if not zero
-#if (_ATL_VER >= 0x0700)
-						m_wc.hIcon = (HICON)::LoadImage(ATL::_AtlBaseModule.GetResourceInstance(), MAKEINTRESOURCE(m_uCommonResourceID), IMAGE_ICON, 32, 32, LR_DEFAULTCOLOR);
-#else // !(_ATL_VER >= 0x0700)
-						m_wc.hIcon = (HICON)::LoadImage(_Module.GetResourceInstance(), MAKEINTRESOURCE(m_uCommonResourceID), IMAGE_ICON, 32, 32, LR_DEFAULTCOLOR);
-#endif // !(_ATL_VER >= 0x0700)
+						m_wc.hIcon = (HICON)::LoadImage(ModuleHelper::GetResourceInstance(), MAKEINTRESOURCE(m_uCommonResourceID), IMAGE_ICON, 32, 32, LR_DEFAULTCOLOR);
 					m_atom = ::RegisterClass(&m_wc);
 				}
 			}
@@ -457,28 +434,17 @@ public:
 		if(atom == 0)
 			return NULL;
 
-#if (_ATL_VER >= 0x0700)
-		ATL::_AtlWinModule.AddCreateWndData(&m_thunk.cd, this);
-#else // !(_ATL_VER >= 0x0700)
-		_Module.AddCreateWndData(&m_thunk.cd, this);
-#endif // !(_ATL_VER >= 0x0700)
+		ModuleHelper::AddCreateWndData(&m_thunk.cd, this);
 
 		if(MenuOrID.m_hMenu == NULL && (dwStyle & WS_CHILD))
 			MenuOrID.m_hMenu = (HMENU)(UINT_PTR)this;
 		if(rect.m_lpRect == NULL)
 			rect.m_lpRect = &TBase::rcDefault;
 
-#if (_ATL_VER >= 0x0700)
 		HWND hWnd = ::CreateWindowEx(dwExStyle, MAKEINTATOM(atom), szWindowName,
 			dwStyle, rect.m_lpRect->left, rect.m_lpRect->top, rect.m_lpRect->right - rect.m_lpRect->left,
 			rect.m_lpRect->bottom - rect.m_lpRect->top, hWndParent, MenuOrID.m_hMenu,
-			ATL::_AtlBaseModule.GetModuleInstance(), lpCreateParam);
-#else // !(_ATL_VER >= 0x0700)
-		HWND hWnd = ::CreateWindowEx(dwExStyle, MAKEINTATOM(atom), szWindowName,
-			dwStyle, rect.m_lpRect->left, rect.m_lpRect->top, rect.m_lpRect->right - rect.m_lpRect->left,
-			rect.m_lpRect->bottom - rect.m_lpRect->top, hWndParent, MenuOrID.m_hMenu,
-			_Module.GetModuleInstance(), lpCreateParam);
-#endif // !(_ATL_VER >= 0x0700)
+			ModuleHelper::GetModuleInstance(), lpCreateParam);
 
 		ATLASSERT(hWnd == NULL || m_hWnd == hWnd);
 
@@ -488,11 +454,7 @@ public:
 	static HWND CreateSimpleToolBarCtrl(HWND hWndParent, UINT nResourceID, BOOL bInitialSeparator = FALSE, 
 			DWORD dwStyle = ATL_SIMPLE_TOOLBAR_STYLE, UINT nID = ATL_IDW_TOOLBAR)
 	{
-#if (_ATL_VER >= 0x0700)
-		HINSTANCE hInst = ATL::_AtlBaseModule.GetResourceInstance();
-#else // !(_ATL_VER >= 0x0700)
-		HINSTANCE hInst = _Module.GetResourceInstance();
-#endif // !(_ATL_VER >= 0x0700)
+		HINSTANCE hInst = ModuleHelper::GetResourceInstance();
 		HRSRC hRsrc = ::FindResource(hInst, MAKEINTRESOURCE(nResourceID), RT_TOOLBAR);
 		if (hRsrc == NULL)
 			return NULL;
@@ -547,13 +509,7 @@ public:
 		}
 
 #ifndef _WIN32_WCE
-#if (_ATL_VER >= 0x0700)
-		HWND hWnd = ::CreateWindowEx(0, TOOLBARCLASSNAME, NULL, dwStyle, 0,0,100,100,
-				hWndParent, (HMENU)LongToHandle(nID), ATL::_AtlBaseModule.GetModuleInstance(), NULL);
-#else // !(_ATL_VER >= 0x0700)
-		HWND hWnd = ::CreateWindowEx(0, TOOLBARCLASSNAME, NULL, dwStyle, 0,0,100,100,
-				hWndParent, (HMENU)LongToHandle(nID), _Module.GetModuleInstance(), NULL);
-#endif // !(_ATL_VER >= 0x0700)
+		HWND hWnd = ::CreateWindowEx(0, TOOLBARCLASSNAME, NULL, dwStyle, 0, 0, 100, 100, hWndParent, (HMENU)LongToHandle(nID), ModuleHelper::GetModuleInstance(), NULL);
 		if(hWnd == NULL)
 		{
 			ATLASSERT(FALSE);
@@ -586,11 +542,7 @@ public:
 				// 32-bit color bitmap with alpha channel (valid for Windows XP and later)
 				crMask = CLR_NONE;
 			}
-#if (_ATL_VER >= 0x0700)
-			HIMAGELIST hImageList = ImageList_LoadImage(ATL::_AtlBaseModule.GetResourceInstance(), MAKEINTRESOURCE(nResourceID), pData->wWidth, 1, crMask, IMAGE_BITMAP, LR_CREATEDIBSECTION | LR_DEFAULTSIZE);
-#else // !(_ATL_VER >= 0x0700)
-			HIMAGELIST hImageList = ImageList_LoadImage(_Module.GetResourceInstance(), MAKEINTRESOURCE(nResourceID), pData->wWidth, 1, crMask, IMAGE_BITMAP, LR_CREATEDIBSECTION | LR_DEFAULTSIZE);
-#endif // !(_ATL_VER >= 0x0700)
+			HIMAGELIST hImageList = ImageList_LoadImage(ModuleHelper::GetResourceInstance(), MAKEINTRESOURCE(nResourceID), pData->wWidth, 1, crMask, IMAGE_BITMAP, LR_CREATEDIBSECTION | LR_DEFAULTSIZE);
 			ATLASSERT(hImageList != NULL);
 			::SendMessage(hWnd, TB_SETIMAGELIST, 0, (LPARAM)hImageList);
 		}
@@ -621,11 +573,7 @@ public:
 			dwStyle |= CCS_NODIVIDER;
 
 		// Create rebar window
-#if (_ATL_VER >= 0x0700)
-		HWND hWndReBar = ::CreateWindowEx(0, REBARCLASSNAME, NULL, dwStyle, 0, 0, 100, 100, hWndParent, (HMENU)LongToHandle(nID), ATL::_AtlBaseModule.GetModuleInstance(), NULL);
-#else // !(_ATL_VER >= 0x0700)
-		HWND hWndReBar = ::CreateWindowEx(0, REBARCLASSNAME, NULL, dwStyle, 0, 0, 100, 100, hWndParent, (HMENU)LongToHandle(nID), _Module.GetModuleInstance(), NULL);
-#endif // !(_ATL_VER >= 0x0700)
+		HWND hWndReBar = ::CreateWindowEx(0, REBARCLASSNAME, NULL, dwStyle, 0, 0, 100, 100, hWndParent, (HMENU)LongToHandle(nID), ModuleHelper::GetModuleInstance(), NULL);
 		if(hWndReBar == NULL)
 		{
 			ATLTRACE2(atlTraceUI, 0, _T("Failed to create rebar.\n"));
@@ -795,11 +743,7 @@ public:
 		const int cchMax = 128;   // max text length is 127 for status bars (+1 for null)
 		TCHAR szText[cchMax];
 		szText[0] = 0;
-#if (_ATL_VER >= 0x0700)
-		::LoadString(ATL::_AtlBaseModule.GetResourceInstance(), nTextID, szText, cchMax);
-#else // !(_ATL_VER >= 0x0700)
-		::LoadString(_Module.GetResourceInstance(), nTextID, szText, cchMax);
-#endif // !(_ATL_VER >= 0x0700)
+		::LoadString(ModuleHelper::GetResourceInstance(), nTextID, szText, cchMax);
 		return CreateSimpleStatusBar(szText, dwStyle, nID);
 	}
 
@@ -809,11 +753,7 @@ public:
 		ATLASSERT(m_hWndCECommandBar == NULL);
 		ATLASSERT(m_hWndToolBar == NULL);
 
-#if (_ATL_VER >= 0x0700)
-		m_hWndCECommandBar = ::CommandBar_Create(ATL::_AtlBaseModule.GetModuleInstance(), m_hWnd, nCmdBarID);
-#else // !(_ATL_VER >= 0x0700)
-		m_hWndCECommandBar = ::CommandBar_Create(_Module.GetModuleInstance(), m_hWnd, nCmdBarID);
-#endif // !(_ATL_VER >= 0x0700)
+		m_hWndCECommandBar = ::CommandBar_Create(ModuleHelper::GetModuleInstance(), m_hWnd, nCmdBarID);
 		if(m_hWndCECommandBar == NULL)
 			return FALSE;
 
@@ -822,11 +762,7 @@ public:
 		BOOL bRet = TRUE;
 
 		if(pszMenu != NULL)
-#if (_ATL_VER >= 0x0700)
-			bRet &= ::CommandBar_InsertMenubarEx(m_hWndCECommandBar, IS_INTRESOURCE(pszMenu) ? ATL::_AtlBaseModule.GetResourceInstance() : NULL, pszMenu, iButton);
-#else // !(_ATL_VER >= 0x0700)
-			bRet &= ::CommandBar_InsertMenubarEx(m_hWndCECommandBar, IS_INTRESOURCE(pszMenu) ? _Module.GetResourceInstance() : NULL, pszMenu, iButton);
-#endif // !(_ATL_VER >= 0x0700)
+			bRet &= ::CommandBar_InsertMenubarEx(m_hWndCECommandBar, IS_INTRESOURCE(pszMenu) ? ModuleHelper::GetResourceInstance() : NULL, pszMenu, iButton);
 
 		bRet &= ::CommandBar_AddAdornments(m_hWndCECommandBar, dwFlags, 0);
 
@@ -843,11 +779,7 @@ public:
 		mbi.hwndParent = m_hWnd;
 		mbi.dwFlags = dwFlags;
 		mbi.nToolBarId = nToolBarId;
-#if (_ATL_VER >= 0x0700)
-		mbi.hInstRes  = ATL::_AtlBaseModule.GetResourceInstance();
-#else // !(_ATL_VER >= 0x0700)
-		mbi.hInstRes  = _Module.GetResourceInstance();
-#endif // !(_ATL_VER >= 0x0700)
+		mbi.hInstRes  = ModuleHelper::GetResourceInstance();
 		mbi.nBmpId = nBmpId;
 		mbi.cBmpImages = cBmpImages;
 		mbi.hwndMB = NULL;   // This gets set by SHCreateMenuBar
@@ -976,11 +908,7 @@ public:
 				else if(wID >= ATL_IDM_FIRST_MDICHILD)                         // MDI child windows
 					wID = ATL_IDS_MDICHILD;
 
-#if (_ATL_VER >= 0x0700)
-				int nRet = ::LoadString(ATL::_AtlBaseModule.GetResourceInstance(), wID, szBuff, cchBuff);
-#else // !(_ATL_VER >= 0x0700)
-				int nRet = ::LoadString(_Module.GetResourceInstance(), wID, szBuff, cchBuff);
-#endif // !(_ATL_VER >= 0x0700)
+				int nRet = ::LoadString(ModuleHelper::GetResourceInstance(), wID, szBuff, cchBuff);
 				for(int i = 0; i < nRet; i++)
 				{
 					if(szBuff[i] == _T('\n'))
@@ -1027,11 +955,7 @@ public:
 			const int cchBuff = 256;
 			char szBuff[cchBuff];
 			szBuff[0] = 0;
-#if (_ATL_VER >= 0x0700)
-			int nRet = ::LoadStringA(ATL::_AtlBaseModule.GetResourceInstance(), idCtrl, szBuff, cchBuff);
-#else // !(_ATL_VER >= 0x0700)
-			int nRet = ::LoadStringA(_Module.GetResourceInstance(), idCtrl, szBuff, cchBuff);
-#endif // !(_ATL_VER >= 0x0700)
+			int nRet = ::LoadStringA(ModuleHelper::GetResourceInstance(), idCtrl, szBuff, cchBuff);
 			for(int i = 0; i < nRet; i++)
 			{
 				if(szBuff[i] == '\n')
@@ -1063,11 +987,7 @@ public:
 			const int cchBuff = 256;
 			wchar_t szBuff[cchBuff];
 			szBuff[0] = 0;
-#if (_ATL_VER >= 0x0700)
-			int nRet = ::LoadStringW(ATL::_AtlBaseModule.GetResourceInstance(), idCtrl, szBuff, cchBuff);
-#else // !(_ATL_VER >= 0x0700)
-			int nRet = ::LoadStringW(_Module.GetResourceInstance(), idCtrl, szBuff, cchBuff);
-#endif // !(_ATL_VER >= 0x0700)
+			int nRet = ::LoadStringW(ModuleHelper::GetResourceInstance(), idCtrl, szBuff, cchBuff);
 			for(int i = 0; i < nRet; i++)
 			{
 				if(szBuff[i] == L'\n')
@@ -1166,11 +1086,7 @@ public:
 					{
 						// no text for this button, try a resource string
 						lpstrText = _T("");
-#if (_ATL_VER >= 0x0700)
-						int nRet = ::LoadString(ATL::_AtlBaseModule.GetResourceInstance(), tbb.idCommand, szBuff, cchBuff);
-#else // !(_ATL_VER >= 0x0700)
-						int nRet = ::LoadString(_Module.GetResourceInstance(), tbb.idCommand, szBuff, cchBuff);
-#endif // !(_ATL_VER >= 0x0700)
+						int nRet = ::LoadString(ModuleHelper::GetResourceInstance(), tbb.idCommand, szBuff, cchBuff);
 						for(int n = 0; n < nRet; n++)
 						{
 							if(szBuff[n] == _T('\n'))
@@ -1276,19 +1192,10 @@ public:
 		TCHAR szWindowName[cchName];
 		szWindowName[0] = 0;
 #ifndef _WIN32_WCE
-#if (_ATL_VER >= 0x0700)
-		::LoadString(ATL::_AtlBaseModule.GetResourceInstance(), T::GetWndClassInfo().m_uCommonResourceID, szWindowName, cchName);
-		HMENU hMenu = ::LoadMenu(ATL::_AtlBaseModule.GetResourceInstance(), MAKEINTRESOURCE(T::GetWndClassInfo().m_uCommonResourceID));
-#else // !(_ATL_VER >= 0x0700)
-		::LoadString(_Module.GetResourceInstance(), T::GetWndClassInfo().m_uCommonResourceID, szWindowName, cchName);
-		HMENU hMenu = ::LoadMenu(_Module.GetResourceInstance(), MAKEINTRESOURCE(T::GetWndClassInfo().m_uCommonResourceID));
-#endif // !(_ATL_VER >= 0x0700)
+		::LoadString(ModuleHelper::GetResourceInstance(), T::GetWndClassInfo().m_uCommonResourceID, szWindowName, cchName);
+		HMENU hMenu = ::LoadMenu(ModuleHelper::GetResourceInstance(), MAKEINTRESOURCE(T::GetWndClassInfo().m_uCommonResourceID));
 #else // CE specific
-#if (_ATL_VER >= 0x0700)
-		::LoadString(ATL::_AtlBaseModule.GetResourceInstance(), T::GetWndClassInfo().m_uCommonResourceID, szWindowName, cchName);
-#else // !(_ATL_VER >= 0x0700)
-		::LoadString(_Module.GetResourceInstance(), T::GetWndClassInfo().m_uCommonResourceID, szWindowName, cchName);
-#endif // !(_ATL_VER >= 0x0700)
+		::LoadString(ModuleHelper::GetResourceInstance(), T::GetWndClassInfo().m_uCommonResourceID, szWindowName, cchName);
 
 		// This always needs to be NULL for Windows CE.
 		// Frame Window menus have to go onto the CommandBar.
@@ -1300,11 +1207,7 @@ public:
 		HWND hWnd = pT->Create(hWndParent, rect, szWindowName, dwStyle, dwExStyle, hMenu, lpCreateParam);
 
 		if(hWnd != NULL)
-#if (_ATL_VER >= 0x0700)
-			m_hAccel = ::LoadAccelerators(ATL::_AtlBaseModule.GetResourceInstance(), MAKEINTRESOURCE(T::GetWndClassInfo().m_uCommonResourceID));
-#else // !(_ATL_VER >= 0x0700)
-			m_hAccel = ::LoadAccelerators(_Module.GetResourceInstance(), MAKEINTRESOURCE(T::GetWndClassInfo().m_uCommonResourceID));
-#endif // !(_ATL_VER >= 0x0700)
+			m_hAccel = ::LoadAccelerators(ModuleHelper::GetResourceInstance(), MAKEINTRESOURCE(T::GetWndClassInfo().m_uCommonResourceID));
 
 		return hWnd;
 	}
@@ -1577,23 +1480,14 @@ public:
 		const int cchName = 256;
 		TCHAR szWindowName[cchName];
 		szWindowName[0] = 0;
-#if (_ATL_VER >= 0x0700)
-		::LoadString(ATL::_AtlBaseModule.GetResourceInstance(), T::GetWndClassInfo().m_uCommonResourceID, szWindowName, cchName);
-		HMENU hMenu = ::LoadMenu(ATL::_AtlBaseModule.GetResourceInstance(), MAKEINTRESOURCE(T::GetWndClassInfo().m_uCommonResourceID));
-#else // !(_ATL_VER >= 0x0700)
-		::LoadString(_Module.GetResourceInstance(), T::GetWndClassInfo().m_uCommonResourceID, szWindowName, cchName);
-		HMENU hMenu = ::LoadMenu(_Module.GetResourceInstance(), MAKEINTRESOURCE(T::GetWndClassInfo().m_uCommonResourceID));
-#endif // !(_ATL_VER >= 0x0700)
+		::LoadString(ModuleHelper::GetResourceInstance(), T::GetWndClassInfo().m_uCommonResourceID, szWindowName, cchName);
+		HMENU hMenu = ::LoadMenu(ModuleHelper::GetResourceInstance(), MAKEINTRESOURCE(T::GetWndClassInfo().m_uCommonResourceID));
 
 		T* pT = static_cast<T*>(this);
 		HWND hWnd = pT->Create(hWndParent, rect, szWindowName, dwStyle, dwExStyle, hMenu, lpCreateParam);
 
 		if(hWnd != NULL)
-#if (_ATL_VER >= 0x0700)
-			m_hAccel = ::LoadAccelerators(ATL::_AtlBaseModule.GetResourceInstance(), MAKEINTRESOURCE(T::GetWndClassInfo().m_uCommonResourceID));
-#else // !(_ATL_VER >= 0x0700)
-			m_hAccel = ::LoadAccelerators(_Module.GetResourceInstance(), MAKEINTRESOURCE(T::GetWndClassInfo().m_uCommonResourceID));
-#endif // !(_ATL_VER >= 0x0700)
+			m_hAccel = ::LoadAccelerators(ModuleHelper::GetResourceInstance(), MAKEINTRESOURCE(T::GetWndClassInfo().m_uCommonResourceID));
 
 		return hWnd;
 	}
@@ -1709,15 +1603,9 @@ public:
 		}
 
 		// Create MDICLIENT window
-#if (_ATL_VER >= 0x0700)
 		m_hWndClient = ::CreateWindowEx(dwExStyle, _T("MDIClient"), NULL,
 			dwStyle, 0, 0, 1, 1, m_hWnd, (HMENU)LongToHandle(nID),
-			ATL::_AtlBaseModule.GetModuleInstance(), (LPVOID)&ccs);
-#else // !(_ATL_VER >= 0x0700)
-		m_hWndClient = ::CreateWindowEx(dwExStyle, _T("MDIClient"), NULL,
-			dwStyle, 0, 0, 1, 1, m_hWnd, (HMENU)LongToHandle(nID),
-			_Module.GetModuleInstance(), (LPVOID)&ccs);
-#endif // !(_ATL_VER >= 0x0700)
+			ModuleHelper::GetModuleInstance(), (LPVOID)&ccs);
 		if (m_hWndClient == NULL)
 		{
 			ATLTRACE2(atlTraceUI, 0, _T("MDI Frame failed to create MDICLIENT.\n"));
@@ -1826,11 +1714,7 @@ public:
 		ATOM atom = T::GetWndClassInfo().Register(&m_pfnSuperWindowProc);
 
 		if(nMenuID != 0)
-#if (_ATL_VER >= 0x0700)
-			m_hMenu = ::LoadMenu(ATL::_AtlBaseModule.GetResourceInstance(), MAKEINTRESOURCE(nMenuID));
-#else // !(_ATL_VER >= 0x0700)
-			m_hMenu = ::LoadMenu(_Module.GetResourceInstance(), MAKEINTRESOURCE(nMenuID));
-#endif // !(_ATL_VER >= 0x0700)
+			m_hMenu = ::LoadMenu(ModuleHelper::GetResourceInstance(), MAKEINTRESOURCE(nMenuID));
 
 		dwStyle = T::GetWndStyle(dwStyle);
 		dwExStyle = T::GetWndExStyle(dwExStyle);
@@ -1876,11 +1760,7 @@ public:
 		szWindowName[0] = 0;
 		if(lpcstrWindowName == NULL)
 		{
-#if (_ATL_VER >= 0x0700)
-			::LoadString(ATL::_AtlBaseModule.GetResourceInstance(), T::GetWndClassInfo().m_uCommonResourceID, szWindowName, cchName);
-#else // !(_ATL_VER >= 0x0700)
-			::LoadString(_Module.GetResourceInstance(), T::GetWndClassInfo().m_uCommonResourceID, szWindowName, cchName);
-#endif // !(_ATL_VER >= 0x0700)
+			::LoadString(ModuleHelper::GetResourceInstance(), T::GetWndClassInfo().m_uCommonResourceID, szWindowName, cchName);
 			lpcstrWindowName = szWindowName;
 		}
 
@@ -1888,11 +1768,7 @@ public:
 		HWND hWnd = pT->Create(hWndParent, rect, lpcstrWindowName, dwStyle, dwExStyle, T::GetWndClassInfo().m_uCommonResourceID, lpCreateParam);
 
 		if(hWnd != NULL)
-#if (_ATL_VER >= 0x0700)
-			m_hAccel = ::LoadAccelerators(ATL::_AtlBaseModule.GetResourceInstance(), MAKEINTRESOURCE(T::GetWndClassInfo().m_uCommonResourceID));
-#else // !(_ATL_VER >= 0x0700)
-			m_hAccel = ::LoadAccelerators(_Module.GetResourceInstance(), MAKEINTRESOURCE(T::GetWndClassInfo().m_uCommonResourceID));
-#endif // !(_ATL_VER >= 0x0700)
+			m_hAccel = ::LoadAccelerators(ModuleHelper::GetResourceInstance(), MAKEINTRESOURCE(T::GetWndClassInfo().m_uCommonResourceID));
 
 		return hWnd;
 	}

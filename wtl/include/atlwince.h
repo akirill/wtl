@@ -52,10 +52,10 @@
   #endif
 #endif
 
-#if _MSC_VER >= 1400 // VS2005
+#if (_MSC_VER >= 1400) // VS2005
   #include <DeviceResolutionAware.h>
   #define _WTL_CE_DRA
-#endif // _MSC_VER >= 1400
+#endif // (_MSC_VER >= 1400)
 
 #if !defined(_WTL_CE_NO_DIALOGS) &&  !defined(__ATLFRAME_H__)
 	#error Orientation aware dialog classes require atlframe.h to be included first
@@ -163,11 +163,7 @@ inline HWND AtlCreateMenuBar(SHMENUBARINFO& mbi)
 
 inline HWND AtlCreateMenuBar(HWND hWnd, UINT nToolBarId = ATL_IDW_TOOLBAR, DWORD dwFlags = 0, int nBmpId = 0, int cBmpImages = 0, COLORREF clrBk = 0)
 {
-#if (_ATL_VER >= 0x0700)
-	SHMENUBARINFO mbi = { sizeof(mbi), hWnd, dwFlags, nToolBarId, ATL::_AtlBaseModule.GetResourceInstance(), nBmpId, cBmpImages, 0, clrBk };
-#else // !(_ATL_VER >= 0x0700)
-	SHMENUBARINFO mbi = { sizeof(mbi), hWnd, dwFlags, nToolBarId, _Module.GetResourceInstance(), nBmpId, cBmpImages, 0, clrBk };
-#endif // !(_ATL_VER >= 0x0700)
+	SHMENUBARINFO mbi = { sizeof(mbi), hWnd, dwFlags, nToolBarId, ModuleHelper::GetResourceInstance(), nBmpId, cBmpImages, 0, clrBk };
 	return AtlCreateMenuBar(mbi);
 }
 
@@ -537,11 +533,7 @@ public:
 		// enum { IDD = IDD_MYDLG, IDD_LANDSCAPE = IDD_MYDLG_L };
 		UINT iResource = (mode == DRA::Landscape)? T::IDD_LANDSCAPE : T::IDD;
 
-#if (_ATL_VER >= 0x0700)
-		BOOL bRes = DRA::RelayoutDialog(ATL::_AtlBaseModule.GetResourceInstance(), pT->m_hWnd, MAKEINTRESOURCE(iResource));
-#else // !(_ATL_VER >= 0x0700)
-		BOOL bRes = DRA::RelayoutDialog(_Module.GetResourceInstance(), pT->m_hWnd, MAKEINTRESOURCE(iResource));
-#endif // !(_ATL_VER >= 0x0700)
+		BOOL bRes = DRA::RelayoutDialog(ModuleHelper::GetResourceInstance(), pT->m_hWnd, MAKEINTRESOURCE(iResource));
 		pT->OnOrientation(mode);
 		return bRes;
 	}
@@ -678,7 +670,7 @@ public:
 	}
 
 #if defined(_WTL_USE_CSTRING) || defined(__ATLSTR_H__)
-#if _ATL_VER < 0x800
+#if (_ATL_VER < 0x0800)
 	LONG Save(CString& sval, ATL::_U_STRINGorID sName)
 	{
 		return m_Key.SetValue(sval, sName.m_lpstr);
@@ -691,7 +683,7 @@ public:
 		sval.ReleaseBuffer();
 		return res;
 	}
-#else
+#else // !(_ATL_VER < 0x0800)
 	LONG Save(CString& sval, ATL::_U_STRINGorID sName)
 	{
 		return m_Key.SetStringValue(sName.m_lpstr, sval/*,REG_SZ*/);
@@ -704,12 +696,12 @@ public:
 		sval.ReleaseBuffer();
 		return res;
 	}
-#endif // _ATL_VER < 0x800
+#endif // !(_ATL_VER < 0x0800)
 #else
   #pragma message("Warning: CAppInfoBase compiles without CString support. Do not use CString in Save or Restore.")
 #endif // defined(_WTL_USE_CSTRING) || defined(__ATLSTR_H__)
 	
-#if _ATL_VER < 0x800
+#if (_ATL_VER < 0x0800)
 	LONG Save(LPCTSTR sval, ATL::_U_STRINGorID sName)
 	{
 		return m_Key.SetValue(sval, sName.m_lpstr);
@@ -719,7 +711,7 @@ public:
 	{
 		return m_Key.QueryValue(sval, sName.m_lpstr, plength);
 	}
-#else
+#else // !(_ATL_VER < 0x0800)
 	LONG Save(LPCTSTR sval, ATL::_U_STRINGorID sName)
 	{
 		return m_Key.SetStringValue(sName.m_lpstr, sval);
@@ -729,7 +721,7 @@ public:
 	{
 		return m_Key.QueryStringValue(sName.m_lpstr, sval, plength);
 	}
-#endif // !_ATL_VER < 0x800
+#endif // !(_ATL_VER < 0x0800)
 	
 	LONG Delete(ATL::_U_STRINGorID sName)
 	{

@@ -1374,11 +1374,7 @@ public:
 #if (WINVER >= 0x0500) || defined(_WIN32_WCE)
 		m_hCursor = ::LoadCursor(NULL, IDC_HAND);
 #else
-  #if (_ATL_VER >= 0x0700)
-		m_hCursor = ::CreateCursor(ATL::_AtlBaseModule.GetModuleInstance(), _AtlHyperLink_CursorData.xHotSpot, _AtlHyperLink_CursorData.yHotSpot, _AtlHyperLink_CursorData.cxWidth, _AtlHyperLink_CursorData.cyHeight, _AtlHyperLink_CursorData.arrANDPlane, _AtlHyperLink_CursorData.arrXORPlane);
-  #else // !(_ATL_VER >= 0x0700)
-		m_hCursor = ::CreateCursor(_Module.GetModuleInstance(), _AtlHyperLink_CursorData.xHotSpot, _AtlHyperLink_CursorData.yHotSpot, _AtlHyperLink_CursorData.cxWidth, _AtlHyperLink_CursorData.cyHeight, _AtlHyperLink_CursorData.arrANDPlane, _AtlHyperLink_CursorData.arrXORPlane);
-  #endif // !(_ATL_VER >= 0x0700)
+		m_hCursor = ::CreateCursor(ModuleHelper::GetModuleInstance(), _AtlHyperLink_CursorData.xHotSpot, _AtlHyperLink_CursorData.yHotSpot, _AtlHyperLink_CursorData.cxWidth, _AtlHyperLink_CursorData.cyHeight, _AtlHyperLink_CursorData.arrANDPlane, _AtlHyperLink_CursorData.arrXORPlane);
 #endif
 		ATLASSERT(m_hCursor != NULL);
 
@@ -1817,11 +1813,7 @@ public:
 // Constructor/destructor
 	CWaitCursor(bool bSet = true, LPCTSTR lpstrCursor = IDC_WAIT, bool bSys = true) : m_hOldCursor(NULL), m_bInUse(false)
 	{
-#if (_ATL_VER >= 0x0700)
-		HINSTANCE hInstance = bSys ? NULL : ATL::_AtlBaseModule.GetResourceInstance();
-#else // !(_ATL_VER >= 0x0700)
-		HINSTANCE hInstance = bSys ? NULL : _Module.GetResourceInstance();
-#endif // !(_ATL_VER >= 0x0700)
+		HINSTANCE hInstance = bSys ? NULL : ModuleHelper::GetResourceInstance();
 		m_hWaitCursor = ::LoadCursor(hInstance, lpstrCursor);
 		ATLASSERT(m_hWaitCursor != NULL);
 
@@ -1866,13 +1858,7 @@ public:
 			CWaitCursor(false, IDC_WAIT, true)
 	{
 		if(hInstance == NULL)
-		{
-#if (_ATL_VER >= 0x0700)
-			hInstance = ATL::_AtlBaseModule.GetResourceInstance();
-#else // !(_ATL_VER >= 0x0700)
-			hInstance = _Module.GetResourceInstance();
-#endif // !(_ATL_VER >= 0x0700)
-		}
+			hInstance = ModuleHelper::GetResourceInstance();
 		m_hWaitCursor = (HCURSOR)::LoadImage(hInstance, cursor.m_lpstr, IMAGE_CURSOR, 0, 0, LR_DEFAULTSIZE);
 
 		if(bSet)
@@ -1929,11 +1915,7 @@ public:
 		const int cchMax = 128;   // max text length is 127 for status bars (+1 for null)
 		TCHAR szText[cchMax];
 		szText[0] = 0;
-#if (_ATL_VER >= 0x0700)
-		::LoadString(ATL::_AtlBaseModule.GetResourceInstance(), nTextID, szText, cchMax);
-#else // !(_ATL_VER >= 0x0700)
-		::LoadString(_Module.GetResourceInstance(), nTextID, szText, cchMax);
-#endif // !(_ATL_VER >= 0x0700)
+		::LoadString(ModuleHelper::GetResourceInstance(), nTextID, szText, cchMax);
 		return Create(hWndParent, szText, dwStyle, nID);
 	}
 
@@ -1981,11 +1963,7 @@ public:
 			}
 			else
 			{
-#if (_ATL_VER >= 0x0700)
-				::LoadString(ATL::_AtlBaseModule.GetResourceInstance(), pPanes[i], szBuff, cchBuff);
-#else // !(_ATL_VER >= 0x0700)
-				::LoadString(_Module.GetResourceInstance(), pPanes[i], szBuff, cchBuff);
-#endif // !(_ATL_VER >= 0x0700)
+				::LoadString(ModuleHelper::GetResourceInstance(), pPanes[i], szBuff, cchBuff);
 				dc.GetTextExtent(szBuff, lstrlen(szBuff), &size);
 				T* pT = static_cast<T*>(this);
 				pT;
@@ -2002,11 +1980,7 @@ public:
 			{
 				if(pPanes[i] != ID_DEFAULT_PANE)
 				{
-#if (_ATL_VER >= 0x0700)
-					::LoadString(ATL::_AtlBaseModule.GetResourceInstance(), pPanes[i], szBuff, cchBuff);
-#else // !(_ATL_VER >= 0x0700)
-					::LoadString(_Module.GetResourceInstance(), pPanes[i], szBuff, cchBuff);
-#endif // !(_ATL_VER >= 0x0700)
+					::LoadString(ModuleHelper::GetResourceInstance(), pPanes[i], szBuff, cchBuff);
 					SetPaneText(m_pPane[i], szBuff);
 				}
 			}
@@ -2380,11 +2354,7 @@ public:
 			DWORD dwExStyle = 0, UINT nID = 0, LPVOID lpCreateParam = NULL)
 	{
 		if(uTitleID != 0U)
-#if (_ATL_VER >= 0x0700)
-			::LoadString(ATL::_AtlBaseModule.GetResourceInstance(), uTitleID, m_szTitle, m_cchTitle);
-#else // !(_ATL_VER >= 0x0700)
-			::LoadString(_Module.GetResourceInstance(), uTitleID, m_szTitle, m_cchTitle);
-#endif // !(_ATL_VER >= 0x0700)
+			::LoadString(ModuleHelper::GetResourceInstance(), uTitleID, m_szTitle, m_cchTitle);
 #if (_MSC_VER >= 1300)
 		return ATL::CWindowImpl< T, TBase, TWinTraits >::Create(hWndParent, rcDefault, NULL, dwStyle, dwExStyle, nID, lpCreateParam);
 #else // !(_MSC_VER >= 1300)

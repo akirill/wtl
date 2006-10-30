@@ -570,6 +570,49 @@ namespace RunTimeHelper
 
 
 ///////////////////////////////////////////////////////////////////////////////
+// ModuleHelper - helper functions for ATL3 and ATL7 module classes
+
+namespace ModuleHelper
+{
+	inline HINSTANCE GetModuleInstance()
+	{
+#if (_ATL_VER >= 0x0700)
+		return ATL::_AtlBaseModule.GetModuleInstance();
+#else // !(_ATL_VER >= 0x0700)
+		return ATL::_pModule->GetModuleInstance();
+#endif // !(_ATL_VER >= 0x0700)
+	}
+
+	inline HINSTANCE GetResourceInstance()
+	{
+#if (_ATL_VER >= 0x0700)
+		return ATL::_AtlBaseModule.GetResourceInstance();
+#else // !(_ATL_VER >= 0x0700)
+		return ATL::_pModule->GetResourceInstance();
+#endif // !(_ATL_VER >= 0x0700)
+	}
+
+	inline void AddCreateWndData(ATL::_AtlCreateWndData* pData, void* pObject)
+	{
+#if (_ATL_VER >= 0x0700)
+		ATL::_AtlWinModule.AddCreateWndData(pData, pObject);
+#else // !(_ATL_VER >= 0x0700)
+		ATL::_pModule->AddCreateWndData(pData, pObject);
+#endif // !(_ATL_VER >= 0x0700)
+	}
+
+	inline void* ExtractCreateWndData()
+	{
+#if (_ATL_VER >= 0x0700)
+		return ATL::_AtlWinModule.ExtractCreateWndData();
+#else // !(_ATL_VER >= 0x0700)
+		return ATL::_pModule->ExtractCreateWndData();
+#endif // !(_ATL_VER >= 0x0700)
+	}
+};
+
+
+///////////////////////////////////////////////////////////////////////////////
 // CMessageFilter - Interface for message filter support
 
 class CMessageFilter
