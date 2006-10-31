@@ -961,7 +961,7 @@ public:
 				if(szBuff[i] == '\n')
 				{
 #if _SECURE_ATL
-					ATL::Checked::strncpy_s(pDispInfo->szText, _countof(pDispInfo->szText), &szBuff[i + 1], _countof(pDispInfo->szText));
+					ATL::Checked::strncpy_s(pDispInfo->szText, _countof(pDispInfo->szText), &szBuff[i + 1], _TRUNCATE);
 #else
 					lstrcpynA(pDispInfo->szText, &szBuff[i + 1], sizeof(pDispInfo->szText) / sizeof(pDispInfo->szText[0]));
 #endif
@@ -993,7 +993,7 @@ public:
 				if(szBuff[i] == L'\n')
 				{
 #if _SECURE_ATL
-					ATL::Checked::wcsncpy_s(pDispInfo->szText, _countof(pDispInfo->szText), &szBuff[i + 1], _countof(pDispInfo->szText));
+					ATL::Checked::wcsncpy_s(pDispInfo->szText, _countof(pDispInfo->szText), &szBuff[i + 1], _TRUNCATE);
 #else
 					lstrcpynW(pDispInfo->szText, &szBuff[i + 1], sizeof(pDispInfo->szText) / sizeof(pDispInfo->szText[0]));
 #endif

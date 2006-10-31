@@ -600,7 +600,7 @@ public:
 		logFont.lfCharSet = DEFAULT_CHARSET;
 		logFont.lfHeight = nPointSize;
 #if _SECURE_ATL
-		ATL::Checked::tcsncpy_s(logFont.lfFaceName, _countof(logFont.lfFaceName), lpszFaceName, _countof(logFont.lfFaceName));
+		ATL::Checked::tcsncpy_s(logFont.lfFaceName, _countof(logFont.lfFaceName), lpszFaceName, _TRUNCATE);
 #else
 		lstrcpyn(logFont.lfFaceName, lpszFaceName, sizeof(logFont.lfFaceName) / sizeof(TCHAR));
 #endif

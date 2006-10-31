@@ -3025,7 +3025,7 @@ public:
 			T* pT = static_cast<T*>(this);
 			pT;   // avoid level 4 warning
 #if _SECURE_ATL
-			ATL::Checked::tcsncpy_s(m_szNoEntries, _countof(m_szNoEntries), pT->GetMRUEmptyText(), t_cchItemLen);
+			ATL::Checked::tcsncpy_s(m_szNoEntries, _countof(m_szNoEntries), pT->GetMRUEmptyText(), _TRUNCATE);
 #else
 			lstrcpyn(m_szNoEntries, pT->GetMRUEmptyText(), t_cchItemLen);
 #endif
@@ -3072,11 +3072,11 @@ public:
 	{
 		_DocEntry de;
 #if _SECURE_ATL
-		if(ATL::Checked::tcsncpy_s(de.szDocName, _countof(de.szDocName), lpstrDocName, t_cchItemLen) != 0)
+		ATL::Checked::tcsncpy_s(de.szDocName, _countof(de.szDocName), lpstrDocName, _TRUNCATE);
 #else
 		if(lstrcpyn(de.szDocName, lpstrDocName, t_cchItemLen) == NULL)
-#endif
 			return FALSE;
+#endif
 
 		for(int i = 0; i < m_arrDocs.GetSize(); i++)
 		{
@@ -3749,7 +3749,8 @@ public:
 		bool bFullPath = (::GetFullPathName(pstrName, MAX_PATH, m_lpszRoot, NULL) != 0);
 #else // CE specific
   #if _SECURE_ATL
-		bool bFullPath = (ATL::Checked::tcsncpy_s(m_lpszRoot, _countof(m_lpszRoot), pstrName, MAX_PATH) == 0);
+		ATL::Checked::tcsncpy_s(m_lpszRoot, _countof(m_lpszRoot), pstrName, _TRUNCATE);
+		bool bFullPath = true;
   #else
 		bool bFullPath = (lstrcpyn(m_lpszRoot, pstrName, MAX_PATH) != NULL);
   #endif
@@ -4058,12 +4059,14 @@ inline bool AtlCompactPath(LPTSTR lpstrOut, LPCTSTR lpstrIn, int cchLen)
 	const int cchMidEllipsis = 4;
 
 	if(lstrlen(lpstrIn) < cchLen)
+	{
 #if _SECURE_ATL
 		ATL::Checked::tcscpy_s(lpstrOut, cchLen, lpstrIn);
 		return true;
 #else
 		return (lstrcpy(lpstrOut, lpstrIn) != NULL);
 #endif
+	}
 
 	lpstrOut[0] = 0;
 
@@ -4089,7 +4092,7 @@ inline bool AtlCompactPath(LPTSTR lpstrOut, LPCTSTR lpstrIn, int cchLen)
 	if(lpstrFileName == lpstrIn && cchLen > cchEndEllipsis)
 	{
 #if _SECURE_ATL
-		bool bRet = (ATL::Checked::tcsncpy_s(lpstrOut, cchLen, lpstrIn, cchLen - cchEndEllipsis) == 0);
+		bool bRet = (ATL::Checked::tcsncpy_s(lpstrOut, cchLen, lpstrIn, cchLen - cchEndEllipsis - 1) == 0);
 #else
 		bool bRet = (lstrcpyn(lpstrOut, lpstrIn, cchLen - cchEndEllipsis) != NULL);
 #endif
@@ -4118,7 +4121,7 @@ inline bool AtlCompactPath(LPTSTR lpstrOut, LPCTSTR lpstrIn, int cchLen)
 	}
 
 	// calc how much we have to copy
-	int cchToCopy = cchLen - (cchMidEllipsis + cchFileName);
+	int cchToCopy = cchLen - (cchMidEllipsis + cchFileName) - 1;
 
 	if(cchToCopy < 0)
 		cchToCopy = 0;
@@ -4131,7 +4134,7 @@ inline bool AtlCompactPath(LPTSTR lpstrOut, LPCTSTR lpstrIn, int cchLen)
 #if _SECURE_ATL
 	bool bRet = (ATL::Checked::tcsncpy_s(lpstrOut, cchLen, lpstrIn, cchToCopy) == 0);
 #else
-	bool bRet = (lstrcpyn(lpstrOut, lpstrIn, cchToCopy) != NULL);
+	bool bRet = (lstrcpyn(lpstrOut, lpstrIn, cchToCopy + 1) != NULL);
 #endif
 	if(!bRet)
 		return false;
@@ -4164,7 +4167,7 @@ inline bool AtlCompactPath(LPTSTR lpstrOut, LPCTSTR lpstrIn, int cchLen)
 	}
 	else
 	{
-		cchToCopy = cchLen - cchMidEllipsis - cchEndEllipsis;
+		cchToCopy = cchLen - cchMidEllipsis - cchEndEllipsis - 1;
 #ifndef _UNICODE
 		if(cchToCopy > 0 && _IsDBCSTrailByte(lpstrFileName, cchToCopy))
 			cchToCopy--;
@@ -4172,7 +4175,7 @@ inline bool AtlCompactPath(LPTSTR lpstrOut, LPCTSTR lpstrIn, int cchLen)
 #if _SECURE_ATL
 		bRet = (ATL::Checked::tcsncpy_s(&lpstrOut[cchMidEllipsis], cchLen - cchMidEllipsis, lpstrFileName, cchToCopy) == 0);
 #else
-		bRet = (lstrcpyn(&lpstrOut[cchMidEllipsis], lpstrFileName, cchToCopy) != NULL);
+		bRet = (lstrcpyn(&lpstrOut[cchMidEllipsis], lpstrFileName, cchToCopy + 1) != NULL);
 #endif
 		if(bRet)
 #if _SECURE_ATL

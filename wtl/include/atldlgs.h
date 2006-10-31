@@ -139,7 +139,7 @@ public:
 		// setup initial file name
 		if(lpszFileName != NULL)
 #if _SECURE_ATL
-			ATL::Checked::tcsncpy_s(m_szFileName, _countof(m_szFileName), lpszFileName, _MAX_PATH);
+			ATL::Checked::tcsncpy_s(m_szFileName, _countof(m_szFileName), lpszFileName, _TRUNCATE);
 #else
 			lstrcpyn(m_szFileName, lpszFileName, _MAX_PATH);
 #endif
@@ -1861,14 +1861,14 @@ public:
 
 		if(lpszFindWhat != NULL)
 #if _SECURE_ATL
-			ATL::Checked::tcsncpy_s(m_szFindWhat, _countof(m_szFindWhat), lpszFindWhat, _cchFindReplaceBuffer);
+			ATL::Checked::tcsncpy_s(m_szFindWhat, _countof(m_szFindWhat), lpszFindWhat, _TRUNCATE);
 #else
 			lstrcpyn(m_szFindWhat, lpszFindWhat, _cchFindReplaceBuffer);
 #endif
 
 		if(lpszReplaceWith != NULL)
 #if _SECURE_ATL
-			ATL::Checked::tcsncpy_s(m_szReplaceWith, _countof(m_szReplaceWith), lpszReplaceWith, _cchFindReplaceBuffer);
+			ATL::Checked::tcsncpy_s(m_szReplaceWith, _countof(m_szReplaceWith), lpszReplaceWith, _TRUNCATE);
 #else
 			lstrcpyn(m_szReplaceWith, lpszReplaceWith, _cchFindReplaceBuffer);
 #endif

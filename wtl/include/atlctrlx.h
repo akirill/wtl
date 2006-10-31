@@ -177,7 +177,8 @@ public:
 		if(m_lpstrToolTipText == NULL)
 			return false;
 #if _SECURE_ATL
-		return (ATL::Checked::tcsncpy_s(lpstrText, nLength, m_lpstrToolTipText, min(nLength, lstrlen(m_lpstrToolTipText) + 1)) == 0);
+		ATL::Checked::tcsncpy_s(lpstrText, nLength, m_lpstrToolTipText, _TRUNCATE);
+		return true;
 #else
 		return (lstrcpyn(lpstrText, m_lpstrToolTipText, min(nLength, lstrlen(m_lpstrToolTipText) + 1)) != NULL);
 #endif
@@ -2305,7 +2306,8 @@ public:
 	{
 		ATLASSERT(lpstrTitle != NULL);
 #if _SECURE_ATL
-		return (ATL::Checked::tcsncpy_s(lpstrTitle, cchLength, m_szTitle, cchLength) == 0);
+		ATL::Checked::tcsncpy_s(lpstrTitle, cchLength, m_szTitle, _TRUNCATE);
+		return TRUE;
 #else
 		return (lstrcpyn(lpstrTitle, m_szTitle, cchLength) != NULL);
 #endif
@@ -2315,7 +2317,8 @@ public:
 	{
 		ATLASSERT(lpstrTitle != NULL);
 #if _SECURE_ATL
-		BOOL bRet = (ATL::Checked::tcsncpy_s(m_szTitle, m_cchTitle, lpstrTitle, m_cchTitle) == 0);
+		ATL::Checked::tcsncpy_s(m_szTitle, m_cchTitle, lpstrTitle, _TRUNCATE);
+		BOOL bRet = TRUE;
 #else
 		BOOL bRet = (lstrcpyn(m_szTitle, lpstrTitle, m_cchTitle) != NULL);
 #endif
@@ -2338,7 +2341,7 @@ public:
 	{
 		if(lpstrTitle != NULL)
 #if _SECURE_ATL
-			ATL::Checked::tcsncpy_s(m_szTitle, m_cchTitle, lpstrTitle, m_cchTitle);
+			ATL::Checked::tcsncpy_s(m_szTitle, m_cchTitle, lpstrTitle, _TRUNCATE);
 #else
 			lstrcpyn(m_szTitle, lpstrTitle, m_cchTitle);
 #endif
