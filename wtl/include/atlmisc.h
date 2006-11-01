@@ -3456,11 +3456,7 @@ public:
 		ATLASSERT(m_hFind != NULL);
 
 		int nLen = lstrlen(m_lpszRoot);
-		ATLASSERT(nLen > 0);
-		if(nLen == 0)
-			return FALSE;
-
-		bool bAddSep = (m_lpszRoot[nLen - 1] != _T('\\') && m_lpszRoot[nLen - 1] != _T('/'));
+		bool bAddSep = nLen == 0 || (m_lpszRoot[nLen - 1] != _T('\\') && m_lpszRoot[nLen - 1] !=_T('/'));
 
 		if((lstrlen(m_lpszRoot) + (bAddSep ?  1 : 0)) >= cchLength)
 			return FALSE;
@@ -3574,7 +3570,8 @@ public:
 		ATLASSERT(m_hFind != NULL);
 
 		_CSTRING_NS::CString strResult = m_lpszRoot;
-		if(strResult[strResult.GetLength() - 1] != _T('\\') && strResult[strResult.GetLength() - 1] != _T('/'))
+		int nLen = strResult.GetLength();
+		if( nLen == 0 ||( strResult[nLen - 1] != _T('\\') && strResult[nLen - 1] != _T('/')))
 			strResult += m_chDirSeparator;
 		strResult += GetFileName();
 		return strResult;
