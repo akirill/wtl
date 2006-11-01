@@ -2200,6 +2200,8 @@ public:
 // pane container extended styles
 #define PANECNT_NOCLOSEBUTTON	0x00000001
 #define PANECNT_VERTICAL	0x00000002
+#define PANECNT_FLATBORDER	0x00000004
+#define PANECNT_NOBORDER	0x00000008
 
 template <class T, class TBase = ATL::CWindow, class TWinTraits = ATL::CControlWinTraits>
 class ATL_NO_VTABLE CPaneContainerImpl : public ATL::CWindowImpl< T, TBase, TWinTraits >, public CCustomDraw< T >
@@ -2276,6 +2278,12 @@ public:
 			if((dwPrevStyle & PANECNT_VERTICAL) != (m_dwExtendedStyle & PANECNT_VERTICAL))   // change orientation
 			{
 				pT->CalcSize();
+				bUpdate = true;
+			}
+
+			if((dwPrevStyle & (PANECNT_FLATBORDER | PANECNT_NOBORDER)) != 
+			   (m_dwExtendedStyle & (PANECNT_FLATBORDER | PANECNT_NOBORDER)))   // change border
+			{
 				bUpdate = true;
 			}
 
@@ -2649,18 +2657,28 @@ public:
 		RECT rect = { 0 };
 		GetClientRect(&rect);
 
+		UINT uBorder = BF_LEFT | BF_TOP | BF_ADJUST;
 		if(IsVertical())
 		{
 			rect.right = rect.left + m_cxyHeader;
-			dc.DrawEdge(&rect, EDGE_ETCHED, BF_LEFT | BF_TOP | BF_BOTTOM | BF_ADJUST);
-			dc.FillRect(&rect, COLOR_3DFACE);
+			uBorder |= BF_BOTTOM;
 		}
 		else
 		{
 			rect.bottom = rect.top + m_cxyHeader;
-			dc.DrawEdge(&rect, EDGE_ETCHED, BF_LEFT | BF_TOP | BF_RIGHT | BF_ADJUST);
-			dc.FillRect(&rect, COLOR_3DFACE);
-			// draw title only for horizontal pane container
+			uBorder |= BF_RIGHT;
+		}
+
+		if((m_dwExtendedStyle & PANECNT_NOBORDER) == 0)
+		{
+			if((m_dwExtendedStyle & PANECNT_FLATBORDER) != 0)
+				uBorder |= BF_FLAT;
+			dc.DrawEdge(&rect, EDGE_ETCHED, uBorder);
+		}
+		dc.FillRect(&rect, COLOR_3DFACE);
+
+		if(!IsVertical())   // draw title only for horizontal pane container
+		{
 			dc.SetTextColor(::GetSysColor(COLOR_WINDOWTEXT));
 			dc.SetBkMode(TRANSPARENT);
 			T* pT = static_cast<T*>(this);
