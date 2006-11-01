@@ -63,9 +63,7 @@
 #define IDC_INFOSTATIC 0xFFFE   // == IDC_STATIC -1
 
 ///////////////////////////////////////////////////////////////////////////////
-// Smartphone Resource IDs
-
-#ifdef WIN32_PLATFORM_WFSP
+// Smartphone and PPC 2005 Resource IDs
 
 #define ID_MENU_OK                      0xE790
 #define ID_MENU_CANCEL                  0xE791
@@ -78,7 +76,5 @@
 #define ATL_IDM_MENU_DONE               0xE701
 #define ATL_IDM_MENU_CANCEL             0xE702
 #define ATL_IDM_MENU_DONECANCEL         0xE703
-
-#endif // WIN32_PLATFORM_WFSP
 
 #endif // __ATLRESCE_H__
