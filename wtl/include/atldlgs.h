@@ -2831,7 +2831,6 @@ public:
 	// handlers that return direct values without any restrictions
 	LRESULT OnNotify(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& bHandled)
 	{
-		ATLASSERT(::IsWindow(m_hWnd));
 		NMHDR* pNMHDR = (NMHDR*)lParam;
 
 		// don't handle messages not from the page/sheet itself
@@ -2840,6 +2839,7 @@ public:
 			bHandled = FALSE;
 			return 1;
 		}
+		ATLASSERT(::IsWindow(m_hWnd));
 
 		T* pT = static_cast<T*>(this);
 		LRESULT lResult = 0;
