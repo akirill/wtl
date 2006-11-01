@@ -1155,9 +1155,10 @@ public:
 
 	void StdCloseDialog(int nVal)
 	{
+		T* pT = static_cast<T*>(this);
 		if (nVal != IDCANCEL)
-			AppSave();
-		DestroyWindow();
+			pT->AppSave();
+		pT->DestroyWindow();
 		::PostQuitMessage(nVal);
 	}
 	
