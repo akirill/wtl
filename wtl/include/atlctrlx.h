@@ -1101,12 +1101,13 @@ public:
 			ATLASSERT(m_lpstrHyperLink != NULL);
 #ifndef _WIN32_WCE
 			DWORD_PTR dwRet = (DWORD_PTR)::ShellExecute(0, _T("open"), m_lpstrHyperLink, 0, 0, SW_SHOWNORMAL);
+			bRet = (dwRet > 32);
 #else // CE specific
 			SHELLEXECUTEINFO shExeInfo = { sizeof(SHELLEXECUTEINFO), 0, 0, L"open", m_lpstrHyperLink, 0, 0, SW_SHOWNORMAL, 0, 0, 0, 0, 0, 0, 0 };
 			::ShellExecuteEx(&shExeInfo);
 			DWORD_PTR dwRet = (DWORD_PTR)shExeInfo.hInstApp;
+			bRet = (dwRet == 0) || (dwRet > 32);
 #endif // _WIN32_WCE
-			bRet = (dwRet > 32);
 			ATLASSERT(bRet);
 			if(bRet)
 			{
