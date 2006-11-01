@@ -73,9 +73,6 @@ public:
 
 	BEGIN_MSG_MAP(CMainDlg)
 		MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
-		MESSAGE_HANDLER(WM_CLOSE, OnSystemClose)
-		COMMAND_RANGE_HANDLER(IDOK, IDCANCEL, OnClose)
-		COMMAND_RANGE_HANDLER(ID_MENU_OK, ID_MENU_CANCEL, OnMenuClose)
 		COMMAND_ID_HANDLER(ID_APP_ABOUT, OnAppAbout)
 		CHAIN_MSG_MAP(CAppStdDialogImpl<CMainDlg>)
 	END_MSG_MAP()
@@ -159,32 +156,6 @@ public:
 		CStdSimpleDialog<IDD_ABOUTBOX> dlg;
 		dlg.DoModal();
 		return 0;
-	}
-
-	LRESULT OnMenuClose(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
-	{
-		PostMessage(WM_COMMAND, wID == ID_MENU_OK ? IDOK : IDCANCEL);
-		return 0;
-	}
-
-	LRESULT OnClose(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
-	{
-		CloseDialog(wID);
-		return 0;
-	}
-
-	LRESULT OnSystemClose(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
-	{
-		CloseDialog(IDCANCEL);
-		return 0;
-	}
-
-	void CloseDialog(int nVal)
-	{
-		if (nVal != IDCANCEL)
-			AppSave();
-		DestroyWindow();
-		::PostQuitMessage(nVal);
 	}
 
 };
