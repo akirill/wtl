@@ -2054,11 +2054,19 @@ public:
 // Update UI macros
 
 // these build the Update UI map inside a class definition
+#ifdef WTL_VC6_UPDATE_UI_MAP // #define it with VC6-eVC when thisClass is a template
+#define BEGIN_UPDATE_UI_MAP(thisClass) \
+	static const thisClass::_AtlUpdateUIMap* GetUpdateUIMap() \
+	{ \
+		static const _AtlUpdateUIMap theMap[] = \
+		{
+#else // usual !WTL_VC6_UPDATE_UI_MAP
 #define BEGIN_UPDATE_UI_MAP(thisClass) \
 	static const _AtlUpdateUIMap* GetUpdateUIMap() \
 	{ \
 		static const _AtlUpdateUIMap theMap[] = \
 		{
+#endif // usual !WTL_EVC_UPDATE_UI_MAP
 
 #define UPDATE_ELEMENT(nID, wType) \
 			{ nID,  wType },
