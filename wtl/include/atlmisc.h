@@ -3099,7 +3099,7 @@ public:
 		return bRet;
 	}
 
-	// This functions is deprecated because it is not safe. 
+	// This function is deprecated because it is not safe. 
 	// Use the version below that accepts the buffer length.
 #if (_MSC_VER >= 1300)
 	__declspec(deprecated)
@@ -3119,7 +3119,7 @@ public:
 		ATL::Checked::tcscpy_s(lpstrDocName, cchLength, m_arrDocs[nIndex].szDocName);
 		return TRUE;
 #else
-		if(lstrlen(m_arrDocs[nIndex].szDocName) <= cchLength)
+		if(lstrlen(m_arrDocs[nIndex].szDocName) >= cchLength)
 			return FALSE;
 		return (lstrcpy(lpstrDocName, m_arrDocs[nIndex].szDocName) != NULL);
 #endif
