@@ -121,7 +121,7 @@ function main()
 			fileDest.WriteLine(strLine);
 		}
 
-		fileDest.WriteLine("Param=\"NO_RESOURCE_EDITOR = 1\"");
+		fileDest.WriteLine("Param=\"VC_EXPRESS = 1\"");
 
 		fileSrc.Close();
 		fileDest.Close();

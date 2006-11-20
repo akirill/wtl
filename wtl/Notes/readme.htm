@@ -11,7 +11,7 @@
 <table border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111" id="AutoNumber3">
   <tr>
     <td><font face="Arial"><b>Windows Template Library - WTL Version 8.0</b></font><font face="Arial" size="2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
-(build 6304) 10/31/06</font></td>
+(build 6323) 11/19/06</font></td>
   </tr>
   <tr>
     <td><hr></td>
@@ -54,6 +54,9 @@ All rights reserved.</font></td>
 	<li><font face="Arial" size="2"><a href="#ATL/WTL AppWizard">ATL/WTL AppWizard</a></font></li>
 	<li><a href="#Support for Windows CE"><font face="Arial" size="2">S</font></a><font face="Arial" size="2"><a href="#Support for Windows CE">upport 
   for Windows CE</a></font></li>
+	<li><font face="Arial" size="2">
+	<a href="#Support for Visual C++ 2005 Express">Support for Visual C++ 2005 
+	Express</a></font></li>
 	<li><font face="Arial" size="2"><a href="#Notes">Notes</a></font></li>
 	<li><font face="Arial" size="2"><a href="#Changes Between WTL 8.0 And 7.5">Changes Between WTL 
 	8.0 And 7.5</a></font></li>
@@ -1462,6 +1465,27 @@ desktop Windows and Windows CE. Applications for Windows CE are often designed
 in a different way, and they use different platform services. WTL depends on the 
 version of ATL provided with each Windows CE platform, and supports controls and 
 services that are appropriate and supported for each Windows CE platform.</font></p>
+<p style=margin:0in>&nbsp;</p>
+<p style=margin:0in>&nbsp;</p>
+<p style=margin:0in><b><font face="Arial">
+<a name="Support for Visual C++ 2005 Express"></a>Support for 
+Visual C++ 2005 Express</font></b></p>
+<p style=margin:0in>&nbsp;</p>
+<p style=margin:0in><font face="Arial" size="2">WTL 8.0 supports using Visual 
+C++ Express Edition to build projects. Since Visual C++ 2005 Express ships without ATL, you have 
+to use a version of ATL that ships with the Platform SDK.</font></p>
+<p style=margin:0in>&nbsp;</p>
+<p style=margin:0in><font face="Arial" size="2">The WTL App Wizard can be 
+installed by running AppWiz\setup80x.js program. The App Wizard generates code 
+in the stdafx.h file that allows use of ATL3 from the Platform SDK. That code is 
+used if WTL_USE_SDK_ATL3 is defined, so you can comment the line in stdafx.h 
+that defines WTL_USE_SDK_ATL3 to use the project with different versions of 
+Visual C++ or ATL.</font></p>
+<p style=margin:0in>&nbsp;</p>
+<p style=margin:0in><font face="Arial" size="2">Note that Release builds will 
+generate some warnings, since ATL3 from Platform SDK is an old version of ATL 
+which doesn't quite match the newer compiler and CRT files. You can ignore those 
+warnings, as they do not indicate any real problems with the code.</font></p>
 <p style=margin:0in>&nbsp;</p>
 <p style=margin:0in>&nbsp;</p>
 <p style=margin:0in><b><font face="Arial">
