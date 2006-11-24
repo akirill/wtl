@@ -68,6 +68,15 @@
 // CWizard97PageImpl<T, TBase>
 // CWizard97ExteriorPageImpl<T, TBase>
 // CWizard97InteriorPageImpl<T, TBase>
+//
+// CAeroWizardFrameWindow
+// CAeroWizardFrameImpl<T, TBase>
+// CAeroWizardFrame
+// CAeroWizardPageWindow
+// CAeroWizardPageImpl<T, TBase>
+// CAeroWizardPage<t_wDlgTemplateID>
+// CAeroWizardAxPageImpl<T, TBase>
+// CAeroWizardAxPage<t_wDlgTemplateID>
 
 
 namespace WTL
@@ -3239,11 +3248,19 @@ public:
 // Overridables
 #if (_WIN32_IE >= 0x0500)
 	// new default implementation for ActiveX hosting pages
+#ifdef _WTL_NEW_PAGE_NOTIFY_HANDLERS
+	int OnTranslateAccelerator(LPMSG lpMsg)
+	{
+		T* pT = static_cast<T*>(this);
+		return (pT->PreTranslateMessage(lpMsg) != FALSE) ? PSNRET_MESSAGEHANDLED : PSNRET_NOERROR;
+	}
+#else // !_WTL_NEW_PAGE_NOTIFY_HANDLERS
 	BOOL OnTranslateAccelerator(LPMSG lpMsg)
 	{
 		T* pT = static_cast<T*>(this);
 		return pT->PreTranslateMessage(lpMsg);
 	}
+#endif // !_WTL_NEW_PAGE_NOTIFY_HANDLERS
 #endif // (_WIN32_IE >= 0x0500)
 
 // Support for new stuff in ATL7
@@ -3903,6 +3920,238 @@ public:
 };
 
 #endif // (_WIN32_IE >= 0x0500) && !defined(_WIN32_WCE)
+
+
+///////////////////////////////////////////////////////////////////////////////
+// Aero Wizard support
+
+#if (_WIN32_WINNT >= 0x0600) && !defined(_WIN32_WCE)
+
+///////////////////////////////////////////////////////////////////////////////
+// CAeroWizardFrameWindow - client side for an Aero Wizard frame window
+
+class CAeroWizardFrameWindow : public CPropertySheetWindow
+{
+public:
+// Constructors
+	CAeroWizardFrameWindow(HWND hWnd = NULL) : CPropertySheetWindow(hWnd)
+	{ }
+
+	CAeroWizardFrameWindow& operator =(HWND hWnd)
+	{
+		m_hWnd = hWnd;
+		return *this;
+	}
+
+// Operations - new, Aero Wizard only
+	void SetNextText(LPCWSTR lpszText)
+	{
+		ATLASSERT(::IsWindow(m_hWnd));
+		::SendMessage(m_hWnd, PSM_SETNEXTTEXT, 0, (LPARAM)lpszText);
+	}
+
+	void ShowWizardButtons(DWORD dwButtons, DWORD dwStates)
+	{
+		ATLASSERT(::IsWindow(m_hWnd));
+		::PostMessage(m_hWnd, PSM_SHOWWIZBUTTONS, (WPARAM)dwStates, (LPARAM)dwButtons);
+	}
+
+	void EnableWizardButtons(DWORD dwButtons, DWORD dwStates)
+	{
+		ATLASSERT(::IsWindow(m_hWnd));
+		::PostMessage(m_hWnd, PSM_ENABLEWIZBUTTONS, (WPARAM)dwStates, (LPARAM)dwButtons);
+	}
+
+	void SetButtonText(DWORD dwButton, LPCWSTR lpszText)
+	{
+		ATLASSERT(::IsWindow(m_hWnd));
+		::SendMessage(m_hWnd, PSM_SETBUTTONTEXT, (WPARAM)dwButton, (LPARAM)lpszText);
+	}
+};
+
+
+///////////////////////////////////////////////////////////////////////////////
+// CAeroWizardFrameImpl - implements an Aero Wizard frame
+
+template <class T, class TBase = CAeroWizardFrameWindow>
+class ATL_NO_VTABLE CAeroWizardFrameImpl : public CPropertySheetImpl<T, TBase >
+{
+public:
+// Constructor
+	CAeroWizardFrameImpl(ATL::_U_STRINGorID title = (LPCTSTR)NULL, UINT uStartPage = 0, HWND hWndParent = NULL) :
+		CPropertySheetImpl<T, TBase >(title, uStartPage, hWndParent)
+	{
+		m_psh.dwFlags |= PSH_WIZARD | PSH_AEROWIZARD;
+	}
+
+// Operations
+	void EnableResizing()
+	{
+		ATLASSERT(m_hWnd == NULL);   // can't do this after it's created
+		m_psh.dwFlags |= PSH_RESIZABLE;
+	}
+
+	void UseHeaderBitmap()
+	{
+		ATLASSERT(m_hWnd == NULL);   // can't do this after it's created
+		m_psh.dwFlags |= PSH_HEADERBITMAP;
+	}
+
+	void SetNoMargin()
+	{
+		ATLASSERT(m_hWnd == NULL);   // can't do this after it's created
+		m_psh.dwFlags |= PSH_NOMARGIN;
+	}
+
+// Override to prevent use
+	HWND Create(HWND /*hWndParent*/ = NULL)
+	{
+		ATLASSERT(FALSE);   // not supported for Aero Wizard
+		return NULL;
+	}
+};
+
+
+///////////////////////////////////////////////////////////////////////////////
+// CAeroWizardFrame - for non-customized frames
+
+class CAeroWizardFrame : public CAeroWizardFrameImpl<CAeroWizardFrame>
+{
+public:
+	CAeroWizardFrame(ATL::_U_STRINGorID title = (LPCTSTR)NULL, UINT uStartPage = 0, HWND hWndParent = NULL)
+		: CAeroWizardFrameImpl<CAeroWizardFrame>(title, uStartPage, hWndParent)
+	{ }
+
+	BEGIN_MSG_MAP(CAeroWizardFrame)
+		MESSAGE_HANDLER(WM_COMMAND, CAeroWizardFrameImpl<CAeroWizardFrame>::OnCommand)
+	END_MSG_MAP()
+};
+
+
+///////////////////////////////////////////////////////////////////////////////
+// CAeroWizardPageWindow - client side for an Aero Wizard page
+
+class CAeroWizardPageWindow : public CPropertyPageWindow
+{
+public:
+// Constructors
+	CAeroWizardPageWindow(HWND hWnd = NULL) : CPropertyPageWindow(hWnd)
+	{ }
+
+	CAeroWizardPageWindow& operator =(HWND hWnd)
+	{
+		m_hWnd = hWnd;
+		return *this;
+	}
+
+// Attributes
+	CAeroWizardFrameWindow GetAeroWizardFrame() const
+	{
+		ATLASSERT(::IsWindow(m_hWnd));
+		// This is not really top-level frame window, but it processes all frame messages
+		return CAeroWizardFrameWindow(GetParent());
+	}
+
+// Operations - new, Aero Wizard only
+	void SetNextText(LPCWSTR lpszText)
+	{
+		ATLASSERT(::IsWindow(m_hWnd));
+		ATLASSERT(GetParent() != NULL);
+		GetAeroWizardFrame().SetNextText(lpszText);
+	}
+
+	void ShowWizardButtons(DWORD dwButtons, DWORD dwStates)
+	{
+		ATLASSERT(::IsWindow(m_hWnd));
+		ATLASSERT(GetParent() != NULL);
+		GetAeroWizardFrame().ShowWizardButtons(dwButtons, dwStates);
+	}
+
+	void EnableWizardButtons(DWORD dwButtons, DWORD dwStates)
+	{
+		ATLASSERT(::IsWindow(m_hWnd));
+		ATLASSERT(GetParent() != NULL);
+		GetAeroWizardFrame().EnableWizardButtons(dwButtons, dwStates);
+	}
+
+	void SetButtonText(DWORD dwButton, LPCWSTR lpszText)
+	{
+		ATLASSERT(::IsWindow(m_hWnd));
+		ATLASSERT(GetParent() != NULL);
+		GetAeroWizardFrame().SetButtonText(dwButton, lpszText);
+	}
+};
+
+
+///////////////////////////////////////////////////////////////////////////////
+// CAeroWizardPageImpl - implements an Aero Wizard page
+
+template <class T, class TBase = CAeroWizardPageWindow>
+class ATL_NO_VTABLE CAeroWizardPageImpl : public CPropertyPageImpl<T, TBase >
+{
+public:
+	CAeroWizardPageImpl(ATL::_U_STRINGorID title = (LPCTSTR)NULL) : CPropertyPageImpl<T, TBase >(title)
+	{ }
+};
+
+
+///////////////////////////////////////////////////////////////////////////////
+// CAeroWizardPage - for non-customized pages
+
+template <WORD t_wDlgTemplateID>
+class CAeroWizardPage : public CAeroWizardPageImpl<CAeroWizardPage<t_wDlgTemplateID> >
+{
+public:
+	enum { IDD = t_wDlgTemplateID };
+
+	CAeroWizardPage(ATL::_U_STRINGorID title = (LPCTSTR)NULL) : CAeroWizardPageImpl<CAeroWizardPage>(title)
+	{ }
+
+	DECLARE_EMPTY_MSG_MAP()
+};
+
+
+#ifndef _ATL_NO_HOSTING
+
+// Note: You must #include <atlhost.h> to use these classes
+
+///////////////////////////////////////////////////////////////////////////////
+// CAeroWizardAxPageImpl - Aero Wizard page that hosts ActiveX controls
+
+template <class T, class TBase = CAeroWizardPageWindow>
+class ATL_NO_VTABLE CAeroWizardAxPageImpl : public CAxPropertyPageImpl< T, TBase >
+{
+public:
+	CAeroWizardAxPageImpl(ATL::_U_STRINGorID title = (LPCTSTR)NULL) : CAxPropertyPageImpl< T, TBase >(title)
+	{ }
+};
+
+
+///////////////////////////////////////////////////////////////////////////////
+// CAeroWizardAxPage - for non-customized pages
+
+template <WORD t_wDlgTemplateID>
+class CAeroWizardAxPage : public CAeroWizardAxPageImpl<CAeroWizardAxPage<t_wDlgTemplateID> >
+{
+public:
+	enum { IDD = t_wDlgTemplateID };
+
+	CAeroWizardAxPage(ATL::_U_STRINGorID title = (LPCTSTR)NULL) : CAeroWizardAxPageImpl<CAeroWizardAxPage>(title)
+	{ }
+
+#if (_WIN32_IE >= 0x0500) || (_ATL_VER >= 0x0700)
+	// not empty so we handle accelerators/create controls
+	BEGIN_MSG_MAP(CAeroWizardAxPage)
+		CHAIN_MSG_MAP(CAeroWizardAxPageImpl<CAeroWizardAxPage<t_wDlgTemplateID> >)
+	END_MSG_MAP()
+#else // !((_WIN32_IE >= 0x0500) || (_ATL_VER >= 0x0700))
+	DECLARE_EMPTY_MSG_MAP()
+#endif // !((_WIN32_IE >= 0x0500) || (_ATL_VER >= 0x0700))
+};
+
+#endif // _ATL_NO_HOSTING
+
+#endif // (_WIN32_WINNT >= 0x0600) && !defined(_WIN32_WCE)
 
 }; // namespace WTL
 
