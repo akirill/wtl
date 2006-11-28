@@ -29,12 +29,21 @@
 #include <commdlg.h>
 #include <shlobj.h>
 
+#if (_WIN32_WINNT >= 0x0600) && !defined(_WIN32_WCE)
+  #include <shobjidl.h>
+#endif // (_WIN32_WINNT >= 0x0600) && !defined(_WIN32_WCE)
+
 
 ///////////////////////////////////////////////////////////////////////////////
 // Classes in this file:
 //
 // CFileDialogImpl<T>
 // CFileDialog
+// CShellFileDialogImpl<T>
+// CShellFileOpenDialogImpl<T>
+// CShellFileOpenDialog
+// CShellFileSaveDialogImpl<T>
+// CShellFileSaveDialog
 // CFolderDialogImpl<T>
 // CFolderDialog
 // CFontDialogImpl<T>
@@ -368,6 +377,434 @@ public:
 	// override base class map and references to handlers
 	DECLARE_EMPTY_MSG_MAP()
 };
+
+
+///////////////////////////////////////////////////////////////////////////////
+// Shell File Dialog - new Shell File Open and Save dialogs in Vista
+
+// Note: Use GetPtr() to access dialog interface methods.
+// Example:
+//	CShellFileOpenDialog dlg;
+//	dlg.GetPtr()->SetTitle(L"MyFileOpenDialog");
+
+#if (_WIN32_WINNT >= 0x0600) && !defined(_WIN32_WCE)
+
+///////////////////////////////////////////////////////////////////////////////
+// CShellFileDialogImpl - base class for CShellFileOpenDialogImpl and CShellFileSaveDialogImpl
+
+template <class T>
+class ATL_NO_VTABLE CShellFileDialogImpl : public IFileDialogEvents
+{
+public:
+// Operations
+	INT_PTR DoModal(HWND hWndParent = ::GetActiveWindow())
+	{
+		INT_PTR nRet = -1;
+
+		T* pT = static_cast<T*>(this);
+		if(pT->m_spFileDlg == NULL)
+		{
+			ATLASSERT(FALSE);
+			return nRet;
+		}
+
+		DWORD dwCookie = 0;
+		pT->_Advise(dwCookie);
+
+		HRESULT hRet = pT->m_spFileDlg->Show(hWndParent);
+		if(SUCCEEDED(hRet))
+			nRet = IDOK;
+		else if(hRet == HRESULT_FROM_WIN32(ERROR_CANCELLED))
+			nRet = IDCANCEL;
+		else
+			ATLASSERT(FALSE);   // error
+
+		pT->_Unadvise(dwCookie);
+
+		return nRet;
+	}
+
+	bool IsNull() const
+	{
+		const T* pT = static_cast<const T*>(this);
+		return (pT->m_spFileDlg == NULL);
+	}
+
+// Operations - get file path after dialog returns
+	HRESULT GetFilePath(LPWSTR lpstrFilePath, int cchLength)
+	{
+		T* pT = static_cast<T*>(this);
+		ATLASSERT(pT->m_spFileDlg != NULL);
+
+		ATL::CComPtr<IShellItem> spItem;
+		HRESULT hRet = pT->m_spFileDlg->GetResult(&spItem);
+
+		if(SUCCEEDED(hRet))
+			hRet = GetFileNameFromShellItem(spItem, SIGDN_FILESYSPATH, lpstrFilePath, cchLength);
+
+		return hRet;
+	}
+
+	HRESULT GetFileTitle(LPWSTR lpstrFileTitle, int cchLength)
+	{
+		T* pT = static_cast<T*>(this);
+		ATLASSERT(pT->m_spFileDlg != NULL);
+
+		ATL::CComPtr<IShellItem> spItem;
+		HRESULT hRet = pT->m_spFileDlg->GetResult(&spItem);
+
+		if(SUCCEEDED(hRet))
+			hRet = GetFileNameFromShellItem(spItem, SIGDN_NORMALDISPLAY, lpstrFileTitle, cchLength);
+
+		return hRet;
+	}
+
+#if defined(_WTL_USE_CSTRING) || defined(__ATLSTR_H__)
+	HRESULT GetFilePath(_CSTRING_NS::CString& strFilePath)
+	{
+		T* pT = static_cast<T*>(this);
+		ATLASSERT(pT->m_spFileDlg != NULL);
+
+		ATL::CComPtr<IShellItem> spItem;
+		HRESULT hRet = pT->m_spFileDlg->GetResult(&spItem);
+
+		if(SUCCEEDED(hRet))
+			hRet = GetFileNameFromShellItem(spItem, SIGDN_FILESYSPATH, strFilePath);
+
+		return hRet;
+	}
+
+	HRESULT GetFileTitle(_CSTRING_NS::CString& strFileTitle)
+	{
+		T* pT = static_cast<T*>(this);
+		ATLASSERT(pT->m_spFileDlg != NULL);
+
+		ATL::CComPtr<IShellItem> spItem;
+		HRESULT hRet = pT->m_spFileDlg->GetResult(&spItem);
+
+		if(SUCCEEDED(hRet))
+			hRet = GetFileNameFromShellItem(spItem, SIGDN_NORMALDISPLAY, strFileTitle);
+
+		return hRet;
+	}
+#endif // defined(_WTL_USE_CSTRING) || defined(__ATLSTR_H__)
+
+// Helpers for IShellItem
+	static HRESULT GetFileNameFromShellItem(IShellItem* pShellItem, SIGDN type, LPWSTR lpstr, int cchLength)
+	{
+		ATLASSERT(pShellItem != NULL);
+
+		LPWSTR lpstrName = NULL;
+		HRESULT hRet = pShellItem->GetDisplayName(type, &lpstrName);
+
+		if(SUCCEEDED(hRet))
+		{
+			if(lstrlenW(lpstrName) < cchLength)
+			{
+#if _SECURE_ATL
+				ATL::Checked::wcscpy_s(lpstr, cchLength, lpstrName);
+#else
+				ATLVERIFY(lstrcpyW(lpstr, lpstrName) != NULL);
+#endif
+			}
+			else
+			{
+				ATLASSERT(FALSE);
+				hRet = DISP_E_BUFFERTOOSMALL;
+			}
+
+			::CoTaskMemFree(lpstrName);
+		}
+
+		return hRet;
+	}
+
+#if defined(_WTL_USE_CSTRING) || defined(__ATLSTR_H__)
+	static HRESULT GetFileNameFromShellItem(IShellItem* pShellItem, SIGDN type, _CSTRING_NS::CString& str)
+	{
+		ATLASSERT(pShellItem != NULL);
+
+		LPWSTR lpstrName = NULL;
+		HRESULT hRet = pShellItem->GetDisplayName(type, &lpstrName);
+
+		if(SUCCEEDED(hRet))
+		{
+			str = lpstrName;
+			::CoTaskMemFree(lpstrName);
+		}
+
+		return hRet;
+	}
+#endif // defined(_WTL_USE_CSTRING) || defined(__ATLSTR_H__)
+
+// Implementation
+	void _Advise(DWORD& dwCookie)
+	{
+		T* pT = static_cast<T*>(this);
+		ATLASSERT(pT->m_spFileDlg != NULL);
+		HRESULT hRet = pT->m_spFileDlg->Advise((IFileDialogEvents*)this, &dwCookie);
+		ATLVERIFY(SUCCEEDED(hRet));
+	}
+
+	void _Unadvise(DWORD dwCookie)
+	{
+		T* pT = static_cast<T*>(this);
+		ATLASSERT(pT->m_spFileDlg != NULL);
+		HRESULT hRet = pT->m_spFileDlg->Unadvise(dwCookie);
+		ATLVERIFY(SUCCEEDED(hRet));
+	}
+
+	void _Init(LPCWSTR lpszFileName, DWORD dwOptions, LPCWSTR lpszDefExt, const COMDLG_FILTERSPEC* arrFilterSpec, UINT uFilterSpecCount)
+	{
+		T* pT = static_cast<T*>(this);
+		ATLASSERT(pT->m_spFileDlg != NULL);
+
+		HRESULT hRet = E_FAIL;
+
+		if(lpszFileName != NULL)
+		{
+			hRet = pT->m_spFileDlg->SetFileName(lpszFileName);
+			ATLASSERT(SUCCEEDED(hRet));
+		}
+
+		hRet = pT->m_spFileDlg->SetOptions(dwOptions);
+		ATLASSERT(SUCCEEDED(hRet));
+
+		if(lpszDefExt != NULL)
+		{
+			hRet = pT->m_spFileDlg->SetDefaultExtension(lpszDefExt);
+			ATLASSERT(SUCCEEDED(hRet));
+		}
+
+		if(arrFilterSpec != NULL && uFilterSpecCount != 0U)
+		{
+			hRet = pT->m_spFileDlg->SetFileTypes(uFilterSpecCount, arrFilterSpec);
+			ATLASSERT(SUCCEEDED(hRet));
+		}
+	}
+
+// Implementation - IUnknown interface
+	STDMETHOD(QueryInterface)(REFIID riid, void** ppvObject)
+	{
+		if(ppvObject == NULL)
+			return E_POINTER;
+
+		T* pT = static_cast<T*>(this);
+		if(IsEqualGUID(riid, IID_IUnknown) || IsEqualGUID(riid, IID_IFileDialogEvents))
+		{
+			*ppvObject = (IFileDialogEvents*)pT;
+			// AddRef() not needed
+			return S_OK;
+		}
+
+		return E_NOINTERFACE;
+	}
+
+	virtual ULONG STDMETHODCALLTYPE AddRef()
+	{
+		return 1;
+	}
+
+	virtual ULONG STDMETHODCALLTYPE Release()
+	{
+		return 1;
+	}
+
+// Implementation - IFileDialogEvents interface
+	virtual HRESULT STDMETHODCALLTYPE IFileDialogEvents::OnFileOk(IFileDialog* pfd)
+	{
+		T* pT = static_cast<T*>(this);
+		ATLASSERT(pT->m_spFileDlg.IsEqualObject(pfd));
+		pfd;   // avoid level 4 warning
+		return pT->OnFileOk();
+	}
+
+	virtual HRESULT STDMETHODCALLTYPE IFileDialogEvents::OnFolderChanging(IFileDialog* pfd, IShellItem* psiFolder)
+	{
+		T* pT = static_cast<T*>(this);
+		ATLASSERT(pT->m_spFileDlg.IsEqualObject(pfd));
+		pfd;   // avoid level 4 warning
+		return pT->OnFolderChanging(psiFolder);
+	}
+
+	virtual HRESULT STDMETHODCALLTYPE IFileDialogEvents::OnFolderChange(IFileDialog* pfd)
+	{
+		T* pT = static_cast<T*>(this);
+		ATLASSERT(pT->m_spFileDlg.IsEqualObject(pfd));
+		pfd;   // avoid level 4 warning
+		return pT->OnFolderChange();
+	}
+
+	virtual HRESULT STDMETHODCALLTYPE IFileDialogEvents::OnSelectionChange(IFileDialog* pfd)
+	{
+		T* pT = static_cast<T*>(this);
+		ATLASSERT(pT->m_spFileDlg.IsEqualObject(pfd));
+		pfd;   // avoid level 4 warning
+		return pT->OnSelectionChange();
+	}
+
+	virtual HRESULT STDMETHODCALLTYPE IFileDialogEvents::OnShareViolation(IFileDialog* pfd, IShellItem* psi, FDE_SHAREVIOLATION_RESPONSE* pResponse)
+	{
+		T* pT = static_cast<T*>(this);
+		ATLASSERT(pT->m_spFileDlg.IsEqualObject(pfd));
+		pfd;   // avoid level 4 warning
+		return pT->OnShareViolation(psi, pResponse);
+	}
+
+	virtual HRESULT STDMETHODCALLTYPE IFileDialogEvents::OnTypeChange(IFileDialog* pfd)
+	{
+		T* pT = static_cast<T*>(this);
+		ATLASSERT(pT->m_spFileDlg.IsEqualObject(pfd));
+		pfd;   // avoid level 4 warning
+		return pT->OnTypeChange();
+	}
+
+	virtual HRESULT STDMETHODCALLTYPE IFileDialogEvents::OnOverwrite(IFileDialog* pfd, IShellItem* psi, FDE_OVERWRITE_RESPONSE* pResponse)
+	{
+		T* pT = static_cast<T*>(this);
+		ATLASSERT(pT->m_spFileDlg.IsEqualObject(pfd));
+		pfd;   // avoid level 4 warning
+		return pT->OnOverwrite(psi, pResponse);
+	}
+
+// Overrideables - Event handlers
+	HRESULT OnFileOk()
+	{
+		return E_NOTIMPL;
+	}
+
+	HRESULT OnFolderChanging(IShellItem* /*psiFolder*/)
+	{
+		return E_NOTIMPL;
+	}
+
+	HRESULT OnFolderChange()
+	{
+		return E_NOTIMPL;
+	}
+
+	HRESULT OnSelectionChange()
+	{
+		return E_NOTIMPL;
+	}
+
+	HRESULT OnShareViolation(IShellItem* /*psi*/, FDE_SHAREVIOLATION_RESPONSE* /*pResponse*/)
+	{
+		return E_NOTIMPL;
+	}
+
+	HRESULT OnTypeChange()
+	{
+		return E_NOTIMPL;
+	}
+
+	HRESULT OnOverwrite(IShellItem* /*psi*/, FDE_OVERWRITE_RESPONSE* /*pResponse*/)
+	{
+		return E_NOTIMPL;
+	}
+};
+
+
+///////////////////////////////////////////////////////////////////////////////
+// CShellFileOpenDialogImpl - implements new Shell File Open dialog
+
+template <class T>
+class ATL_NO_VTABLE CShellFileOpenDialogImpl : public CShellFileDialogImpl< T >
+{
+public:
+	ATL::CComPtr<IFileOpenDialog> m_spFileDlg;
+
+	CShellFileOpenDialogImpl(LPCWSTR lpszFileName = NULL, 
+	                         DWORD dwOptions = FOS_FORCEFILESYSTEM | FOS_PATHMUSTEXIST | FOS_FILEMUSTEXIST, 
+	                         LPCWSTR lpszDefExt = NULL, 
+	                         const COMDLG_FILTERSPEC* arrFilterSpec = NULL, 
+	                         UINT uFilterSpecCount = 0U)
+	{
+		HRESULT hRet = m_spFileDlg.CoCreateInstance(CLSID_FileOpenDialog);
+
+		if(SUCCEEDED(hRet))
+			_Init(lpszFileName, dwOptions, lpszDefExt, arrFilterSpec, uFilterSpecCount);
+	}
+
+	IFileOpenDialog* GetPtr()
+	{
+		return m_spFileDlg;
+	}
+};
+
+
+///////////////////////////////////////////////////////////////////////////////
+// CShellFileOpenDialog - new Shell File Open dialog without events
+
+class CShellFileOpenDialog : public CShellFileOpenDialogImpl<CShellFileOpenDialog>
+{
+public:
+	CShellFileOpenDialog(LPCWSTR lpszFileName = NULL, 
+	                     DWORD dwOptions = FOS_FORCEFILESYSTEM | FOS_PATHMUSTEXIST | FOS_FILEMUSTEXIST, 
+	                     LPCWSTR lpszDefExt = NULL, 
+	                     const COMDLG_FILTERSPEC* arrFilterSpec = NULL, 
+	                     UINT uFilterSpecCount = 0U) : CShellFileOpenDialogImpl<CShellFileOpenDialog>(lpszFileName, dwOptions, lpszDefExt, arrFilterSpec, uFilterSpecCount)
+	{ }
+
+// Implementation (remove _Advise/_Unadvise code using template magic)
+	void _Advise(DWORD& /*dwCookie*/)
+	{ }
+
+	void _Unadvise(DWORD /*dwCookie*/)
+	{ }
+};
+
+
+///////////////////////////////////////////////////////////////////////////////
+// CShellFileSaveDialogImpl - implements new Shell File Save dialog
+
+template <class T>
+class ATL_NO_VTABLE CShellFileSaveDialogImpl : public CShellFileDialogImpl< T >
+{
+public:
+	ATL::CComPtr<IFileSaveDialog> m_spFileDlg;
+
+	CShellFileSaveDialogImpl(LPCWSTR lpszFileName = NULL, 
+	                         DWORD dwOptions = FOS_FORCEFILESYSTEM | FOS_PATHMUSTEXIST | FOS_OVERWRITEPROMPT, 
+	                         LPCWSTR lpszDefExt = NULL, 
+	                         const COMDLG_FILTERSPEC* arrFilterSpec = NULL, 
+	                         UINT uFilterSpecCount = 0U)
+	{
+		HRESULT hRet = m_spFileDlg.CoCreateInstance(CLSID_FileSaveDialog);
+
+		if(SUCCEEDED(hRet))
+			_Init(lpszFileName, dwOptions, lpszDefExt, arrFilterSpec, uFilterSpecCount);
+	}
+
+	IFileSaveDialog* GetPtr()
+	{
+		return m_spFileDlg;
+	}
+};
+
+
+///////////////////////////////////////////////////////////////////////////////
+// CShellFileSaveDialog - new Shell File Save dialog without events
+
+class CShellFileSaveDialog : public CShellFileSaveDialogImpl<CShellFileSaveDialog>
+{
+public:
+	CShellFileSaveDialog(LPCWSTR lpszFileName = NULL, 
+	                     DWORD dwOptions = FOS_FORCEFILESYSTEM | FOS_PATHMUSTEXIST | FOS_OVERWRITEPROMPT, 
+	                     LPCWSTR lpszDefExt = NULL, 
+	                     const COMDLG_FILTERSPEC* arrFilterSpec = NULL, 
+	                     UINT uFilterSpecCount = 0U) : CShellFileSaveDialogImpl<CShellFileSaveDialog>(lpszFileName, dwOptions, lpszDefExt, arrFilterSpec, uFilterSpecCount)
+	{ }
+
+// Implementation (remove _Advise/_Unadvise code using template magic)
+	void _Advise(DWORD& /*dwCookie*/)
+	{ }
+
+	void _Unadvise(DWORD /*dwCookie*/)
+	{ }
+};
+
+#endif // (_WIN32_WINNT >= 0x0600) && !defined(_WIN32_WCE)
 
 
 ///////////////////////////////////////////////////////////////////////////////
