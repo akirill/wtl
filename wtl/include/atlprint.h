@@ -633,12 +633,17 @@ public:
 			return StartHelper();
 		}
 
-		// Create a thread and return
-		DWORD dwThreadID = 0;
+#if !defined(_ATL_MIN_CRT) && defined(_MT)
+		HANDLE hThread = (HANDLE)_beginthreadex(NULL, 0, UINT (WINAPI*)(void*))StartProc, this, 0, (UINT*)&dwThreadID);
+#else
 		HANDLE hThread = ::CreateThread(NULL, 0, StartProc, (void*)this, 0, &dwThreadID);
+#endif
+		if (hThread == NULL)
+			return false;
+
 		::CloseHandle(hThread);
 
-		return (hThread != NULL);
+		return true;
 	}
 
 // Implementation
