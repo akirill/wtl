@@ -86,6 +86,13 @@
 // CAeroWizardPage<t_wDlgTemplateID>
 // CAeroWizardAxPageImpl<T, TBase>
 // CAeroWizardAxPage<t_wDlgTemplateID>
+//
+// CTaskDialogConfig
+// CTaskDialogImpl<T>
+// CTaskDialog
+//
+// Global functions:
+//   AtlTaskDialog()
 
 
 namespace WTL
@@ -4589,6 +4596,602 @@ public:
 #endif // _ATL_NO_HOSTING
 
 #endif // (_WIN32_WINNT >= 0x0600) && !defined(_WIN32_WCE)
+
+
+///////////////////////////////////////////////////////////////////////////////
+// TaskDialog support
+
+#if ((_WIN32_WINNT >= 0x0600) || defined(_WTL_TASKDIALOG)) && !defined(_WIN32_WCE)
+
+///////////////////////////////////////////////////////////////////////////////
+// AtlTaskDialog - support for TaskDialog() function
+
+inline int AtlTaskDialog(HWND hWndParent, 
+                         ATL::_U_STRINGorID WindowTitle, ATL::_U_STRINGorID MainInstructionText, ATL::_U_STRINGorID ContentText, 
+                         TASKDIALOG_COMMON_BUTTON_FLAGS dwCommonButtons = 0U, ATL::_U_STRINGorID Icon = (LPCTSTR)NULL)
+{
+	int nRet = -1;
+
+#ifdef _WTL_TASKDIALOG_DIRECT
+	USES_CONVERSION;
+	HRESULT hRet = ::TaskDialog(hWndParent, ModuleHelper::GetResourceInstance(), T2CW(WindowTitle.m_lpstr), T2CW(MainInstructionText.m_lpstr), T2CW(ContentText.m_lpstr), dwCommonButtons, T2CW(Icon.m_lpstr), &nRet);
+	ATLVERIFY(SUCCEEDED(hRet));
+#else
+	// This allows apps to run on older versions of Windows
+	typedef HRESULT (STDAPICALLTYPE *PFN_TaskDialog)(HWND hwndParent, HINSTANCE hInstance, PCWSTR pszWindowTitle, PCWSTR pszMainInstruction, PCWSTR pszContent, TASKDIALOG_COMMON_BUTTON_FLAGS dwCommonButtons, PCWSTR pszIcon, int* pnButton);
+
+	HMODULE m_hCommCtrlDLL = ::LoadLibrary(_T("comctl32.dll"));
+	if(m_hCommCtrlDLL != NULL)
+	{
+		PFN_TaskDialog pfnTaskDialog = (PFN_TaskDialog)::GetProcAddress(m_hCommCtrlDLL, "TaskDialog");
+		if(pfnTaskDialog != NULL)
+		{
+			USES_CONVERSION;
+			HRESULT hRet = pfnTaskDialog(hWndParent, ModuleHelper::GetResourceInstance(), T2CW(WindowTitle.m_lpstr), T2CW(MainInstructionText.m_lpstr), T2CW(ContentText.m_lpstr), dwCommonButtons, T2CW(Icon.m_lpstr), &nRet);
+			ATLVERIFY(SUCCEEDED(hRet));
+		}
+
+		::FreeLibrary(m_hCommCtrlDLL);
+	}
+#endif
+
+	return nRet;
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
+// CTaskDialogConfig - TASKDIALOGCONFIG wrapper
+
+class CTaskDialogConfig : public TASKDIALOGCONFIG
+{
+public:
+// Constructor
+	CTaskDialogConfig()
+	{
+		Init();
+	}
+
+	void Init()
+	{
+		memset(this, 0, sizeof(TASKDIALOGCONFIG));   // initialize structure to 0/NULL
+		this->cbSize = sizeof(TASKDIALOGCONFIG);
+		this->hInstance = ModuleHelper::GetResourceInstance();
+	}
+
+// Operations - setting values
+	// common buttons
+	void SetCommonButtons(TASKDIALOG_COMMON_BUTTON_FLAGS dwCommonButtons)
+	{
+		this->dwCommonButtons = dwCommonButtons;
+	}
+
+	// window title text
+	void SetWindowTitle(UINT nID)
+	{
+		this->pszWindowTitle = MAKEINTRESOURCEW(nID);
+	}
+
+	void SetWindowTitle(LPCWSTR lpstrWindowTitle)
+	{
+		this->pszWindowTitle = lpstrWindowTitle;
+	}
+
+	// main icon
+	void SetMainIcon(HICON hIcon)
+	{
+		this->dwFlags |= TDF_USE_HICON_MAIN;
+		this->hMainIcon = hIcon;
+	}
+
+	void SetMainIcon(UINT nID)
+	{
+		this->dwFlags &= ~TDF_USE_HICON_MAIN;
+		this->pszMainIcon = MAKEINTRESOURCEW(nID);
+	}
+
+	void SetMainIcon(LPCWSTR lpstrMainIcon)
+	{
+		this->dwFlags &= ~TDF_USE_HICON_MAIN;
+		this->pszMainIcon = lpstrMainIcon;
+	}
+
+	// main instruction text
+	void SetMainInstructionText(UINT nID)
+	{
+		this->pszMainInstruction = MAKEINTRESOURCEW(nID);
+	}
+
+	void SetMainInstructionText(LPCWSTR lpstrMainInstruction)
+	{
+		this->pszMainInstruction = lpstrMainInstruction;
+	}
+
+	// content text
+	void SetContentText(UINT nID)
+	{
+		this->pszContent = MAKEINTRESOURCEW(nID);
+	}
+
+	void SetContentText(LPCWSTR lpstrContent)
+	{
+		this->pszContent = lpstrContent;
+	}
+
+	// buttons
+	void SetButtons(const TASKDIALOG_BUTTON* pButtons, UINT cButtons, int nDefaultButton = 0)
+	{
+		this->pButtons = pButtons;
+		this->cButtons = cButtons;
+		if(nDefaultButton != 0)
+			this->nDefaultButton = nDefaultButton;
+	}
+
+	void SetDefaultButton(int nDefaultButton)
+	{
+		this->nDefaultButton = nDefaultButton;
+	}
+
+	// radio buttons
+	void SetRadioButtons(const TASKDIALOG_BUTTON* pRadioButtons, UINT cRadioButtons, int nDefaultRadioButton = 0)
+	{
+		this->pRadioButtons = pRadioButtons;
+		this->cRadioButtons = cRadioButtons;
+		if(nDefaultRadioButton != 0)
+			this->nDefaultRadioButton = nDefaultRadioButton;
+	}
+
+	void SetDefaultRadioButton(int nDefaultRadioButton)
+	{
+		this->nDefaultRadioButton = nDefaultRadioButton;
+	}
+
+	// verification text
+	void SetVerificationText(UINT nID)
+	{
+		this->pszVerificationText = MAKEINTRESOURCEW(nID);
+	}
+
+	void SetVerificationText(LPCWSTR lpstrVerificationText)
+	{
+		this->pszVerificationText = lpstrVerificationText;
+	}
+
+	// expanded information text
+	void SetExpandedInformationText(UINT nID)
+	{
+		this->pszExpandedInformation = MAKEINTRESOURCEW(nID);
+	}
+
+	void SetExpandedInformationText(LPCWSTR lpstrExpandedInformation)
+	{
+		this->pszExpandedInformation = lpstrExpandedInformation;
+	}
+
+	// expanded control text
+	void SetExpandedControlText(UINT nID)
+	{
+		this->pszExpandedControlText = MAKEINTRESOURCEW(nID);
+	}
+
+	void SetExpandedControlText(LPCWSTR lpstrExpandedControlText)
+	{
+		this->pszExpandedControlText = lpstrExpandedControlText;
+	}
+
+	// collapsed control text
+	void SetCollapsedControlText(UINT nID)
+	{
+		this->pszCollapsedControlText = MAKEINTRESOURCEW(nID);
+	}
+
+	void SetCollapsedControlText(LPCWSTR lpstrCollapsedControlText)
+	{
+		this->pszCollapsedControlText = lpstrCollapsedControlText;
+	}
+
+	// footer icon
+	void SetFooterIcon(HICON hIcon)
+	{
+		this->dwFlags |= TDF_USE_HICON_FOOTER;
+		this->hFooterIcon = hIcon;
+	}
+
+	void SetFooterIcon(UINT nID)
+	{
+		this->dwFlags &= ~TDF_USE_HICON_FOOTER;
+		this->pszFooterIcon = MAKEINTRESOURCEW(nID);
+	}
+
+	void SetFooterIcon(LPCWSTR lpstrFooterIcon)
+	{
+		this->dwFlags &= ~TDF_USE_HICON_FOOTER;
+		this->pszFooterIcon = lpstrFooterIcon;
+	}
+
+	// footer text
+	void SetFooterText(UINT nID)
+	{
+		this->pszFooter = MAKEINTRESOURCEW(nID);
+	}
+
+	void SetFooterText(LPCWSTR lpstrFooterText)
+	{
+		this->pszFooter = lpstrFooterText;
+	}
+
+	// width (in DLUs)
+	void SetWidth(UINT cxWidth)
+	{
+		this->cxWidth = cxWidth;
+	}
+
+	// modify flags
+	void ModifyFlags(DWORD dwRemove, DWORD dwAdd)
+	{
+		this->dwFlags = (this->dwFlags & ~dwRemove) | dwAdd;
+	}
+};
+
+
+///////////////////////////////////////////////////////////////////////////////
+// CTaskDialogImpl - implements a Task Dialog
+
+template <class T>
+class ATL_NO_VTABLE CTaskDialogImpl
+{
+public:
+	CTaskDialogConfig m_tdc;
+	HWND m_hWnd;   // used only in callback functions
+
+// Constructor
+	CTaskDialogImpl(HWND hWndParent = NULL) : m_hWnd(NULL)
+	{
+		m_tdc.hwndParent = hWndParent;
+		m_tdc.pfCallback = T::TaskDialogCallback;
+		m_tdc.lpCallbackData = (LONG_PTR)static_cast<T*>(this);
+	}
+
+// Operations
+	HRESULT DoModal(HWND hWndParent = ::GetActiveWindow(), int* pnButton = NULL, int* pnRadioButton = NULL, BOOL* pfVerificationFlagChecked = NULL)
+	{
+		if(m_tdc.hwndParent == NULL)
+			m_tdc.hwndParent = hWndParent;
+
+#ifdef _WTL_TASKDIALOG_DIRECT
+		return ::TaskDialogIndirect(&m_tdc, pnButton, pnRadioButton, pfVerificationFlagChecked);
+#else
+
+		// This allows apps to run on older versions of Windows
+		typedef HRESULT (STDAPICALLTYPE *PFN_TaskDialogIndirect)(const TASKDIALOGCONFIG* pTaskConfig, int* pnButton, int* pnRadioButton, BOOL* pfVerificationFlagChecked);
+
+		HRESULT hRet = E_UNEXPECTED;
+		HMODULE m_hCommCtrlDLL = ::LoadLibrary(_T("comctl32.dll"));
+		if(m_hCommCtrlDLL != NULL)
+		{
+			PFN_TaskDialogIndirect pfnTaskDialogIndirect = (PFN_TaskDialogIndirect)::GetProcAddress(m_hCommCtrlDLL, "TaskDialogIndirect");
+			if(pfnTaskDialogIndirect != NULL)
+				hRet = pfnTaskDialogIndirect(&m_tdc, pnButton, pnRadioButton, pfVerificationFlagChecked);
+
+			::FreeLibrary(m_hCommCtrlDLL);
+		}
+
+		return hRet;
+#endif
+	}
+
+// Operations - setting values of TASKDIALOGCONFIG
+	// common buttons
+	void SetCommonButtons(TASKDIALOG_COMMON_BUTTON_FLAGS dwCommonButtons)
+	{	m_tdc.SetCommonButtons(dwCommonButtons); }
+	// window title text
+	void SetWindowTitle(UINT nID)
+	{	m_tdc.SetWindowTitle(nID); }
+	void SetWindowTitle(LPCWSTR lpstrWindowTitle)
+	{	m_tdc.SetWindowTitle(lpstrWindowTitle); }
+	// main icon
+	void SetMainIcon(HICON hIcon)
+	{	m_tdc.SetMainIcon(hIcon); }
+	void SetMainIcon(UINT nID)
+	{	m_tdc.SetMainIcon(nID); }
+	void SetMainIcon(LPCWSTR lpstrMainIcon)
+	{	m_tdc.SetMainIcon(lpstrMainIcon); }
+	// main instruction text
+	void SetMainInstructionText(UINT nID)
+	{	m_tdc.SetMainInstructionText(nID); }
+	void SetMainInstructionText(LPCWSTR lpstrMainInstruction)
+	{	m_tdc.SetMainInstructionText(lpstrMainInstruction); }
+	// content text
+	void SetContentText(UINT nID)
+	{	m_tdc.SetContentText(nID); }
+	void SetContentText(LPCWSTR lpstrContent)
+	{	m_tdc.SetContentText(lpstrContent); }
+	// buttons
+	void SetButtons(const TASKDIALOG_BUTTON* pButtons, UINT cButtons, int nDefaultButton = 0)
+	{	m_tdc.SetButtons(pButtons, cButtons, nDefaultButton); }
+	void SetDefaultButton(int nDefaultButton)
+	{	m_tdc.SetDefaultButton(nDefaultButton); }
+	// radio buttons
+	void SetRadioButtons(const TASKDIALOG_BUTTON* pRadioButtons, UINT cRadioButtons, int nDefaultRadioButton = 0)
+	{	m_tdc.SetRadioButtons(pRadioButtons, cRadioButtons, nDefaultRadioButton); }
+	void SetDefaultRadioButton(int nDefaultRadioButton)
+	{	m_tdc.SetDefaultRadioButton(nDefaultRadioButton); }
+	// verification text
+	void SetVerificationText(UINT nID)
+	{	m_tdc.SetVerificationText(nID); }
+	void SetVerificationText(LPCWSTR lpstrVerificationText)
+	{	m_tdc.SetVerificationText(lpstrVerificationText); }
+	// expanded information text
+	void SetExpandedInformationText(UINT nID)
+	{	m_tdc.SetExpandedInformationText(nID); }
+	void SetExpandedInformationText(LPCWSTR lpstrExpandedInformation)
+	{	m_tdc.SetExpandedInformationText(lpstrExpandedInformation); }
+	// expanded control text
+	void SetExpandedControlText(UINT nID)
+	{	m_tdc.SetExpandedControlText(nID); }
+	void SetExpandedControlText(LPCWSTR lpstrExpandedControlText)
+	{	m_tdc.SetExpandedControlText(lpstrExpandedControlText); }
+	// collapsed control text
+	void SetCollapsedControlText(UINT nID)
+	{	m_tdc.SetCollapsedControlText(nID); }
+	void SetCollapsedControlText(LPCWSTR lpstrCollapsedControlText)
+	{	m_tdc.SetCollapsedControlText(lpstrCollapsedControlText); }
+	// footer icon
+	void SetFooterIcon(HICON hIcon)
+	{	m_tdc.SetFooterIcon(hIcon); }
+	void SetFooterIcon(UINT nID)
+	{	m_tdc.SetFooterIcon(nID); }
+	void SetFooterIcon(LPCWSTR lpstrFooterIcon)
+	{	m_tdc.SetFooterIcon(lpstrFooterIcon); }
+	// footer text
+	void SetFooterText(UINT nID)
+	{	m_tdc.SetFooterText(nID); }
+	void SetFooterText(LPCWSTR lpstrFooterText)
+	{	m_tdc.SetFooterText(lpstrFooterText); }
+	// width (in DLUs)
+	void SetWidth(UINT cxWidth)
+	{	m_tdc.SetWidth(cxWidth); }
+	// modify flags
+	void ModifyFlags(DWORD dwRemove, DWORD dwAdd)
+	{	m_tdc.ModifyFlags(dwRemove, dwAdd); }
+
+// Implementation
+	static HRESULT CALLBACK TaskDialogCallback(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, LONG_PTR lpRefData)
+	{
+		T* pT = (T*)lpRefData;
+		ATLASSERT(pT->m_hWnd == NULL || pT->m_hWnd == hWnd);
+
+		BOOL bRet = FALSE;
+		switch(uMsg)
+		{
+		case TDN_DIALOG_CONSTRUCTED:
+			pT->m_hWnd = hWnd;
+			pT->OnDialogConstructed();
+			break;
+		case TDN_CREATED:
+			pT->OnCreated();
+			break;
+		case TDN_BUTTON_CLICKED:
+			bRet = pT->OnButtonClicked((int)wParam);
+			break;
+		case TDN_RADIO_BUTTON_CLICKED:
+			pT->OnRadioButtonClicked((int)wParam);
+			break;
+		case TDN_HYPERLINK_CLICKED:
+			pT->OnHyperlinkClicked((LPCWSTR)lParam);
+			break;
+		case TDN_EXPANDO_BUTTON_CLICKED:
+			pT->OnExpandoButtonClicked((wParam != 0));
+			break;
+		case TDN_VERIFICATION_CLICKED:
+			pT->OnVerificationClicked((wParam != 0));
+			break;
+		case TDN_HELP:
+			pT->OnHelp();
+			break;
+		case TDN_TIMER:
+			bRet = pT->OnTimer((DWORD)wParam);
+			break;
+		case TDN_NAVIGATED:
+			pT->OnNavigated();
+			break;
+		case TDN_DESTROYED:
+			pT->OnDestroyed();
+			pT->m_hWnd = NULL;
+			break;
+		default:
+			ATLTRACE2(atlTraceUI, 0, _T("Unknown notification received in CTaskDialogImpl::TaskDialogCallback\n"));
+			break;
+		}
+
+		return (HRESULT)bRet;
+	}
+
+// Overrideables - notification handlers
+	void OnDialogConstructed()
+	{
+	}
+
+	void OnCreated()
+	{
+	}
+
+	BOOL OnButtonClicked(int /*nButton*/)
+	{
+		return FALSE;   // don't prevent dialog to close
+	}
+
+	void OnRadioButtonClicked(int /*nRadioButton*/)
+	{
+	}
+
+	void OnHyperlinkClicked(LPCWSTR /*pszHREF*/)
+	{
+	}
+
+	void OnExpandoButtonClicked(bool /*bExpanded*/)
+	{
+	}
+
+	void OnVerificationClicked(bool /*bChecked*/)
+	{
+	}
+
+	void OnHelp()
+	{
+	}
+
+	BOOL OnTimer(DWORD /*dwTickCount*/)
+	{
+		return FALSE;   // don't reset counter
+	}
+
+	void OnNavigated()
+	{
+	}
+
+	void OnDestroyed()
+	{
+	}
+
+// Commands - valid to call only from handlers
+	void NavigatePage(TASKDIALOGCONFIG& tdc)
+	{
+		ATLASSERT(m_hWnd != NULL);
+
+		tdc.cbSize = sizeof(TASKDIALOGCONFIG);
+		if(tdc.hwndParent == NULL)
+			tdc.hwndParent = m_tdc.hwndParent;
+		tdc.pfCallback = m_tdc.pfCallback;
+		tdc.lpCallbackData = m_tdc.lpCallbackData;
+		(TASKDIALOGCONFIG)m_tdc = tdc;
+
+		::SendMessage(m_hWnd, TDM_NAVIGATE_PAGE, 0, (LPARAM)&tdc);
+	}
+
+	// modify TASKDIALOGCONFIG values, then call this to update task dialog
+	void NavigatePage()
+	{
+		ATLASSERT(m_hWnd != NULL);
+		::SendMessage(m_hWnd, TDM_NAVIGATE_PAGE, 0, (LPARAM)&m_tdc);
+	}
+
+	void ClickButton(int nButton)
+	{
+		ATLASSERT(m_hWnd != NULL);
+		::SendMessage(m_hWnd, TDM_CLICK_BUTTON, nButton, 0L);
+	}
+
+	void SetMarqueeProgressBar(BOOL bMarquee)
+	{
+		ATLASSERT(m_hWnd != NULL);
+		::SendMessage(m_hWnd, TDM_SET_MARQUEE_PROGRESS_BAR, bMarquee, 0L);
+	}
+
+	BOOL SetProgressBarState(int nNewState)
+	{
+		ATLASSERT(m_hWnd != NULL);
+		return (BOOL)::SendMessage(m_hWnd, TDM_SET_PROGRESS_BAR_STATE, nNewState, 0L);
+	}
+
+	DWORD SetProgressBarRange(int nMinRange, int nMaxRange)
+	{
+		ATLASSERT(m_hWnd != NULL);
+		return (DWORD)::SendMessage(m_hWnd, TDM_SET_PROGRESS_BAR_RANGE, 0, MAKELPARAM(nMinRange, nMaxRange));
+	}
+
+	int SetProgressBarPos(int nNewPos)
+	{
+		ATLASSERT(m_hWnd != NULL);
+		return (int)::SendMessage(m_hWnd, TDM_SET_PROGRESS_BAR_POS, nNewPos, 0L);
+	}
+
+	BOOL SetProgressBarMarquee(BOOL bMarquee, UINT uSpeed)
+	{
+		ATLASSERT(m_hWnd != NULL);
+		return (BOOL)::SendMessage(m_hWnd, TDM_SET_PROGRESS_BAR_MARQUEE, bMarquee, uSpeed);
+	}
+
+	void SetElementText(TASKDIALOG_ELEMENTS element, LPCWSTR lpstrText)
+	{
+		ATLASSERT(m_hWnd != NULL);
+		::SendMessage(m_hWnd, TDM_SET_ELEMENT_TEXT, element, (LPARAM)lpstrText);
+	}
+
+	void ClickRadioButton(int nRadioButton)
+	{
+		ATLASSERT(m_hWnd != NULL);
+		::SendMessage(m_hWnd, TDM_CLICK_RADIO_BUTTON, nRadioButton, 0L);
+	}
+
+	void EnableButton(int nButton, BOOL bEnable)
+	{
+		ATLASSERT(m_hWnd != NULL);
+		::SendMessage(m_hWnd, TDM_ENABLE_BUTTON, nButton, bEnable);
+	}
+
+	void EnableRadioButton(int nButton, BOOL bEnable)
+	{
+		ATLASSERT(m_hWnd != NULL);
+		::SendMessage(m_hWnd, TDM_ENABLE_RADIO_BUTTON, nButton, bEnable);
+	}
+
+	void ClickVerification(BOOL bCheck, BOOL bFocus)
+	{
+		ATLASSERT(m_hWnd != NULL);
+		::SendMessage(m_hWnd, TDM_CLICK_VERIFICATION, bCheck, bFocus);
+	}
+
+	void UpdateElementText(TASKDIALOG_ELEMENTS element, LPCWSTR lpstrText)
+	{
+		ATLASSERT(m_hWnd != NULL);
+		::SendMessage(m_hWnd, TDM_UPDATE_ELEMENT_TEXT, element, (LPARAM)lpstrText);
+	}
+
+	void SetButtonElevationRequiredState(int nButton, BOOL bElevation)
+	{
+		ATLASSERT(m_hWnd != NULL);
+		::SendMessage(m_hWnd, TDM_SET_BUTTON_ELEVATION_REQUIRED_STATE, nButton, bElevation);
+	}
+
+	void UpdateIcon(TASKDIALOG_ICON_ELEMENTS element, HICON hIcon)
+	{
+		ATLASSERT(m_hWnd != NULL);
+#ifdef _DEBUG
+		if(element == TDIE_ICON_MAIN)
+			ATLASSERT((m_tdc.dwFlags & TDF_USE_HICON_MAIN) != 0);
+		else if(element == TDIE_ICON_FOOTER)
+			ATLASSERT((m_tdc.dwFlags & TDF_USE_HICON_FOOTER) != 0);
+#endif // _DEBUG
+		::SendMessage(m_hWnd, TDM_UPDATE_ICON, element, (LPARAM)hIcon);
+	}
+
+	void UpdateIcon(TASKDIALOG_ICON_ELEMENTS element, LPCWSTR lpstrIcon)
+	{
+		ATLASSERT(m_hWnd != NULL);
+#ifdef _DEBUG
+		if(element == TDIE_ICON_MAIN)
+			ATLASSERT((m_tdc.dwFlags & TDF_USE_HICON_MAIN) == 0);
+		else if(element == TDIE_ICON_FOOTER)
+			ATLASSERT((m_tdc.dwFlags & TDF_USE_HICON_FOOTER) == 0);
+#endif // _DEBUG
+		::SendMessage(m_hWnd, TDM_UPDATE_ICON, element, (LPARAM)lpstrIcon);
+	}
+};
+
+
+///////////////////////////////////////////////////////////////////////////////
+// CTaskDialog - for non-customized task dialogs
+
+class CTaskDialog : public CTaskDialogImpl<CTaskDialog>
+{
+public:
+	CTaskDialog(HWND hWndParent = NULL) : CTaskDialogImpl<CTaskDialog>(hWndParent)
+	{
+		m_tdc.pfCallback = NULL;
+	}
+};
+
+#endif // ((_WIN32_WINNT >= 0x0600) || defined(_WTL_TASKDIALOG)) && !defined(_WIN32_WCE)
 
 }; // namespace WTL
 
