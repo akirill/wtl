@@ -190,6 +190,12 @@ public:
 		return ::DrawThemeBackground(m_hTheme, hDC, nPartID, nStateID, pRect, pClipRect);
 	}
 
+	HRESULT DrawThemeBackgroundEx(HDC hDC, int nPartID, int nStateID, LPCRECT pRect, const DTBGOPTS* pOptions = NULL)
+	{
+		ATLASSERT(m_hTheme != NULL);
+		return ::DrawThemeBackgroundEx(m_hTheme, hDC, nPartID, nStateID, pRect, pOptions);
+	}
+
 	HRESULT DrawThemeText(HDC hDC, int nPartID, int nStateID, LPCWSTR pszText, int nCharCount, DWORD dwTextFlags, DWORD dwTextFlags2, LPCRECT pRect)
 	{
 		ATLASSERT(m_hTheme != NULL);
@@ -408,6 +414,44 @@ public:
 		ATLASSERT(m_hTheme != NULL);
 		return ::GetThemeSysInt(m_hTheme, nIntID, pnValue);
 	}
+
+#ifdef _WTL_NEW_UXTHEME
+	HTHEME OpenThemeDataEx(HWND hWnd, LPCWSTR pszClassList, DWORD dwFlags)
+	{
+		if(!IsThemingSupported())
+			return NULL;
+
+		ATLASSERT(m_hTheme == NULL);
+		m_hTheme = ::OpenThemeDataEx(hWnd, pszClassList, dwFlags);
+		return m_hTheme;
+	}
+
+	HRESULT DrawThemeTextEx(HDC hDC, int nPartID, int nStateID, LPCWSTR pszText, int cchText, DWORD dwTextFlags, LPRECT lpRect, const DTTOPTS* pOptions)
+	{
+		ATLASSERT(m_hTheme != NULL);
+		return ::DrawThemeTextEx(m_hTheme, hDC, nPartID, nStateID, pszText, cchText, dwTextFlags, lpRect, pOptions);
+	}
+
+	HRESULT GetThemeTransitionDuration(int nPartID, int nFromStateID, int nToStateID, int nPropID, DWORD& dwDuration)
+	{
+		ATLASSERT(m_hTheme != NULL);
+		return ::GetThemeTransitionDuration(m_hTheme, nPartID, nFromStateID, nToStateID, nPropID, &dwDuration);
+	}
+#endif // _WTL_NEW_UXTHEME
+
+#if (_WIN32_WINNT >= 0x0600)
+	HRESULT GetThemeBitmap(int nPartID, int nStateID, int nPropID, ULONG uFlags, HBITMAP& hBitmap)
+	{
+		ATLASSERT(m_hTheme != NULL);
+		return ::GetThemeBitmap(m_hTheme, nPartID, nStateID, nPropID, uFlags, &hBitmap);
+	}
+
+	HRESULT GetThemeStream(int nPartID, int nStateID, int nPropID, VOID** ppvStream, DWORD* pcbStream, HINSTANCE hInstance)
+	{
+		ATLASSERT(m_hTheme != NULL);
+		return ::GetThemeStream(m_hTheme, nPartID, nStateID, nPropID, ppvStream, pcbStream, hInstance);
+	}
+#endif // (_WIN32_WINNT >= 0x0600)
 };
 
 __declspec(selectany) int CTheme::m_nIsThemingSupported = -1;
@@ -636,7 +680,7 @@ public:
 		return ::IsThemeDialogTextureEnabled(pT->m_hWnd);
 	}
 
-	HRESULT DrawThemeParentBackground(HDC hDC, LPRECT pRect = NULL)
+	HRESULT DrawThemeParentBackground(HDC hDC, const RECT* pRect = NULL)
 	{
 		if(!IsThemingSupported())
 			return S_FALSE;
@@ -645,6 +689,39 @@ public:
 		ATLASSERT(::IsWindow(pT->m_hWnd));
 		return ::DrawThemeParentBackground(pT->m_hWnd, hDC, pRect);
 	}
+
+#ifdef _WTL_NEW_UXTHEME
+	HRESULT SetWindowThemeAttribute(WINDOWTHEMEATTRIBUTETYPE type, PVOID pvAttribute, DWORD cbAttribute)
+	{
+		if(!IsThemingSupported())
+			return S_FALSE;
+
+		T* pT = static_cast<T*>(this);
+		ATLASSERT(::IsWindow(pT->m_hWnd));
+		return ::SetWindowThemeAttribute(pT->m_hWnd, type, pvAttribute, cbAttribute);
+	}
+
+	HRESULT SetWindowThemeNonClientAttributes(DWORD dwAttributes, DWORD dwMask)
+	{
+		if(!IsThemingSupported())
+			return S_FALSE;
+
+		T* pT = static_cast<T*>(this);
+		ATLASSERT(::IsWindow(pT->m_hWnd));
+		WTA_OPTIONS opt = { dwAttributes, dwMask };
+		return ::SetWindowThemeAttribute(pT->m_hWnd, WTA_NONCLIENT, (PVOID)&opt, sizeof(opt));
+	}
+
+	HRESULT DrawThemeParentBackgroundEx(HDC hDC, DWORD dwFlags, const RECT* lpRect = NULL)
+	{
+		if(!IsThemingSupported())
+			return S_FALSE;
+
+		T* pT = static_cast<T*>(this);
+		ATLASSERT(::IsWindow(pT->m_hWnd));
+		return ::DrawThemeParentBackgroundEx(pT->m_hWnd, hDC, dwFlags, lpRect);
+	}
+#endif // _WTL_NEW_UXTHEME
 
 // Message map and handlers
 	// Note: If you handle any of these messages in your derived class,

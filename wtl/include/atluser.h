@@ -717,12 +717,7 @@ public:
 	HICON LoadOEMIcon(LPCTSTR lpstrIconName)
 	{
 		ATLASSERT(m_hIcon == NULL);
-		ATLASSERT(lpstrIconName == IDI_APPLICATION ||
-			lpstrIconName == IDI_ASTERISK ||
-			lpstrIconName == IDI_EXCLAMATION ||
-			lpstrIconName == IDI_HAND ||
-			lpstrIconName == IDI_QUESTION ||
-			lpstrIconName == IDI_WINLOGO);
+		ATLASSERT(IsOEMIcon(lpstrIconName));
 		m_hIcon = ::LoadIcon(NULL, lpstrIconName);
 		return m_hIcon;
 	}
@@ -838,11 +833,66 @@ public:
 	}
 
 #ifndef _WIN32_WCE
-	BOOL GetIconInfo(PICONINFO pIconInfo)
+	BOOL GetIconInfo(PICONINFO pIconInfo) const
 	{
 		ATLASSERT(m_hIcon != NULL);
 		ATLASSERT(pIconInfo != NULL);
 		return ::GetIconInfo(m_hIcon, pIconInfo);
+	}
+
+#if (_WIN32_WINNT >= 0x0600)
+	BOOL GetIconInfoEx(PICONINFOEX pIconInfo) const
+	{
+		ATLASSERT(m_hIcon != NULL);
+		ATLASSERT(pIconInfo != NULL);
+		return ::GetIconInfoEx(m_hIcon, pIconInfo);
+	}
+#endif // (_WIN32_WINNT >= 0x0600)
+
+#if defined(NTDDI_VERSION) && (NTDDI_VERSION >= NTDDI_LONGHORN)
+	HRESULT LoadIconMetric(ATL::_U_STRINGorID icon, int lims)
+	{
+		ATLASSERT(m_hIcon == NULL);
+		USES_CONVERSION;
+		return ::LoadIconMetric(ModuleHelper::GetResourceInstance(), T2CW(icon.m_lpstr), lims, &m_hIcon);
+	}
+
+	HRESULT LoadIconWithScaleDown(ATL::_U_STRINGorID icon, int cx, int cy)
+	{
+		ATLASSERT(m_hIcon == NULL);
+		USES_CONVERSION;
+		return ::LoadIconWithScaleDown(ModuleHelper::GetResourceInstance(), T2CW(icon.m_lpstr), cx, cy, &m_hIcon);
+	}
+
+	HRESULT LoadOEMIconMetric(LPCTSTR lpstrIconName, int lims)
+	{
+		ATLASSERT(m_hIcon == NULL);
+		ATLASSERT(IsOEMIcon(lpstrIconName));
+		return ::LoadIconMetric(NULL, (LPCWSTR)lpstrIconName, lims, &m_hIcon);
+	}
+
+	HRESULT LoadOEMIconWithScaleDown(LPCTSTR lpstrIconName, int cx, int cy)
+	{
+		ATLASSERT(m_hIcon == NULL);
+		ATLASSERT(IsOEMIcon(lpstrIconName));
+		USES_CONVERSION;
+		return ::LoadIconWithScaleDown(NULL, (LPCWSTR)lpstrIconName, cx, cy, &m_hIcon);
+	}
+#endif // defined(NTDDI_VERSION) && (NTDDI_VERSION >= NTDDI_LONGHORN)
+#endif // !_WIN32_WCE
+
+	// Helper
+#ifndef _WIN32_WCE
+	static bool IsOEMIcon(LPCTSTR lpstrIconName)
+	{
+#if (WINVER >= 0x0600)
+		return (lpstrIconName == IDI_APPLICATION || lpstrIconName == IDI_ASTERISK || lpstrIconName == IDI_EXCLAMATION ||
+		          lpstrIconName == IDI_HAND || lpstrIconName == IDI_QUESTION || lpstrIconName == IDI_WINLOGO ||
+		          lpstrIconName == IDI_SHIELD);
+#else // !(WINVER >= 0x0600)
+		return (lpstrIconName == IDI_APPLICATION || lpstrIconName == IDI_ASTERISK || lpstrIconName == IDI_EXCLAMATION ||
+		          lpstrIconName == IDI_HAND || lpstrIconName == IDI_QUESTION || lpstrIconName == IDI_WINLOGO);
+#endif // !(WINVER >= 0x0600)
 	}
 #endif // !_WIN32_WCE
 };

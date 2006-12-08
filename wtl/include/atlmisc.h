@@ -3894,12 +3894,14 @@ inline HICON AtlLoadIcon(ATL::_U_STRINGorID icon)
 #ifndef _WIN32_WCE
 inline HICON AtlLoadSysIcon(LPCTSTR lpIconName)
 {
-	ATLASSERT(lpIconName == IDI_APPLICATION ||
-		lpIconName == IDI_ASTERISK ||
-		lpIconName == IDI_EXCLAMATION ||
-		lpIconName == IDI_HAND ||
-		lpIconName == IDI_QUESTION ||
-		lpIconName == IDI_WINLOGO);
+#if (WINVER >= 0x0600)
+	ATLASSERT(lpIconName == IDI_APPLICATION || lpIconName == IDI_ASTERISK || lpIconName == IDI_EXCLAMATION ||
+	          lpIconName == IDI_HAND || lpIconName == IDI_QUESTION || lpIconName == IDI_WINLOGO ||
+	          lpIconName == IDI_SHIELD);
+#else // !(WINVER >= 0x0600)
+	ATLASSERT(lpIconName == IDI_APPLICATION || lpIconName == IDI_ASTERISK || lpIconName == IDI_EXCLAMATION ||
+	          lpIconName == IDI_HAND || lpIconName == IDI_QUESTION || lpIconName == IDI_WINLOGO);
+#endif // !(WINVER >= 0x0600)
 	return ::LoadIcon(NULL, lpIconName);
 }
 #endif // !_WIN32_WCE

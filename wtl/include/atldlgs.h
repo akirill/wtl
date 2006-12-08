@@ -115,6 +115,10 @@ namespace WTL
   #endif // !UNICODE
 #endif // (_WIN32_WINNT >= 0x0500) && !defined(OPENFILENAME_SIZE_VERSION_400)
 
+#if !defined(_WIN32_WCE) && !defined(CDN_INCLUDEITEM)
+  #define CDN_INCLUDEITEM         (CDN_FIRST - 0x0007)
+#endif
+
 template <class T>
 class ATL_NO_VTABLE CFileDialogImpl : public ATL::CDialogImplBase
 {
@@ -280,6 +284,9 @@ public:
 		NOTIFY_CODE_HANDLER(CDN_SELCHANGE, _OnSelChange)
 		NOTIFY_CODE_HANDLER(CDN_SHAREVIOLATION, _OnShareViolation)
 		NOTIFY_CODE_HANDLER(CDN_TYPECHANGE, _OnTypeChange)
+#ifndef _WIN32_WCE
+		NOTIFY_CODE_HANDLER(CDN_INCLUDEITEM, _OnIncludeItem)
+#endif // !_WIN32_WCE
 	END_MSG_MAP()
 
 	LRESULT _OnFileOK(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHandled*/)
@@ -336,6 +343,15 @@ public:
 		return 0;
 	}
 
+#ifndef _WIN32_WCE
+	LRESULT _OnIncludeItem(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHandled*/)
+	{
+		ATLASSERT(::IsWindow(m_hWnd));
+		T* pT = static_cast<T*>(this);
+		return pT->OnIncludeItem((LPOFNOTIFYEX)pnmh);
+	}
+#endif // !_WIN32_WCE
+
 // Overrideables
 	BOOL OnFileOK(LPOFNOTIFY /*lpon*/)
 	{
@@ -366,6 +382,13 @@ public:
 	void OnTypeChange(LPOFNOTIFY /*lpon*/)
 	{
 	}
+
+#ifndef _WIN32_WCE
+	BOOL OnIncludeItem(LPOFNOTIFYEX /*lponex*/)
+	{
+		return TRUE;   // include item
+	}
+#endif // !_WIN32_WCE
 };
 
 
@@ -1129,11 +1152,7 @@ public:
 		{
 			m_cf.lpLogFont = lplfInitial;
 			m_cf.Flags |= CF_INITTOLOGFONTSTRUCT;
-#if _SECURE_ATL
-			ATL::Checked::memcpy_s(&m_lf, sizeof(m_lf), m_cf.lpLogFont, sizeof(m_lf));
-#else
-			memcpy(&m_lf, m_cf.lpLogFont, sizeof(m_lf));
-#endif
+			m_lf = *lplfInitial;
 		}
 		else
 		{
@@ -1173,7 +1192,7 @@ public:
 		return bRet ? IDOK : IDCANCEL;
 	}
 
-	// Get the selected font (works during DoModal displayed or after)
+	// works only when the dialog is dislayed or after
 	void GetCurrentFont(LPLOGFONT lplf) const
 	{
 		ATLASSERT(lplf != NULL);
@@ -1183,6 +1202,43 @@ public:
 		else
 			*lplf = m_lf;
 	}
+
+	// works only when the dialog is dislayed or before
+#ifndef _WIN32_WCE
+	void SetLogFont(LPLOGFONT lplf)
+	{
+		ATLASSERT(lplf != NULL);
+#ifndef WM_CHOOSEFONT_SETLOGFONT
+		const UINT WM_CHOOSEFONT_SETLOGFONT = (WM_USER + 101);
+#endif
+		if(m_hWnd != NULL)
+		{
+			::SendMessage(m_hWnd, WM_CHOOSEFONT_SETLOGFONT, 0, (LPARAM)lplf);
+		}
+		else
+		{
+			m_lf = *lplf;
+			m_cf.Flags |= CF_INITTOLOGFONTSTRUCT;
+		}
+	}
+
+	void SetFlags(DWORD dwFlags)
+	{
+#ifndef WM_CHOOSEFONT_SETFLAGS
+		const UINT WM_CHOOSEFONT_SETFLAGS = (WM_USER + 102);
+#endif
+		if(m_hWnd != NULL)
+		{
+			CHOOSEFONT cf = { sizeof(CHOOSEFONT) };
+			cf.Flags = dwFlags;
+			::SendMessage(m_hWnd, WM_CHOOSEFONT_SETFLAGS, 0, (LPARAM)&cf);
+		}
+		else
+		{
+			m_cf.Flags = dwFlags;
+		}
+	}
+#endif // !_WIN32_WCE
 
 	// Helpers for parsing information after successful return
 	LPCTSTR GetFaceName() const   // return the face name of the font
