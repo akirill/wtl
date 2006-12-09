@@ -8427,7 +8427,6 @@ public:
 	BOOL InsertBand(int nBand, LPREBARBANDINFO lprbbi)
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
-		lprbbi->cbSize = sizeof(REBARBANDINFO);
 		return (BOOL)::SendMessage(m_hWnd, RB_INSERTBAND, nBand, (LPARAM)lprbbi);
 	}
 

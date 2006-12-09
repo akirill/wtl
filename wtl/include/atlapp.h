@@ -476,6 +476,11 @@ inline BOOL AtlInitCommonControls(DWORD dwFlags)
 ///////////////////////////////////////////////////////////////////////////////
 // RunTimeHelper - helper functions for Windows version and structure sizes
 
+// Not for Windows CE
+#if defined(_WIN32_WCE) && !defined(_WTL_NO_RUNTIME_STRUCT_SIZE)
+  #define _WTL_NO_RUNTIME_STRUCT_SIZE
+#endif
+
 #ifndef _WTL_NO_RUNTIME_STRUCT_SIZE
 
 #ifndef _SIZEOF_STRUCT
@@ -494,9 +499,9 @@ inline BOOL AtlInitCommonControls(DWORD dwFlags)
   #define LVTILEINFO_V5_SIZE   _SIZEOF_STRUCT(LVTILEINFO, puColumns)
 #endif // (_WIN32_WINNT >= 0x0600) && !defined(LVTILEINFO_V5_SIZE)
 
-#if (NTDDI_VERSION >= NTDDI_LONGHORN) && !defined(MCHITTESTINFO_V1_SIZE)
+#if defined(NTDDI_VERSION) && (NTDDI_VERSION >= NTDDI_LONGHORN) && !defined(MCHITTESTINFO_V1_SIZE)
   #define MCHITTESTINFO_V1_SIZE   _SIZEOF_STRUCT(MCHITTESTINFO, st)
-#endif // (NTDDI_VERSION >= NTDDI_LONGHORN) && !defined(MCHITTESTINFO_V1_SIZE)
+#endif // defined(NTDDI_VERSION) && (NTDDI_VERSION >= NTDDI_LONGHORN) && !defined(MCHITTESTINFO_V1_SIZE)
 
 #if !defined(_WIN32_WCE) && (WINVER >= 0x0600) && !defined(NONCLIENTMETRICS_V1_SIZE)
   #define NONCLIENTMETRICS_V1_SIZE   _SIZEOF_STRUCT(NONCLIENTMETRICS, lfMessageFont)
@@ -506,18 +511,27 @@ inline BOOL AtlInitCommonControls(DWORD dwFlags)
 
 namespace RunTimeHelper
 {
+#ifndef _WIN32_WCE
+	inline bool IsCommCtrl6()
+	{
+		DWORD dwMajor = 0, dwMinor = 0;
+		HRESULT hRet = ATL::AtlGetCommCtrlVersion(&dwMajor, &dwMinor);
+		return (SUCCEEDED(hRet) && (dwMajor >= 6));
+	}
+
 	inline bool IsVista()
 	{
 		OSVERSIONINFO ovi = { sizeof(OSVERSIONINFO) };
 		BOOL bRet = ::GetVersionEx(&ovi);
 		return ((bRet != FALSE) && (ovi.dwMajorVersion >= 6));
 	}
+#endif // !_WIN32_WCE
 
 	inline int SizeOf_REBARBANDINFO()
 	{
 		int nSize = sizeof(REBARBANDINFO);
 #if !defined(_WTL_NO_RUNTIME_STRUCT_SIZE) && (_WIN32_WINNT >= 0x0600)
-		if(!IsVista())
+		if(!(IsVista() && IsCommCtrl6()))
 			nSize = REBARBANDINFO_V6_SIZE;
 #endif // !defined(_WTL_NO_RUNTIME_STRUCT_SIZE) && (_WIN32_WINNT >= 0x0600)
 		return nSize;
@@ -548,10 +562,10 @@ namespace RunTimeHelper
 	inline int SizeOf_MCHITTESTINFO()
 	{
 		int nSize = sizeof(MCHITTESTINFO);
-#if !defined(_WTL_NO_RUNTIME_STRUCT_SIZE) && (NTDDI_VERSION >= NTDDI_LONGHORN)
-		if(!IsVista())
+#if !defined(_WTL_NO_RUNTIME_STRUCT_SIZE) && defined(NTDDI_VERSION) && (NTDDI_VERSION >= NTDDI_LONGHORN)
+		if(!(IsVista() && IsCommCtrl6()))
 			nSize = MCHITTESTINFO_V1_SIZE;
-#endif // !defined(_WTL_NO_RUNTIME_STRUCT_SIZE) && (NTDDI_VERSION >= NTDDI_LONGHORN)
+#endif // !defined(_WTL_NO_RUNTIME_STRUCT_SIZE) && defined(NTDDI_VERSION) && (NTDDI_VERSION >= NTDDI_LONGHORN)
 		return nSize;
 	}
 
