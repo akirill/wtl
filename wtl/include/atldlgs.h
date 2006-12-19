@@ -61,6 +61,9 @@
 // CFindReplaceDialogImpl<T>
 // CFindReplaceDialog
 //
+// CMemDlgTemplate
+// CIndirectDialogImpl<T, TDlgTemplate, TBase>
+//
 // CPropertySheetWindow
 // CPropertySheetImpl<T, TBase>
 // CPropertySheet
@@ -2464,6 +2467,549 @@ public:
 };
 
 #endif // !_WIN32_WCE
+
+
+#if (_ATL_VER >= 0x800)
+typedef ATL::_DialogSplitHelper::DLGTEMPLATEEX DLGTEMPLATEEX;
+typedef ATL::_DialogSplitHelper::DLGITEMTEMPLATEEX DLGITEMTEMPLATEEX;
+#else // (_ATL_VER >= 0x800)
+typedef ATL::_DialogSizeHelper::_ATL_DLGTEMPLATEEX DLGTEMPLATEEX;
+#pragma pack(push, 4)
+struct DLGITEMTEMPLATEEX
+{
+	DWORD helpID;
+	DWORD exStyle;
+	DWORD style;
+	short x;
+	short y;
+	short cx;
+	short cy;
+	WORD id;
+};
+#pragma pack(pop)
+#endif // (_ATL_VER >= 0x800)
+
+
+///////////////////////////////////////////////////////////////////////////////
+// CMemDlgTemplate - in-memory dialog template - DLGTEMPLATE or DLGTEMPLATEEX
+
+class CMemDlgTemplate
+{
+public:
+	enum StdCtrlType
+	{
+		CTRL_BUTTON    = 0x0080,
+		CTRL_EDIT      = 0x0081,
+		CTRL_STATIC    = 0x0082,
+		CTRL_LISTBOX   = 0x0083,
+		CTRL_SCROLLBAR = 0x0084,
+		CTRL_COMBOBOX  = 0x0085
+	};
+
+	CMemDlgTemplate() : m_pData(NULL), m_pPtr(NULL), m_cAllocated(0)
+	{ }
+
+	~CMemDlgTemplate()
+	{
+		Reset();
+	}
+
+	bool IsValid() const
+	{
+		return (m_pData != NULL);
+	}
+
+	bool IsTemplateEx() const
+	{
+		return (IsValid() && ((DLGTEMPLATEEX*)m_pData)->signature == 0xFFFF);
+	}
+
+	LPDLGTEMPLATE GetTemplatePtr()
+	{
+		return reinterpret_cast<LPDLGTEMPLATE>(m_pData);
+	}
+
+	DLGTEMPLATEEX* GetTemplateExPtr()
+	{
+		return reinterpret_cast<DLGTEMPLATEEX*>(m_pData);
+	}
+
+	void Reset()
+	{
+		if (IsValid())
+			ATLVERIFY(::GlobalFree(m_pData) == NULL);
+
+		m_pData = NULL;
+		m_pPtr = NULL;
+		m_cAllocated = 0;
+	}
+
+	void Create(bool bDlgEx, LPCTSTR lpszCaption, short nX, short nY, short nWidth, short nHeight, DWORD dwStyle = 0, DWORD dwExStyle = 0, 
+	            LPCTSTR lpstrFontName = NULL, WORD wFontSize = 0, WORD wWeight = 0, BYTE bItalic = 0, BYTE bCharset = 0, DWORD dwHelpID = 0,
+				ATL::_U_STRINGorID ClassName = 0U, ATL::_U_STRINGorID Menu = 0U)
+	{
+		// Should have DS_SETFONT style to set the dialog font name and size
+		if (lpstrFontName != NULL)
+		{
+			dwStyle |= DS_SETFONT;
+		}
+		else
+		{
+			dwStyle &= ~DS_SETFONT;
+		}
+
+		if (bDlgEx)
+		{
+			DLGTEMPLATEEX dlg = {1, 0xFFFF, dwHelpID, dwExStyle, dwStyle, 0, nX, nY, nWidth, nHeight};
+			AddData(&dlg, sizeof(dlg));
+		}
+		else
+		{
+			DLGTEMPLATE dlg = {dwStyle, dwExStyle, 0, nX, nY, nWidth, nHeight};
+			AddData(&dlg, sizeof(dlg));
+		}
+
+#ifndef _WIN32_WCE
+		if (Menu.m_lpstr == NULL)
+		{
+			WORD menuData = 0;
+			AddData(&menuData, sizeof(WORD));
+		}
+		else if (IS_INTRESOURCE(Menu.m_lpstr))
+		{
+			WORD menuData[] = {0xFFFF, (WORD)Menu.m_lpstr};
+			AddData(menuData, sizeof(menuData));
+		}
+		else
+		{
+			AddString(Menu.m_lpstr);
+		}
+#else // _WIN32_WCE
+		// Windows CE doesn't support the addition of menus to a dialog box
+		ATLASSERT(Menu.m_lpstr == NULL);
+		WORD menuData = 0;
+		AddData(&menuData, sizeof(WORD));
+#endif // _WIN32_WCE
+
+		if (ClassName.m_lpstr == NULL)
+		{
+			WORD classData = 0;
+			AddData(&classData, sizeof(WORD));
+		}
+		else if (IS_INTRESOURCE(ClassName.m_lpstr))
+		{
+			WORD classData[] = {0xFFFF, (WORD)ClassName.m_lpstr};
+			AddData(classData, sizeof(classData));
+		}
+		else
+		{
+			AddString(ClassName.m_lpstr);
+		}
+
+		// Set dialog caption
+		AddString(lpszCaption);
+
+		if (lpstrFontName != NULL)
+		{
+			AddData(&wFontSize, sizeof(wFontSize));
+
+			if (bDlgEx)
+			{
+				AddData(&wWeight, sizeof(wWeight));
+				AddData(&bItalic, sizeof(bItalic));
+				AddData(&bCharset, sizeof(bCharset));
+			}
+
+			AddString(lpstrFontName);
+		}
+	}
+
+	void AddControl(ATL::_U_STRINGorID ClassName, WORD wId, short nX, short nY, short nWidth, short nHeight, DWORD dwStyle, DWORD dwExStyle,
+	                ATL::_U_STRINGorID Text, const WORD* pCreationData = NULL, WORD nCreationData = 0, DWORD dwHelpID = 0)
+	{
+		ATLASSERT(IsValid());
+
+		// DWORD align data
+		m_pPtr = reinterpret_cast<LPBYTE>(reinterpret_cast<DWORD>(m_pPtr + 3) & (~3));
+
+		if (IsTemplateEx())
+		{
+			DLGTEMPLATEEX* dlg = (DLGTEMPLATEEX*)m_pData;
+			dlg->cDlgItems++;
+
+			DLGITEMTEMPLATEEX item = {dwHelpID, ATL::CControlWinTraits::GetWndExStyle(0) | dwExStyle, ATL::CControlWinTraits::GetWndStyle(0) | dwStyle, nX, nY, nWidth, nHeight, wId};
+			AddData(&item, sizeof(item));
+		}
+		else
+		{
+			LPDLGTEMPLATE dlg = (LPDLGTEMPLATE)m_pData;
+			dlg->cdit++;
+
+			DLGITEMTEMPLATE item = {ATL::CControlWinTraits::GetWndStyle(0) | dwStyle, ATL::CControlWinTraits::GetWndExStyle(0) | dwExStyle, nX, nY, nWidth, nHeight, wId};
+			AddData(&item, sizeof(item));
+		}
+
+		ATLASSERT(ClassName.m_lpstr != NULL);
+		if (IS_INTRESOURCE(ClassName.m_lpstr))
+		{
+			WORD wData[] = {0xFFFF, (WORD)ClassName.m_lpstr};
+			AddData(wData, sizeof(wData));
+		}
+		else
+		{
+			AddString(ClassName.m_lpstr);
+		}
+
+		if (IS_INTRESOURCE(Text.m_lpstr))
+		{
+			WORD wData[] = {0xFFFF, (WORD)Text.m_lpstr};
+			AddData(wData, sizeof(wData));
+		}
+		else
+		{
+			AddString(Text.m_lpstr);
+		}
+
+		AddData(&nCreationData, sizeof(nCreationData));
+
+		if ((nCreationData != 0))
+		{
+			ATLASSERT(pCreationData != NULL);
+			AddData(pCreationData, nCreationData * sizeof(WORD));
+		}
+	}
+
+	void AddStdControl(StdCtrlType CtrlType, WORD wId, short nX, short nY, short nWidth, short nHeight,
+	                   DWORD dwStyle, DWORD dwExStyle, ATL::_U_STRINGorID Text, const WORD* pCreationData = NULL, WORD nCreationData = 0, DWORD dwHelpID = 0)
+	{
+		AddControl(CtrlType, wId, nX, nY, nWidth, nHeight, dwStyle, dwExStyle, Text, pCreationData, nCreationData, dwHelpID);
+	}
+
+protected:
+	void AddData(LPCVOID pData, size_t nData)
+	{
+		ATLASSERT(pData != NULL);
+
+		const size_t ALLOCATION_INCREMENT = 1024;
+
+		if (m_pData == NULL)
+		{
+			m_cAllocated = ((nData / ALLOCATION_INCREMENT) + 1) * ALLOCATION_INCREMENT;
+			m_pPtr = m_pData = static_cast<LPBYTE>(::GlobalAlloc(GPTR, m_cAllocated));
+			ATLASSERT(m_pData != NULL);
+		}
+		else if (((m_pPtr - m_pData) + nData) > m_cAllocated)
+		{
+			size_t ptrPos = (m_pPtr - m_pData);
+			m_cAllocated += ((nData / ALLOCATION_INCREMENT) + 1) * ALLOCATION_INCREMENT;
+			m_pData = static_cast<LPBYTE>(::GlobalReAlloc(m_pData, m_cAllocated, 0));
+			ATLASSERT(m_pData != NULL);
+			m_pPtr = m_pData + ptrPos;
+		}
+
+#if _SECURE_ATL
+		ATL::Checked::memcpy_s(m_pPtr, m_cAllocated - (m_pPtr - m_pData), pData, nData);
+#else
+		memcpy(m_pPtr, pData, nData);
+#endif
+
+		m_pPtr += nData;
+	}
+
+	void AddString(LPCTSTR lpszStr)
+	{
+		if (lpszStr == NULL)
+		{
+			WCHAR szEmpty = 0;
+			AddData(&szEmpty, sizeof(szEmpty));
+		}
+		else
+		{
+			USES_CONVERSION;
+			LPCWSTR lpstr = T2CW(lpszStr);
+			int nSize = lstrlenW(lpstr) + 1;
+			AddData(lpstr, nSize * sizeof(WCHAR));
+		}
+	}
+
+	LPBYTE m_pData;
+	LPBYTE m_pPtr;
+	SIZE_T m_cAllocated;
+};
+
+
+///////////////////////////////////////////////////////////////////////////////
+// Dialog and control macros for indirect dialogs
+
+// for DLGTEMPLATE
+#define BEGIN_DIALOG(x, y, width, height) \
+	void DoInitTemplate() \
+	{ \
+		bool bExTemplate = false; \
+		int nX = x, nY = y, nWidth = width, nHeight = height; \
+		LPCTSTR szCaption = NULL; \
+		DWORD dwStyle = WS_POPUP | WS_BORDER | WS_SYSMENU; \
+		DWORD dwExStyle = 0; \
+		LPCTSTR szFontName = NULL; \
+		WORD wFontSize = 0; \
+		WORD wWeight = 0; \
+		BYTE bItalic = 0; \
+		BYTE bCharset = 0; \
+		DWORD dwHelpID = 0; \
+		ATL::_U_STRINGorID Menu = 0U; \
+		ATL::_U_STRINGorID ClassName = 0U;
+
+// for DLGTEMPLATEEX
+#define BEGIN_DIALOG_EX(x, y, width, height, helpID) \
+	void DoInitTemplate() \
+	{ \
+		bool bExTemplate = true; \
+		int nX = x, nY = y, nWidth = width, nHeight = height; \
+		LPCTSTR szCaption = NULL; \
+		DWORD dwStyle = WS_POPUP | WS_BORDER | WS_SYSMENU; \
+		DWORD dwExStyle = 0; \
+		LPCTSTR szFontName = NULL; \
+		WORD wFontSize = 0; \
+		WORD wWeight = 0; \
+		BYTE bItalic = 0; \
+		BYTE bCharset = 0; \
+		DWORD dwHelpID = helpID; \
+		ATL::_U_STRINGorID Menu = 0U; \
+		ATL::_U_STRINGorID ClassName = 0U;
+
+#define END_DIALOG() \
+		m_Template.Create(bExTemplate, szCaption, nX, nY, nWidth, nHeight, dwStyle, dwExStyle, szFontName, wFontSize, wWeight, bItalic, bCharset, dwHelpID, ClassName, Menu); \
+	};
+
+#define DIALOG_CAPTION(caption) \
+		szCaption = caption;
+#define DIALOG_STYLE(style) \
+		dwStyle = style;
+#define DIALOG_EXSTYLE(exStyle) \
+		dwExStyle = exStyle;
+#define DIALOG_FONT(pointSize, typeFace) \
+		wFontSize = pointSize; \
+		szFontName = typeFace;
+#define DIALOG_FONT_EX(pointsize, typeface, weight, italic, charset) \
+		ATLASSERT(bExTemplate); \
+		wFontSize = 0; \
+		szFontName = typeFace; \
+		wWeight = weight; \
+		bItalic = italic; \
+		bCharset = charset;
+#define DIALOG_MENU(menuName) \
+		Menu = menuName;
+#define DIALOG_CLASS(className) \
+		ClassName = className;
+
+#define BEGIN_CONTROLS_MAP() \
+	void DoInitControls() \
+	{
+
+#define END_CONTROLS_MAP() \
+	};
+
+
+#define CONTROL_LTEXT(text, id, x, y, width, height, style, exStyle) \
+	m_Template.AddStdControl(CMemDlgTemplate::CTRL_STATIC, id, x, y, width, height, style | SS_LEFT | WS_GROUP, exStyle, text, NULL, 0);
+#define CONTROL_CTEXT(text, id, x, y, width, height, style, exStyle) \
+	m_Template.AddStdControl(CMemDlgTemplate::CTRL_STATIC, id, x, y, width, height, style | SS_CENTER | WS_GROUP, exStyle, text, NULL, 0);
+#define CONTROL_RTEXT(text, id, x, y, width, height, style, exStyle) \
+	m_Template.AddStdControl(CMemDlgTemplate::CTRL_STATIC, id, x, y, width, height, style | SS_RIGHT | WS_GROUP, exStyle, text, NULL, 0);
+#define CONTROL_PUSHBUTTON(text, id, x, y, width, height, style, exStyle) \
+	m_Template.AddStdControl(CMemDlgTemplate::CTRL_BUTTON, id, x, y, width, height, style | BS_PUSHBUTTON | WS_TABSTOP, exStyle, text, NULL, 0);
+#define CONTROL_DEFPUSHBUTTON(text, id, x, y, width, height, style, exStyle) \
+	m_Template.AddStdControl(CMemDlgTemplate::CTRL_BUTTON, id, x, y, width, height, style | BS_DEFPUSHBUTTON | WS_TABSTOP, exStyle, text, NULL, 0);
+#define CONTROL_PUSHBOX(text, id, x, y, width, height, style, exStyle) \
+	m_Template.AddStdControl(CMemDlgTemplate::CTRL_BUTTON, id, x, y, width, height, style | BS_PUSHBOX | WS_TABSTOP, exStyle, text, NULL, 0);
+#define CONTROL_STATE3(text, id, x, y, width, height, style, exStyle) \
+	m_Template.AddStdControl(CMemDlgTemplate::CTRL_BUTTON, id, x, y, width, height, style | BS_3STATE | WS_TABSTOP, exStyle, text, NULL, 0);
+#define CONTROL_AUTO3STATE(text, id, x, y, width, height, style, exStyle) \
+	m_Template.AddStdControl(CMemDlgTemplate::CTRL_BUTTON, id, x, y, width, height, style | BS_AUTO3STATE | WS_TABSTOP, exStyle, text, NULL, 0);
+#define CONTROL_CHECKBOX(text, id, x, y, width, height, style, exStyle) \
+	m_Template.AddStdControl(CMemDlgTemplate::CTRL_BUTTON, id, x, y, width, height, style | BS_CHECKBOX | WS_TABSTOP, exStyle, text, NULL, 0);
+#define CONTROL_AUTOCHECKBOX(text, id, x, y, width, height, style, exStyle) \
+	m_Template.AddStdControl(CMemDlgTemplate::CTRL_BUTTON, id, x, y, width, height, style | BS_AUTOCHECKBOX | WS_TABSTOP, exStyle, text, NULL, 0);
+#define CONTROL_RADIOBUTTON(text, id, x, y, width, height, style, exStyle) \
+	m_Template.AddStdControl(CMemDlgTemplate::CTRL_BUTTON, id, x, y, width, height, style | BS_RADIOBUTTON | WS_TABSTOP, exStyle, text, NULL, 0);
+#define CONTROL_AUTORADIOBUTTON(text, id, x, y, width, height, style, exStyle) \
+	m_Template.AddStdControl(CMemDlgTemplate::CTRL_BUTTON, id, x, y, width, height, style | BS_AUTORADIOBUTTON | WS_TABSTOP, exStyle, text, NULL, 0);
+#define CONTROL_COMBOBOX(id, x, y, width, height, style, exStyle) \
+	m_Template.AddStdControl(CMemDlgTemplate::CTRL_COMBOBOX, id, x, y, width, height, style | CBS_DROPDOWN | WS_TABSTOP, exStyle, NULL, NULL, 0);
+#define CONTROL_EDITTEXT(id, x, y, width, height, style, exStyle) \
+	m_Template.AddStdControl(CMemDlgTemplate::CTRL_EDIT, id, x, y, width, height, style | ES_LEFT | WS_BORDER | WS_TABSTOP, exStyle, NULL, NULL, 0);
+#define CONTROL_GROUPBOX(text, id, x, y, width, height, style, exStyle) \
+	m_Template.AddStdControl(CMemDlgTemplate::CTRL_BUTTON, id, x, y, width, height, style | BS_GROUPBOX, exStyle, text, NULL, 0);
+#define CONTROL_LISTBOX(id, x, y, width, height, style, exStyle) \
+	m_Template.AddStdControl(CMemDlgTemplate::CTRL_LISTBOX, id, x, y, width, height, style | LBS_NOTIFY | WS_BORDER, exStyle, NULL, NULL, 0);
+#define CONTROL_SCROLLBAR(id, x, y, width, height, style, exStyle) \
+	m_Template.AddStdControl(CMemDlgTemplate::CTRL_SCROLLBAR, id, x, y, width, height, style | SBS_HORZ, exStyle, NULL, NULL, 0);
+#define CONTROL_ICON(text, id, x, y, width, height, style, exStyle) \
+	m_Template.AddStdControl(CMemDlgTemplate::CTRL_STATIC, id, x, y, width, height, style | SS_ICON, exStyle, text, NULL, 0);
+#define CONTROL_CONTROL(text, id, className, style, x, y, width, height, exStyle) \
+	m_Template.AddControl(className, id, x, y, width, height, style, exStyle, text, NULL, 0);
+
+
+///////////////////////////////////////////////////////////////////////////////
+// CIndirectDialogImpl - dialogs with template in memory
+
+template <class T, class TDlgTemplate = CMemDlgTemplate, class TBase = ATL::CDialogImpl<T, ATL::CWindow> >
+class ATL_NO_VTABLE CIndirectDialogImpl : public TBase
+{
+public:
+	enum { IDD = 0 };   // no dialog template resource
+
+	TDlgTemplate m_Template;
+
+	void CreateTemplate()
+	{
+		T* pT = static_cast<T*>(this);
+		pT->DoInitTemplate();
+		pT->DoInitControls();
+	}
+
+	INT_PTR DoModal(HWND hWndParent = ::GetActiveWindow(), LPARAM dwInitParam = NULL)
+	{
+		T* pT = static_cast<T*>(this);
+		ATLASSERT(pT->m_hWnd == NULL);
+
+		if (!m_Template.IsValid())
+			CreateTemplate();
+
+#if (_ATL_VER >= 0x0800)
+		// Allocate the thunk structure here, where we can fail gracefully.
+		BOOL result = m_thunk.Init(NULL, NULL);
+		if (result == FALSE)
+		{
+			SetLastError(ERROR_OUTOFMEMORY);
+			return -1;
+		}
+#endif // (_ATL_VER >= 0x0800)
+
+		ModuleHelper::AddCreateWndData(&m_thunk.cd, pT);
+
+#ifdef _DEBUG
+		m_bModal = true;
+#endif // _DEBUG
+
+		return ::DialogBoxIndirectParam(ModuleHelper::GetResourceInstance(), m_Template.GetTemplatePtr(), hWndParent, (DLGPROC)T::StartDialogProc, dwInitParam);
+	}
+
+	HWND Create(HWND hWndParent, LPARAM dwInitParam = NULL)
+	{
+		T* pT = static_cast<T*>(this);
+		ATLASSERT(pT->m_hWnd == NULL);
+
+		if (!m_Template.IsValid())
+			CreateTemplate();
+
+#if (_ATL_VER >= 0x0800)
+		// Allocate the thunk structure here, where we can fail gracefully.
+		BOOL result = m_thunk.Init(NULL, NULL);
+		if (result == FALSE) 
+		{
+			SetLastError(ERROR_OUTOFMEMORY);
+			return NULL;
+		}
+#endif // (_ATL_VER >= 0x0800)
+
+		ModuleHelper::AddCreateWndData(&m_thunk.cd, pT);
+
+#ifdef _DEBUG
+		m_bModal = false;
+#endif // _DEBUG
+
+		HWND hWnd = ::CreateDialogIndirectParam(ModuleHelper::GetResourceInstance(), (LPCDLGTEMPLATE)m_Template.GetTemplatePtr(), hWndParent, (DLGPROC)T::StartDialogProc, dwInitParam);
+		ATLASSERT(m_hWnd == hWnd);
+
+		return hWnd;
+	}
+
+	// for CComControl
+	HWND Create(HWND hWndParent, RECT&, LPARAM dwInitParam = NULL)
+	{
+		return Create(hWndParent, dwInitParam);
+	}
+
+	void DoInitTemplate() 
+	{
+		ATLASSERT(FALSE);   // MUST be defined in derived class
+	}
+
+	void DoInitControls() 
+	{
+		ATLASSERT(FALSE);   // MUST be defined in derived class
+	}
+};
+
+
+///////////////////////////////////////////////////////////////////////////////
+// CStdIndirectDialogImpl - implementation of standard indirect PPC/SmartPhone dialog
+
+#if defined __ATLWINCE_H__ && !defined _WTL_CE_NO_DIALOGS
+
+template <class T, UINT t_shidiFlags = WTL_STD_SHIDIF, bool t_bModal = true>
+class ATL_NO_VTABLE CStdIndirectDialogImpl : public CIndirectDialogImpl< T, CStdDialogImpl<T, t_shidiFlags, t_bModal> >
+{
+public:
+	typedef CIndirectDialogImpl< T, CStdDialogImpl<T, t_shidiFlags, t_bModal> >	_baseClass;
+
+	INT_PTR DoModal(HWND hWndParent = ::GetActiveWindow(), LPARAM dwInitParam = NULL)
+	{
+		ATLASSERT(t_bModal);
+
+		if (!m_Template.IsValid())
+			CreateTemplate();
+
+		if (m_Template.IsTemplateEx())
+		{
+			if (GetTemplateExPtr()->style & DS_CENTER)
+			{
+				ATLASSERT(GetTemplateExPtr()->style ^ WS_CHILD);
+				GetTemplateExPtr()->style |= WS_POPUP;
+			}
+		}
+		else
+		{
+			if (GetTemplatePtr()->style & DS_CENTER)
+			{
+				ATLASSERT(GetTemplatePtr()->style ^ WS_CHILD);
+				GetTemplatePtr()->style |= WS_POPUP;
+			}
+		}
+
+		return _baseClass::DoModal(hWndParent, dwInitParam);
+	}
+
+	HWND Create(HWND hWndParent, LPARAM dwInitParam = NULL)
+	{
+		ATLASSERT(!t_bModal);
+
+		if (!m_Template.IsValid())
+			CreateTemplate();
+
+		if (m_Template.IsTemplateEx())
+		{
+			if (GetTemplateExPtr()->style & DS_CENTER)
+			{
+				ATLASSERT(GetTemplateExPtr()->style ^ WS_CHILD);
+				GetTemplateExPtr()->style |= WS_POPUP;
+			}
+		}
+		else
+		{
+			if (GetTemplatePtr()->style & DS_CENTER)
+			{
+				ATLASSERT(GetTemplatePtr()->style ^ WS_CHILD);
+				GetTemplatePtr()->style |= WS_POPUP;
+			}
+		}
+
+		return _baseClass::Create(hWndParent, dwInitParam);
+	}
+};
+ 
+#endif // defined __ATLWINCE_H__ && !defined _WTL_CE_NO_DIALOGS
 
 
 ///////////////////////////////////////////////////////////////////////////////
