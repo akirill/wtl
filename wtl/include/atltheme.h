@@ -687,7 +687,11 @@ public:
 
 		T* pT = static_cast<T*>(this);
 		ATLASSERT(::IsWindow(pT->m_hWnd));
+#ifdef _WTL_NEW_UXTHEME
 		return ::DrawThemeParentBackground(pT->m_hWnd, hDC, pRect);
+#else
+		return ::DrawThemeParentBackground(pT->m_hWnd, hDC, (RECT*)pRect);
+#endif
 	}
 
 #ifdef _WTL_NEW_UXTHEME
