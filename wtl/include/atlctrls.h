@@ -7241,7 +7241,7 @@ public:
 	int GetLine(int nIndex, LPTSTR lpszBuffer, int nMaxLength) const
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
-		*(LPINT)lpszBuffer = nMaxLength;
+		*(LPWORD)lpszBuffer = (WORD)nMaxLength;
 		return (int)::SendMessage(m_hWnd, EM_GETLINE, nIndex, (LPARAM)lpszBuffer);
 	}
 
