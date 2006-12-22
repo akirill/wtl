@@ -2587,6 +2587,7 @@ public:
 #else // _WIN32_WCE
 		// Windows CE doesn't support the addition of menus to a dialog box
 		ATLASSERT(Menu.m_lpstr == NULL);
+		Menu.m_lpstr;   // avoid level 4 warning
 		WORD menuData = 0;
 		AddData(&menuData, sizeof(WORD));
 #endif // _WIN32_WCE
@@ -2630,7 +2631,7 @@ public:
 		ATLASSERT(IsValid());
 
 		// DWORD align data
-		m_pPtr = reinterpret_cast<LPBYTE>(reinterpret_cast<DWORD>(m_pPtr + 3) & (~3));
+		m_pPtr = (LPBYTE)(DWORD_PTR)((DWORD)(DWORD_PTR)(m_pPtr + 3) & (~3));
 
 		if (IsTemplateEx())
 		{
@@ -2746,7 +2747,7 @@ protected:
 	void DoInitTemplate() \
 	{ \
 		bool bExTemplate = false; \
-		int nX = x, nY = y, nWidth = width, nHeight = height; \
+		short nX = x, nY = y, nWidth = width, nHeight = height; \
 		LPCTSTR szCaption = NULL; \
 		DWORD dwStyle = WS_POPUP | WS_BORDER | WS_SYSMENU; \
 		DWORD dwExStyle = 0; \
@@ -2764,7 +2765,7 @@ protected:
 	void DoInitTemplate() \
 	{ \
 		bool bExTemplate = true; \
-		int nX = x, nY = y, nWidth = width, nHeight = height; \
+		short nX = x, nY = y, nWidth = width, nHeight = height; \
 		LPCTSTR szCaption = NULL; \
 		DWORD dwStyle = WS_POPUP | WS_BORDER | WS_SYSMENU; \
 		DWORD dwExStyle = 0; \
@@ -2792,8 +2793,8 @@ protected:
 		szFontName = typeFace;
 #define DIALOG_FONT_EX(pointsize, typeface, weight, italic, charset) \
 		ATLASSERT(bExTemplate); \
-		wFontSize = 0; \
-		szFontName = typeFace; \
+		wFontSize = pointsize; \
+		szFontName = typeface; \
 		wWeight = weight; \
 		bItalic = italic; \
 		bCharset = charset;
@@ -2811,43 +2812,45 @@ protected:
 
 
 #define CONTROL_LTEXT(text, id, x, y, width, height, style, exStyle) \
-	m_Template.AddStdControl(CMemDlgTemplate::CTRL_STATIC, id, x, y, width, height, style | SS_LEFT | WS_GROUP, exStyle, text, NULL, 0);
+	m_Template.AddStdControl(WTL::CMemDlgTemplate::CTRL_STATIC, (WORD)id, x, y, width, height, style | SS_LEFT | WS_GROUP, exStyle, text, NULL, 0);
 #define CONTROL_CTEXT(text, id, x, y, width, height, style, exStyle) \
-	m_Template.AddStdControl(CMemDlgTemplate::CTRL_STATIC, id, x, y, width, height, style | SS_CENTER | WS_GROUP, exStyle, text, NULL, 0);
+	m_Template.AddStdControl(WTL::CMemDlgTemplate::CTRL_STATIC, (WORD)id, x, y, width, height, style | SS_CENTER | WS_GROUP, exStyle, text, NULL, 0);
 #define CONTROL_RTEXT(text, id, x, y, width, height, style, exStyle) \
-	m_Template.AddStdControl(CMemDlgTemplate::CTRL_STATIC, id, x, y, width, height, style | SS_RIGHT | WS_GROUP, exStyle, text, NULL, 0);
+	m_Template.AddStdControl(WTL::CMemDlgTemplate::CTRL_STATIC, (WORD)id, x, y, width, height, style | SS_RIGHT | WS_GROUP, exStyle, text, NULL, 0);
 #define CONTROL_PUSHBUTTON(text, id, x, y, width, height, style, exStyle) \
-	m_Template.AddStdControl(CMemDlgTemplate::CTRL_BUTTON, id, x, y, width, height, style | BS_PUSHBUTTON | WS_TABSTOP, exStyle, text, NULL, 0);
+	m_Template.AddStdControl(WTL::CMemDlgTemplate::CTRL_BUTTON, (WORD)id, x, y, width, height, style | BS_PUSHBUTTON | WS_TABSTOP, exStyle, text, NULL, 0);
 #define CONTROL_DEFPUSHBUTTON(text, id, x, y, width, height, style, exStyle) \
-	m_Template.AddStdControl(CMemDlgTemplate::CTRL_BUTTON, id, x, y, width, height, style | BS_DEFPUSHBUTTON | WS_TABSTOP, exStyle, text, NULL, 0);
+	m_Template.AddStdControl(WTL::CMemDlgTemplate::CTRL_BUTTON, (WORD)id, x, y, width, height, style | BS_DEFPUSHBUTTON | WS_TABSTOP, exStyle, text, NULL, 0);
+#ifndef _WIN32_WCE
 #define CONTROL_PUSHBOX(text, id, x, y, width, height, style, exStyle) \
-	m_Template.AddStdControl(CMemDlgTemplate::CTRL_BUTTON, id, x, y, width, height, style | BS_PUSHBOX | WS_TABSTOP, exStyle, text, NULL, 0);
+	m_Template.AddStdControl(WTL::CMemDlgTemplate::CTRL_BUTTON, (WORD)id, x, y, width, height, style | BS_PUSHBOX | WS_TABSTOP, exStyle, text, NULL, 0);
+#endif // !_WIN32_WCE
 #define CONTROL_STATE3(text, id, x, y, width, height, style, exStyle) \
-	m_Template.AddStdControl(CMemDlgTemplate::CTRL_BUTTON, id, x, y, width, height, style | BS_3STATE | WS_TABSTOP, exStyle, text, NULL, 0);
+	m_Template.AddStdControl(WTL::CMemDlgTemplate::CTRL_BUTTON, (WORD)id, x, y, width, height, style | BS_3STATE | WS_TABSTOP, exStyle, text, NULL, 0);
 #define CONTROL_AUTO3STATE(text, id, x, y, width, height, style, exStyle) \
-	m_Template.AddStdControl(CMemDlgTemplate::CTRL_BUTTON, id, x, y, width, height, style | BS_AUTO3STATE | WS_TABSTOP, exStyle, text, NULL, 0);
+	m_Template.AddStdControl(WTL::CMemDlgTemplate::CTRL_BUTTON, (WORD)id, x, y, width, height, style | BS_AUTO3STATE | WS_TABSTOP, exStyle, text, NULL, 0);
 #define CONTROL_CHECKBOX(text, id, x, y, width, height, style, exStyle) \
-	m_Template.AddStdControl(CMemDlgTemplate::CTRL_BUTTON, id, x, y, width, height, style | BS_CHECKBOX | WS_TABSTOP, exStyle, text, NULL, 0);
+	m_Template.AddStdControl(WTL::CMemDlgTemplate::CTRL_BUTTON, (WORD)id, x, y, width, height, style | BS_CHECKBOX | WS_TABSTOP, exStyle, text, NULL, 0);
 #define CONTROL_AUTOCHECKBOX(text, id, x, y, width, height, style, exStyle) \
-	m_Template.AddStdControl(CMemDlgTemplate::CTRL_BUTTON, id, x, y, width, height, style | BS_AUTOCHECKBOX | WS_TABSTOP, exStyle, text, NULL, 0);
+	m_Template.AddStdControl(WTL::CMemDlgTemplate::CTRL_BUTTON, (WORD)id, x, y, width, height, style | BS_AUTOCHECKBOX | WS_TABSTOP, exStyle, text, NULL, 0);
 #define CONTROL_RADIOBUTTON(text, id, x, y, width, height, style, exStyle) \
-	m_Template.AddStdControl(CMemDlgTemplate::CTRL_BUTTON, id, x, y, width, height, style | BS_RADIOBUTTON | WS_TABSTOP, exStyle, text, NULL, 0);
+	m_Template.AddStdControl(WTL::CMemDlgTemplate::CTRL_BUTTON, (WORD)id, x, y, width, height, style | BS_RADIOBUTTON | WS_TABSTOP, exStyle, text, NULL, 0);
 #define CONTROL_AUTORADIOBUTTON(text, id, x, y, width, height, style, exStyle) \
-	m_Template.AddStdControl(CMemDlgTemplate::CTRL_BUTTON, id, x, y, width, height, style | BS_AUTORADIOBUTTON | WS_TABSTOP, exStyle, text, NULL, 0);
+	m_Template.AddStdControl(WTL::CMemDlgTemplate::CTRL_BUTTON, (WORD)id, x, y, width, height, style | BS_AUTORADIOBUTTON | WS_TABSTOP, exStyle, text, NULL, 0);
 #define CONTROL_COMBOBOX(id, x, y, width, height, style, exStyle) \
-	m_Template.AddStdControl(CMemDlgTemplate::CTRL_COMBOBOX, id, x, y, width, height, style | CBS_DROPDOWN | WS_TABSTOP, exStyle, NULL, NULL, 0);
+	m_Template.AddStdControl(WTL::CMemDlgTemplate::CTRL_COMBOBOX, (WORD)id, x, y, width, height, style | CBS_DROPDOWN | WS_TABSTOP, exStyle, (LPCTSTR)NULL, NULL, 0);
 #define CONTROL_EDITTEXT(id, x, y, width, height, style, exStyle) \
-	m_Template.AddStdControl(CMemDlgTemplate::CTRL_EDIT, id, x, y, width, height, style | ES_LEFT | WS_BORDER | WS_TABSTOP, exStyle, NULL, NULL, 0);
+	m_Template.AddStdControl(WTL::CMemDlgTemplate::CTRL_EDIT, (WORD)id, x, y, width, height, style | ES_LEFT | WS_BORDER | WS_TABSTOP, exStyle, (LPCTSTR)NULL, NULL, 0);
 #define CONTROL_GROUPBOX(text, id, x, y, width, height, style, exStyle) \
-	m_Template.AddStdControl(CMemDlgTemplate::CTRL_BUTTON, id, x, y, width, height, style | BS_GROUPBOX, exStyle, text, NULL, 0);
+	m_Template.AddStdControl(WTL::CMemDlgTemplate::CTRL_BUTTON, (WORD)id, x, y, width, height, style | BS_GROUPBOX, exStyle, text, NULL, 0);
 #define CONTROL_LISTBOX(id, x, y, width, height, style, exStyle) \
-	m_Template.AddStdControl(CMemDlgTemplate::CTRL_LISTBOX, id, x, y, width, height, style | LBS_NOTIFY | WS_BORDER, exStyle, NULL, NULL, 0);
+	m_Template.AddStdControl(WTL::CMemDlgTemplate::CTRL_LISTBOX, (WORD)id, x, y, width, height, style | LBS_NOTIFY | WS_BORDER, exStyle, (LPCTSTR)NULL, NULL, 0);
 #define CONTROL_SCROLLBAR(id, x, y, width, height, style, exStyle) \
-	m_Template.AddStdControl(CMemDlgTemplate::CTRL_SCROLLBAR, id, x, y, width, height, style | SBS_HORZ, exStyle, NULL, NULL, 0);
+	m_Template.AddStdControl(WTL::CMemDlgTemplate::CTRL_SCROLLBAR, (WORD)id, x, y, width, height, style | SBS_HORZ, exStyle, (LPCTSTR)NULL, NULL, 0);
 #define CONTROL_ICON(text, id, x, y, width, height, style, exStyle) \
-	m_Template.AddStdControl(CMemDlgTemplate::CTRL_STATIC, id, x, y, width, height, style | SS_ICON, exStyle, text, NULL, 0);
+	m_Template.AddStdControl(WTL::CMemDlgTemplate::CTRL_STATIC, (WORD)id, x, y, width, height, style | SS_ICON, exStyle, text, NULL, 0);
 #define CONTROL_CONTROL(text, id, className, style, x, y, width, height, exStyle) \
-	m_Template.AddControl(className, id, x, y, width, height, style, exStyle, text, NULL, 0);
+	m_Template.AddControl(className, (WORD)id, x, y, width, height, style, exStyle, text, NULL, 0);
 
 
 ///////////////////////////////////////////////////////////////////////////////
