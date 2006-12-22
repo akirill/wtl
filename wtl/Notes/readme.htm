@@ -4,6 +4,17 @@
 <meta http-equiv="Content-Language" content="en-us">
 <meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
 <title>Windows Template Library</title>
+<style type="text/css">
+.style1 {
+	font-family: Arial;
+	font-weight: bold;
+	font-size: x-small;
+}
+.style2 {
+	font-family: Arial;
+	font-size: x-small;
+}
+</style>
 </head>
 
 <body>
@@ -11,7 +22,7 @@
 <table border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111" id="AutoNumber3">
   <tr>
     <td><font face="Arial"><b>Windows Template Library - WTL Version 8.0</b></font><font face="Arial" size="2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
-(build 6323) 11/19/06</font></td>
+(build 6356) 12/22/06</font></td>
   </tr>
   <tr>
     <td><hr></td>
@@ -147,7 +158,7 @@ Visual C++ 2005&nbsp;&nbsp; (ATL 8.0)</font></p>
 <p style=margin:0in><font face="Arial" size="2">&nbsp;&nbsp;&nbsp; SDK 
 (optional):</font></p>
 <p style=margin:0in><font face="Arial" size="2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
-Any Platform SDK from January 2000 release up to the latest (April 2005)</font></p>
+Any Platform SDK from January 2000 release up to the latest Windows SDK</font></p>
 <p style=margin:0in>&nbsp;</p>
 <p style=margin:0in><font face="Arial" size="2">&nbsp;&nbsp;&nbsp; Windows CE 
 development:</font></p>
@@ -159,7 +170,10 @@ eMbedded Visual C++ 4.0 - STANDARDSDK_410, Pocket PC 2003, Smartphone 2003,
 <p style=margin:0in><font face="Arial" size="2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
 STANDARDSDK_500, Pocket PC 2003 SE, Smartphone 2003 SE</font></p>
 <p style=margin:0in><font face="Arial" size="2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
-Visual C++ 2005 - Pocket PC 2003 SE, Smartphone 2003 SE</font></p>
+Visual C++ 2005 - Pocket PC 2003 SE, Smartphone 2003 SE, STANDARDSDK_500,</font></p>
+<p style=margin:0in><span class="style2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span><font face="Arial" size="2">Windows Mobile 5.0 Pocket PC, Windows Mobile 
+5.0 Smartphone</font></p>
 <p style=margin:0in>&nbsp;</p>
 <p style=margin:0in>&nbsp;</p>
 <p style=margin:0in><font face="Arial">
@@ -803,6 +817,46 @@ Visual C++ 2005 - Pocket PC 2003 SE, Smartphone 2003 SE</font></p>
     <td width="115"><font face="Arial" size="2">impl</font></td>
     <td width="255"><font face="Arial" size="2">Wizard97 interior page</font></td>
   </tr>
+	<tr>
+    <td width="221"><b><font face="Arial" size="2">CAeroWizardFrameWindow</font></b></td>
+    <td width="115"><font face="Arial" size="2">client</font></td>
+    <td width="255"><font face="Arial" size="2">&nbsp;</font></td>
+  </tr>
+	<tr>
+    <td width="221"><b><font face="Arial" size="2">C</font></b><span class="style1">AeroWizardFrameImpl&lt;&gt;</span></td>
+    <td width="115"><font face="Arial" size="2">impl</font></td>
+    <td width="255"><font face="Arial" size="2">Aero Wizard frame</font></td>
+  </tr>
+	<tr>
+    <td width="221"><b><font face="Arial" size="2">CAeroWizardFrame</font></b></td>
+    <td width="115"><font face="Arial" size="2">as-is</font></td>
+    <td width="255"><font face="Arial" size="2">&nbsp;</font></td>
+  </tr>
+	<tr>
+    <td width="221"><b><font face="Arial" size="2">C</font></b><span class="style1">AeroWizardPageWindow</span></td>
+    <td width="115"><font face="Arial" size="2">client</font></td>
+    <td width="255"><font face="Arial" size="2">&nbsp;</font></td>
+  </tr>
+	<tr>
+    <td width="221"><b><font face="Arial" size="2">C</font></b><span class="style1">AeroWizardPageImpl&lt;&gt;</span></td>
+    <td width="115"><font face="Arial" size="2">impl</font></td>
+    <td width="255"><font face="Arial" size="2">Aero Wizard page</font></td>
+  </tr>
+	<tr>
+    <td width="221"><b><font face="Arial" size="2">CAeroWizardPage</font></b></td>
+    <td width="115"><font face="Arial" size="2">as-is</font></td>
+    <td width="255"><font face="Arial" size="2">&nbsp;</font></td>
+  </tr>
+	<tr>
+    <td width="221"><b><font face="Arial" size="2">CAeroWizardAxPageImpl&lt;&gt;</font></b></td>
+    <td width="115"><font face="Arial" size="2">impl</font></td>
+    <td width="255"><font face="Arial" size="2">Aero Wizard page with ActiveX</font></td>
+  </tr>
+	<tr>
+    <td width="221"><b><font face="Arial" size="2">CAeroWizardAxPage</font></b></td>
+    <td width="115"><font face="Arial" size="2">as-is</font></td>
+    <td width="255"><font face="Arial" size="2">&nbsp;</font></td>
+  </tr>
   <tr>
     <td colspan="3" width="593"><font face="Arial" size="2"><br>
     common dialogs</font></td>
@@ -814,6 +868,31 @@ Visual C++ 2005 - Pocket PC 2003 SE, Smartphone 2003 SE</font></p>
   </tr>
   <tr>
     <td width="221"><b><font face="Arial" size="2">CFileDialog</font></b></td>
+    <td width="115"><font face="Arial" size="2">as-is</font></td>
+    <td width="255"><font face="Arial" size="2">&nbsp;</font></td>
+  </tr>
+	<tr>
+    <td width="221"><b><font face="Arial" size="2">CShellFileDialogImpl&lt;&gt;</font></b></td>
+    <td width="115"><font face="Arial" size="2">base</font></td>
+    <td width="255"><font face="Arial" size="2">&nbsp;</font></td>
+  </tr>
+	<tr>
+    <td width="221"><span class="style1">CShellFileOpenDialogImpl&lt;&gt;</span></td>
+    <td width="115"><font face="Arial" size="2">impl</font></td>
+    <td width="255"><font face="Arial" size="2">Shell File Open dialog</font></td>
+  </tr>
+	<tr>
+    <td width="221"><b><font face="Arial" size="2">C</font></b><span class="style1">ShellFileOpenDialog</span></td>
+    <td width="115"><font face="Arial" size="2">as-is</font></td>
+    <td width="255"><font face="Arial" size="2">&nbsp;</font></td>
+  </tr>
+	<tr>
+    <td width="221"><b><font face="Arial" size="2">C</font></b><span class="style1">ShellFileSaveDialogImpl&lt;&gt;</span></td>
+    <td width="115"><font face="Arial" size="2">impl</font></td>
+    <td width="255"><font face="Arial" size="2">Shell File Save dialog</font></td>
+  </tr>
+  <tr>
+    <td width="221"><b><font face="Arial" size="2">C</font></b><span class="style1">ShellFileSaveDialog</span></td>
     <td width="115"><font face="Arial" size="2">as-is</font></td>
     <td width="255"><font face="Arial" size="2">&nbsp;</font></td>
   </tr>
@@ -1258,6 +1337,35 @@ Visual C++ 2005 - Pocket PC 2003 SE, Smartphone 2003 SE</font></p>
     <td width="221"><b><font face="Arial" size="2">CFindFile</font></b></td>
     <td width="115"><font face="Arial" size="2">as-is</font></td>
     <td width="255"><font face="Arial" size="2">file search support</font></td>
+  </tr>
+  <tr>
+    <td colspan="3" width="593"><font face="Arial" size="2"><br>
+    </font><span class="style2">in-memory dialog</span></td>
+  </tr>
+	<tr>
+    <td width="221"><span class="style1">CMemDlgTemplate</span></td>
+    <td width="115"><font face="Arial" size="2">as-is</font></td>
+    <td width="255"><font face="Arial" size="2">In-memory dialog template</font></td>
+  </tr>
+	<tr>
+    <td width="221"><b><font face="Arial" size="2">CIndirectDialogImpl&lt;&gt;</font></b></td>
+    <td width="115"><font face="Arial" size="2">impl</font></td>
+    <td width="255"><font face="Arial" size="2">In-memory dialog class</font></td>
+  </tr>
+  <tr>
+    <td colspan="3" width="593"><font face="Arial" size="2"><br>
+    </font><span class="style2">task dialog</span></td>
+  </tr>
+	<tr>
+    <td width="221"><b><font face="Arial" size="2">C</font></b><span class="style1">TaskDialogImpl&lt;&gt;</span></td>
+    <td width="115"><font face="Arial" size="2">impl</font></td>
+    <td width="255"><font face="Arial" size="2">T</font><span class="style2">ask 
+	Dialog in Vista</span></td>
+  </tr>
+	<tr>
+    <td width="221"><b><font face="Arial" size="2">CTaskDialog</font></b></td>
+    <td width="115"><font face="Arial" size="2">as-is</font></td>
+    <td width="255"><font face="Arial" size="2">&nbsp;</font></td>
   </tr>
   <tr>
     <td colspan="3" width="593"><font face="Arial" size="2"><br>
