@@ -2661,7 +2661,12 @@ public:
 			AddString(ClassName.m_lpstr);
 		}
 
-		if (IS_INTRESOURCE(Text.m_lpstr))
+		if (Text.m_lpstr == NULL)
+		{
+			WORD classData = 0;
+			AddData(&classData, sizeof(WORD));
+		}
+		else if (IS_INTRESOURCE(Text.m_lpstr))
 		{
 			WORD wData[] = {0xFFFF, (WORD)Text.m_lpstr};
 			AddData(wData, sizeof(wData));
