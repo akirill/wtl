@@ -3456,7 +3456,16 @@ public:
 		ATLASSERT(m_hFind != NULL);
 
 		int nLen = lstrlen(m_lpszRoot);
-		bool bAddSep = nLen == 0 || (m_lpszRoot[nLen - 1] != _T('\\') && m_lpszRoot[nLen - 1] !=_T('/'));
+#ifndef _WIN32_WCE
+		ATLASSERT(nLen > 0);
+		if(nLen == 0)
+			return FALSE;
+
+		bool bAddSep = (m_lpszRoot[nLen - 1] != _T('\\') && m_lpszRoot[nLen - 1] !=_T('/'));
+#else // CE specific
+		// allow diskless devices (nLen == 0)
+		bool bAddSep = ((nLen == 0) || (m_lpszRoot[nLen - 1] != _T('\\') && m_lpszRoot[nLen - 1] !=_T('/')));
+#endif // _WIN32_WCE
 
 		if((lstrlen(m_lpszRoot) + (bAddSep ?  1 : 0)) >= cchLength)
 			return FALSE;
@@ -3571,7 +3580,16 @@ public:
 
 		_CSTRING_NS::CString strResult = m_lpszRoot;
 		int nLen = strResult.GetLength();
-		if( nLen == 0 ||( strResult[nLen - 1] != _T('\\') && strResult[nLen - 1] != _T('/')))
+#ifndef _WIN32_WCE
+		ATLASSERT(nLen > 0);
+		if(nLen == 0)
+			return strResult;
+
+		if((strResult[nLen - 1] != _T('\\')) && (strResult[nLen - 1] != _T('/')))
+#else // CE specific
+		// allow diskless devices (nLen == 0)
+		if((nLen == 0) || ((strResult[nLen - 1] != _T('\\')) && (strResult[nLen - 1] != _T('/'))))
+#endif // _WIN32_WCE
 			strResult += m_chDirSeparator;
 		strResult += GetFileName();
 		return strResult;

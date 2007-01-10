@@ -430,7 +430,7 @@ public:
 	LRESULT OnMenuClose(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 	{
 		T* pT = static_cast<T*>(this);
-		pT->StdCloseDialog(wID - ID_MENU_OK + IDOK);
+		pT->StdCloseDialog((WORD)(wID - ID_MENU_OK + IDOK));
 		return 0;
 	}
 
@@ -480,7 +480,7 @@ public:
 	
 	LRESULT OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
 	{
-#ifdef _DEBUG // _DEBUG must be defined before atlwin.h inclusion
+#ifdef _DEBUG
 		T* pT = static_cast<T*>(this);
 		ATLASSERT(t_bModal == pT->m_bModal);
 #endif
@@ -561,7 +561,7 @@ public:
 
 	LRESULT OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
 	{
-#ifdef _DEBUG // _DEBUG must be defined before atlwin.h inclusion
+#ifdef _DEBUG
 		T* pT = static_cast<T*>(this);
 		ATLASSERT(t_bModal == pT->m_bModal);
 #endif
@@ -685,8 +685,8 @@ public:
 
 	LRESULT OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
 	{
-#ifdef _DEBUG // _DEBUG must be defined before atlwin.h inclusion
 		T* pT = static_cast<T*>(this);
+#ifdef _DEBUG
 		ATLASSERT(t_bModal == pT->m_bModal);
 #endif
 		if (DRA::GetDisplayMode() == DRA::Landscape)

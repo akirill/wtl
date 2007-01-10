@@ -3894,6 +3894,10 @@ public:
 	// handlers that return direct values without any restrictions
 	LRESULT OnNotify(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& bHandled)
 	{
+#ifndef _WIN32_WCE
+		// This notification is sometimes received before the window is created on CE
+		ATLASSERT(::IsWindow(m_hWnd));
+#endif
 		NMHDR* pNMHDR = (NMHDR*)lParam;
 
 		// don't handle messages not from the page/sheet itself
@@ -3902,7 +3906,9 @@ public:
 			bHandled = FALSE;
 			return 1;
 		}
+#ifdef _WIN32_WCE
 		ATLASSERT(::IsWindow(m_hWnd));
+#endif
 
 		T* pT = static_cast<T*>(this);
 		LRESULT lResult = 0;
