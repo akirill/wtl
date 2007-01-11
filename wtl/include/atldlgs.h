@@ -3895,7 +3895,7 @@ public:
 	LRESULT OnNotify(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& bHandled)
 	{
 #ifndef _WIN32_WCE
-		// This notification is sometimes received before the window is created on CE
+		// This notification is sometimes received on Windows CE after the window is already destroyed
 		ATLASSERT(::IsWindow(m_hWnd));
 #endif
 		NMHDR* pNMHDR = (NMHDR*)lParam;
