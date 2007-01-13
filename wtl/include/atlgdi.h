@@ -3601,9 +3601,10 @@ public:
 #define DIBINFO16_BITFIELDS { 31744, 992, 31 }
 
 // DIBINFO16 - To avoid color table problems in WinCE we only create this type of Dib
-struct DIBINFO16 : public BITMAPINFO
+struct DIBINFO16 // a BITMAPINFO with 2 additional color bitfields
 {
-	DWORD bitfields[2];    // 2 additional color bitfields
+    BITMAPINFOHEADER    bmiHeader;
+    RGBQUAD             bmiColors[3];
 
 	DIBINFO16(SIZE size) 
 	{
