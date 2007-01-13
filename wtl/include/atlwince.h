@@ -106,21 +106,34 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Classes in this file:
 //
-// CStdDialogBase<T, t_shidiFlags, t_bModal> : Standard dialog base class
+// CStdDialogBase<T, t_shidiFlags, t_bModal> : Standard PPC/SmartPhone dialog base class
+// CStdDialogImplBase - Base implementation of standard dialog
 // CStdDialogImpl<T, t_shidiFlags, t_bModal> : Standard dialog implementation
+// CStdIndirectDialogImpl - implementation of standard indirect PPC/SmartPhone dialog
+// CStdAxDialogImpl<T, t_shidiFlags, t_bModal> : Standard AxDialog implementation
 // CStdSimpleDialog<t_wDlgTemplateID, t_shidiFlags> : Standard simple dialog
-// CStdDialogResizeBase<T, t_shidiFlags, t_bModal> : Orientation aware standard dialog base class
-// CStdDialogResizeImpl<T, t_shidiFlags, t_bModal> : Orientation aware standard dialog implementation
+// CStdDialogResizeImplBase - Base implementation of orientation resizing standard dialog
+// CStdDialogResizeImpl<T, t_shidiFlags, t_bModal> : Orientation resizing standard dialog implementation
+// CStdAxDialogResizeImpl - implementation of orientation resizing standard AxDialog
 // CStdSimpleDialogResizeImpl<T, t_wDlgTemplateID, t_shidiFlags> : Standard resizing simple dialog implementation
-// CStdOrientedDialogImpl<T, t_shidiFlags, t_bModal> : Orientable dialog implementation
+// CStdOrientedDialogBase - Oriented PPC standard dialog base class
+// CStdOrientedDialogImplBase - Oriented PPC standard dialog base implementation
+// CStdOrientedDialogImpl<T, t_shidiFlags, t_bModal> : Oriented PPC standard dialog implementation
+// CStdAxOrientedDialogImpl - Oriented PPC standard AxDialog implementation
 // CStdSimpleOrientedDialog<t_wDlgTemplateID, t_wDlgLandscapeID, t_shidiFlags> : Standard simple orientable dialog
 //
 // CAppInfoBase	 : Helper for application state save/restore to registry
 // CAppInfoT<T> : CAppInfoBase constructed from a CAppWindow<T>
 // CAppWindowBase<T> : Base class for PPC/SmartPhone well-behaved application window or dialog
 // CAppWindow<T> : PPC/SmartPhone well-behaved application window class
-// CAppDialog<T> : PPC/SmartPhone well-behaved application non-modal dialog class
-// CAppStdDialogImpl<T, t_shidiFlags> : PPC/SmartPhone implementation of non-modal standard dialog application
+// CAppDialog<T> : PPC/SmartPhone well-behaved application dialog class
+// CAppStdDialogImplBase - Base implementation of standard application dialogs
+// CAppStdDialogImpl<T, t_shidiFlags, t_bModal> : Implementation of standard application dialog
+// CAppStdDialogResizeImpl - implementation of orientation resizing standard application dialog
+// CAppStdAxDialogImpl - Implementation of standard application AxDialog 
+// CAppStdAxDialogResizeImpl - implementation of orientation resizing standard application AxDialog
+// CAppStdOrientedDialogImpl - implementation of oriented PPC standard application dialog
+// CAppStdAxOrientedDialogImpl - implementation of oriented PPC standard application AxDialog
 //
 // CFullScreenFrame<T, t_bHasSip> : Full screen frame class
 //
@@ -145,6 +158,8 @@
 // Global functions:
 //   AtlCreateMenuBar()
 //   AtlCreateEmptyMenuBar()
+//   AtlIsEditFocus()
+//   AtlActivateBackKey()
 
 namespace WTL
 {
@@ -174,12 +189,33 @@ inline HWND AtlCreateEmptyMenuBar(HWND hWnd, bool bSip = true)
 	
 	return AtlCreateMenuBar(embi);
 }
+	
+///////////////////////////////////////////////////////////////////////////////
+// Helper functions for SmartPhone back key handling
 
+inline bool AtlIsEditFocus()
+{
+	ATL::CWindow wCtrl = GetFocus();
+	if (wCtrl.IsWindow())
+	{
+		TCHAR szClassName[8] = {0};
+		ATLVERIFY(::GetClassName(wCtrl.m_hWnd, szClassName, 8));
+		return !_tcscmp(szClassName, _T("Edit")) || !_tcscmp(szClassName, WC_CAPEDIT);
+	}
+	return false;
+}
+
+inline void AtlActivateBackKey(HWND hMenuBar)
+{
+	ATLASSERT(::IsWindow(hMenuBar));
+	::SendMessage(hMenuBar, SHCMBM_OVERRIDEKEY, VK_TBACK,
+		MAKELPARAM(SHMBOF_NODEFAULT | SHMBOF_NOTIFY, SHMBOF_NODEFAULT | SHMBOF_NOTIFY));
+}
 
 // --- Standard PPC/SmartPhone dialogs ---
 
 #ifndef _WTL_CE_NO_DIALOGS
-	
+
 ///////////////////////////////////////////////////////////////////////////////
 // CStdDialogBase - base class for standard PPC/SmartPhone dialogs
 
@@ -190,6 +226,9 @@ inline HWND AtlCreateEmptyMenuBar(HWND hWnd, bool bSip = true)
 #define WTL_DLG_TITLEHEIGHT(iHeight) static const int GetTitleHeight(){return iHeight;}
 #define WTL_DLG_NOTITLE	 WTL_DLG_TITLEHEIGHT(0)
 
+///////////////////////////////////////////////////////////////////////////////
+// CStdDialogBase - Base class for standard PPC/SmartPhone dialog
+
 template <class T, UINT t_shidiFlags, bool t_bModal = true>
 class CStdDialogBase
 {
@@ -198,7 +237,7 @@ public:
 // Pocket PC only Dialog title handling
 	const int nTitleHeight;
 
-	CStdDialogBase() : nTitleHeight(static_cast<T*>(this)->GetTitleHeight())
+	CStdDialogBase() : nTitleHeight(T::GetTitleHeight())
 	{ }
 
 // Overloads
@@ -322,27 +361,14 @@ public:
 	LRESULT OnHotKey(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/)
 	{
 		T* pT = static_cast<T*>(this);
-		UINT uModif = (UINT)LOWORD(lParam);
-		UINT uVirtKey = (UINT)HIWORD(lParam);
+		const UINT uModif = (UINT)LOWORD(lParam);
+		const UINT uVirtKey = (UINT)HIWORD(lParam);
 
 		if(uVirtKey == VK_TBACK)
-		{
-			ATL::CWindow wCtrl = GetFocus();
-			if (wCtrl.IsWindow())
-			{
-				TCHAR szClassName[8] = {0};
-				ATLVERIFY(::GetClassName(wCtrl.m_hWnd, szClassName, 8));
-				if (!_tcscmp(szClassName, _T("Edit")) || !_tcscmp(szClassName, WC_CAPEDIT))
-				{
-					::SHSendBackToFocusWindow(uMsg, wParam, lParam);
-				}
-				else
-				{
-					if (uModif & MOD_KEYUP)
-						pT->StdCloseDialog(IDCANCEL);
-				}
-			}
-		}
+			if (AtlIsEditFocus())
+				::SHSendBackToFocusWindow(uMsg, wParam, lParam);
+			else if (uModif & MOD_KEYUP)
+					pT->StdCloseDialog(IDCANCEL);
 		return 1;
 	}
 
@@ -356,14 +382,13 @@ public:
 			hMenuBar = CreateMenuBar(ATL_IDM_MENU_DONE);
 
 		if(hMenuBar != NULL)
-			::SendMessage(hMenuBar, SHCMBM_OVERRIDEKEY, VK_TBACK,
-				MAKELPARAM(SHMBOF_NODEFAULT | SHMBOF_NOTIFY, SHMBOF_NODEFAULT | SHMBOF_NOTIFY));
+			AtlActivateBackKey(hMenuBar);
 	}
 
 	void SetStaticBold()
 	{
 		T* pT = static_cast<T*>(this);
-		ATLASSERT(::IsWindow(pT->m_hWnd));
+		ATLASSERT(pT->IsWindow());
 
 		CFontHandle fontBold = AtlCreateBoldFont(pT->GetFont());
 
@@ -394,7 +419,8 @@ public:
 	// Menu bar creation
 	HWND CreateMenuBar(UINT uiMB = T::IDD, int nBmpImages = 0)
 	{
-		return AtlCreateMenuBar(static_cast<T*>(this)->m_hWnd, uiMB, 0, nBmpImages ? uiMB : 0, nBmpImages);
+		T* pT = static_cast<T*>(this);
+		return AtlCreateMenuBar(pT->m_hWnd, uiMB, 0, nBmpImages ? uiMB : 0, nBmpImages);
 	}
 
 	// Dialog closing
@@ -445,11 +471,11 @@ public:
 
 
 ///////////////////////////////////////////////////////////////////////////////
-// CStdDialogImpl - implementation of standard PPC/SmartPhone dialog
+// CStdDialogImplBase - Base implementation of standard PPC/SmartPhone dialog
 
-template <class T, UINT t_shidiFlags = WTL_STD_SHIDIF, bool t_bModal = true>
-class ATL_NO_VTABLE CStdDialogImpl :
-		public ATL::CDialogImpl< T >,
+template <class T, UINT t_shidiFlags = WTL_STD_SHIDIF, bool t_bModal = true, class TBase = ATL::CDialogImpl< T > >
+class ATL_NO_VTABLE CStdDialogImplBase :
+		public TBase,
 		public CStdDialogBase<T, t_shidiFlags, t_bModal>
 {
 public:
@@ -465,7 +491,7 @@ public:
 	}
 #endif
 
-	BEGIN_MSG_MAP(CStdDialogImpl)
+	BEGIN_MSG_MAP(CStdDialogImplBase)
 #ifdef WIN32_PLATFORM_PSPC // Pocket PC title and SIP
 		MESSAGE_HANDLER(WM_PAINT, OnPaintTitle)
 		MESSAGE_HANDLER(WM_SETTINGCHANGE, OnSettingChange)
@@ -490,6 +516,97 @@ public:
 	}
 };
 
+///////////////////////////////////////////////////////////////////////////////
+// CStdDialogImpl - implementation of standard PPC/SmartPhone dialog
+
+template <class T, UINT t_shidiFlags = WTL_STD_SHIDIF, bool t_bModal = true >
+class ATL_NO_VTABLE CStdDialogImpl : public CStdDialogImplBase< T, t_shidiFlags, t_bModal>
+{};
+
+///////////////////////////////////////////////////////////////////////////////
+// CStdIndirectDialogImpl - implementation of standard indirect PPC/SmartPhone dialog
+
+#if defined __ATLDLGS_H__ 
+
+template <class T, UINT t_shidiFlags = WTL_STD_SHIDIF, bool t_bModal = true>
+class ATL_NO_VTABLE CStdIndirectDialogImpl : 
+	public CIndirectDialogImpl< T, CMemDlgTemplate, CStdDialogImpl<T, t_shidiFlags, t_bModal> >
+{
+public:
+	typedef CIndirectDialogImpl< T, CMemDlgTemplate, CStdDialogImpl<T, t_shidiFlags, t_bModal> >	_baseClass;
+	typedef CStdDialogImpl<T, t_shidiFlags, t_bModal> _baseStd;
+
+	INT_PTR DoModal(HWND hWndParent = ::GetActiveWindow(), LPARAM dwInitParam = NULL)
+	{
+		ATLASSERT(t_bModal);
+
+		if (!m_Template.IsValid())
+			CreateTemplate();
+
+		if (m_Template.IsTemplateEx())
+		{
+			if (m_Template.GetTemplateExPtr()->style & DS_CENTER)
+			{
+				ATLASSERT(m_Template.GetTemplateExPtr()->style ^ WS_CHILD);
+				GetTemplateExPtr()->style |= WS_POPUP;
+			}
+		}
+		else
+		{
+			if (m_Template.GetTemplatePtr()->style & DS_CENTER)
+			{
+				ATLASSERT(m_Template.GetTemplatePtr()->style ^ WS_CHILD);
+				m_Template.GetTemplatePtr()->style |= WS_POPUP;
+			}
+		}
+
+		return _baseClass::DoModal(hWndParent, dwInitParam);
+	}
+
+	HWND Create(HWND hWndParent, LPARAM dwInitParam = NULL)
+	{
+		ATLASSERT(!t_bModal);
+
+		if (!m_Template.IsValid())
+			CreateTemplate();
+
+		if (m_Template.IsTemplateEx())
+		{
+			if (GetTemplateExPtr()->style & DS_CENTER)
+			{
+				ATLASSERT(GetTemplateExPtr()->style ^ WS_CHILD);
+				GetTemplateExPtr()->style |= WS_POPUP;
+			}
+		}
+		else
+		{
+			if (GetTemplatePtr()->style & DS_CENTER)
+			{
+				ATLASSERT(GetTemplatePtr()->style ^ WS_CHILD);
+				GetTemplatePtr()->style |= WS_POPUP;
+			}
+		}
+
+		return _baseClass::Create(hWndParent, dwInitParam);
+	}
+
+	BEGIN_MSG_MAP(CStdIndirectDialogImpl)
+		CHAIN_MSG_MAP(_baseStd)
+	END_MSG_MAP()
+
+};
+ 
+#endif // defined __ATLDLGS_H__ 
+
+#ifndef _ATL_NO_HOSTING
+
+///////////////////////////////////////////////////////////////////////////////
+// CStdAxDialogImpl - implementation of standard  PPC/SmartPhone AxDialog
+
+template <class T, UINT t_shidiFlags = WTL_STD_SHIDIF, bool t_bModal = true >
+class ATL_NO_VTABLE CStdAxDialogImpl : public CStdDialogImplBase< T, t_shidiFlags, t_bModal, ATL::CAxDialogImpl< T > >
+{};
+#endif // _ATL_NO_HOSTING
 
 ///////////////////////////////////////////////////////////////////////////////
 // CStdSimpleDialog - standard PPC/SmartPhone simple dialog with SHIDIF_xxx flags
@@ -536,17 +653,17 @@ public:
 };
 
 ///////////////////////////////////////////////////////////////////////////////
-// CStdDialogResizeImpl - implementation of orientation aware standard PPC dialog
+// CStdDialogResizeImplBase - Base implementation of orientation resizing standard PPC/SmartPhone dialog
 
-template <class T, UINT t_shidiFlags = WTL_STD_SHIDIF, bool t_bModal = true>
-class ATL_NO_VTABLE CStdDialogResizeImpl :
-		public CStdDialogImpl< T, t_shidiFlags, t_bModal >,
+template <class T, UINT t_shidiFlags = WTL_STD_SHIDIF, bool t_bModal = true, class TBase = ATL::CDialogImpl<T> >
+class ATL_NO_VTABLE CStdDialogResizeImplBase :
+		public CStdDialogImplBase< T, t_shidiFlags, t_bModal, TBase>,
 		public CDialogResize<T>
 {
 public:
 	// Note: BEGIN_DLGRESIZE_MAP is required in the derived class.
 
-	BEGIN_MSG_MAP(CStdResizeDialogImpl)
+	BEGIN_MSG_MAP(CStdResizeDialogImplBase)
 #ifdef WIN32_PLATFORM_PSPC // Pocket PC title
 		MESSAGE_HANDLER(WM_PAINT, OnPaintTitle)
 #elif defined(WIN32_PLATFORM_WFSP) // SmartPhone VK_TBACK key
@@ -572,9 +689,25 @@ public:
 	}
 };
 
+///////////////////////////////////////////////////////////////////////////////
+// CStdDialogResizeImpl - implementation of orientation resizing standard PPC/SmartPhone dialog
+
+template <class T, UINT t_shidiFlags = WTL_STD_SHIDIF, bool t_bModal = true >
+class ATL_NO_VTABLE CStdDialogResizeImpl : public CStdDialogResizeImplBase< T, t_shidiFlags, t_bModal>
+{};
+
+#ifndef _ATL_NO_HOSTING
 
 ///////////////////////////////////////////////////////////////////////////////
-// CStdSimpleDialogResizeImpl - implementation of standard PPC resizing simple dialog with SHIDIF_xxx flags
+// CStdAxDialogResizeImpl - implementation of orientation resizing standard PPC/SmartPhone AxDialog
+
+template <class T, UINT t_shidiFlags = WTL_STD_SHIDIF, bool t_bModal = true >
+class ATL_NO_VTABLE CStdAxDialogResizeImpl : public CStdDialogResizeImplBase< T, t_shidiFlags, t_bModal, ATL::CAxDialogImpl<T> >
+{};
+#endif // _ATL_NO_HOSTING
+
+///////////////////////////////////////////////////////////////////////////////
+// CStdSimpleDialogResizeImpl - implementation of standard resizing simple dialog with SHIDIF_xxx flags
 
 // Usage:
 //	class CMyDlg : public CStdSimpleDialogResize<CMyDlg,
@@ -619,7 +752,7 @@ public:
 #if defined(_WTL_CE_DRA) && defined(WIN32_PLATFORM_PSPC)
 
 ///////////////////////////////////////////////////////////////////////////////
-// CStdOrientedDialogBase - Orientable dialog base class
+// CStdOrientedDialogBase - Oriented PPC standard dialog base class
 
 template <class T>
 class CStdOrientedDialogBase
@@ -666,11 +799,11 @@ public:
 };
 
 ///////////////////////////////////////////////////////////////////////////////
-// CStdOrientedDialogImpl - Orientable dialog implementation
+// CStdOrientedDialogImplBase - Oriented PPC standard dialog base implementation
 
-template <class T, UINT t_shidiFlags = WTL_STD_SHIDIF, bool t_bModal = true>
-class ATL_NO_VTABLE CStdOrientedDialogImpl :
-		public CStdDialogImpl< T, t_shidiFlags, t_bModal >,
+template <class T, UINT t_shidiFlags = WTL_STD_SHIDIF, bool t_bModal = true, class TBase = ATL::CDialogImpl<T> >
+class ATL_NO_VTABLE CStdOrientedDialogImplBase :
+		public CStdDialogImplBase< T, t_shidiFlags, t_bModal, TBase>,
 		public CStdOrientedDialogBase<T>
 {
 public:
@@ -696,6 +829,22 @@ public:
 		return bHandled = FALSE;
 	}
 };
+
+///////////////////////////////////////////////////////////////////////////////
+// CStdOrientedDialogImpl - Oriented PPC standard dialog implementation
+
+template <class T, UINT t_shidiFlags = WTL_STD_SHIDIF, bool t_bModal = true >
+class ATL_NO_VTABLE CStdOrientedDialogImpl : public CStdOrientedDialogImplBase< T, t_shidiFlags, t_bModal>
+{};
+
+#ifndef _ATL_NO_HOSTING
+///////////////////////////////////////////////////////////////////////////////
+// CStdAxOrientedDialogImpl - Oriented PPC standard AxDialog implementation
+
+template <class T, UINT t_shidiFlags = WTL_STD_SHIDIF, bool t_bModal = true >
+class ATL_NO_VTABLE CStdAxOrientedDialogImpl : public CStdOrientedDialogImplBase< T, t_shidiFlags, t_bModal, ATL::CAxDialogImpl<T> >
+{};
+#endif // _ATL_NO_HOSTING
 
 ///////////////////////////////////////////////////////////////////////////////
 // CStdSimpleOrientedDialog - Standard simple orientable dialog
@@ -990,10 +1139,19 @@ public:
 	{
 	}
 
+#ifdef WIN32_PLATFORM_WFSP 
+	void AppBackKey() 
+	{
+		::SHNavigateBack();
+	}
+#endif
+
 // Message map and handlers
 	BEGIN_MSG_MAP(CAppWindowBase)
 		MESSAGE_HANDLER(WM_ACTIVATE, OnActivate)
-#ifndef WIN32_PLATFORM_WFSP
+#ifdef WIN32_PLATFORM_WFSP
+		MESSAGE_HANDLER(WM_HOTKEY, OnHotKey)
+#else
 		MESSAGE_HANDLER(WM_SETTINGCHANGE, OnSettingChange)
 #endif // WIN32_PLATFORM_WFSP
 		MESSAGE_HANDLER(WM_HIBERNATE, OnHibernate)
@@ -1015,14 +1173,30 @@ public:
 		 return bHandled = FALSE;
 	}
 
-#ifndef WIN32_PLATFORM_WFSP
+#ifdef WIN32_PLATFORM_WFSP
+// SmartPhone VK_TBACK key standard management
+	LRESULT OnHotKey(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/)
+	{
+		T* pT = static_cast<T*>(this);
+		const UINT uModif = (UINT)LOWORD(lParam);
+		const UINT uVirtKey = (UINT)HIWORD(lParam);
+		if(uVirtKey == VK_TBACK)
+			if (AtlIsEditFocus())
+				::SHSendBackToFocusWindow(uMsg, wParam, lParam);
+			else if (uModif & MOD_KEYUP)
+				pT->AppBackKey();
+		return 1;
+	}
+
+#else // !WIN32_PLATFORM_WFSP
+// PPC SIP handling
 	LRESULT OnSettingChange(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 	{
 		T* pT = static_cast<T*>(this);
 		bHandled = FALSE;
 		return ::SHHandleWMSettingChange(pT->m_hWnd, wParam, lParam, &m_sai);
 	}
-#endif // WIN32_PLATFORM_WFSP
+#endif // !WIN32_PLATFORM_WFSP
 
 	LRESULT OnHibernate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 	{
@@ -1086,7 +1260,7 @@ public:
 #ifndef _WTL_CE_NO_DIALOGS
 
 ///////////////////////////////////////////////////////////////////////////////
-// CAppDialog - PPC/SmartPhone "well-behaved" non-modal dialog application class
+// CAppDialog - PPC/SmartPhone "well-behaved" dialog application class
 
 // Macro for declaring dialog WNDCLASS and AppKey
 #define DECLARE_APP_DLG_CLASS(WndClassName, uCommonResourceID, uAppKey) \
@@ -1133,9 +1307,7 @@ public:
 	};
 };
 
-
-///////////////////////////////////////////////////////////////////////////////
-// CAppStdDialogImpl - PPC/SmartPhone implementation of non-modal standard dialog application
+// PPC/SmartPhone standard application dialogs
 
 #ifdef WIN32_PLATFORM_WFSP
 #define WTL_APP_SHIDIF WTL_SP_SHIDIF
@@ -1143,14 +1315,15 @@ public:
 #define WTL_APP_SHIDIF WTL_STD_SHIDIF
 #endif
 
-template <class T, UINT t_shidiFlags = WTL_APP_SHIDIF>
-class ATL_NO_VTABLE CAppStdDialogImpl :
-		public CStdDialogImpl<T, t_shidiFlags, false>, 
+///////////////////////////////////////////////////////////////////////////////
+// CAppStdDialogImplBase - Base implementation of standard application dialogs
+
+template <class T, class TImplBase, UINT t_shidiFlags = WTL_APP_SHIDIF, bool t_bModal = false>
+class ATL_NO_VTABLE CAppStdDialogImplBase :
+		public TImplBase, 
 		public CAppDialog< T >
-{
+{ 
 public:
-	typedef CStdDialogImpl<T, t_shidiFlags, false> baseClass;
-	
 	WTL_DLG_NOTITLE;
 
 	void StdCloseDialog(int nVal)
@@ -1158,13 +1331,18 @@ public:
 		T* pT = static_cast<T*>(this);
 		if (nVal != IDCANCEL)
 			pT->AppSave();
-		pT->DestroyWindow();
-		::PostQuitMessage(nVal);
+		if (t_bModal == false)
+		{
+			pT->DestroyWindow();
+			::PostQuitMessage(nVal);
+		}
+		else
+			::EndDialog(pT->m_hWnd, nVal);
 	}
 	
-	BEGIN_MSG_MAP(CAppStdDialogImpl)
+	BEGIN_MSG_MAP(CAppStdDialogImplBase)
 		MESSAGE_HANDLER(WM_CLOSE, OnSystemClose)
-		CHAIN_MSG_MAP(baseClass)
+		CHAIN_MSG_MAP(TImplBase)
 		CHAIN_MSG_MAP(CAppDialog< T >)
 	END_MSG_MAP()
 
@@ -1176,6 +1354,61 @@ public:
 	}
 };
 
+///////////////////////////////////////////////////////////////////////////////
+// CAppStdDialogImpl - Implementation of standard application dialog 
+
+template <class T, UINT t_shidiFlags = WTL_APP_SHIDIF, bool t_bModal = false>
+class ATL_NO_VTABLE CAppStdDialogImpl :
+		public CAppStdDialogImplBase<T, CStdDialogImpl<T, t_shidiFlags, t_bModal>, t_shidiFlags, t_bModal>
+{};
+
+///////////////////////////////////////////////////////////////////////////////
+// CAppStdDialogResizeImpl - implementation of orientation resizing standard application dialog
+
+template <class T, UINT t_shidiFlags = WTL_APP_SHIDIF, bool t_bModal = false>
+class ATL_NO_VTABLE CAppStdDialogResizeImpl :
+		public CAppStdDialogImplBase<T, CStdDialogResizeImpl<T, t_shidiFlags, t_bModal>, t_shidiFlags, t_bModal>
+{};
+
+#ifndef _ATL_NO_HOSTING
+///////////////////////////////////////////////////////////////////////////////
+// CAppStdAxDialogImpl - Implementation of standard application AxDialog 
+
+template <class T, UINT t_shidiFlags = WTL_APP_SHIDIF, bool t_bModal = false>
+class ATL_NO_VTABLE CAppStdAxDialogImpl :
+		public CAppStdDialogImplBase<T, CStdAxDialogImpl<T, t_shidiFlags, t_bModal>, t_shidiFlags, t_bModal>
+{};
+
+///////////////////////////////////////////////////////////////////////////////
+// CAppStdAxDialogResizeImpl - implementation of orientation resizing standard application AxDialog
+
+template <class T, UINT t_shidiFlags = WTL_APP_SHIDIF, bool t_bModal = false>
+class ATL_NO_VTABLE CAppStdAxDialogResizeImpl :
+		public CAppStdDialogImplBase<T, CStdAxDialogResizeImpl<T, t_shidiFlags, t_bModal>, t_shidiFlags, t_bModal>
+{};
+#endif // _ATL_NO_HOSTING
+
+#if defined(_WTL_CE_DRA) && defined(WIN32_PLATFORM_PSPC)
+///////////////////////////////////////////////////////////////////////////////
+// CAppStdOrientedDialogImpl - implementation of oriented PPC standard application dialog
+
+template <class T, UINT t_shidiFlags = WTL_APP_SHIDIF, bool t_bModal = false>
+class ATL_NO_VTABLE CAppStdOrientedDialogImpl :
+		public CAppStdDialogImplBase<T, CStdOrientedDialogImpl<T, t_shidiFlags, t_bModal>, t_shidiFlags, t_bModal>
+{};
+
+#ifndef _ATL_NO_HOSTING
+///////////////////////////////////////////////////////////////////////////////
+// CAppStdAxOrientedDialogImpl - implementation of oriented PPC standard application AxDialog
+
+template <class T, UINT t_shidiFlags = WTL_APP_SHIDIF, bool t_bModal = false>
+class ATL_NO_VTABLE CAppStdAxOrientedDialogImpl :
+		public CAppStdDialogImplBase<T, CStdAxOrientedDialogImpl<T, t_shidiFlags, t_bModal>, t_shidiFlags, t_bModal>
+{};
+#endif // _ATL_NO_HOSTING
+
+#endif // defined(_WTL_CE_DRA) && defined(WIN32_PLATFORM_PSPC)
+
 #endif // _WTL_CE_NO_DIALOGS
 
 #endif // _WTL_CE_NO_APPWINDOW
@@ -1186,7 +1419,7 @@ public:
 #ifndef _WTL_CE_NO_FULLSCREEN
 
 ///////////////////////////////////////////////////////////////////////////////
-// CFullScreenFrame - PPC full screen frame implementation
+// CFullScreenFrame - full screen frame implementation
 
 template <class T, bool t_bHasSip = true>
 class CFullScreenFrame
@@ -1242,8 +1475,12 @@ public:
 #ifdef WIN32_PLATFORM_PSPC // Pocket PC code
 		UINT uShow = t_bHasSip ? SHFS_SHOWTASKBAR | SHFS_SHOWSIPBUTTON : SHFS_SHOWTASKBAR | SHFS_HIDESIPBUTTON;		
 		SHFullScreen(pT->m_hWnd, bShow ? uShow : SHFS_HIDETASKBAR | SHFS_HIDESIPBUTTON);
-#else // Smartphone code
+#elif _WIN32_WCE > 0x500 // Smartphone 2005 code
 		SHFullScreen(pT->m_hWnd, bShow ? SHFS_SHOWTASKBAR : SHFS_HIDETASKBAR);
+#else // Smartphone 2003
+		HWND hTaskBar = FindWindow(_T("tray"), NULL);
+		ATLASSERT(::IsWindow(hTaskBar));
+		::ShowWindow(hTaskBar, bShow ? SW_SHOW : SW_HIDE);
 #endif // WIN32_PLATFORM_PSPC
 
 		pT->MoveWindow(&rect, bRepaint);
@@ -1252,6 +1489,7 @@ public:
 // Message map and handler
 	BEGIN_MSG_MAP(CFullScreenFrame)
 		MESSAGE_HANDLER(WM_SETTINGCHANGE, OnSettingChange)
+		MESSAGE_HANDLER(WM_ACTIVATE, OnActivate)
 	END_MSG_MAP()
 
 	LRESULT OnSettingChange(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& bHandled)
@@ -1263,8 +1501,17 @@ public:
 			SetFullScreen(m_bFullScreen);
 		return bHandled = FALSE;
 	}
-};
 
+	LRESULT OnActivate(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& bHandled)
+	{
+		if (m_bFullScreen)
+		{
+			ShowTaskBar(!wParam);
+			ShowMenuBar(!wParam);
+		}
+		return bHandled = FALSE;
+	}
+};
 
 #endif // _WTL_CE_NO_FULLSCREEN
 
@@ -1597,7 +1844,7 @@ public:
 		::SendMessage(m_hWnd, DTM_ANCHORW, 0, (LPARAM)pszAnchor);
 	}
 
-#if (_WIN32_WCE >= 400)
+#if (_WIN32_WCE >= 420)
 	void GetBrowserDispatch(IDispatch** ppDispatch)
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
@@ -1605,7 +1852,14 @@ public:
 		ATLASSERT(*ppDispatch==NULL);
 		::SendMessage(m_hWnd, DTM_BROWSERDISPATCH, 0, (LPARAM)ppDispatch);
 	}
-#endif // (_WIN32_WCE >= 400)
+	void GetDocumentDispatch(IDispatch** ppDispatch)
+	{
+		ATLASSERT(::IsWindow(m_hWnd));
+		ATLASSERT(ppDispatch);
+		ATLASSERT(*ppDispatch==NULL);
+		::SendMessage(m_hWnd, DTM_DOCUMENTDISPATCH , 0, (LPARAM)ppDispatch);
+	}
+#endif // (_WIN32_WCE >= 420)
 
 	void Clear()
 	{
