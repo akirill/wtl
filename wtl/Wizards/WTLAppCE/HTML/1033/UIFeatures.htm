@@ -411,9 +411,17 @@ function OnInit()
 			WTL_USE_TOOLBAR.checked = false;
 			WTL_USE_STATUSBAR.checked = false;
 
-			WTL_USE_TOOLBAR.disabled = true;
+			if(window.external.FindSymbol("WTL_USE_SP03_COMPAT_MENUS"))
+			{
+				WTL_USE_TOOLBAR.disabled = true;
+				WTL_USE_TOOLBAR_LABEL.disabled = true;
+			}
+			else
+			{
+				WTL_USE_TOOLBAR.disabled = false;
+				WTL_USE_TOOLBAR_LABEL.disabled = false;
+			}
 			WTL_USE_STATUSBAR.disabled = true;
-			WTL_USE_TOOLBAR_LABEL.disabled = true;
 			WTL_USE_STATUSBAR_LABEL.disabled = true;
 		}
 		else

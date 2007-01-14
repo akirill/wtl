@@ -253,10 +253,10 @@
 																	Use <U>A</U>YGShell</LABEL>
 															</DIV>
 															<BR>
-															<INPUT CLASS="CheckboxIndent" TYPE="checkbox" ID="WTL_USE_SP03_COMPAT_MENUS" ACCESSKEY="M" TITLE="Use SmartPhone 2003 compatible menus." value="ON" NAME="WTL_USE_SP03_COMPAT_MENUS">
-															<DIV CLASS="itemTextCheckboxIndentB" ID="WTL_USE_SP03_COMPAT_MENUS_DIV" TITLE="Use SmartPhone 2003 compatible menus.">
-																<LABEL FOR="WTL_USE_SP03_COMPAT_MENUS" TITLE="Use SmartPhone 2003 compatible menus." ID="WTL_USE_SP03_COMPAT_MENUS_LABEL">
-																	Use SmartPhone Compatible <U>M</U>enus</LABEL>
+															<INPUT CLASS="CheckboxIndent" TYPE="checkbox" ID="WTL_USE_SP03_COMPAT_MENUS" ACCESSKEY="M" TITLE="Use SmartPhone/PPC 2005 compatible menus." value="ON" NAME="WTL_USE_SP03_COMPAT_MENUS">
+															<DIV CLASS="itemTextCheckboxIndentB" ID="WTL_USE_SP03_COMPAT_MENUS_DIV" TITLE="Use SmartPhone/PPC 2005 compatible menus.">
+																<LABEL FOR="WTL_USE_SP03_COMPAT_MENUS" TITLE="Use SmartPhone/PPC 2005 compatible menus." ID="WTL_USE_SP03_COMPAT_MENUS_LABEL">
+																	Use SmartPhone/PPC 2005 Compatible <U>M</U>enus</LABEL>
 															</DIV>
 															<BR>
 															<INPUT CLASS="CheckboxIndent" TYPE="checkbox" ID="WTL_USE_SINGLE_APP_INSTANCE" ACCESSKEY="I" TITLE="Allow only one instance of the application." value="OFF" NAME="WTL_USE_SINGLE_APP_INSTANCE">
@@ -421,6 +421,10 @@ function OnAppType()
 		WTL_APPTYPE_DLG_MODAL.disabled = false;
 		WTL_APPTYPE_DLG_MODAL_LABEL.disabled = false;
 
+		WTL_USE_SINGLE_APP_INSTANCE.disabled = true;
+		WTL_USE_SINGLE_APP_INSTANCE_LABEL.disabled = true;
+		WTL_USE_SINGLE_APP_INSTANCE.checked = false;
+		
 		UIFeatures.className = "inactivelink";
 		NextBtn.disabled = true;
 
@@ -432,6 +436,9 @@ function OnAppType()
 		WTL_APPTYPE_DLG_MODAL.disabled = true;
 		WTL_APPTYPE_DLG_MODAL_LABEL.disabled = true;
 
+		WTL_USE_SINGLE_APP_INSTANCE.disabled = false;
+		WTL_USE_SINGLE_APP_INSTANCE_LABEL.disabled = false;
+
 		if(window.external.FindSymbol("WTL_WAS_DLG"))
 		{
 			UIFeatures.className = "activelink";
@@ -440,6 +447,7 @@ function OnAppType()
 			window.external.AddSymbol("WTL_USE_TOOLBAR", true);
 			window.external.AddSymbol("WTL_USE_STATUSBAR", true);
 			window.external.AddSymbol("WTL_USE_VIEW", true);
+
 
 			window.external.AddSymbol("WTL_WAS_DLG", false);
 		}
@@ -478,6 +486,7 @@ function OnUseAYGShell()
 			window.external.AddSymbol("WTL_HAD_AYGSHELL", false);
 		}
 	}
+	OnAppType();
 }
 
 		</SCRIPT>
