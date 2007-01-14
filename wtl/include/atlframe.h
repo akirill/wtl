@@ -770,7 +770,7 @@ public:
 	}
 
 #if defined(_AYGSHELL_H_) || defined(__AYGSHELL_H__)
-	BOOL CreateSimpleCEMenuBar(UINT nToolBarId = 0, DWORD dwFlags = 0, int nBmpId = 0, int cBmpImages = 0)
+	BOOL CreateSimpleCEMenuBar(UINT nToolBarId = ATL_IDW_MENU_BAR, DWORD dwFlags = 0, int nBmpId = 0, int cBmpImages = 0)
 	{
 		ATLASSERT(m_hWndCECommandBar == NULL);
 
