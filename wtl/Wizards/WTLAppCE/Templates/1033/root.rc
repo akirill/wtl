@@ -43,7 +43,10 @@ BEGIN
 [!if WTL_COM_SERVER]
     "1 TYPELIB ""[!output PROJECT_NAME].tlb""\r\n"
 [!endif]
-    "\0"
+[!if WTL_USE_AYGSHELL]
+     "#include ""[!output PROJECT_NAME].rc2""\r\n"
+[!endif]
+  "\0"
 END
 
 #endif    // APSTUDIO_INVOKED
@@ -61,11 +64,9 @@ BEGIN
     BUTTON      ID_FILE_NEW
     BUTTON      ID_FILE_OPEN
     BUTTON      ID_FILE_SAVE
-    SEPARATOR
     BUTTON      ID_EDIT_CUT
     BUTTON      ID_EDIT_COPY
     BUTTON      ID_EDIT_PASTE
-    SEPARATOR
     BUTTON      ID_APP_ABOUT
 END
 
@@ -83,14 +84,10 @@ IDR_MAINFRAME           BITMAP                  "res\\Toolbar.bmp"
 // Menu
 //
 
-[!if !WTL_USE_SP03_COMPAT_MENUS]
+[!if !WTL_USE_AYGSHELL]
 IDR_MAINFRAME MENU 
 BEGIN
-[!if !WTL_USE_AYGSHELL]
     POPUP "&File"
-[!else]
-    POPUP "File"
-[!endif]
     BEGIN
         MENUITEM "&New\tCtrl+N",                ID_FILE_NEW
         MENUITEM "&Open...\tCtrl+O",            ID_FILE_OPEN
@@ -103,11 +100,7 @@ BEGIN
         MENUITEM SEPARATOR
         MENUITEM "E&xit",                       ID_APP_EXIT
     END
-[!if !WTL_USE_AYGSHELL]
     POPUP "&Edit"
-[!else]
-    POPUP "Edit"
-[!endif]
     BEGIN
         MENUITEM "&Undo\tCtrl+Z",               ID_EDIT_UNDO
         MENUITEM SEPARATOR
@@ -116,52 +109,42 @@ BEGIN
         MENUITEM "&Paste\tCtrl+V",              ID_EDIT_PASTE
     END
 [!if WTL_USE_STATUSBAR]
-[!if !WTL_USE_AYGSHELL]
     POPUP "&View"
-[!else]
-    POPUP "View"
-[!endif]
     BEGIN
         MENUITEM "&Status Bar",                 ID_VIEW_STATUS_BAR
     END
 [!endif]
-[!if !WTL_USE_AYGSHELL]
     POPUP "&Help"
-[!else]
-    POPUP "Help"
-[!endif]
     BEGIN
         MENUITEM "&About [!output PROJECT_NAME]...",              ID_APP_ABOUT
     END
 END
 [!else]
-IDR_MAINFRAME MENU
+IDR_MAINFRAME MENU 
 BEGIN
-    MENUITEM "Exit",                            ID_APP_EXIT
     POPUP "Menu"
     BEGIN
-        MENUITEM "About",                       ID_APP_ABOUT
+[!if WTL_USE_STATUSBAR]
+        MENUITEM "View status bar",		ID_VIEW_STATUS_BAR    
+[!endif]
+        MENUITEM "New",					ID_FILE_NEW
+        MENUITEM "Open",				ID_FILE_OPEN
+        MENUITEM "Save",				ID_FILE_SAVE
+        MENUITEM "Save As",				ID_FILE_SAVE_AS
+        MENUITEM SEPARATOR
+        POPUP "Edit"
+        BEGIN
+            MENUITEM "Undo",			ID_EDIT_UNDO
+            MENUITEM SEPARATOR
+            MENUITEM "Cut",				ID_EDIT_CUT
+            MENUITEM "Copy",			ID_EDIT_COPY
+            MENUITEM "Paste",			ID_EDIT_PASTE
+        END
+        MENUITEM "About [!output PROJECT_NAME]", ID_APP_ABOUT
+        MENUITEM "Exit",				ID_APP_EXIT
     END
 END
 
-/////////////////////////////////////////////////////////////////////////////
-//
-// SmartPhone 2003 Extra Menu Data
-//
-
-STRINGTABLE DISCARDABLE 
-BEGIN
-    IDS_LVK_EXIT            "Exit"
-    IDS_RVK_MENU            "Menu"
-END
-
-IDR_MAINFRAME SHMENUBAR DISCARDABLE 
-BEGIN
-    IDR_MAINFRAME, 
-	2,
-    I_IMAGENONE, ID_APP_EXIT, TBSTATE_ENABLED, TBSTYLE_AUTOSIZE, IDS_LVK_EXIT, 0, NOMENU,
-    I_IMAGENONE, ID_APP_ABOUT, TBSTATE_ENABLED, TBSTYLE_DROPDOWN | TBSTYLE_AUTOSIZE, IDS_RVK_MENU, 0, 1,
-END
 [!endif]
 [!endif]
 
@@ -306,6 +289,7 @@ END
 
 IDR_MAINFRAME ACCELERATORS 
 BEGIN
+    "Q",            ID_APP_EXIT,            VIRTKEY, CONTROL
     "N",            ID_FILE_NEW,            VIRTKEY, CONTROL
     "O",            ID_FILE_OPEN,           VIRTKEY, CONTROL
     "S",            ID_FILE_SAVE,           VIRTKEY, CONTROL
@@ -421,6 +405,16 @@ BEGIN
     ID_EDIT_REDO            "Redo the previously undone action\nRedo"
 END
 
+[!if WTL_USE_AYGSHELL]
+STRINGTABLE 
+BEGIN
+    ID_MENU_OK              "Done"
+    ID_MENU_CANCEL          "Cancel"
+    ID_MENU                 "Menu"
+    ID_ACTION               "Action"
+END
+
+[!endif]
 [!if WTL_USE_TOOLBAR || WTL_USE_STATUSBAR]
 STRINGTABLE 
 BEGIN
@@ -478,7 +472,6 @@ IDR_[!output UPPERCASE_SAFE_PROJECT_NAME] REGISTRY "[!output PROJECT_NAME].rgs"
 [!endif]
 
 #ifndef APSTUDIO_INVOKED
-[!if WTL_COM_SERVER]
 /////////////////////////////////////////////////////////////////////////////
 //
 // Generated from the TEXTINCLUDE 3 resource.
@@ -486,7 +479,9 @@ IDR_[!output UPPERCASE_SAFE_PROJECT_NAME] REGISTRY "[!output PROJECT_NAME].rgs"
 [!if WTL_COM_SERVER]
 1 TYPELIB "[!output PROJECT_NAME].tlb"
 [!endif]
+[!if WTL_USE_AYGSHELL]
+#include "[!output PROJECT_NAME].rc2"
+[!endif]
 
 /////////////////////////////////////////////////////////////////////////////
-[!endif]
 #endif    // not APSTUDIO_INVOKED

@@ -3,13 +3,18 @@ stdafx.h
 root.cpp
 root.h
 root.rc
+[!if WTL_USE_AYGSHELL]
+root.rc2
+[!endif]
 
 [!if !WTL_APPTYPE_DLG]
 frame.h
 [!if WTL_USE_CPP_FILES]
 frame.cpp
 [!endif]
+[!if WTL_USE_TOOLBAR]
 toolbar.bmp
+[!endif]
 [!endif]
 
 [!if WTL_APPTYPE_DLG]

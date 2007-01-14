@@ -34,9 +34,13 @@ BOOL [!output WTL_FRAME_CLASS]::OnIdle()
 LRESULT [!output WTL_FRAME_CLASS]::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
 [!if WTL_USE_AYGSHELL]
-	CreateSimpleCEMenuBar(IDR_MAINFRAME, SHCMBF_HMENU);
+[!if !WTL_USE_SP03_COMPAT_MENUS]
+		CreateSimpleCEMenuBar(IDR_MAINFRAME);
 [!else]
-	CreateSimpleCECommandBar(MAKEINTRESOURCE(IDR_MAINFRAME));
+		CreateSimpleCEMenuBar();
+[!endif]
+[!else]
+		CreateSimpleCECommandBar(MAKEINTRESOURCE(IDR_MAINFRAME));
 [!endif]
 
 [!if WTL_USE_TOOLBAR]
@@ -99,6 +103,15 @@ LRESULT [!output WTL_FRAME_CLASS]::OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, L
 [!if WTL_APPTYPE_MTSDI]
 	::PostQuitMessage(1);
 [!endif]
+	return 0;
+}
+
+[!endif]
+[!if WTL_USE_SP03_COMPAT_MENUS]
+LRESULT [!output WTL_FRAME_CLASS]::OnAction(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+	// TODO: add code
+
 	return 0;
 }
 
