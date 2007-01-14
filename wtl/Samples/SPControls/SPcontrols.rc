@@ -171,6 +171,12 @@ END
 
 STRINGTABLE 
 BEGIN
+    ID_MENU_OK              "Done"
+    ID_MENU_CANCEL          "Cancel"
+END
+
+STRINGTABLE 
+BEGIN
     ID_APP_ABOUT            "Display program information, version number and copyright\nAbout"
 END
 

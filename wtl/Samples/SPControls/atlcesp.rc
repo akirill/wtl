@@ -1,11 +1,5 @@
 // WTL Smartphone compilable resources
 
-#ifndef WIN32_PLATFORM_WFSP 
-#define WIN32_PLATFORM_WFSP 
-#undef __ATLRESCE_H__
-#include "atlresce.h"
-#endif
-
 /////////////////////////////////////////////////////////////////////////////
 //
 // Smartphone Menubars
@@ -15,7 +9,7 @@ ATL_IDM_MENU_DONE RCDATA
 BEGIN
     ATL_IDM_MENU_DONE, 1,
     I_IMAGENONE, ID_MENU_OK, TBSTATE_ENABLED, TBSTYLE_AUTOSIZE, 
-    ATL_IDS_DONE, 0, NOMENU,
+    ID_MENU_OK, 0, NOMENU,
 END
 
 
@@ -23,7 +17,7 @@ ATL_IDM_MENU_CANCEL RCDATA
 BEGIN
     ATL_IDM_MENU_CANCEL, 1,
     I_IMAGENONE, ID_MENU_CANCEL, TBSTATE_ENABLED, TBSTYLE_AUTOSIZE, 
-    ATL_IDS_CANCEL, 0, NOMENU,
+    ID_MENU_CANCEL, 0, NOMENU,
 END
 
 
@@ -31,21 +25,10 @@ ATL_IDM_MENU_DONECANCEL RCDATA
 BEGIN
     ATL_IDM_MENU_DONECANCEL, 2,
     I_IMAGENONE, ID_MENU_OK, TBSTATE_ENABLED, TBSTYLE_AUTOSIZE, 
-    ATL_IDS_DONE, 0, NOMENU,
+    ID_MENU_OK, 0, NOMENU,
     I_IMAGENONE, ID_MENU_CANCEL, TBSTATE_ENABLED, TBSTYLE_AUTOSIZE, 
-    ATL_IDS_CANCEL, 0, NOMENU,
+    ID_MENU_CANCEL, 0, NOMENU,
 END
 
-/////////////////////////////////////////////////////////////////////////////
-//
-// Smartphone Strings
-//
-
-STRINGTABLE DISCARDABLE 
-BEGIN
-    ATL_IDS_DONE       "Done"
-    ATL_IDS_CANCEL     "Cancel"
-END
-/////////////////////////////////////////////////////////////////////////////
 
 
