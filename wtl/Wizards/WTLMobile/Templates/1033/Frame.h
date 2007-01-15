@@ -114,6 +114,9 @@ public:
 		MESSAGE_HANDLER(WM_CREATE, OnCreate)
 		COMMAND_ID_HANDLER(ID_APP_EXIT, OnFileExit)
 		COMMAND_ID_HANDLER(ID_FILE_NEW, OnFileNew)
+[!if SMARTPHONE2003_UI_MODEL || !WTL_MENU_TYPE_2003]
+		COMMAND_ID_HANDLER(ID_ACTION, OnAction)
+[!endif]
 [!if WTL_FULLSCREEN]
 		COMMAND_ID_HANDLER(ID_VIEW_FULLSCREEN, OnFullScreen)
 [!endif]
@@ -231,6 +234,15 @@ public:
 		return 0;
 	}
 
+[!if SMARTPHONE2003_UI_MODEL || !WTL_MENU_TYPE_2003]
+	LRESULT OnAction(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+	{
+		// TODO: add code
+
+		return 0;
+	}
+
+[!endif]
 [!if WTL_FULLSCREEN]
 	LRESULT OnFullScreen(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 	{
