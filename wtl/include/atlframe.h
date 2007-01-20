@@ -286,9 +286,9 @@ static WTL::CFrameWndClassInfo& GetWndClassInfo() \
 #else // CE specific
 
 #define DECLARE_FRAME_WND_CLASS(WndClassName, uCommonResourceID) \
-static CFrameWndClassInfo& GetWndClassInfo() \
+static WTL::CFrameWndClassInfo& GetWndClassInfo() \
 { \
-	static CFrameWndClassInfo wc = \
+	static WTL::CFrameWndClassInfo wc = \
 	{ \
 		{ 0, StartWindowProc, \
 		  0, 0, NULL, NULL, NULL, (HBRUSH)(COLOR_WINDOW + 1), NULL, WndClassName }, \
@@ -298,9 +298,9 @@ static CFrameWndClassInfo& GetWndClassInfo() \
 }
 
 #define DECLARE_FRAME_WND_CLASS_EX(WndClassName, uCommonResourceID, style, bkgnd) \
-static CFrameWndClassInfo& GetWndClassInfo() \
+static WTL::CFrameWndClassInfo& GetWndClassInfo() \
 { \
-	static CFrameWndClassInfo wc = \
+	static WTL::CFrameWndClassInfo wc = \
 	{ \
 		{ style, StartWindowProc, \
 		  0, 0, NULL, NULL, NULL, (HBRUSH)(bkgnd + 1), NULL, WndClassName }, \
@@ -310,9 +310,9 @@ static CFrameWndClassInfo& GetWndClassInfo() \
 }
 
 #define DECLARE_FRAME_WND_SUPERCLASS(WndClassName, OrigWndClassName, uCommonResourceID) \
-static CFrameWndClassInfo& GetWndClassInfo() \
+static WTL::CFrameWndClassInfo& GetWndClassInfo() \
 { \
-	static CFrameWndClassInfo wc = \
+	static WTL::CFrameWndClassInfo wc = \
 	{ \
 		{ NULL, StartWindowProc, \
 		  0, 0, NULL, NULL, NULL, NULL, NULL, WndClassName }, \
