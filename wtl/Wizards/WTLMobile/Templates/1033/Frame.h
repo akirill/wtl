@@ -74,7 +74,7 @@ public:
 		info.Save( m_bFullScreen, L"Full");
 [!endif]
 [!if WTL_USE_STATUSBAR]
-		BOOL bStatus = UIGetState(ID_VIEW_FULLSCREEN) & UPDUI_CHECKED;
+		bool bStatus = (UIGetState(ID_VIEW_STATUS_BAR) & UPDUI_CHECKED) == UPDUI_CHECKED;
 		info.Save(bStatus, L"Status");
 [!endif]
 		// Insert your code here
