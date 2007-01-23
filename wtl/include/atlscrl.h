@@ -30,6 +30,14 @@
   #include <zmouse.h>
 #endif // !((_WIN32_WINNT >= 0x0400) || (_WIN32_WINDOWS > 0x0400)) && !defined(_WIN32_WCE)
 
+#ifndef GET_WHEEL_DELTA_WPARAM
+  #define GET_WHEEL_DELTA_WPARAM(wParam)  ((short)HIWORD(wParam))
+#endif
+
+#ifndef WM_MOUSEHWHEEL
+  #define WM_MOUSEHWHEEL                  0x020E
+#endif
+
 
 ///////////////////////////////////////////////////////////////////////////////
 // Classes in this file:
@@ -79,6 +87,8 @@ public:
 	// Note that this message must be forwarded from a top level window
 	UINT m_uMsgMouseWheel;     // MSH_MOUSEWHEEL
 #endif // !((_WIN32_WINNT >= 0x0400) || (_WIN32_WINDOWS > 0x0400)) && !defined(_WIN32_WCE)
+	int m_zHDelta;              // current horizontal wheel value
+	int m_nHWheelChars;         // number of chars to scroll on horizontal wheel
 	UINT m_uScrollFlags;
 	DWORD m_dwExtendedStyle;   // scroll specific extended styles
 
@@ -87,6 +97,7 @@ public:
 #if !((_WIN32_WINNT >= 0x0400) || (_WIN32_WINDOWS > 0x0400)) && !defined(_WIN32_WCE)
 			m_uMsgMouseWheel(0U), 
 #endif // !((_WIN32_WINNT >= 0x0400) || (_WIN32_WINDOWS > 0x0400)) && !defined(_WIN32_WCE)
+			m_zHDelta(0), m_nHWheelChars(3), 
 			m_uScrollFlags(0U), m_dwExtendedStyle(0)
 	{
 		m_ptOffset.x = 0;
@@ -439,6 +450,7 @@ public:
 #if !((_WIN32_WINNT >= 0x0400) || (_WIN32_WINDOWS > 0x0400)) && !defined(_WIN32_WCE)
 		MESSAGE_HANDLER(m_uMsgMouseWheel, OnMouseWheel)
 #endif // !((_WIN32_WINNT >= 0x0400) || (_WIN32_WINDOWS > 0x0400)) && !defined(_WIN32_WCE)
+		MESSAGE_HANDLER(WM_MOUSEHWHEEL, OnMouseHWheel)
 		MESSAGE_HANDLER(WM_SETTINGCHANGE, OnSettingChange)
 		MESSAGE_HANDLER(WM_SIZE, OnSize)
 		MESSAGE_HANDLER(WM_PAINT, OnPaint)
@@ -491,9 +503,9 @@ public:
 
 #if (_WIN32_WINNT >= 0x0400) || (_WIN32_WINDOWS > 0x0400) || defined(_WIN32_WCE)
 		uMsg;
-		int zDelta = (int)(short)HIWORD(wParam);
+		int zDelta = (int)GET_WHEEL_DELTA_WPARAM(wParam);
 #else
-		int zDelta = (uMsg == WM_MOUSEWHEEL) ? (int)(short)HIWORD(wParam) : (int)wParam;
+		int zDelta = (uMsg == WM_MOUSEWHEEL) ? (int)GET_WHEEL_DELTA_WPARAM(wParam) : (int)wParam;
 #endif // !((_WIN32_WINNT >= 0x0400) || (_WIN32_WINDOWS > 0x0400) || defined(_WIN32_WCE))
 		int nScrollCode = (m_nWheelLines == WHEEL_PAGESCROLL) ? ((zDelta > 0) ? SB_PAGEUP : SB_PAGEDOWN) : ((zDelta > 0) ? SB_LINEUP : SB_LINEDOWN);
 		m_zDelta += zDelta;   // cumulative
@@ -514,8 +526,29 @@ public:
 				pT->UpdateWindow();
 			}
 		}
-		int nSteps = m_zDelta / WHEEL_DELTA;
-		m_zDelta -= nSteps * WHEEL_DELTA;
+		m_zDelta %= WHEEL_DELTA;
+
+		return 0;
+	}
+
+	LRESULT OnMouseHWheel(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+	{
+		T* pT = static_cast<T*>(this);
+		ATLASSERT(::IsWindow(pT->m_hWnd));
+
+		int zDelta = (int)GET_WHEEL_DELTA_WPARAM(wParam);
+		int nScrollCode = (m_nHWheelChars == WHEEL_PAGESCROLL) ? ((zDelta > 0) ? SB_PAGERIGHT : SB_PAGELEFT) : ((zDelta > 0) ? SB_LINERIGHT : SB_LINELEFT);
+		m_zHDelta += zDelta;   // cumulative
+		int zTotal = (m_nHWheelChars == WHEEL_PAGESCROLL) ? abs(m_zHDelta) : abs(m_zHDelta) * m_nHWheelChars;
+		if(m_sizeAll.cx > m_sizeClient.cx)
+		{
+			for(int i = 0; i < zTotal; i += WHEEL_DELTA)
+			{
+				pT->DoScroll(SB_HORZ, nScrollCode, (int&)m_ptOffset.x, m_sizeAll.cx, m_sizePage.cx, m_sizeLine.cx);
+				pT->UpdateWindow();
+			}
+		}
+		m_zHDelta %= WHEEL_DELTA;
 
 		return 0;
 	}
@@ -819,6 +852,11 @@ public:
 #endif // !SPI_GETWHEELSCROLLLINES
 		::SystemParametersInfo(SPI_GETWHEELSCROLLLINES, 0, &m_nWheelLines, 0);
 
+#ifndef SPI_GETWHEELSCROLLCHARS
+		const UINT SPI_GETWHEELSCROLLCHARS = 0x006C;
+#endif // !SPI_GETWHEELSCROLLCHARS
+		::SystemParametersInfo(SPI_GETWHEELSCROLLCHARS, 0, &m_nHWheelChars, 0);
+
 #if !((_WIN32_WINNT >= 0x0400) || (_WIN32_WINDOWS > 0x0400))
 		if(m_uMsgMouseWheel != 0)
 			m_uMsgMouseWheel = ::RegisterWindowMessage(MSH_MOUSEWHEEL);
@@ -872,6 +910,7 @@ public:
 #if !((_WIN32_WINNT >= 0x0400) || (_WIN32_WINDOWS > 0x0400)) && !defined(_WIN32_WCE)
 		MESSAGE_HANDLER(m_uMsgMouseWheel, CScrollImpl< T >::OnMouseWheel)
 #endif // !((_WIN32_WINNT >= 0x0400) || (_WIN32_WINDOWS > 0x0400)) && !defined(_WIN32_WCE)
+		MESSAGE_HANDLER(WM_MOUSEHWHEEL, CScrollImpl< T >::OnMouseHWheel)
 		MESSAGE_HANDLER(WM_SETTINGCHANGE, CScrollImpl< T >::OnSettingChange)
 		MESSAGE_HANDLER(WM_SIZE, CScrollImpl< T >::OnSize)
 		MESSAGE_HANDLER(WM_PAINT, CScrollImpl< T >::OnPaint)
@@ -1072,6 +1111,7 @@ public:
 #if !((_WIN32_WINNT >= 0x0400) || (_WIN32_WINDOWS > 0x0400))
 		MESSAGE_HANDLER(m_uMsgMouseWheel, CScrollImpl< T >::OnMouseWheel)
 #endif // !((_WIN32_WINNT >= 0x0400) || (_WIN32_WINDOWS > 0x0400))
+		MESSAGE_HANDLER(WM_MOUSEHWHEEL, CScrollImpl< T >::OnMouseHWheel)
 		MESSAGE_HANDLER(WM_SETTINGCHANGE, CScrollImpl< T >::OnSettingChange)
 		MESSAGE_HANDLER(WM_SIZE, CScrollImpl< T >::OnSize)
 		MESSAGE_HANDLER(WM_PAINT, OnPaint)
@@ -1140,6 +1180,7 @@ public:
 #if !((_WIN32_WINNT >= 0x0400) || (_WIN32_WINDOWS > 0x0400))
 		MESSAGE_HANDLER(m_uMsgMouseWheel, CScrollImpl< T >::OnMouseWheel)
 #endif // !((_WIN32_WINNT >= 0x0400) || (_WIN32_WINDOWS > 0x0400))
+		MESSAGE_HANDLER(WM_MOUSEHWHEEL, CScrollImpl< T >::OnMouseHWheel)
 		MESSAGE_HANDLER(WM_SETTINGCHANGE, CScrollImpl< T >::OnSettingChange)
 		MESSAGE_HANDLER(WM_SIZE, CScrollImpl< T >::OnSize)
 		MESSAGE_HANDLER(WM_PAINT, CMapScrollImpl< T >::OnPaint)
@@ -1595,6 +1636,7 @@ public:
 #if !((_WIN32_WINNT >= 0x0400) || (_WIN32_WINDOWS > 0x0400))
 		MESSAGE_HANDLER(m_uMsgMouseWheel, CScrollImpl< T >::OnMouseWheel)
 #endif // !((_WIN32_WINNT >= 0x0400) || (_WIN32_WINDOWS > 0x0400))
+		MESSAGE_HANDLER(WM_MOUSEHWHEEL, CScrollImpl< T >::OnMouseHWheel)
 		MESSAGE_HANDLER(WM_SETTINGCHANGE, CScrollImpl< T >::OnSettingChange)
 		MESSAGE_HANDLER(WM_SIZE, CScrollImpl< T >::OnSize)
 		MESSAGE_HANDLER(WM_PAINT, OnPaint)
@@ -1738,6 +1780,7 @@ public:
 #if !((_WIN32_WINNT >= 0x0400) || (_WIN32_WINDOWS > 0x0400))
 		MESSAGE_HANDLER(m_uMsgMouseWheel, CScrollImpl< T >::OnMouseWheel)
 #endif // !((_WIN32_WINNT >= 0x0400) || (_WIN32_WINDOWS > 0x0400))
+		MESSAGE_HANDLER(WM_MOUSEHWHEEL, CScrollImpl< T >::OnMouseHWheel)
 		MESSAGE_HANDLER(WM_SETTINGCHANGE, CScrollImpl< T >::OnSettingChange)
 		MESSAGE_HANDLER(WM_SIZE, CScrollImpl< T >::OnSize)
 		MESSAGE_HANDLER(WM_PAINT, CZoomScrollImpl< T >::OnPaint)
