@@ -8,7 +8,6 @@
 // Generated from the TEXTINCLUDE 2 resource.
 //
 #include "atlresce.h"
-
 /////////////////////////////////////////////////////////////////////////////
 #undef APSTUDIO_READONLY_SYMBOLS
 
@@ -34,12 +33,12 @@ END
 
 2 TEXTINCLUDE 
 BEGIN
-    "#include ""atlresce.h""\r\0"
+    "#include ""atlresce.h""\0"
 END
 
 3 TEXTINCLUDE 
 BEGIN
-    "#include ""MiniPieppc.rc2""\r\0"
+    "#include ""MiniPie.rc2\0"
 END
 
 #endif    // APSTUDIO_INVOKED
@@ -250,8 +249,7 @@ END
 //
 // Generated from the TEXTINCLUDE 3 resource.
 //
-#include "MiniPieppc.rc2"
-
+#include "MiniPie.rc2"
 /////////////////////////////////////////////////////////////////////////////
 #endif    // not APSTUDIO_INVOKED
 

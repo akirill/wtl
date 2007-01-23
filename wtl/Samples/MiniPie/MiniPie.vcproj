@@ -456,6 +456,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\MiniPie.rc2"
+				>
+			</File>
+			<File
 				RelativePath=".\MiniPieppc.rc"
 				>
 				<FileConfiguration
@@ -476,10 +480,6 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\MiniPieppc.rc2"
-				>
-			</File>
-			<File
 				RelativePath=".\MiniPiesp.rc"
 				>
 				<FileConfiguration
@@ -498,10 +498,6 @@
 						Name="VCResourceCompilerTool"
 					/>
 				</FileConfiguration>
-			</File>
-			<File
-				RelativePath=".\MiniPiesp.rc2"
-				>
 			</File>
 		</Filter>
 	</Files>
