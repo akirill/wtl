@@ -2939,8 +2939,13 @@ public:
 // then implement DLGRESIZE map by specifying controls and groups of control
 // and using DLSZ_* values to specify how are they supposed to be resized.
 //
-// Note: Resizeable border (WS_THICKFRAME style) should be set in the dialog template
-// for top level dialogs (popup or overlapped), so that users can resize the dialog.
+// Notes:
+// - Resizeable border (WS_THICKFRAME style) should be set in the dialog template
+//   for top level dialogs (popup or overlapped), so that users can resize the dialog.
+// - Some flags cannot be combined; for instance DLSZ_CENTER_X overrides DLSZ_SIZE_X,
+//   DLSZ_SIZE_X overrides DLSZ_MOVE_X. X and Y flags can be combined.
+// - Order of controls is important - group controls are resized and moved based
+//   on the position of the previous control in a group.
 
 // dialog resize map macros
 #define BEGIN_DLGRESIZE_MAP(thisClass) \
@@ -2977,6 +2982,8 @@ public:
 		DLSZ_MOVE_X		= 0x00000004,
 		DLSZ_MOVE_Y		= 0x00000008,
 		DLSZ_REPAINT		= 0x00000010,
+		DLSZ_CENTER_X		= 0x00000020,
+		DLSZ_CENTER_Y		= 0x00000040,
 
 		// internal use only
 		_DLSZ_BEGIN_GROUP	= 0x00001000,
@@ -3181,15 +3188,15 @@ public:
 		if(bVisible)
 			pT->SetRedraw(FALSE);
 
-		RECT rectGroup = { 0, 0, 0, 0 };
 		for(int i = 0; i < m_arrData.GetSize(); i++)
 		{
 			if((m_arrData[i].m_dwResizeFlags & _DLSZ_BEGIN_GROUP) != 0)   // start of a group
 			{
 				int nGroupCount = m_arrData[i].GetGroupCount();
 				ATLASSERT(nGroupCount > 0 && i + nGroupCount - 1 < m_arrData.GetSize());
-				rectGroup = m_arrData[i].m_rect;
-				int j;
+				RECT rectGroup = m_arrData[i].m_rect;
+
+				int j = 1;
 				for(j = 1; j < nGroupCount; j++)
 				{
 					rectGroup.left = min(rectGroup.left, m_arrData[i + j].m_rect.left);
@@ -3197,43 +3204,27 @@ public:
 					rectGroup.right = max(rectGroup.right, m_arrData[i + j].m_rect.right);
 					rectGroup.bottom = max(rectGroup.bottom, m_arrData[i + j].m_rect.bottom);
 				}
-				RECT rcThis = { 0 };
-				RECT rcNext = { 0 };
+
 				for(j = 0; j < nGroupCount; j++)
 				{
-					int xyStartNext = -1;
-					if((j < (nGroupCount - 1)) && ((m_arrData[i + j].m_dwResizeFlags & (DLSZ_SIZE_X | DLSZ_SIZE_Y)) != 0) && ((m_arrData[i + j + 1].m_dwResizeFlags & (DLSZ_SIZE_X | DLSZ_SIZE_Y)) != 0))
-					{
-						ATL::CWindow ctlThis = pT->GetDlgItem(m_arrData[i + j].m_nCtlID);
-						ctlThis.GetWindowRect(&rcThis);
-						::MapWindowPoints(NULL, pT->m_hWnd, (LPPOINT)&rcThis, 2);
-						ATL::CWindow ctlNext = pT->GetDlgItem(m_arrData[i + j + 1].m_nCtlID);
-						ctlNext.GetWindowRect(&rcNext);
-						::MapWindowPoints(NULL, pT->m_hWnd, (LPPOINT)&rcNext, 2);
-						if((m_arrData[i + j].m_dwResizeFlags & DLSZ_SIZE_X) == DLSZ_SIZE_X && (m_arrData[i + j + 1].m_dwResizeFlags & DLSZ_SIZE_X) == DLSZ_SIZE_X)
-						{
-							if(rcNext.left >= rcThis.right)
-								xyStartNext = m_arrData[i + j + 1].m_rect.left;
-						}
-						else if((m_arrData[i + j].m_dwResizeFlags & DLSZ_SIZE_Y) == DLSZ_SIZE_Y && (m_arrData[i + j + 1].m_dwResizeFlags & DLSZ_SIZE_Y) == DLSZ_SIZE_Y)
-						{
-							if(rcNext.top >= rcThis.bottom)
-								xyStartNext = m_arrData[i + j + 1].m_rect.top;
-						}
-					}
-					pT->DlgResize_PositionControl(cxWidth, cyHeight, rectGroup, m_arrData[i + j], true, xyStartNext);
+					_AtlDlgResizeData* pDataPrev = NULL;
+					if(j > 0)
+						pDataPrev = &(m_arrData[i + j - 1]);
+					pT->DlgResize_PositionControl(cxWidth, cyHeight, rectGroup, m_arrData[i + j], true, pDataPrev);
 				}
-				// increment to skip all group controls
-				i += nGroupCount - 1;
+
+				i += nGroupCount - 1;   // increment to skip all group controls
 			}
-			else		// one control entry
+			else // one control entry
 			{
+				RECT rectGroup = { 0, 0, 0, 0 };
 				pT->DlgResize_PositionControl(cxWidth, cyHeight, rectGroup, m_arrData[i], false);
 			}
 		}
 
 		if(bVisible)
 			pT->SetRedraw(TRUE);
+
 		pT->RedrawWindow(NULL, NULL, RDW_ERASE | RDW_INVALIDATE | RDW_UPDATENOW | RDW_ALLCHILDREN);
 	}
 
@@ -3279,7 +3270,8 @@ public:
 #endif // _WIN32_WCE
 
 // Implementation
-	bool DlgResize_PositionControl(int cxWidth, int cyHeight, RECT& rectGroup, _AtlDlgResizeData& data, bool bGroup, int xyStartNext = -1)
+	bool DlgResize_PositionControl(int cxWidth, int cyHeight, RECT& rectGroup, _AtlDlgResizeData& data, bool bGroup, 
+	                               _AtlDlgResizeData* pDataPrev = NULL)
 	{
 		T* pT = static_cast<T*>(this);
 		ATLASSERT(::IsWindow(pT->m_hWnd));
@@ -3293,16 +3285,33 @@ public:
 
 		if(bGroup)
 		{
-			if((data.m_dwResizeFlags & (DLSZ_SIZE_X | DLSZ_MOVE_X)) != 0)
+			if((data.m_dwResizeFlags & DLSZ_CENTER_X) != 0)
+			{
+				int cxRight = ::MulDiv(rectGroup.right, cxWidth, m_sizeDialog.cx);
+				int cxCtl = data.m_rect.right - data.m_rect.left;
+				rectCtl.left = rectGroup.left + (cxRight - rectGroup.left - cxCtl) / 2;
+				rectCtl.right = rectCtl.left + cxCtl;
+			}
+			else if((data.m_dwResizeFlags & (DLSZ_SIZE_X | DLSZ_MOVE_X)) != 0)
 			{
 				rectCtl.left = rectGroup.left + ::MulDiv(data.m_rect.left - rectGroup.left, rectGroup.right - rectGroup.left + (cxWidth - m_sizeDialog.cx), rectGroup.right - rectGroup.left);
 
 				if((data.m_dwResizeFlags & DLSZ_SIZE_X) != 0)
 				{
-					if(xyStartNext != -1)
-						rectCtl.right = rectGroup.left + ::MulDiv(xyStartNext - rectGroup.left, rectGroup.right - rectGroup.left + (cxWidth - m_sizeDialog.cx), rectGroup.right - rectGroup.left) - (xyStartNext - data.m_rect.right);
-					else
-						rectCtl.right = rectGroup.left + ::MulDiv(data.m_rect.right - rectGroup.left, rectGroup.right - rectGroup.left + (cxWidth - m_sizeDialog.cx), rectGroup.right - rectGroup.left);
+					rectCtl.right = rectGroup.left + ::MulDiv(data.m_rect.right - rectGroup.left, rectGroup.right - rectGroup.left + (cxWidth - m_sizeDialog.cx), rectGroup.right - rectGroup.left);
+
+					if(pDataPrev != NULL)
+					{
+						ATL::CWindow ctlPrev = pT->GetDlgItem(pDataPrev->m_nCtlID);
+						RECT rcPrev = { 0 };
+						ctlPrev.GetWindowRect(&rcPrev);
+						::MapWindowPoints(NULL, pT->m_hWnd, (LPPOINT)&rcPrev, 2);
+						int xPrev = rcPrev.right;
+						int dxAdjust = (rectCtl.left - xPrev) - (data.m_rect.left - pDataPrev->m_rect.right);
+						rcPrev.right += dxAdjust - (dxAdjust / 2);
+						ctlPrev.SetWindowPos(NULL, &rcPrev, SWP_NOZORDER | SWP_NOACTIVATE | SWP_NOMOVE);
+						rectCtl.left -= dxAdjust / 2;
+					}
 				}
 				else
 				{
@@ -3310,16 +3319,33 @@ public:
 				}
 			}
 
-			if((data.m_dwResizeFlags & (DLSZ_SIZE_Y | DLSZ_MOVE_Y)) != 0)
+			if((data.m_dwResizeFlags & DLSZ_CENTER_Y) != 0)
+			{
+				int cyBottom = ::MulDiv(rectGroup.bottom, cyHeight, m_sizeDialog.cy);
+				int cyCtl = data.m_rect.bottom - data.m_rect.top;
+				rectCtl.top = rectGroup.top + (cyBottom - rectGroup.top - cyCtl) / 2;
+				rectCtl.bottom = rectCtl.top + cyCtl;
+			}
+			else if((data.m_dwResizeFlags & (DLSZ_SIZE_Y | DLSZ_MOVE_Y)) != 0)
 			{
 				rectCtl.top = rectGroup.top + ::MulDiv(data.m_rect.top - rectGroup.top, rectGroup.bottom - rectGroup.top + (cyHeight - m_sizeDialog.cy), rectGroup.bottom - rectGroup.top);
 
 				if((data.m_dwResizeFlags & DLSZ_SIZE_Y) != 0)
 				{
-					if(xyStartNext != -1)
-						rectCtl.bottom = rectGroup.top + ::MulDiv(xyStartNext - rectGroup.top, rectGroup.bottom - rectGroup.top + (cyHeight - m_sizeDialog.cy), rectGroup.bottom - rectGroup.top)  - (xyStartNext - data.m_rect.bottom);
-					else
-						rectCtl.bottom = rectGroup.top + ::MulDiv(data.m_rect.bottom - rectGroup.top, rectGroup.bottom - rectGroup.top + (cyHeight - m_sizeDialog.cy), rectGroup.bottom - rectGroup.top);
+					rectCtl.bottom = rectGroup.top + ::MulDiv(data.m_rect.bottom - rectGroup.top, rectGroup.bottom - rectGroup.top + (cyHeight - m_sizeDialog.cy), rectGroup.bottom - rectGroup.top);
+
+					if(pDataPrev != NULL)
+					{
+						ATL::CWindow ctlPrev = pT->GetDlgItem(pDataPrev->m_nCtlID);
+						RECT rcPrev = { 0 };
+						ctlPrev.GetWindowRect(&rcPrev);
+						::MapWindowPoints(NULL, pT->m_hWnd, (LPPOINT)&rcPrev, 2);
+						int yPrev = rcPrev.bottom;
+						int dxAdjust = (rectCtl.top - yPrev) - (data.m_rect.top - pDataPrev->m_rect.bottom);
+						rcPrev.bottom += dxAdjust - (dxAdjust / 2);
+						ctlPrev.SetWindowPos(NULL, &rcPrev, SWP_NOZORDER | SWP_NOACTIVATE | SWP_NOMOVE);
+						rectCtl.top -= dxAdjust / 2;
+					}
 				}
 				else
 				{
@@ -3327,9 +3353,15 @@ public:
 				}
 			}
 		}
-		else
+		else // no group
 		{
-			if((data.m_dwResizeFlags & (DLSZ_SIZE_X | DLSZ_MOVE_X)) != 0)
+			if((data.m_dwResizeFlags & DLSZ_CENTER_X) != 0)
+			{
+				int cxCtl = data.m_rect.right - data.m_rect.left;
+				rectCtl.left = (cxWidth - cxCtl) / 2;
+				rectCtl.right = rectCtl.left + cxCtl;
+			}
+			else if((data.m_dwResizeFlags & (DLSZ_SIZE_X | DLSZ_MOVE_X)) != 0)
 			{
 				rectCtl.right = data.m_rect.right + (cxWidth - m_sizeDialog.cx);
 
@@ -3337,7 +3369,13 @@ public:
 					rectCtl.left = rectCtl.right - (data.m_rect.right - data.m_rect.left);
 			}
 
-			if((data.m_dwResizeFlags & (DLSZ_SIZE_Y | DLSZ_MOVE_Y)) != 0)
+			if((data.m_dwResizeFlags & DLSZ_CENTER_Y) != 0)
+			{
+				int cyCtl = data.m_rect.bottom - data.m_rect.top;
+				rectCtl.top = (cyHeight - cyCtl) / 2;
+				rectCtl.bottom = rectCtl.top + cyCtl;
+			}
+			else if((data.m_dwResizeFlags & (DLSZ_SIZE_Y | DLSZ_MOVE_Y)) != 0)
 			{
 				rectCtl.bottom = data.m_rect.bottom + (cyHeight - m_sizeDialog.cy);
 
@@ -3349,7 +3387,7 @@ public:
 		if((data.m_dwResizeFlags & DLSZ_REPAINT) != 0)
 			ctl.Invalidate();
 
-		if((data.m_dwResizeFlags & (DLSZ_SIZE_X | DLSZ_SIZE_Y | DLSZ_MOVE_X | DLSZ_MOVE_Y | DLSZ_REPAINT)) != 0)
+		if((data.m_dwResizeFlags & (DLSZ_SIZE_X | DLSZ_SIZE_Y | DLSZ_MOVE_X | DLSZ_MOVE_Y | DLSZ_REPAINT | DLSZ_CENTER_X | DLSZ_CENTER_Y)) != 0)
 			ctl.SetWindowPos(NULL, &rectCtl, SWP_NOZORDER | SWP_NOACTIVATE);
 
 		return true;
