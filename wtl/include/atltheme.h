@@ -81,6 +81,11 @@
 // CTheme
 // CThemeImpl<T, TBase>
 //
+// CBufferedPaint
+// CBufferedPaintWindowImpl<T, TBase, TWinTraits>
+// CBufferedAnimation
+// CBufferedAnimationWindowImpl<T, TState, TBase, TWinTraits>
+//
 // Global functions:
 //   AtlDrawThemeClientEdge()
 
@@ -791,6 +796,376 @@ public:
 		return AtlDrawThemeClientEdge(m_hTheme, pT->m_hWnd, hRgnUpdate, NULL, 0, 0);
 	}
 };
+
+///////////////////////////////////////////////////////////////////////////////
+// Buffered Paint and Animation
+
+#ifdef _WTL_NEW_UXTHEME
+
+///////////////////////////////////////////////////////////////////////////////
+// CBufferedPaint - support for buffered paint functions
+
+class CBufferedPaint
+{
+public:
+	HPAINTBUFFER m_hPaintBuffer;
+
+	CBufferedPaint() : m_hPaintBuffer(NULL)
+	{ }
+
+	~CBufferedPaint()
+	{
+		ATLVERIFY(SUCCEEDED(End()));
+	}
+
+	bool IsNull() const
+	{
+		return (m_hPaintBuffer == NULL);
+	}
+
+	HPAINTBUFFER Begin(HDC hdcTarget, const RECT* prcTarget, BP_BUFFERFORMAT dwFormat, BP_PAINTPARAMS* pPaintParams, HDC* phdcPaint)
+	{
+		ATLASSERT(m_hPaintBuffer == NULL);
+		m_hPaintBuffer = ::BeginBufferedPaint(hdcTarget, prcTarget, dwFormat, pPaintParams, phdcPaint);
+		return m_hPaintBuffer;
+	}
+
+	HRESULT End(BOOL bUpdate = TRUE)
+	{
+		HRESULT hRet = S_FALSE;
+		if(m_hPaintBuffer != NULL)
+		{
+			hRet = ::EndBufferedPaint(m_hPaintBuffer, bUpdate);
+			m_hPaintBuffer = NULL;
+		}
+		return hRet;
+	}
+
+	HRESULT GetTargetRect(LPRECT pRect) const
+	{
+		ATLASSERT(m_hPaintBuffer != NULL);
+		return ::GetBufferedPaintTargetRect(m_hPaintBuffer, pRect);
+	}
+
+	HDC GetTargetDC() const
+	{
+		ATLASSERT(m_hPaintBuffer != NULL);
+		return ::GetBufferedPaintTargetDC(m_hPaintBuffer);
+	}
+
+	HDC GetPaintDC() const
+	{
+		ATLASSERT(m_hPaintBuffer != NULL);
+		return ::GetBufferedPaintDC(m_hPaintBuffer);
+	}
+
+	HRESULT GetBits(RGBQUAD** ppbBuffer, int* pcxRow) const
+	{
+		ATLASSERT(m_hPaintBuffer != NULL);
+		return ::GetBufferedPaintBits(m_hPaintBuffer, ppbBuffer, pcxRow);
+	}
+
+	HRESULT Clear(const RECT* pRect = NULL)
+	{
+		ATLASSERT(m_hPaintBuffer != NULL);
+		return ::BufferedPaintClear(m_hPaintBuffer, pRect);
+	}
+
+	HRESULT SetAlpha(BYTE alpha, const RECT* pRect = NULL)
+	{
+		ATLASSERT(m_hPaintBuffer != NULL);
+		return ::BufferedPaintSetAlpha(m_hPaintBuffer, pRect, alpha);
+	}
+
+	HRESULT MakeOpaque(const RECT* pRect = NULL)
+	{
+		ATLASSERT(m_hPaintBuffer != NULL);
+		return ::BufferedPaintSetAlpha(m_hPaintBuffer, pRect, 255);
+	}
+};
+
+
+///////////////////////////////////////////////////////////////////////////////
+// CBufferedPaintWindowImpl - implements a window that uses buffered paint
+
+template <class T, class TBase = ATL::CWindow, class TWinTraits = ATL::CControlWinTraits>
+class ATL_NO_VTABLE CBufferedPaintWindowImpl : public ATL::CWindowImpl<T, TBase, TWinTraits>
+{
+public:
+	CBufferedPaint m_BufferedPaint;
+	BP_BUFFERFORMAT m_dwFormat;
+	BP_PAINTPARAMS m_PaintParams;
+
+	CBufferedPaintWindowImpl() : m_dwFormat(BPBF_TOPDOWNDIB)
+	{
+		memset(&m_PaintParams, 0, sizeof(BP_PAINTPARAMS));
+		m_PaintParams.cbSize = sizeof(BP_PAINTPARAMS);
+	}
+
+// Message map and handlers
+	BEGIN_MSG_MAP(CBufferedPaintWindowImpl)
+		MESSAGE_HANDLER(WM_CREATE, OnCreate)
+		MESSAGE_HANDLER(WM_DESTROY, OnDestroy)
+		MESSAGE_HANDLER(WM_ERASEBKGND, OnEraseBackground)
+		MESSAGE_HANDLER(WM_PAINT, OnPaint)
+		MESSAGE_HANDLER(WM_PRINTCLIENT, OnPaint)
+	END_MSG_MAP()
+
+	LRESULT OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+	{
+		ATLVERIFY(SUCCEEDED(::BufferedPaintInit()));
+		return 0;
+	}
+
+	LRESULT OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+	{
+		ATLVERIFY(SUCCEEDED(::BufferedPaintUnInit()));
+		return 0;
+	}
+
+	LRESULT OnEraseBackground(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+	{
+		return 1;   // no background needed
+	}
+
+	LRESULT OnPaint(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+	{
+		T* pT = static_cast<T*>(this);
+		if(wParam != NULL)
+		{
+			RECT rect = { 0 };
+			pT->GetClientRect(&rect);
+			pT->DoPaint((HDC)wParam, rect);
+		}
+		else
+		{
+			CPaintDC dc(m_hWnd);
+			pT->DoBufferedPaint(dc.m_hDC, dc.m_ps.rcPaint);
+		}
+
+		return 0;
+	}
+
+// Overrideables
+	void DoBufferedPaint(CDCHandle dc, RECT& rect)
+	{
+		HDC hDCPaint = NULL;
+		m_BufferedPaint.Begin(dc, &rect, m_dwFormat, &m_PaintParams, &hDCPaint);
+
+		T* pT = static_cast<T*>(this);
+		if(hDCPaint != NULL)
+			pT->DoPaint(hDCPaint, rect);
+		else
+			pT->DoPaint(dc.m_hDC, rect);
+
+		m_BufferedPaint.End();
+	}
+
+	void DoPaint(CDCHandle /*dc*/, RECT& /*rect*/)
+	{
+		// must be implemented in a derived class
+		ATLASSERT(FALSE);
+	}
+};
+
+
+///////////////////////////////////////////////////////////////////////////////
+// CBufferedAnimation - support for buffered animation
+
+class CBufferedAnimation
+{
+public:
+	HANIMATIONBUFFER m_hAnimationBuffer;
+
+	CBufferedAnimation() : m_hAnimationBuffer(NULL)
+	{ }
+
+	~CBufferedAnimation()
+	{
+		ATLVERIFY(SUCCEEDED(End()));
+	}
+
+	bool IsNull() const
+	{
+		return (m_hAnimationBuffer == NULL);
+	}
+
+	HANIMATIONBUFFER Begin(HWND hWnd, HDC hDCTarget, const RECT* pRectTarget, BP_BUFFERFORMAT dwFormat, BP_PAINTPARAMS* pPaintParams, BP_ANIMATIONPARAMS* pAnimationParams, HDC* phdcFrom, HDC* phdcTo)
+	{
+		ATLASSERT(m_hAnimationBuffer == NULL);
+		m_hAnimationBuffer = ::BeginBufferedAnimation(hWnd, hDCTarget, pRectTarget, dwFormat, pPaintParams, pAnimationParams, phdcFrom, phdcTo);
+		return m_hAnimationBuffer;
+	}
+
+	HRESULT End(BOOL bUpdate = TRUE)
+	{
+		HRESULT hRet = S_FALSE;
+		if(m_hAnimationBuffer != NULL)
+		{
+			hRet = ::EndBufferedAnimation(m_hAnimationBuffer, bUpdate);
+			m_hAnimationBuffer = NULL;
+		}
+		return hRet;
+	}
+
+	static bool IsRendering(HWND hWnd, HDC hDC)
+	{
+		return (::BufferedPaintRenderAnimation(hWnd, hDC) != FALSE);
+	}
+};
+
+
+///////////////////////////////////////////////////////////////////////////////
+// CBufferedAnimationWindowImpl - implements a window that uses buffered animation
+
+// Note: You can either use m_State and m_NewState to store the state information
+// for the animation change, or map your state to those data members. DoPaint()
+// should only rely on the state information that is passed to it.
+
+template <class T, class TState = DWORD_PTR, class TBase = ATL::CWindow, class TWinTraits = ATL::CControlWinTraits>
+class ATL_NO_VTABLE CBufferedAnimationWindowImpl : public ATL::CWindowImpl<T, TBase, TWinTraits>
+{
+public:
+	BP_BUFFERFORMAT m_dwFormat;
+	BP_PAINTPARAMS m_PaintParams;
+	BP_ANIMATIONPARAMS m_AnimationParams;
+
+	TState m_State;
+	TState m_NewState;
+
+	CBufferedAnimationWindowImpl(TState InitialState) : m_dwFormat(BPBF_TOPDOWNDIB)
+	{
+		memset(&m_PaintParams, 0, sizeof(BP_PAINTPARAMS));
+		m_PaintParams.cbSize = sizeof(BP_PAINTPARAMS);
+
+		memset(&m_AnimationParams, 0, sizeof(BP_ANIMATIONPARAMS));
+		m_AnimationParams.cbSize = sizeof(BP_ANIMATIONPARAMS);
+		m_AnimationParams.style = BPAS_LINEAR;
+		m_AnimationParams.dwDuration = 500;
+
+		T* pT = static_cast<T*>(this);
+		pT->SetState(InitialState);
+		pT->SetNewState(InitialState);
+	}
+
+	DWORD GetDuration() const
+	{
+		return m_AnimationParams.dwDuration;
+	}
+
+	void SetDuration(DWORD dwDuration)
+	{
+		m_AnimationParams.dwDuration = dwDuration;
+	}
+
+	void DoAnimation(TState NewState, const RECT* pRect = NULL)
+	{
+		T* pT = static_cast<T*>(this);
+		pT->SetNewState(NewState);
+
+		pT->InvalidateRect(pRect, FALSE);
+		pT->UpdateWindow();
+
+		pT->SetState(NewState);
+	}
+
+// Message map and handlers
+	BEGIN_MSG_MAP(CBufferedAnimationWindowImpl)
+		MESSAGE_HANDLER(WM_CREATE, OnCreate)
+		MESSAGE_HANDLER(WM_DESTROY, OnDestroy)
+		MESSAGE_HANDLER(WM_ERASEBKGND, OnEraseBackground)
+		MESSAGE_HANDLER(WM_PAINT, OnPaint)
+		MESSAGE_HANDLER(WM_PRINTCLIENT, OnPaint)
+	END_MSG_MAP()
+
+	LRESULT OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+	{
+		ATLVERIFY(SUCCEEDED(::BufferedPaintInit()));
+		return 0;
+	}
+
+	LRESULT OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+	{
+		ATLVERIFY(SUCCEEDED(::BufferedPaintUnInit()));
+		return 0;
+	}
+
+	LRESULT OnEraseBackground(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+	{
+		return 1;   // no background needed
+	}
+
+	LRESULT OnPaint(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+	{
+		T* pT = static_cast<T*>(this);
+		if(wParam != NULL)
+		{
+			RECT rect = { 0 };
+			pT->GetClientRect(&rect);
+			pT->DoPaint((HDC)wParam, rect, m_NewState);
+		}
+		else
+		{
+			CPaintDC dc(m_hWnd);
+			pT->DoAnimationPaint(dc.m_hDC, dc.m_ps.rcPaint);
+		}
+
+		return 0;
+	}
+
+// Overrideables
+	void SetState(TState State)
+	{
+		m_State = State;
+	}
+
+	void SetNewState(TState State)
+	{
+		m_NewState = State;
+	}
+
+	bool AreStatesEqual() const
+	{
+		return (m_State == m_NewState);
+	}
+
+	void DoAnimationPaint(CDCHandle dc, RECT& rect)
+	{
+		if(CBufferedAnimation::IsRendering(m_hWnd, dc))
+			return;
+
+		DWORD dwDurationSave = m_AnimationParams.dwDuration;
+		T* pT = static_cast<T*>(this);
+		if(pT->AreStatesEqual())
+			m_AnimationParams.dwDuration = 0;
+
+		HDC hdcFrom = NULL, hdcTo = NULL;
+		CBufferedAnimation ba;
+		ba.Begin(m_hWnd, dc, &rect, m_dwFormat, &m_PaintParams, &m_AnimationParams, &hdcFrom, &hdcTo);
+		if(!ba.IsNull())
+		{
+			if(hdcFrom != NULL)
+				pT->DoPaint(hdcFrom, rect, m_State);
+
+			if (hdcTo != NULL)
+				pT->DoPaint(hdcTo, rect, m_NewState);
+		}
+		else
+		{
+			pT->DoPaint(dc.m_hDC, rect, m_NewState);
+		}
+
+		m_AnimationParams.dwDuration = dwDurationSave;
+	}
+
+	void DoPaint(CDCHandle /*dc*/, RECT& /*rect*/, TState /*State*/)
+	{
+		// must be implemented in a derived class
+		ATLASSERT(FALSE);
+	}
+};
+
+#endif // _WTL_NEW_UXTHEME
 
 }; // namespace WTL
 
