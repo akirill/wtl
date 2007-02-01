@@ -2710,6 +2710,11 @@ public:
 		return (int)::SendMessage(m_hWnd, HDM_INSERTITEM, nIndex, (LPARAM)phdi);
 	}
 
+	int AddItem(LPHDITEM phdi)
+	{
+		return InsertItem(GetItemCount(), phdi);
+	}
+
 	BOOL DeleteItem(int nIndex)
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
@@ -3793,6 +3798,11 @@ public:
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
 		return (int)::SendMessage(m_hWnd, LVM_INSERTGROUP, nItem, (LPARAM)pGroup);
+	}
+
+	int AddGroup(PLVGROUP pGroup)
+	{
+		return InsertGroup(-1, pGroup);
 	}
 
 	int RemoveGroup(int nGroupID)
@@ -5832,6 +5842,21 @@ public:
 		return InsertButton(nIndex, iCommand, Style, State, iBitmap, (INT_PTR)lpszItem, lParam);
 	}
 
+	BOOL AddButton(LPTBBUTTON lpButton)
+	{
+		return InsertButton(-1, lpButton);
+	}
+
+	BOOL AddButton(int iCommand, BYTE Style, BYTE State, int iBitmap, INT_PTR iString, DWORD_PTR lParam)
+	{
+		return InsertButton(-1, iCommand, Style, State, iBitmap, iString, lParam);
+	}
+
+	BOOL AddButton(int iCommand, BYTE Style, BYTE State, int iBitmap, LPCTSTR lpszItem, DWORD_PTR lParam)
+	{
+		return InsertButton(-1, iCommand, Style, State, iBitmap, lpszItem, lParam);
+	}
+
 	BOOL DeleteButton(int nIndex)
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
@@ -6376,6 +6401,21 @@ public:
 		tci.mask = TCIF_TEXT;
 		tci.pszText = (LPTSTR) lpszItem;
 		return (int)::SendMessage(m_hWnd, TCM_INSERTITEM, nItem, (LPARAM)&tci);
+	}
+
+	int AddItem(LPTCITEM pTabCtrlItem)
+	{
+		return InsertItem(GetItemCount(), pTabCtrlItem);
+	}
+
+	int AddItem(UINT mask, LPCTSTR lpszItem, int iImage, DWORD lParam)
+	{
+		return InsertItem(GetItemCount(), mask, lpszItem, iImage, lParam);
+	}
+
+	int AddItem(LPCTSTR lpszItem)
+	{
+		return InsertItem(GetItemCount(), lpszItem);
 	}
 
 	BOOL DeleteItem(int nItem)
@@ -8430,6 +8470,11 @@ public:
 		return (BOOL)::SendMessage(m_hWnd, RB_INSERTBAND, nBand, (LPARAM)lprbbi);
 	}
 
+	BOOL AddBand(LPREBARBANDINFO lprbbi)
+	{
+		return InsertBand(-1, lprbbi);
+	}
+
 	BOOL DeleteBand(int nBand)
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
@@ -8657,7 +8702,7 @@ public:
 #endif // (_WIN32_WINNT >= 0x0501)
 
 // Operations
-	int InsertItem(const COMBOBOXEXITEM FAR* lpcCBItem)
+	int InsertItem(const COMBOBOXEXITEM* lpcCBItem)
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
 		return (int)::SendMessage(m_hWnd, CBEM_INSERTITEM, 0, (LPARAM)lpcCBItem);
@@ -8693,6 +8738,16 @@ public:
 		return (int)::SendMessage(m_hWnd, CBEM_INSERTITEM, 0, (LPARAM)&cbex);
 	}
 
+	int AddItem(UINT nMask, LPCTSTR lpszItem, int nImage, int nSelImage, int iIndent, int iOverlay, DWORD lParam)
+	{
+		return InsertItem(nMask, -1, lpszItem, nImage, nSelImage, iIndent, iOverlay, lParam);
+	}
+
+	int AddItem(LPCTSTR lpszItem, int nImage, int nSelImage, int iIndent, DWORD lParam = 0)
+	{
+		return InsertItem(-1, lpszItem, nImage, nSelImage, iIndent, lParam);
+	}
+
 	int DeleteItem(int nIndex)
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
@@ -8705,7 +8760,7 @@ public:
 		return (BOOL)::SendMessage(m_hWnd, CBEM_GETITEM, 0, (LPARAM)pCBItem);
 	}
 
-	BOOL SetItem(const COMBOBOXEXITEM FAR* lpcCBItem)
+	BOOL SetItem(const COMBOBOXEXITEM* lpcCBItem)
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
 		return (BOOL)::SendMessage(m_hWnd, CBEM_SETITEM, 0, (LPARAM)lpcCBItem);
