@@ -1255,7 +1255,7 @@ public: \
 			return TRUE; \
 	}
 
-void OnEnterMenuLoop(BOOL fIsTrackPopupMenu)
+// void OnEnterMenuLoop(BOOL fIsTrackPopupMenu)
 #define MSG_WM_ENTERMENULOOP(func) \
 	if (uMsg == WM_ENTERMENULOOP) \
 	{ \
