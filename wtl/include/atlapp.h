@@ -96,6 +96,13 @@
 #define LR_DEFAULTSIZE      0
 #define LR_LOADFROMFILE     0
 
+#ifndef SM_CXCURSOR
+  #define SM_CXCURSOR             13
+#endif
+#ifndef SM_CYCURSOR
+  #define SM_CYCURSOR             14
+#endif
+
 inline BOOL IsMenu(HMENU hMenu)
 {
 	MENUITEMINFO mii = { sizeof(MENUITEMINFO) };

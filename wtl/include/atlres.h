@@ -162,7 +162,12 @@
   #define ATL_IDM_WINDOW_FIRST          0xE130
   #define ATL_IDM_WINDOW_LAST           0xE13F
   #define ATL_IDM_FIRST_MDICHILD        0xFF00  // window list starts here
+  #define ATL_IDM_LAST_MDICHILD         0xFFFD
 #endif // !RC_INVOKED
+// TabView
+#define ID_WINDOW_TABFIRST              0xFF00	// = ATL_IDM_FIRST_MDICHILD
+#define ID_WINDOW_TABLAST               0xFFFD
+#define ID_WINDOW_SHOWTABLIST           0xFFFE
 
 // Help and App commands
 #define ID_APP_ABOUT                    0xE140

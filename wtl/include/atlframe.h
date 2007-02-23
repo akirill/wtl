@@ -901,11 +901,11 @@ public:
 			{
 				WORD wID = LOWORD(wParam);
 				// check for special cases
-				if(wID >= 0xF000 && wID < 0xF1F0)                              // system menu IDs
+				if(wID >= 0xF000 && wID < 0xF1F0)   // system menu IDs
 					wID = (WORD)(((wID - 0xF000) >> 4) + ATL_IDS_SCFIRST);
 				else if(wID >= ID_FILE_MRU_FIRST && wID <= ID_FILE_MRU_LAST)   // MRU items
 					wID = ATL_IDS_MRU_FILE;
-				else if(wID >= ATL_IDM_FIRST_MDICHILD)                         // MDI child windows
+				else if(wID >= ATL_IDM_FIRST_MDICHILD && wID <= ATL_IDM_LAST_MDICHILD)   // MDI child windows
 					wID = ATL_IDS_MDICHILD;
 
 				int nRet = ::LoadString(ModuleHelper::GetResourceInstance(), wID, szBuff, cchBuff);
