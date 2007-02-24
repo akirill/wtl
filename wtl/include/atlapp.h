@@ -414,6 +414,11 @@ static CWndClassInfo& GetWndClassInfo() \
   #endif // ATLVERIFY
 #endif // (_ATL_VER < 0x0700)
 
+// Forward declaration for ATL3 fix
+#if (_ATL_VER < 0x0700) && defined(_ATL_DLL) && !defined(_WIN32_WCE)
+  namespace ATL { HRESULT AtlGetCommCtrlVersion(LPDWORD pdwMajor, LPDWORD pdwMinor); };
+#endif
+
 
 namespace WTL
 {
