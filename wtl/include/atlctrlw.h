@@ -35,7 +35,7 @@
 #endif
 
 // Define _WTL_CMDBAR_VISTA_MENUS as 0 to exclude Vista menus support
-#if !defined(_WTL_CMDBAR_VISTA_MENUS) && (_WIN32_WINNT >= 0x0501) && (_WIN32_IE >= 0x0501)
+#if !defined(_WTL_CMDBAR_VISTA_MENUS) && (WINVER >= 0x0500) && (_WIN32_WINNT >= 0x0501) && (_WIN32_IE >= 0x0501)
   #define _WTL_CMDBAR_VISTA_MENUS 1
 #endif
 
