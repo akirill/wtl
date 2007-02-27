@@ -22,13 +22,13 @@
 <table border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111" id="AutoNumber3">
   <tr>
     <td><font face="Arial"><b>Windows Template Library - WTL Version 8.0</b></font><font face="Arial" size="2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
-(build 6356) 12/22/06</font></td>
+(build 7058) 2/27/07</font></td>
   </tr>
   <tr>
     <td><hr></td>
   </tr>
   <tr>
-    <td><font face="Arial" size="2">Copyright &#169; 2006 Microsoft Corporation.
+    <td><font face="Arial" size="2">Copyright &#169; 2007 Microsoft Corporation.
 All rights reserved.</font></td>
   </tr>
   <tr>
@@ -316,6 +316,11 @@ Visual C++ 2005 - Pocket PC 2003 SE, Smartphone 2003 SE, STANDARDSDK_500,</font>
     <td width="358"><font face="Arial" size="2">WTL version of the MDI sample</font></td>
   </tr>
 	<tr>
+    <td width="136"><font face="Arial" size="2">&nbsp;&nbsp;&nbsp; MiniPie\...</font></td>
+    <td width="358" class="style2">p<font size="2">ort of the SDK sample for 
+	Mobile devices</font></td>
+  </tr>
+	<tr>
     <td width="136"><font face="Arial" size="2">&nbsp;&nbsp;&nbsp; MTPad\...</font></td>
     <td width="358"><font face="Arial" size="2">multithreaded notepad sample</font></td>
   </tr>
@@ -368,17 +373,32 @@ Visual C++ 2005 - Pocket PC 2003 SE, Smartphone 2003 SE, STANDARDSDK_500,</font>
   <tr>
     <td width="494" colspan="2">&nbsp;</td>
   </tr>
-  <tr>
+	<tr>
     <td width="494" colspan="2"><font face="Arial" size="2">AppWizCE\</font></td>
   </tr>
-  <tr>
+	<tr>
     <td width="136"><font face="Arial" size="2">&nbsp;&nbsp;&nbsp; setup80.js</font></td>
     <td width="358"><font face="Arial" size="2">AppWizard setup program for VC++ 
     2005</font></td>
   </tr>
-  <tr>
+	<tr>
     <td width="136"><font face="Arial" size="2">&nbsp;&nbsp;&nbsp; Files\...</font></td>
     <td width="358"><font face="Arial" size="2">WTL AppWizard for VC++ 2005 files</font></td>
+  </tr>
+  <tr>
+    <td width="494" colspan="2">&nbsp;</td>
+  </tr>
+  <tr>
+    <td width="494" colspan="2"><font face="Arial" size="2">AppWizMobile\</font></td>
+  </tr>
+  <tr>
+    <td width="136"><font face="Arial" size="2">&nbsp;&nbsp;&nbsp; setup80.js</font></td>
+    <td width="358"><font face="Arial" size="2">AppWizard Mobile setup program for VC++ 
+    2005</font></td>
+  </tr>
+  <tr>
+    <td width="136"><font face="Arial" size="2">&nbsp;&nbsp;&nbsp; Files\...</font></td>
+    <td width="358"><font face="Arial" size="2">WTL AppWizard Mobile for VC++ 2005 files</font></td>
   </tr>
   </table>
 <p style=margin:0in>&nbsp;</p>
@@ -1158,8 +1178,18 @@ Visual C++ 2005 - Pocket PC 2003 SE, Smartphone 2003 SE, STANDARDSDK_500,</font>
     <td width="115"><font face="Arial" size="2">impl</font></td>
     <td width="255"><font face="Arial" size="2">&nbsp;</font></td>
   </tr>
-  <tr>
+	<tr>
     <td width="221"><b><font face="Arial" size="2">CSortListViewCtrl</font></b></td>
+    <td width="115"><font face="Arial" size="2">as-is</font></td>
+    <td width="255"><font face="Arial" size="2">&nbsp;</font></td>
+  </tr>
+	<tr>
+    <td width="221"><b><font face="Arial" size="2">CTabViewImpl&lt;&gt;</font></b></td>
+    <td width="115"><font face="Arial" size="2">impl</font></td>
+    <td width="255"><font face="Arial" size="2">tab view window</font></td>
+  </tr>
+  <tr>
+    <td width="221"><b><font face="Arial" size="2">CTabViewl</font></b></td>
     <td width="115"><font face="Arial" size="2">as-is</font></td>
     <td width="255"><font face="Arial" size="2">&nbsp;</font></td>
   </tr>
@@ -1239,6 +1269,30 @@ Visual C++ 2005 - Pocket PC 2003 SE, Smartphone 2003 SE, STANDARDSDK_500,</font>
     <td width="221"><b><font face="Arial" size="2">CThemeImpl&lt;&gt;</font></b></td>
     <td width="115"><font face="Arial" size="2">impl</font></td>
     <td width="255"><font face="Arial" size="2">theming support for a window</font></td>
+  </tr>
+  <tr>
+    <td colspan="3" width="593"><font face="Arial" size="2"><br>
+    buffered paint and animation support</font></td>
+  </tr>
+	<tr>
+    <td width="221"><b><font face="Arial" size="2">CBufferedPaint</font></b></td>
+    <td width="115"><font face="Arial" size="2">as-is</font></td>
+    <td width="255" class="style2">buffered paint support</td>
+  </tr>
+	<tr>
+    <td width="221"><b><font face="Arial" size="2">C</font></b><span class="style1">BufferedPaintWindowImpl&lt;&gt;</span></td>
+    <td width="115"><font face="Arial" size="2">impl</font></td>
+    <td width="255"><font face="Arial" size="2">window with buffered paint</font></td>
+  </tr>
+	<tr>
+    <td width="221"><b><font face="Arial" size="2">C</font></b><span class="style1">BufferedAnimation</span></td>
+    <td width="115"><font face="Arial" size="2">as-is</font></td>
+    <td width="255" class="style2">b<font size="2">uffered animation support</font></td>
+  </tr>
+	<tr>
+    <td width="221"><b><font face="Arial" size="2">C</font></b><span class="style1">BufferedAnimationWindowImpl&lt;&gt;</span></td>
+    <td width="115"><font face="Arial" size="2">impl</font></td>
+    <td width="255"><font face="Arial" size="2">window with buffered animation</font></td>
   </tr>
   <tr>
     <td colspan="3" width="593"><font face="Arial" size="2"><br>
