@@ -712,7 +712,7 @@ function SetWTLSymbols(checkedPlatforms)
     for (cur = 0; cur < SelectedSDKs.options.length; cur++)
     {
         checkedPlatforms[cur] = SelectedSDKs.options(cur).text;
-        if (checkedPlatforms[cur].search(/smartphone/i) != -1)
+        if (checkedPlatforms[cur].search(/smartphone|mobile 6 standard/i) != -1)
         {
 			if(window.external.FindSymbol("WTL_APPTYPE_DLG") 
 				&& window.external.FindSymbol("WTL_APP_DLG_ORIENT_AWARE"))
@@ -727,7 +727,7 @@ function SetWTLSymbols(checkedPlatforms)
 		}
         else if(checkedPlatforms[cur].search(/2003/) != -1)
             window.external.AddSymbol("WTL_PLATFORM_PPC2003",true);
-        else if(checkedPlatforms[cur].search(/Mobile 5/i) != -1)
+        else if(checkedPlatforms[cur].search(/Mobile [56]/i) != -1)
             window.external.AddSymbol("WTL_PLATFORM_PPC2005",true);
     }
 
