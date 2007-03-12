@@ -4197,7 +4197,7 @@ public:
 			const int cchBuff = 256;
 			TCHAR szBuff[cchBuff] = { 0 };
 			const int cchPrefix = 3;   // 3 digits + space
-			nMenuItemsCount = min(min(nPageCount, nMenuItemsCount), m_nMenuItemsMax);
+			nMenuItemsCount = min(min(nPageCount, nMenuItemsCount), (int)m_nMenuItemsMax);
 			for(int i = 0; i < nMenuItemsCount; i++)
 			{
 				LPCTSTR lpstrTitle = GetPageTitle(i);
@@ -4604,7 +4604,7 @@ public:
 		RECT rect;
 		GetClientRect(&rect);
 
-		if(m_tab.IsWindow() && m_tab.IsWindowVisible())
+		if(m_tab.IsWindow() && ((m_tab.GetStyle() & WS_VISIBLE) != 0))
 			m_tab.SetWindowPos(NULL, 0, 0, rect.right - rect.left, m_cyTabHeight, SWP_NOZORDER);
 
 		if(m_nActivePage != -1)
