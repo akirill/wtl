@@ -3671,16 +3671,10 @@ public:
 
 	int m_nActivePage;
 
-	bool m_bTabCapture;
 	int m_nInsertItem;
 	POINT m_ptStartDrag;
 
 	CMenuHandle m_menu;
-
-	bool m_bActivePageMenuItem;
-	bool m_bActiveAsDefaultMenuItem;
-	bool m_bEmptyMenuItem;
-	bool m_bWindowsMenuItem;
 
 	int m_cchTabTextLength;
 
@@ -3690,29 +3684,35 @@ public:
 	LPTSTR m_lpstrTitleBarBase;
 	int m_cchTitleBarLength;
 
-	bool m_bDestroyPageOnRemove;
-	bool m_bDestroyImageList;
-
 	CImageList m_ilDrag;
-	bool m_bTabDrag;
+
+	bool m_bDestroyPageOnRemove:1;
+	bool m_bDestroyImageList:1;
+	bool m_bActivePageMenuItem:1;
+	bool m_bActiveAsDefaultMenuItem:1;
+	bool m_bEmptyMenuItem:1;
+	bool m_bWindowsMenuItem:1;
+	// internal
+	bool m_bTabCapture:1;
+	bool m_bTabDrag:1;
 
 // Constructor/destructor
 	CTabViewImpl() :
 			m_nActivePage(-1), 
 			m_cyTabHeight(0), 
 			m_tab(this, 1), 
-			m_bTabCapture(false), 
 			m_nInsertItem(-1), 
-			m_bActivePageMenuItem(true), 
-			m_bActiveAsDefaultMenuItem(false), 
-			m_bEmptyMenuItem(false), 
-			m_bWindowsMenuItem(true), 
 			m_cchTabTextLength(30), 
 			m_nMenuItemsCount(10), 
 			m_lpstrTitleBarBase(NULL), 
 			m_cchTitleBarLength(100), 
 			m_bDestroyPageOnRemove(true), 
 			m_bDestroyImageList(true), 
+			m_bActivePageMenuItem(true), 
+			m_bActiveAsDefaultMenuItem(false), 
+			m_bEmptyMenuItem(false), 
+			m_bWindowsMenuItem(false), 
+			m_bTabCapture(false), 
 			m_bTabDrag(false)
 	{
 		m_ptStartDrag.x = 0;
@@ -3842,11 +3842,14 @@ public:
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
 
-		m_wndTitleBar = hWnd;
-
-		int cchLen = m_wndTitleBar.GetWindowTextLength() + 1;
 		delete [] m_lpstrTitleBarBase;
 		m_lpstrTitleBarBase = NULL;
+
+		m_wndTitleBar = hWnd;
+		if(hWnd == NULL)
+			return;
+
+		int cchLen = m_wndTitleBar.GetWindowTextLength() + 1;
 		ATLTRY(m_lpstrTitleBarBase = new TCHAR[cchLen * sizeof(TCHAR)]);
 		if(m_lpstrTitleBarBase != NULL)
 		{
