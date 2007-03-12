@@ -502,13 +502,23 @@ public:
 	BOOL AttachMenu(HMENU hMenu)
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
-		ATLASSERT(::IsMenu(hMenu));
+		ATLASSERT(hMenu == NULL || ::IsMenu(hMenu));
 		if(hMenu != NULL && !::IsMenu(hMenu))
 			return FALSE;
+
+#if _WTL_CMDBAR_VISTA_MENUS
+		// remove Vista bitmaps if used
+		if(m_bVistaMenus && (m_hMenu != NULL))
+		{
+			T* pT = static_cast<T*>(this);
+			pT->_RemoveVistaBitmapsFromMenu();
+		}
+#endif // _WTL_CMDBAR_VISTA_MENUS
 
 		// destroy old menu, if needed, and set new one
 		if(m_hMenu != NULL && (m_dwExtendedStyle & CBR_EX_SHAREMENU) == 0)
 			::DestroyMenu(m_hMenu);
+
 		m_hMenu = hMenu;
 
 		if(m_bAttachedMenu)   // Nothing else in this mode
@@ -517,15 +527,10 @@ public:
 		// Build buttons according to menu
 		SetRedraw(FALSE);
 
-		// Clear all
-		BOOL bRet;
+		// Clear all buttons
 		int nCount = GetButtonCount();
 		for(int i = 0; i < nCount; i++)
-		{
-			bRet = DeleteButton(0);
-			ATLASSERT(bRet);
-		}
-
+			ATLVERIFY(DeleteButton(0) != FALSE);
 
 		// Add buttons for each menu item
 		if(m_hMenu != NULL)
@@ -542,7 +547,7 @@ public:
 				mii.fType = MFT_STRING;
 				mii.dwTypeData = szString;
 				mii.cch = pT->_nMaxMenuItemTextLength;
-				bRet = ::GetMenuItemInfo(m_hMenu, i, TRUE, &mii);
+				BOOL bRet = ::GetMenuItemInfo(m_hMenu, i, TRUE, &mii);
 				ATLASSERT(bRet);
 				// If we have more than the buffer, we assume we have bitmaps bits
 				if(lstrlen(szString) > pT->_nMaxMenuItemTextLength - 1)
@@ -1022,16 +1027,10 @@ public:
 		LRESULT lRet = DefWindowProc(uMsg, wParam, lParam);
 
 #if _WTL_CMDBAR_VISTA_MENUS
-		if(!m_bVistaMenus && (m_hMenu != NULL))
+		if(m_bVistaMenus && (m_hMenu != NULL))
 		{
-			CMenuHandle menu = m_hMenu;
-			for(int i = 0; i < m_arrCommand.GetSize(); i++)
-			{
-				CMenuItemInfo mii;
-				mii.fMask = MIIM_BITMAP;
-				mii.hbmpItem = NULL;
-				menu.SetMenuItemInfo(m_arrCommand[i], FALSE, &mii);
-			}
+			T* pT = static_cast<T*>(this);
+			pT->_RemoveVistaBitmapsFromMenu();
 		}
 
 		for(int i = 0; i < m_arrVistaBitmap.GetSize(); i++)
@@ -3036,14 +3035,8 @@ public:
 
 		if(!bVistaMenus && m_bVistaMenus && (m_hMenu != NULL) && (m_arrCommand.GetSize() > 0))
 		{
-			CMenuHandle menu = m_hMenu;
-			for(int i = 0; i < m_arrCommand.GetSize(); i++)
-			{
-				CMenuItemInfo mii;
-				mii.fMask = MIIM_BITMAP;
-				mii.hbmpItem = NULL;
-				menu.SetMenuItemInfo(m_arrCommand[i], FALSE, &mii);
-			}
+			T* pT = static_cast<T*>(this);
+			pT->_RemoveVistaBitmapsFromMenu();
 		}
 
 		m_bVistaMenus = bVistaMenus;
@@ -3244,6 +3237,18 @@ public:
 		}
 
 		return hBitmap;
+	}
+
+	void _RemoveVistaBitmapsFromMenu()
+	{
+		CMenuHandle menu = m_hMenu;
+		for(int i = 0; i < m_arrCommand.GetSize(); i++)
+		{
+			CMenuItemInfo mii;
+			mii.fMask = MIIM_BITMAP;
+			mii.hbmpItem = NULL;
+			menu.SetMenuItemInfo(m_arrCommand[i], FALSE, &mii);
+		}
 	}
 #endif // _WTL_CMDBAR_VISTA_MENUS
 };
