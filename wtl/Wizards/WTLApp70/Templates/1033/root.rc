@@ -115,7 +115,7 @@ BEGIN
         MENUITEM "&Copy\tCtrl+C",               ID_EDIT_COPY
         MENUITEM "&Paste\tCtrl+V",              ID_EDIT_PASTE
     END
-[!if WTL_USE_TOOLBAR || WTL_USE_STATUSBAR]
+[!if WTL_USE_TOOLBAR || WTL_USE_STATUSBAR || WTL_APPTYPE_EXPLORER]
     POPUP "&View"
     BEGIN
 [!if WTL_USE_TOOLBAR]
@@ -124,6 +124,16 @@ BEGIN
 [!if WTL_USE_STATUSBAR]
         MENUITEM "&Status Bar",                 ID_VIEW_STATUS_BAR
 [!endif]
+[!if WTL_APPTYPE_EXPLORER]
+        MENUITEM "Tree &Pane",                  ID_VIEW_TREEPANE
+[!endif]
+    END
+[!endif]
+[!if WTL_APPTYPE_TABVIEW]
+    POPUP "&Window"
+    BEGIN
+        MENUITEM "&Close\tCtrl+F4",             ID_WINDOW_CLOSE
+        MENUITEM "Close &All",                  ID_WINDOW_CLOSE_ALL
     END
 [!endif]
     POPUP "&Help"

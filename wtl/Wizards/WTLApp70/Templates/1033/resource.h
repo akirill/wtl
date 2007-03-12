@@ -19,7 +19,7 @@
 [!endif]
 [!endif]
 [!else]
-[!if WTL_APPTYPE_SDI]
+[!if WTL_APPTYPE_SDI || WTL_APPTYPE_TABVIEW || WTL_APPTYPE_EXPLORER]
 [!if WTL_USE_VIEW]
 [!if WTL_VIEWTYPE_FORM]
 #define IDD_[!output UPPERCASE_SAFE_PROJECT_NAME]_FORM	129
@@ -39,6 +39,13 @@
 [!endif]
 #define ID_FILE_NEW_WINDOW			32771
 [!endif]
+[!if WTL_APPTYPE_TABVIEW]
+#define ID_WINDOW_CLOSE				32772
+#define ID_WINDOW_CLOSE_ALL			32773
+[!endif]
+[!if WTL_APPTYPE_EXPLORER]
+#define ID_VIEW_TREEPANE			32774
+[!endif]
 
 // Next default values for new objects
 // 
@@ -47,6 +54,6 @@
 #define _APS_NEXT_RESOURCE_VALUE	201
 #define _APS_NEXT_CONTROL_VALUE		1000
 #define _APS_NEXT_SYMED_VALUE		101
-#define _APS_NEXT_COMMAND_VALUE		32772
+#define _APS_NEXT_COMMAND_VALUE		32775
 #endif
 #endif

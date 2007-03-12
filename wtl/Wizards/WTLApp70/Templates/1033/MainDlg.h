@@ -52,9 +52,7 @@ public:
 
 	BEGIN_MSG_MAP([!output WTL_MAINDLG_CLASS])
 		MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
-[!if WTL_COM_SERVER]
 		MESSAGE_HANDLER(WM_DESTROY, OnDestroy)
-[!endif]
 		COMMAND_ID_HANDLER(ID_APP_ABOUT, OnAppAbout)
 		COMMAND_ID_HANDLER(IDOK, OnOK)
 		COMMAND_ID_HANDLER(IDCANCEL, OnCancel)
@@ -93,7 +91,6 @@ public:
 	}
 
 [!endif]
-[!if WTL_COM_SERVER]
 [!if WTL_USE_CPP_FILES]
 	LRESULT OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 [!else]
@@ -104,6 +101,8 @@ public:
 		ATLASSERT(pLoop != NULL);
 		pLoop->RemoveMessageFilter(this);
 		pLoop->RemoveIdleHandler(this);
+[!if WTL_COM_SERVER]
+
 		// if UI is the last thread, no need to wait
 		if(_Module.GetLockCount() == 1)
 		{
@@ -111,10 +110,11 @@ public:
 			_Module.m_dwPause = 0L;
 		}
 		_Module.Unlock();
+[!endif]
+
 		return 0;
 	}
 
-[!endif]
 [!endif]
 [!if WTL_USE_CPP_FILES]
 	LRESULT OnAppAbout(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
@@ -218,6 +218,7 @@ public:
 			_Module.m_dwPause = 0L;
 		}
 		_Module.Unlock();
+
 		return 0;
 	}
 

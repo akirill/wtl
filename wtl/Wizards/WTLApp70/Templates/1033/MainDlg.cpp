@@ -63,7 +63,6 @@ LRESULT [!output WTL_MAINDLG_CLASS]::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam
 	return TRUE;
 }
 
-[!if WTL_COM_SERVER]
 LRESULT [!output WTL_MAINDLG_CLASS]::OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
 	// unregister message filtering and idle updates
@@ -71,6 +70,8 @@ LRESULT [!output WTL_MAINDLG_CLASS]::OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/,
 	ATLASSERT(pLoop != NULL);
 	pLoop->RemoveMessageFilter(this);
 	pLoop->RemoveIdleHandler(this);
+[!if WTL_COM_SERVER]
+
 	// if UI is the last thread, no need to wait
 	if(_Module.GetLockCount() == 1)
 	{
@@ -78,10 +79,11 @@ LRESULT [!output WTL_MAINDLG_CLASS]::OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/,
 		_Module.m_dwPause = 0L;
 	}
 	_Module.Unlock();
+[!endif]
+
 	return 0;
 }
 
-[!endif]
 LRESULT [!output WTL_MAINDLG_CLASS]::OnAppAbout(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
 	CAboutDlg dlg;

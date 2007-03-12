@@ -84,7 +84,7 @@ LRESULT [!output WTL_FRAME_CLASS]::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LP
 	m_CmdBar.SetMDIClient(m_hWndMDIClient);
 [!endif]
 [!endif]
-[!if WTL_APPTYPE_SDI || WTL_APPTYPE_MTSDI]
+[!if WTL_APPTYPE_SDI || WTL_APPTYPE_MTSDI || WTL_APPTYPE_TABVIEW]
 [!if WTL_USE_VIEW]
 [!if WTL_VIEWTYPE_FORM]
 
@@ -95,11 +95,41 @@ LRESULT [!output WTL_FRAME_CLASS]::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LP
 	//TODO: Replace with a URL of your choice
 	m_hWndClient = m_view.Create(m_hWnd, rcDefault, _T("http://www.microsoft.com"), [!output WTL_VIEW_STYLES], [!output WTL_VIEW_EX_STYLES]);
 [!else]
+[!if WTL_APPTYPE_TABVIEW]
+
+	m_hWndClient = m_view.Create(m_hWnd, rcDefault, NULL, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, WS_EX_CLIENTEDGE);
+[!else]
 
 	m_hWndClient = m_view.Create(m_hWnd, rcDefault, NULL, [!output WTL_VIEW_STYLES], [!output WTL_VIEW_EX_STYLES]);
 [!endif]
 [!endif]
 [!endif]
+[!endif]
+[!endif]
+[!if WTL_APPTYPE_EXPLORER]
+	m_hWndClient = m_splitter.Create(m_hWnd, rcDefault, NULL, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN);
+
+	m_pane.SetPaneContainerExtendedStyle(PANECNT_NOBORDER);
+	m_pane.Create(m_splitter, _T("Tree"), WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN);
+	m_treeview.Create(m_pane, rcDefault, NULL, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | TVS_HASLINES | TVS_LINESATROOT | TVS_HASBUTTONS | TVS_SHOWSELALWAYS, WS_EX_CLIENTEDGE);
+	m_pane.SetClient(m_treeview);
+[!if WTL_VIEWTYPE_FORM]
+
+	m_view.Create(m_splitter);
+[!else]
+[!if WTL_VIEWTYPE_HTML]
+
+	//TODO: Replace with a URL of your choice
+	m_view.Create(m_splitter, rcDefault, _T("http://www.microsoft.com"), [!output WTL_VIEW_STYLES], [!output WTL_VIEW_EX_STYLES]);
+[!else]
+
+	m_view.Create(m_splitter, rcDefault, NULL, [!output WTL_VIEW_STYLES], [!output WTL_VIEW_EX_STYLES]);
+[!endif]
+[!endif]
+
+	m_splitter.SetSplitterPanes(m_pane, m_view);
+	UpdateLayout();
+	m_splitter.SetSplitterPos(300);
 [!endif]
 [!if WTL_USE_TOOLBAR]
 [!if WTL_USE_REBAR]
@@ -114,6 +144,9 @@ LRESULT [!output WTL_FRAME_CLASS]::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LP
 [!if WTL_USE_STATUSBAR]
 	UISetCheck(ID_VIEW_STATUS_BAR, 1);
 [!endif]
+[!if WTL_APPTYPE_EXPLORER]
+	UISetCheck(ID_VIEW_TREEPANE, 1);
+[!endif]
 
 	// register object for message filtering and idle updates
 	CMessageLoop* pLoop = _Module.GetMessageLoop();
@@ -121,17 +154,33 @@ LRESULT [!output WTL_FRAME_CLASS]::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LP
 	pLoop->AddMessageFilter(this);
 	pLoop->AddIdleHandler(this);
 
+[!if WTL_APPTYPE_TABVIEW]
+[!if WTL_USE_CMDBAR]
+	CMenuHandle menuMain = m_CmdBar.GetMenu();
+[!else]
+	CMenuHandle menuMain = GetMenu();
+[!endif]
+	m_view.SetWindowMenu(menuMain.GetSubMenu(WINDOW_MENU_POSITION));
+
+[!endif]
 	return 0;
 }
 
 [!if WTL_COM_SERVER]
 LRESULT [!output WTL_FRAME_CLASS]::OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
+[!if WTL_APPTYPE_MDI]
+[!if WTL_USE_CMDBAR]
+		m_CmdBar.AttachMenu(NULL);
+
+[!endif]
+[!endif]
 	// unregister message filtering and idle updates
 	CMessageLoop* pLoop = _Module.GetMessageLoop();
 	ATLASSERT(pLoop != NULL);
 	pLoop->RemoveMessageFilter(this);
 	pLoop->RemoveIdleHandler(this);
+
 	// if UI is the last thread, no need to wait
 	if(_Module.GetLockCount() == 1)
 	{
@@ -139,10 +188,31 @@ LRESULT [!output WTL_FRAME_CLASS]::OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, L
 		_Module.m_dwPause = 0L;
 	}
 	_Module.Unlock();
+
 [!if WTL_APPTYPE_MTSDI]
 	::PostQuitMessage(1);
+
 [!endif]
 	return 0;
+}
+
+[!else]
+LRESULT [!output WTL_FRAME_CLASS]::OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
+{
+[!if WTL_APPTYPE_MDI]
+[!if WTL_USE_CMDBAR]
+		m_CmdBar.AttachMenu(NULL);
+
+[!endif]
+[!endif]
+	// unregister message filtering and idle updates
+	CMessageLoop* pLoop = _Module.GetMessageLoop();
+	ATLASSERT(pLoop != NULL);
+	pLoop->RemoveMessageFilter(this);
+	pLoop->RemoveIdleHandler(this);
+
+	bHandled = FALSE;
+	return 1;
 }
 
 [!endif]
@@ -154,6 +224,13 @@ LRESULT [!output WTL_FRAME_CLASS]::OnFileExit(WORD /*wNotifyCode*/, WORD /*wID*/
 
 LRESULT [!output WTL_FRAME_CLASS]::OnFileNew(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
+[!if WTL_APPTYPE_TABVIEW]
+	[!output WTL_VIEW_CLASS]* pView = new [!output WTL_VIEW_CLASS];
+	pView->Create(m_view, rcDefault, NULL, [!output WTL_VIEW_STYLES], [!output WTL_VIEW_EX_STYLES]);
+	pView->SetFont(AtlGetDefaultGuiFont());
+	m_view.AddPage(pView->m_hWnd, _T("Document"));
+
+[!endif]
 [!if WTL_APPTYPE_MDI]
 	[!output WTL_CHILD_FRAME_CLASS]* pChild = new [!output WTL_CHILD_FRAME_CLASS];
 	pChild->CreateEx(m_hWndClient);
@@ -229,6 +306,48 @@ LRESULT [!output WTL_FRAME_CLASS]::OnWindowTile(WORD /*wNotifyCode*/, WORD /*wID
 LRESULT [!output WTL_FRAME_CLASS]::OnWindowArrangeIcons(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
 	MDIIconArrange();
+	return 0;
+}
+[!endif]
+[!if WTL_APPTYPE_TABVIEW]
+
+LRESULT [!output WTL_FRAME_CLASS]::OnWindowClose(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+	int nActivePage = m_view.GetActivePage();
+	if(nActivePage != -1)
+		m_view.RemovePage(nActivePage);
+	else
+		::MessageBeep((UINT)-1);
+
+	return 0;
+}
+
+LRESULT [!output WTL_FRAME_CLASS]::OnWindowCloseAll(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+	m_view.RemoveAllPages();
+
+	return 0;
+}
+[!endif]
+[!if WTL_APPTYPE_EXPLORER]
+
+LRESULT [!output WTL_FRAME_CLASS]::OnViewTreePane(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+	bool bShow = (m_splitter.GetSinglePaneMode() != SPLIT_PANE_NONE);
+	m_splitter.SetSinglePaneMode(bShow ? SPLIT_PANE_NONE : SPLIT_PANE_RIGHT);
+	UISetCheck(ID_VIEW_TREEPANE, bShow);
+
+	return 0;
+}
+
+LRESULT [!output WTL_FRAME_CLASS]::OnTreePaneClose(WORD /*wNotifyCode*/, WORD /*wID*/, HWND hWndCtl, BOOL& /*bHandled*/)
+{
+	if(hWndCtl == m_pane.m_hWnd)
+	{
+		m_splitter.SetSinglePaneMode(SPLIT_PANE_RIGHT);
+		UISetCheck(ID_VIEW_TREEPANE, 0);
+	}
+
 	return 0;
 }
 [!endif]

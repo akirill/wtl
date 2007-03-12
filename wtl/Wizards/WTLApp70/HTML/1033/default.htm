@@ -82,6 +82,8 @@
 		<SYMBOL NAME='WTL_APPTYPE_SDI' TYPE="checkbox" VALUE="true"></SYMBOL>
 		<SYMBOL NAME='WTL_APPTYPE_MTSDI' TYPE="checkbox" VALUE="false"></SYMBOL>
 		<SYMBOL NAME='WTL_APPTYPE_MDI' TYPE="checkbox" VALUE="false"></SYMBOL>
+		<SYMBOL NAME='WTL_APPTYPE_TABVIEW' TYPE="checkbox" VALUE="false"></SYMBOL>
+		<SYMBOL NAME='WTL_APPTYPE_EXPLORER' TYPE="checkbox" VALUE="false"></SYMBOL>
 		<SYMBOL NAME='WTL_APPTYPE_DLG' TYPE="checkbox" VALUE="false"></SYMBOL>
 		<SYMBOL NAME='WTL_APPTYPE_DLG_MODAL' TYPE="checkbox" VALUE="false"></SYMBOL>
 		<SYMBOL NAME='WTL_ENABLE_AX' TYPE="checkbox" VALUE="false"></SYMBOL>
@@ -89,6 +91,7 @@
 		<SYMBOL NAME='WTL_USE_CPP_FILES' TYPE="checkbox" VALUE="false"></SYMBOL>
 		<SYMBOL NAME='WTL_USE_MANIFEST' TYPE="checkbox" VALUE="true"></SYMBOL>
 		<SYMBOL NAME='WTL_USE_EMBEDDED_MANIFEST' TYPE="checkbox" VALUE="false"></SYMBOL>
+		<SYMBOL NAME='WTL_USE_UNICODE' TYPE="checkbox" VALUE="true"></SYMBOL>
 
 		<SYMBOL NAME='WTL_WAS_DLG' TYPE="checkbox" VALUE="false"></SYMBOL>
 
@@ -432,6 +435,14 @@ function OnInit()
 	else if(window.external.FindSymbol("WTL_APPTYPE_MDI"))
 	{
 		APP_TYPE_SUMMARY.innerText = "MDI Application";
+	}
+	else if(window.external.FindSymbol("WTL_APPTYPE_TABVIEW"))
+	{
+		APP_TYPE_SUMMARY.innerText = "Tab View Application";
+	}
+	else if(window.external.FindSymbol("WTL_APPTYPE_EXPLORER"))
+	{
+		APP_TYPE_SUMMARY.innerText = "Explorer Application";
 	}
 	else if(window.external.FindSymbol("WTL_APPTYPE_DLG"))
 	{

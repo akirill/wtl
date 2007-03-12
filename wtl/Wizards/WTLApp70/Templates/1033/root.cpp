@@ -10,6 +10,13 @@
 [!if WTL_USE_CMDBAR]
 #include <atlctrlw.h>
 [!endif]
+[!if WTL_APPTYPE_TABVIEW]
+#include <atlctrlx.h>
+[!endif]
+[!if WTL_APPTYPE_EXPLORER]
+#include <atlctrlx.h>
+#include <atlsplit.h>
+[!endif]
 [!endif]
 
 #include "resource.h"

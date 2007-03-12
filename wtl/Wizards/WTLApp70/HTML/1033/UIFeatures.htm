@@ -387,6 +387,7 @@ function Next(document, linkto)
 
 function OnFinish(document)
 {
+	WTL_USE_VIEW.disabled = false;
 	OnWizFinish(document);
 }
 
@@ -409,18 +410,28 @@ function OnInit()
 	}
 	else
 	{
+		if(window.external.FindSymbol("WTL_APPTYPE_TABVIEW") || window.external.FindSymbol("WTL_APPTYPE_EXPLORER"))
+		{
+			WTL_USE_VIEW.checked = true;
+			WTL_USE_VIEW.disabled = true;
+			WTL_USE_VIEW_LABEL.disabled = true;
+		}
+		else
+		{
+			WTL_USE_VIEW.disabled = false;
+			WTL_USE_VIEW_LABEL.disabled = false;
+			WTL_USE_VIEW.checked = window.external.FindSymbol("WTL_USE_VIEW");
+		}
+
 		WTL_USE_TOOLBAR.disabled = false;
 		WTL_USE_REBAR.disabled = false;
 		WTL_USE_CMDBAR.disabled = false;
 		WTL_USE_STATUSBAR.disabled = false;
-		WTL_USE_VIEW.disabled = false;
-		WTL_USE_VIEW_LABEL.disabled = false;
 
 		WTL_USE_TOOLBAR.checked = window.external.FindSymbol("WTL_USE_TOOLBAR");
 		WTL_USE_REBAR.checked = window.external.FindSymbol("WTL_USE_REBAR");
 		WTL_USE_CMDBAR.checked = window.external.FindSymbol("WTL_USE_CMDBAR");
 		WTL_USE_STATUSBAR.checked = window.external.FindSymbol("WTL_USE_STATUSBAR");
-		WTL_USE_VIEW.checked = window.external.FindSymbol("WTL_USE_VIEW");
 	}
 
 	OnViewType();

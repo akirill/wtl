@@ -6,19 +6,13 @@
 #pragma once
 
 // Change these values to use different versions
+#define WINVER		0x0500
+#define _WIN32_WINNT	0x0501
+#define _WIN32_IE	0x0501
+#define _RICHEDIT_VER	0x0200
+
 [!if WTL_COM_SERVER]
-#define WINVER		0x0400
-#define _WIN32_WINNT	0x0400
-#define _WIN32_IE	0x0400
-#define _RICHEDIT_VER	0x0100
-
 #define _ATL_APARTMENT_THREADED
-
-[!else]
-#define WINVER		0x0400
-//#define _WIN32_WINNT	0x0400
-#define _WIN32_IE	0x0400
-#define _RICHEDIT_VER	0x0100
 
 [!endif]
 [!if WTL_USE_SDK_ATL3]
@@ -86,6 +80,13 @@ extern CAppModule _Module;
 #include <atldlgs.h>
 [!if WTL_USE_CMDBAR]
 #include <atlctrlw.h>
+[!endif]
+[!if WTL_APPTYPE_TABVIEW]
+#include <atlctrlx.h>
+[!endif]
+[!if WTL_APPTYPE_EXPLORER]
+#include <atlctrlx.h>
+#include <atlsplit.h>
 [!endif]
 [!endif]
 [!if WTL_USE_EMBEDDED_MANIFEST]

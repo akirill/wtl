@@ -143,6 +143,9 @@ function OnFinish(selProj, selObj)
 				wizard.AddSymbol("WTL_VIEWTYPE_GENERIC", true);
 				break;
 			}
+
+			if(wizard.FindSymbol("WTL_APPTYPE_TABVIEW"))
+				wizard.AddSymbol("WTL_VIEW_EX_STYLES", "0");
 		}
 
 		// Create project and configurations
@@ -165,6 +168,7 @@ function OnFinish(selProj, selObj)
 				var ResHelper = wizard.ResourceHelper;
 				ResHelper.OpenResourceFile(strProjectPath + "\\" + strProjectName + ".rc");
 				ResHelper.OpenResourceInEditor("DIALOG", "IDD_MAINDLG");
+				ResHelper.CloseResourceFile();
 			}
 			else if(wizard.FindSymbol("WTL_USE_VIEW") && wizard.FindSymbol("WTL_VIEWTYPE_FORM"))
 			{
@@ -172,6 +176,7 @@ function OnFinish(selProj, selObj)
 				var ResHelper = wizard.ResourceHelper;
 				ResHelper.OpenResourceFile(strProjectPath + "\\" + strProjectName + ".rc");
 				ResHelper.OpenResourceInEditor("DIALOG", strDialogID);
+				ResHelper.CloseResourceFile();
 			}
 		}
 	}
@@ -271,7 +276,12 @@ function AddConfigurations(proj, strProjectName)
 
 			// General settings
 			var config = proj.Object.Configurations(astrConfigName[nCntr]);
-			config.CharacterSet = charSetMBCS;
+
+			if(wizard.FindSymbol("WTL_USE_UNICODE"))
+				config.CharacterSet = charSetUnicode;
+			else
+				config.CharacterSet = charSetMBCS;
+
 			if(bDebug)
 			{
 				config.IntermediateDirectory = 'Debug';
