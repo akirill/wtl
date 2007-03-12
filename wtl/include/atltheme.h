@@ -104,7 +104,7 @@ public:
 	static int m_nIsThemingSupported;
 
 // Constructor
-	CTheme() : m_hTheme(NULL)
+	CTheme(HTHEME hTheme = NULL) : m_hTheme(hTheme)
 	{
 		IsThemingSupported();
 	}
