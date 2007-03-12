@@ -1979,12 +1979,14 @@ public:
 	}
 
 #ifndef _WIN32_WCE
+#ifdef __IStream_INTERFACE_DEFINED__
 	BOOL CreateFromStream(LPSTREAM lpStream)
 	{
 		ATLASSERT(m_hImageList == NULL);
 		m_hImageList = ImageList_Read(lpStream);
 		return (m_hImageList != NULL) ? TRUE : FALSE;
 	}
+#endif // __IStream_INTERFACE_DEFINED__
 #endif // !_WIN32_WCE
 
 	BOOL Destroy()
@@ -2084,6 +2086,7 @@ public:
 		return ImageList_Copy(m_hImageList, nDst, m_hImageList, nSrc, uFlags);
 	}
 
+#ifdef __IStream_INTERFACE_DEFINED__
 #ifndef _WIN32_WCE
 	static HIMAGELIST Read(LPSTREAM lpStream)
 	{
@@ -2109,6 +2112,7 @@ public:
 		return ImageList_WriteEx(m_hImageList, dwFlags, lpStream);
 	}
 #endif // (_WIN32_WINNT >= 0x0501)
+#endif // __IStream_INTERFACE_DEFINED__
 
 	// Drag operations
 	BOOL BeginDrag(int nImage, POINT ptHotSpot)
