@@ -107,6 +107,7 @@ LRESULT [!output WTL_FRAME_CLASS]::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LP
 [!endif]
 [!endif]
 [!if WTL_APPTYPE_EXPLORER]
+
 	m_hWndClient = m_splitter.Create(m_hWnd, rcDefault, NULL, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN);
 
 	m_pane.SetPaneContainerExtendedStyle(PANECNT_NOBORDER);
@@ -129,7 +130,7 @@ LRESULT [!output WTL_FRAME_CLASS]::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LP
 
 	m_splitter.SetSplitterPanes(m_pane, m_view);
 	UpdateLayout();
-	m_splitter.SetSplitterPos(300);
+	m_splitter.SetSplitterPosPct(25);
 [!endif]
 [!if WTL_USE_TOOLBAR]
 [!if WTL_USE_REBAR]

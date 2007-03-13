@@ -181,6 +181,17 @@ public:
 		return bRet;
 	}
 
+	void SetSplitterPosPct(int nPct, bool bUpdate = true)
+	{
+		ATLASSERT(nPct >= 0 && nPct <= 100);
+
+		m_nProportionalPos = ::MulDiv(nPct, m_nPropMax, 100);
+		UpdateProportionalPos();
+
+		if(bUpdate)
+			UpdateSplitterLayout();
+	}
+
 	int GetSplitterPos() const
 	{
 		return m_xySplitterPos;
