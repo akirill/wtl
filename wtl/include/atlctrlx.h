@@ -2104,7 +2104,9 @@ public:
 		SetTipText(nIndex, lpstrText);
 		return TRUE;
 	}
+#endif // (_WIN32_IE >= 0x0400) && !defined(_WIN32_WCE)
 
+#if (_WIN32_IE >= 0x0400) || (defined(_WIN32_WCE) && _WIN32_WCE >= 0x500)
 	BOOL GetPaneIcon(int nPaneID, HICON& hIcon) const
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
@@ -2125,7 +2127,7 @@ public:
 
 		return SetIcon(nIndex, hIcon);
 	}
-#endif // (_WIN32_IE >= 0x0400) && !defined(_WIN32_WCE)
+#endif // (_WIN32_IE >= 0x0400) || (defined(_WIN32_WCE) && _WIN32_WCE >= 0x500)
 
 // Message map and handlers
 	BEGIN_MSG_MAP(CMultiPaneStatusBarCtrlImpl< T >)

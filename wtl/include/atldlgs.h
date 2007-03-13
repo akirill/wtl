@@ -39,6 +39,7 @@
 //
 // CFileDialogImpl<T>
 // CFileDialog
+// CFileDialogEx
 // CShellFileDialogImpl<T>
 // CShellFileOpenDialogImpl<T>
 // CShellFileOpenDialog
@@ -126,7 +127,11 @@ template <class T>
 class ATL_NO_VTABLE CFileDialogImpl : public ATL::CDialogImplBase
 {
 public:
+#if defined(__AYGSHELL_H__) && (_WIN32_WCE >= 0x501)
+	OPENFILENAMEEX m_ofn;
+#else
 	OPENFILENAME m_ofn;
+#endif // defined(__AYGSHELL_H__) && (_WIN32_WCE >= 0x501)
 	BOOL m_bOpenFileDialog;            // TRUE for file open, FALSE for file save
 	TCHAR m_szFileTitle[_MAX_FNAME];   // contains file title after return
 	TCHAR m_szFileName[_MAX_PATH];     // contains full path name after return
@@ -192,9 +197,15 @@ public:
 
 		BOOL bRet;
 		if(m_bOpenFileDialog)
+#if defined(__AYGSHELL_H__) && (_WIN32_WCE >= 0x501)
+			bRet = ::GetOpenFileNameEx(&m_ofn);
+		else
+			bRet = ::GetSaveFileName((LPOPENFILENAME)&m_ofn);
+#else
 			bRet = ::GetOpenFileName(&m_ofn);
 		else
 			bRet = ::GetSaveFileName(&m_ofn);
+#endif // defined(__AYGSHELL_H__) && (_WIN32_WCE >= 0x501)
 
 		m_hWnd = NULL;
 
@@ -411,6 +422,25 @@ public:
 	DECLARE_EMPTY_MSG_MAP()
 };
 
+#if defined(__AYGSHELL_H__) && (_WIN32_WCE >= 0x501)
+class CFileDialogEx : public CFileDialog
+{
+public:
+	CFileDialogEx( // Supports only FileOpen
+		LPCTSTR lpszDefExt = NULL,
+		LPCTSTR lpszFileName = NULL,
+		DWORD dwFlags = OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT,
+		OFN_EXFLAG ExFlags = OFN_EXFLAG_THUMBNAILVIEW,
+		OFN_SORTORDER dwSortOrder = OFN_SORTORDER_AUTO,		
+		LPCTSTR lpszFilter = NULL,
+		HWND hWndParent = NULL)
+		: CFileDialog(TRUE, lpszDefExt, lpszFileName, dwFlags, lpszFilter, hWndParent)
+	{
+		m_ofn.ExFlags = ExFlags;
+		m_ofn.dwSortOrder = dwSortOrder;
+	}
+};
+#endif // defined(__AYGSHELL_H__) && (_WIN32_WCE >= 0x501)
 
 ///////////////////////////////////////////////////////////////////////////////
 // Shell File Dialog - new Shell File Open and Save dialogs in Vista
@@ -1474,7 +1504,7 @@ public:
 ///////////////////////////////////////////////////////////////////////////////
 // CColorDialogImpl - color selection
 
-#ifndef _WIN32_WCE
+#if !defined(_WIN32_WCE) || _WIN32_WCE > 420
 
 template <class T>
 class ATL_NO_VTABLE CColorDialogImpl : public CCommonDialogImplBase
@@ -1660,7 +1690,7 @@ public:
 	DECLARE_EMPTY_MSG_MAP()
 };
 
-#endif // _WIN32_WCE
+#endif // !defined(_WIN32_WCE) || _WIN32_WCE > 420
 
 
 ///////////////////////////////////////////////////////////////////////////////

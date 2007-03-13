@@ -786,6 +786,8 @@ typedef CListBoxT<ATL::CWindow>   CListBox;
 ///////////////////////////////////////////////////////////////////////////////
 // CComboBox - client side for a Windows COMBOBOX control
 
+#ifndef WIN32_PLATFORM_WFSP   // No COMBOBOX on SmartPhones
+
 template <class TBase>
 class CComboBoxT : public TBase
 {
@@ -880,17 +882,17 @@ public:
 		return (int)::SendMessage(m_hWnd, CB_SETDROPPEDWIDTH, nWidth, 0L);
 	}
 
-#if (WINVER >= 0x0500) && !defined(_WIN32_WCE)
+#if (WINVER >= 0x0500) || (defined(_WIN32_WCE) && _WIN32_WCE >= 420)
 	BOOL GetComboBoxInfo(PCOMBOBOXINFO pComboBoxInfo) const
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
-#if (_WIN32_WINNT >= 0x0501)
+#if (_WIN32_WINNT >= 0x0501) || (defined(_WIN32_WCE) && _WIN32_WCE >= 420)
 		return (BOOL)::SendMessage(m_hWnd, CB_GETCOMBOBOXINFO, 0, (LPARAM)pComboBoxInfo);
-#else // !(_WIN32_WINNT >= 0x0501)
+#else // !(_WIN32_WINNT >= 0x0501) && !(defined(_WIN32_WCE) _WIN32_WCE >= 420)
 		return ::GetComboBoxInfo(m_hWnd, pComboBoxInfo);
 #endif // !(_WIN32_WINNT >= 0x0501)
 	}
-#endif // (WINVER >= 0x0500) && !defined(_WIN32_WCE)
+#endif // (WINVER >= 0x0500) || (defined(_WIN32_WCE) && _WIN32_WCE >= 420)
 
 	// for edit control
 	DWORD GetEditSel() const
@@ -1152,6 +1154,7 @@ public:
 
 typedef CComboBoxT<ATL::CWindow>   CComboBox;
 
+#endif // !WIN32_PLATFORM_WFSP
 
 ///////////////////////////////////////////////////////////////////////////////
 // CEdit - client side for a Windows EDIT control
@@ -6145,12 +6148,6 @@ public:
 	}
 
 #if (_WIN32_IE >= 0x0400) && !defined(_WIN32_WCE)
-	COLORREF SetBkColor(COLORREF clrBk)
-	{
-		ATLASSERT(::IsWindow(m_hWnd));
-		return (COLORREF)::SendMessage(m_hWnd, SB_SETBKCOLOR, 0, (LPARAM)clrBk);
-	}
-
 	BOOL GetUnicodeFormat() const
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
@@ -6176,6 +6173,14 @@ public:
 		ATLASSERT(nPane < 256);
 		::SendMessage(m_hWnd, SB_SETTIPTEXT, nPane, (LPARAM)lpstrText);
 	}
+#endif // (_WIN32_IE >= 0x0400) && !defined(_WIN32_WCE)
+
+#if (_WIN32_IE >= 0x0400) || (defined(_WIN32_WCE) && _WIN32_WCE >= 0x500)
+	COLORREF SetBkColor(COLORREF clrBk)
+	{
+		ATLASSERT(::IsWindow(m_hWnd));
+		return (COLORREF)::SendMessage(m_hWnd, SB_SETBKCOLOR, 0, (LPARAM)clrBk);
+	}
 
 	HICON GetIcon(int nPane) const
 	{
@@ -6190,7 +6195,7 @@ public:
 		ATLASSERT(nPane < 256);
 		return (BOOL)::SendMessage(m_hWnd, SB_SETICON, nPane, (LPARAM)hIcon);
 	}
-#endif // (_WIN32_IE >= 0x0400) && !defined(_WIN32_WCE)
+#endif // (_WIN32_IE >= 0x0400) || (defined(_WIN32_WCE) && _WIN32_WCE >= 0x500)
 };
 
 typedef CStatusBarCtrlT<ATL::CWindow>   CStatusBarCtrl;
