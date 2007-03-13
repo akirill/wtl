@@ -205,12 +205,14 @@ inline bool AtlIsEditFocus()
 	return false;
 }
 
+#if defined WIN32_PLATFORM_WFSP
 inline void AtlActivateBackKey(HWND hMenuBar)
 {
 	ATLASSERT(::IsWindow(hMenuBar));
 	::SendMessage(hMenuBar, SHCMBM_OVERRIDEKEY, VK_TBACK,
 		MAKELPARAM(SHMBOF_NODEFAULT | SHMBOF_NOTIFY, SHMBOF_NODEFAULT | SHMBOF_NOTIFY));
 }
+#endif // WIN32_PLATFORM_WFSP
 
 // --- Standard PPC/SmartPhone dialogs ---
 
@@ -1443,6 +1445,7 @@ public:
 	int FSDoModal(D& dlg)
 	{
 		T* pT = static_cast<T*>(this);
+		pT;   // avoid level 4 warning
 		ATLASSERT(pT->IsWindow());
 		if (m_bFullScreen)   // Show taskbar if hidden
 			ShowTaskBar(true, false);
@@ -1703,6 +1706,15 @@ public:
 		_WTYPES_NS::CSize sizeZClient = m_sizeClient * GetZoom();
 		return destDC.StretchBlt(0, 0, m_sizeClient.cx, m_sizeClient.cy, hsourceDC, ptOffset.x, ptOffset.y, sizeZClient.cx, sizeZClient.cy, dwROP);
 	}
+
+#ifdef _IMAGING_H
+	BOOL Draw(IImage* pIImage, HDC hdestDC)
+	{
+		CDCHandle destDC = hdestDC;
+		destDC.SetViewportOrg(0,0);
+		return SUCCEEDED(pIImage->Draw(destDC, _WTYPES_NS::CRect(-_WTYPES_NS::CPoint(m_ptOffset), m_sizeAll), NULL));
+	}
+#endif
 
 // Message map and handlers
 	BEGIN_MSG_MAP(CZoomScrollImpl< T >)
