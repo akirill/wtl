@@ -127,11 +127,11 @@ template <class T>
 class ATL_NO_VTABLE CFileDialogImpl : public ATL::CDialogImplBase
 {
 public:
-#if defined(__AYGSHELL_H__) && (_WIN32_WCE >= 0x501)
+#if defined(__AYGSHELL_H__) && (_WIN32_WCE >= 0x0501)
 	OPENFILENAMEEX m_ofn;
 #else
 	OPENFILENAME m_ofn;
-#endif // defined(__AYGSHELL_H__) && (_WIN32_WCE >= 0x501)
+#endif
 	BOOL m_bOpenFileDialog;            // TRUE for file open, FALSE for file save
 	TCHAR m_szFileTitle[_MAX_FNAME];   // contains file title after return
 	TCHAR m_szFileName[_MAX_PATH];     // contains full path name after return
@@ -197,7 +197,7 @@ public:
 
 		BOOL bRet;
 		if(m_bOpenFileDialog)
-#if defined(__AYGSHELL_H__) && (_WIN32_WCE >= 0x501)
+#if defined(__AYGSHELL_H__) && (_WIN32_WCE >= 0x0501)
 			bRet = ::GetOpenFileNameEx(&m_ofn);
 		else
 			bRet = ::GetSaveFileName((LPOPENFILENAME)&m_ofn);
@@ -205,7 +205,7 @@ public:
 			bRet = ::GetOpenFileName(&m_ofn);
 		else
 			bRet = ::GetSaveFileName(&m_ofn);
-#endif // defined(__AYGSHELL_H__) && (_WIN32_WCE >= 0x501)
+#endif
 
 		m_hWnd = NULL;
 
@@ -405,7 +405,6 @@ public:
 #endif // !_WIN32_WCE
 };
 
-
 class CFileDialog : public CFileDialogImpl<CFileDialog>
 {
 public:
@@ -422,8 +421,8 @@ public:
 	DECLARE_EMPTY_MSG_MAP()
 };
 
-#if defined(__AYGSHELL_H__) && (_WIN32_WCE >= 0x501)
-class CFileDialogEx : public CFileDialog
+#if defined(__AYGSHELL_H__) && (_WIN32_WCE >= 0x0501)
+class CFileDialogEx : public CFileDialogImpl<CFileDialogEx>
 {
 public:
 	CFileDialogEx( // Supports only FileOpen
@@ -434,13 +433,17 @@ public:
 		OFN_SORTORDER dwSortOrder = OFN_SORTORDER_AUTO,		
 		LPCTSTR lpszFilter = NULL,
 		HWND hWndParent = NULL)
-		: CFileDialog(TRUE, lpszDefExt, lpszFileName, dwFlags, lpszFilter, hWndParent)
+		: CFileDialogImpl<CFileDialogEx>(TRUE, lpszDefExt, lpszFileName, dwFlags, lpszFilter, hWndParent)
 	{
 		m_ofn.ExFlags = ExFlags;
 		m_ofn.dwSortOrder = dwSortOrder;
 	}
+
+	// override base class map and references to handlers
+	DECLARE_EMPTY_MSG_MAP()
 };
-#endif // defined(__AYGSHELL_H__) && (_WIN32_WCE >= 0x501)
+#endif // defined(__AYGSHELL_H__) && (_WIN32_WCE >= 0x0501)
+
 
 ///////////////////////////////////////////////////////////////////////////////
 // Shell File Dialog - new Shell File Open and Save dialogs in Vista
@@ -1504,7 +1507,7 @@ public:
 ///////////////////////////////////////////////////////////////////////////////
 // CColorDialogImpl - color selection
 
-#if !defined(_WIN32_WCE) || _WIN32_WCE > 420
+#ifndef _WIN32_WCE
 
 template <class T>
 class ATL_NO_VTABLE CColorDialogImpl : public CCommonDialogImplBase
@@ -1690,7 +1693,7 @@ public:
 	DECLARE_EMPTY_MSG_MAP()
 };
 
-#endif // !defined(_WIN32_WCE) || _WIN32_WCE > 420
+#endif // !_WIN32_WCE
 
 
 ///////////////////////////////////////////////////////////////////////////////

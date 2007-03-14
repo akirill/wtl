@@ -882,17 +882,17 @@ public:
 		return (int)::SendMessage(m_hWnd, CB_SETDROPPEDWIDTH, nWidth, 0L);
 	}
 
-#if (WINVER >= 0x0500) || (defined(_WIN32_WCE) && _WIN32_WCE >= 420)
+#if ((WINVER >= 0x0500) && !defined(_WIN32_WCE)) || (defined(_WIN32_WCE) && (_WIN32_WCE >= 420))
 	BOOL GetComboBoxInfo(PCOMBOBOXINFO pComboBoxInfo) const
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
-#if (_WIN32_WINNT >= 0x0501) || (defined(_WIN32_WCE) && _WIN32_WCE >= 420)
+#if ((_WIN32_WINNT >= 0x0501) && !defined(_WIN32_WCE)) || (defined(_WIN32_WCE) && (_WIN32_WCE >= 420))
 		return (BOOL)::SendMessage(m_hWnd, CB_GETCOMBOBOXINFO, 0, (LPARAM)pComboBoxInfo);
-#else // !(_WIN32_WINNT >= 0x0501) && !(defined(_WIN32_WCE) _WIN32_WCE >= 420)
+#else // !((_WIN32_WINNT >= 0x0501) && !defined(_WIN32_WCE)) || (defined(_WIN32_WCE) && (_WIN32_WCE >= 420))
 		return ::GetComboBoxInfo(m_hWnd, pComboBoxInfo);
-#endif // !(_WIN32_WINNT >= 0x0501)
+#endif // !((_WIN32_WINNT >= 0x0501) && !defined(_WIN32_WCE)) || (defined(_WIN32_WCE) && (_WIN32_WCE >= 420))
 	}
-#endif // (WINVER >= 0x0500) || (defined(_WIN32_WCE) && _WIN32_WCE >= 420)
+#endif // ((WINVER >= 0x0500) && !defined(_WIN32_WCE)) || (defined(_WIN32_WCE) && (_WIN32_WCE >= 420))
 
 	// for edit control
 	DWORD GetEditSel() const
@@ -6175,7 +6175,7 @@ public:
 	}
 #endif // (_WIN32_IE >= 0x0400) && !defined(_WIN32_WCE)
 
-#if (_WIN32_IE >= 0x0400) || (defined(_WIN32_WCE) && _WIN32_WCE >= 0x500)
+#if ((_WIN32_IE >= 0x0400) && !defined(_WIN32_WCE)) || (defined(_WIN32_WCE) && (_WIN32_WCE >= 0x0500))
 	COLORREF SetBkColor(COLORREF clrBk)
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
@@ -6195,7 +6195,7 @@ public:
 		ATLASSERT(nPane < 256);
 		return (BOOL)::SendMessage(m_hWnd, SB_SETICON, nPane, (LPARAM)hIcon);
 	}
-#endif // (_WIN32_IE >= 0x0400) || (defined(_WIN32_WCE) && _WIN32_WCE >= 0x500)
+#endif // ((_WIN32_IE >= 0x0400) && !defined(_WIN32_WCE)) || (defined(_WIN32_WCE) && (_WIN32_WCE >= 0x0500))
 };
 
 typedef CStatusBarCtrlT<ATL::CWindow>   CStatusBarCtrl;
