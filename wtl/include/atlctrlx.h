@@ -4437,7 +4437,7 @@ public:
 					m_ilDrag.BeginDrag(0, -(cxCursor / 2), -(cyCursor / 2));
 #ifndef _WIN32_WCE
 					POINT ptEnter = m_ptStartDrag;
-					ClientToScreen(&ptEnter);
+					m_tab.ClientToScreen(&ptEnter);
 					m_ilDrag.DragEnter(GetDesktopWindow(), ptEnter);
 #endif // !_WIN32_WCE
 
@@ -4458,7 +4458,7 @@ public:
 					pT->DrawMoveMark(nItem);
 
 				m_ilDrag.DragShowNolock((nItem != -1) ? TRUE : FALSE);
-				ClientToScreen(&pt);
+				m_tab.ClientToScreen(&pt);
 				m_ilDrag.DragMove(pt);
 
 				bHandled = TRUE;
@@ -4811,7 +4811,7 @@ public:
 
 	void OnContextMenu(int nPage, POINT pt)
 	{
-		ClientToScreen(&pt);
+		m_tab.ClientToScreen(&pt);
 
 		TBVCONTEXTMENUINFO cmi = { 0 };
 		cmi.hdr.hwndFrom = m_hWnd;
