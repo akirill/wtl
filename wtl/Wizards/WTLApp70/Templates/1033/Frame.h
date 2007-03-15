@@ -250,12 +250,12 @@ public:
 [!endif]
 		return 0;
 	}
-
 [!endif]
 [!if WTL_COM_SERVER]
 [!if WTL_USE_CPP_FILES]
 	LRESULT OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 [!else]
+
 	LRESULT OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 	{
 [!if WTL_APPTYPE_MDI]
@@ -284,12 +284,12 @@ public:
 [!endif]
 		return 0;
 	}
-
 [!endif]
 [!else]
 [!if WTL_USE_CPP_FILES]
 	LRESULT OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled);
 [!else]
+
 	LRESULT OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
 	{
 [!if WTL_APPTYPE_MDI]
@@ -307,22 +307,22 @@ public:
 		bHandled = FALSE;
 		return 1;
 	}
-
 [!endif]
 [!endif]
 [!if WTL_USE_CPP_FILES]
 	LRESULT OnFileExit(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 [!else]
+
 	LRESULT OnFileExit(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 	{
 		PostMessage(WM_CLOSE);
 		return 0;
 	}
-
 [!endif]
 [!if WTL_USE_CPP_FILES]
 	LRESULT OnFileNew(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 [!else]
+
 	LRESULT OnFileNew(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 	{
 [!if WTL_APPTYPE_TABVIEW]
@@ -341,24 +341,24 @@ public:
 
 		return 0;
 	}
-
 [!endif]
 [!if WTL_APPTYPE_MTSDI]
 [!if WTL_USE_CPP_FILES]
 	LRESULT OnFileNewWindow(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 [!else]
+
 	LRESULT OnFileNewWindow(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 	{
 		::PostThreadMessage(_Module.m_dwMainThreadID, WM_USER, 0, 0L);
 		return 0;
 	}
-
 [!endif]
 [!endif]
 [!if WTL_USE_TOOLBAR]
 [!if WTL_USE_CPP_FILES]
 	LRESULT OnViewToolBar(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 [!else]
+
 	LRESULT OnViewToolBar(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 	{
 [!if WTL_USE_REBAR]
@@ -379,13 +379,13 @@ public:
 		UpdateLayout();
 		return 0;
 	}
-
 [!endif]
 [!endif]
 [!if WTL_USE_STATUSBAR]
 [!if WTL_USE_CPP_FILES]
 	LRESULT OnViewStatusBar(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 [!else]
+
 	LRESULT OnViewStatusBar(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 	{
 		BOOL bVisible = !::IsWindowVisible(m_hWndStatusBar);
@@ -394,12 +394,12 @@ public:
 		UpdateLayout();
 		return 0;
 	}
-
 [!endif]
 [!endif]
 [!if WTL_USE_CPP_FILES]
 	LRESULT OnAppAbout(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 [!else]
+
 	LRESULT OnAppAbout(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 	{
 		CAboutDlg dlg;
@@ -408,20 +408,20 @@ public:
 	}
 [!endif]
 [!if WTL_APPTYPE_MDI]
-
 [!if WTL_USE_CPP_FILES]
 	LRESULT OnWindowCascade(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 [!else]
+
 	LRESULT OnWindowCascade(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 	{
 		MDICascade();
 		return 0;
 	}
-
 [!endif]
 [!if WTL_USE_CPP_FILES]
 	LRESULT OnWindowTile(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 [!else]
+
 	LRESULT OnWindowTile(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 	{
 		MDITile();
@@ -432,6 +432,7 @@ public:
 [!if WTL_USE_CPP_FILES]
 	LRESULT OnWindowArrangeIcons(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 [!else]
+
 	LRESULT OnWindowArrangeIcons(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 	{
 		MDIIconArrange();
