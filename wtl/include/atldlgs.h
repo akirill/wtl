@@ -1507,7 +1507,19 @@ public:
 ///////////////////////////////////////////////////////////////////////////////
 // CColorDialogImpl - color selection
 
-#ifndef _WIN32_WCE
+#if !defined(_WIN32_WCE) || ((_WIN32_WCE > 420) && !(defined(WIN32_PLATFORM_WFSP) && (_WIN32_WCE > 0x0500)))
+
+#ifdef _WIN32_WCE
+  #pragma comment(lib, "commdlg.lib")
+
+  #ifndef SETRGBSTRING
+    #define SETRGBSTRING _T("commdlg_SetRGBColor")
+  #endif
+
+  #ifndef COLOROKSTRING
+    #define COLOROKSTRING _T("commdlg_ColorOK")
+  #endif
+#endif
 
 template <class T>
 class ATL_NO_VTABLE CColorDialogImpl : public CCommonDialogImplBase
@@ -1693,7 +1705,7 @@ public:
 	DECLARE_EMPTY_MSG_MAP()
 };
 
-#endif // !_WIN32_WCE
+#endif // !defined(_WIN32_WCE) || ((_WIN32_WCE > 420) && !(defined(WIN32_PLATFORM_WFSP) && (_WIN32_WCE > 0x0500)))
 
 
 ///////////////////////////////////////////////////////////////////////////////
