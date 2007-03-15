@@ -139,6 +139,7 @@
 //
 // CZoomScrollImpl<T> : WinCE zooming implementation
 //
+// CBottomTabViewImpl<T, TBase, TWinTraits> - CBottomTabView 
 // CHtmlCtrlT<TBase> - CHtmlCtrl
 // CRichInkCtrlT<TBase> - CRichInkCtrl
 // CInkXCtrlT<TBase> - CInkXCtrl
@@ -1761,10 +1762,83 @@ public:
 
 #endif // _WTL_CE_NO_ZOOMSCROLL
 
+#ifndef _WTL_CE_NO_CONTROLS
+
+// --- PPC bottom TabView control ---
+
+#if defined(__ATLCTRLX_H__) && defined(WIN32_PLATFORM_PSPC)
+
+///////////////////////////////////////////////////////////////////////////////
+// CBottomTabViewImpl
+
+template <class T, class TBase = ATL::CWindow, class TWinTraits = ATL::CControlWinTraits>
+class ATL_NO_VTABLE CBottomTabViewImpl : public CTabViewImpl<T, TBase, TWinTraits>
+{
+public:
+	DECLARE_WND_CLASS_EX(NULL, 0, COLOR_APPWORKSPACE)
+
+// Implementation overrideables
+	bool CreateTabControl()
+	{
+		m_tab.Create(m_hWnd, rcDefault, NULL, WS_CHILD | TCS_BOTTOM, 0, m_nTabID);
+
+		ATLASSERT(m_tab.m_hWnd != NULL);
+		if(m_tab.m_hWnd == NULL)
+			return false;
+
+		m_tab.SendMessage(CCM_SETVERSION, COMCTL32_VERSION);
+		m_tab.SetItemExtra(sizeof(TABVIEWPAGE));
+
+		T* pT = static_cast<T*>(this);
+		m_cyTabHeight = pT->CalcTabHeight();
+
+		return true;
+	}
+
+	int CalcTabHeight()
+	{
+		int nCount = m_tab.GetItemCount();
+		TCITEMEXTRA tcix = { 0 };
+		tcix.tciheader.mask = TCIF_TEXT;
+		tcix.tciheader.pszText = _T("NS");
+		int nIndex = m_tab.InsertItem(nCount, tcix);
+
+		RECT rect = { 0 };
+		SystemParametersInfo(SPI_GETWORKAREA, 0, &rect, 0);
+		RECT rcWnd = rect;
+
+		m_tab.AdjustRect(FALSE, &rect);
+		rcWnd.top = rect.bottom;
+		::AdjustWindowRectEx(&rcWnd, m_tab.GetStyle(), FALSE, m_tab.GetExStyle());
+		m_tab.DeleteItem(nIndex);
+
+		return rcWnd.bottom - rcWnd.top;
+	}
+
+	void UpdateLayout()
+	{
+		RECT rect;
+		GetClientRect(&rect);
+
+		if(m_tab.IsWindow() && ((m_tab.GetStyle() & WS_VISIBLE) != 0))
+			m_tab.SetWindowPos(NULL, 0, rect.bottom - m_cyTabHeight, rect.right - rect.left, m_cyTabHeight, SWP_NOZORDER /*| SWP_SHOWWINDOW*/);
+
+		if(m_nActivePage != -1)
+				::SetWindowPos(GetPageHWND(m_nActivePage), NULL, 0, 0, rect.right - rect.left, rect.bottom - m_cyTabHeight, SWP_NOZORDER);
+	}
+
+};
+
+class CBottomTabView : public CBottomTabViewImpl<CBottomTabView>
+{
+public:
+	DECLARE_WND_CLASS_EX(_T("WTL_BottomTabView"), 0, COLOR_APPWORKSPACE)
+};
+
+#endif // defined(__ATLCTRLX_H__) && defined(WIN32_PLATFORM_PSPC)
+
 
 // --- PPC/SmartPhone controls ---
-
-#ifndef _WTL_CE_NO_CONTROLS
 
 ////////////////////////////////////////////////////////////////////////////////
 // These are wrapper classes for the Pocket PC 2002/2003 and SmartPhone 2003 controls
