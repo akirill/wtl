@@ -601,7 +601,7 @@ public:
 		return (m_hWndToolBar != NULL);
 	}
 
-	static BOOL AddSimpleReBarBandCtrl(HWND hWndReBar, HWND hWndBand, int nID = 0, LPTSTR lpstrTitle = NULL, BOOL bNewRow = FALSE, int cxWidth = 0, BOOL bFullWidthAlways = FALSE)
+	static BOOL AddSimpleReBarBandCtrl(HWND hWndReBar, HWND hWndBand, int nID = 0, LPCTSTR lpstrTitle = NULL, BOOL bNewRow = FALSE, int cxWidth = 0, BOOL bFullWidthAlways = FALSE)
 	{
 		ATLASSERT(::IsWindow(hWndReBar));   // must be already created
 #ifdef _DEBUG
@@ -634,7 +634,7 @@ public:
 		if(bNewRow)
 			rbBand.fStyle |= RBBS_BREAK;
 
-		rbBand.lpText = lpstrTitle;
+		rbBand.lpText = (LPTSTR)lpstrTitle;
 		rbBand.hwndChild = hWndBand;
 		if(nID == 0)   // calc band ID
 			nID = ATL_IDW_BAND_FIRST + (int)::SendMessage(hWndReBar, RB_GETBANDCOUNT, 0, 0L);
@@ -653,7 +653,7 @@ public:
 			{
 				rbBand.cxMinChild = rbBand.cx;
 			}
-			else if(lpstrTitle == 0)
+			else if(lpstrTitle == NULL)
 			{
 				bRet = (BOOL)::SendMessage(hWndBand, TB_GETITEMRECT, 0, (LPARAM)&rcTmp);
 				ATLASSERT(bRet);
@@ -693,7 +693,7 @@ public:
 		return TRUE;
 	}
 
-	BOOL AddSimpleReBarBand(HWND hWndBand, LPTSTR lpstrTitle = NULL, BOOL bNewRow = FALSE, int cxWidth = 0, BOOL bFullWidthAlways = FALSE)
+	BOOL AddSimpleReBarBand(HWND hWndBand, LPCTSTR lpstrTitle = NULL, BOOL bNewRow = FALSE, int cxWidth = 0, BOOL bFullWidthAlways = FALSE)
 	{
 		ATLASSERT(::IsWindow(m_hWndToolBar));   // must be an existing rebar
 		ATLASSERT(::IsWindow(hWndBand));        // must be created
