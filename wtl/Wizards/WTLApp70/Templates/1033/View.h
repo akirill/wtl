@@ -4,14 +4,14 @@
 
 #pragma once
 
-[!if WTL_VIEWTYPE_GENERIC || WTL_VIEWTYPE_FORM]
+[!if WTL_VIEWTYPE_GENERIC || WTL_VIEWTYPE_FORM || WTL_VIEWTYPE_SCROLL]
 class [!output WTL_VIEW_CLASS] : public [!output WTL_VIEW_BASE_CLASS]<[!output WTL_VIEW_CLASS]>
 [!else]
 class [!output WTL_VIEW_CLASS] : public [!output WTL_VIEW_BASE_CLASS]<[!output WTL_VIEW_CLASS], [!output WTL_VIEW_BASE]>
 [!endif]
 {
 public:
-[!if WTL_VIEWTYPE_GENERIC]
+[!if WTL_VIEWTYPE_GENERIC || WTL_VIEWTYPE_SCROLL]
 	DECLARE_WND_CLASS(NULL)
 [!else]
 [!if WTL_VIEWTYPE_FORM]
@@ -62,10 +62,25 @@ public:
 [!endif]
 	}
 [!endif]
+[!if WTL_VIEWTYPE_SCROLL]
+[!if WTL_USE_CPP_FILES]
+
+	void DoPaint(CDCHandle dc);
+[!else]
+
+	void DoPaint(CDCHandle dc)
+	{
+		//TODO: Add your drawing code here
+	}
+[!endif]
+[!endif]
 
 	BEGIN_MSG_MAP([!output WTL_VIEW_CLASS])
 [!if WTL_VIEWTYPE_GENERIC]
 		MESSAGE_HANDLER(WM_PAINT, OnPaint)
+[!endif]
+[!if WTL_VIEWTYPE_SCROLL]
+		CHAIN_MSG_MAP([!output WTL_VIEW_BASE_CLASS]<[!output WTL_VIEW_CLASS]>)
 [!endif]
 	END_MSG_MAP()
 

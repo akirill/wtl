@@ -55,6 +55,7 @@
 		<SYMBOL NAME='WTL_VIEWTYPE_TREEVIEW' TYPE="checkbox" VALUE="false"></SYMBOL>
 		<SYMBOL NAME='WTL_VIEWTYPE_RICHEDIT' TYPE="checkbox" VALUE="false"></SYMBOL>
 		<SYMBOL NAME='WTL_VIEWTYPE_HTML' TYPE="checkbox" VALUE="false"></SYMBOL>
+		<SYMBOL NAME='WTL_VIEWTYPE_SCROLL' TYPE="checkbox" VALUE="false"></SYMBOL>
 
 		<SYMBOL NAME='WTL_FRAME_CLASS' TYPE="text" VALUE="CMainFrame"></SYMBOL>
 		<SYMBOL NAME='WTL_FRAME_BASE_CLASS' TYPE="text" VALUE="CFrameWindowImpl"></SYMBOL>
@@ -497,6 +498,9 @@ function OnInit()
 			break;
 		case "WTL_VIEWTYPE_HTML":
 			strText += ", HTML based";
+			break;
+		case "WTL_VIEWTYPE_SCROLL":
+			strText += ", scroll window based";
 			break;
 		default:
 			break;

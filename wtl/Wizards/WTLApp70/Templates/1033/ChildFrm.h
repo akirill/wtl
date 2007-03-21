@@ -49,6 +49,13 @@ public:
 		m_hWndClient = m_view.Create(m_hWnd, rcDefault, _T("http://www.microsoft.com"), [!output WTL_VIEW_STYLES], [!output WTL_VIEW_EX_STYLES]);
 [!else]
 		m_hWndClient = m_view.Create(m_hWnd, rcDefault, NULL, [!output WTL_VIEW_STYLES], [!output WTL_VIEW_EX_STYLES]);
+[!if WTL_VIEWTYPE_LISTBOX || WTL_VIEWTYPE_EDIT || WTL_VIEWTYPE_LISTVIEW || WTL_VIEWTYPE_TREEVIEW || WTL_VIEWTYPE_RICHEDIT]
+		m_view.SetFont(AtlGetDefaultGuiFont());
+[!endif]
+[!if WTL_VIEWTYPE_SCROLL]
+		// replace with appropriate values for the app
+		m_view.SetScrollSize(2000, 1000);
+[!endif]
 [!endif]
 [!endif]
 

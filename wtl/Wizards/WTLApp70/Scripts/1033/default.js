@@ -139,6 +139,11 @@ function OnFinish(selProj, selObj)
 				wizard.AddSymbol("WTL_ENABLE_AX", true);
 				wizard.AddSymbol("WTL_VIEW_STYLES", "WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_HSCROLL | WS_VSCROLL");
 				break;
+			case "WTL_VIEWTYPE_SCROLL":
+				wizard.AddSymbol("WTL_VIEWTYPE_SCROLL", true);
+				wizard.AddSymbol("WTL_VIEW_BASE_CLASS", "CScrollWindowImpl");
+				wizard.AddSymbol("WTL_VIEW_STYLES", "WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_HSCROLL | WS_VSCROLL");
+				break;
 			default:
 				wizard.AddSymbol("WTL_VIEWTYPE_GENERIC", true);
 				break;

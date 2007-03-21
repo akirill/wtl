@@ -43,6 +43,13 @@ BOOL [!output WTL_VIEW_CLASS]::PreTranslateMessage(MSG* pMsg)
 [!endif]
 [!endif]
 }
+[!if WTL_VIEWTYPE_SCROLL]
+
+void [!output WTL_VIEW_CLASS]::DoPaint(CDCHandle dc)
+{
+	//TODO: Add your drawing code here
+}
+[!endif]
 [!if WTL_VIEWTYPE_GENERIC]
 
 LRESULT [!output WTL_VIEW_CLASS]::OnPaint(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)

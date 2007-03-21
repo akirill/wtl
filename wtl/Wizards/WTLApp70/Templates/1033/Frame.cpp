@@ -103,6 +103,13 @@ LRESULT [!output WTL_FRAME_CLASS]::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LP
 	m_hWndClient = m_view.Create(m_hWnd, rcDefault, NULL, [!output WTL_VIEW_STYLES], [!output WTL_VIEW_EX_STYLES]);
 [!endif]
 [!endif]
+[!if WTL_VIEWTYPE_LISTBOX || WTL_VIEWTYPE_EDIT || WTL_VIEWTYPE_LISTVIEW || WTL_VIEWTYPE_TREEVIEW || WTL_VIEWTYPE_RICHEDIT]
+	m_view.SetFont(AtlGetDefaultGuiFont());
+[!endif]
+[!if WTL_VIEWTYPE_SCROLL]
+	// replace with appropriate values for the app
+	m_view.SetScrollSize(2000, 1000);
+[!endif]
 [!endif]
 [!endif]
 [!endif]
@@ -113,6 +120,7 @@ LRESULT [!output WTL_FRAME_CLASS]::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LP
 	m_pane.SetPaneContainerExtendedStyle(PANECNT_NOBORDER);
 	m_pane.Create(m_splitter, _T("Tree"), WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN);
 	m_treeview.Create(m_pane, rcDefault, NULL, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | TVS_HASLINES | TVS_LINESATROOT | TVS_HASBUTTONS | TVS_SHOWSELALWAYS, WS_EX_CLIENTEDGE);
+	m_treeview.SetFont(AtlGetDefaultGuiFont());
 	m_pane.SetClient(m_treeview);
 [!if WTL_VIEWTYPE_FORM]
 
@@ -125,6 +133,13 @@ LRESULT [!output WTL_FRAME_CLASS]::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LP
 [!else]
 
 	m_view.Create(m_splitter, rcDefault, NULL, [!output WTL_VIEW_STYLES], [!output WTL_VIEW_EX_STYLES]);
+[!endif]
+[!if WTL_VIEWTYPE_LISTBOX || WTL_VIEWTYPE_EDIT || WTL_VIEWTYPE_LISTVIEW || WTL_VIEWTYPE_TREEVIEW || WTL_VIEWTYPE_RICHEDIT]
+	m_view.SetFont(AtlGetDefaultGuiFont());
+[!endif]
+[!if WTL_VIEWTYPE_SCROLL]
+	// replace with appropriate values for the app
+	m_view.SetScrollSize(2000, 1000);
 [!endif]
 [!endif]
 

@@ -88,6 +88,11 @@ extern CAppModule _Module;
 #include <atlctrlx.h>
 #include <atlsplit.h>
 [!endif]
+[!if WTL_USE_VIEW]
+[!if WTL_VIEWTYPE_SCROLL]
+#include <atlscrl.h>
+[!endif]
+[!endif]
 [!endif]
 [!if WTL_USE_EMBEDDED_MANIFEST]
 
