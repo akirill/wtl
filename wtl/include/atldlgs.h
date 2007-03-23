@@ -918,12 +918,7 @@ public:
 		{
 			if(::SHGetPathFromIDList(pItemIDList, m_szFolderPath))
 			{
-				IMalloc* pMalloc = NULL;
-				if(SUCCEEDED(::SHGetMalloc(&pMalloc)))
-				{
-					pMalloc->Free(pItemIDList);
-					pMalloc->Release();
-				}
+				::CoTaskMemFree(pItemIDList);
 				nRet = IDOK;
 			}
 			else
