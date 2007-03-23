@@ -2120,7 +2120,11 @@ public:
 	struct _AtlUpdateUIData
 	{
 		WORD m_wState;
-		void* m_lpData;
+		union
+		{
+			void* m_lpData;
+			LPTSTR m_lpstrText;
+		};
 
 		bool operator ==(const _AtlUpdateUIData& e) const
 		{ return (m_wState == e.m_wState && m_lpData == e.m_lpData); }
@@ -2147,7 +2151,7 @@ public:
 			while(pUIMap->m_nID != (WORD)-1)
 			{
 				if(pUIData->m_wState & UPDUI_TEXT)
-					free(pUIData->m_lpData);
+					delete [] pUIData->m_lpstrText;
 				pUIMap++;
 				pUIData++;
 			}
@@ -2400,21 +2404,21 @@ public:
 		{
 			if(nID == (int)pMap->m_nID)
 			{
-				if(pUIData->m_lpData == NULL || lstrcmp((LPTSTR)pUIData->m_lpData, lpstrText))
+				if(pUIData->m_lpstrText == NULL || lstrcmp(pUIData->m_lpstrText, lpstrText))
 				{
+					delete [] pUIData->m_lpstrText;
+					pUIData->m_lpstrText = NULL;
 					int nStrLen = lstrlen(lpstrText);
-					free(pUIData->m_lpData);
-					pUIData->m_lpData = NULL;
-					ATLTRY(pUIData->m_lpData = malloc((nStrLen + 1) * sizeof(TCHAR)));
-					if(pUIData->m_lpData == NULL)
+					ATLTRY(pUIData->m_lpstrText = new TCHAR[nStrLen + 1]);
+					if(pUIData->m_lpstrText == NULL)
 					{
-						ATLTRACE2(atlTraceUI, 0, _T("UISetText - malloc failed\n"));
+						ATLTRACE2(atlTraceUI, 0, _T("UISetText - memory allocation failed\n"));
 						break;
 					}
 #if _SECURE_ATL
-					ATL::Checked::tcscpy_s((LPTSTR)pUIData->m_lpData, nStrLen + 1, lpstrText);
+					ATL::Checked::tcscpy_s(pUIData->m_lpstrText, nStrLen + 1, lpstrText);
 #else
-					lstrcpy((LPTSTR)pUIData->m_lpData, lpstrText);
+					lstrcpy(pUIData->m_lpstrText, lpstrText);
 #endif
 					pUIData->m_wState |= (UPDUI_TEXT | pMap->m_wType);
 				}
@@ -2534,8 +2538,8 @@ public:
 			pUIData->m_wState &= ~UPDUI_MENUBAR;
 			if(pUIData->m_wState & UPDUI_TEXT)
 			{
-				free(pUIData->m_lpData);
-				pUIData->m_lpData = NULL;
+				delete [] pUIData->m_lpstrText;
+				pUIData->m_lpstrText = NULL;
 				pUIData->m_wState &= ~UPDUI_TEXT;
 			}
 			pUIData++;
@@ -2599,8 +2603,8 @@ public:
 			pUIData->m_wState &= ~UPDUI_STATUSBAR;
 			if(pUIData->m_wState & UPDUI_TEXT)
 			{
-				free(pUIData->m_lpData);
-				pUIData->m_lpData = NULL;
+				delete [] pUIData->m_lpstrText;
+				pUIData->m_lpstrText = NULL;
 				pUIData->m_wState &= ~UPDUI_TEXT;
 			}
 			pUIData++;
@@ -2634,8 +2638,8 @@ public:
 			pUIData->m_wState &= ~UPDUI_CHILDWINDOW;
 			if(pUIData->m_wState & UPDUI_TEXT)
 			{
-				free(pUIData->m_lpData);
-				pUIData->m_lpData = NULL;
+				delete [] pUIData->m_lpstrText;
+				pUIData->m_lpstrText = NULL;
 				pUIData->m_wState &= ~UPDUI_TEXT;
 			}
 			pUIData++;
@@ -2705,7 +2709,7 @@ public:
 #else // CE specific
 				mii.fType |= (miiNow.fType & ~(MFT_SEPARATOR)) | MFT_STRING;
 #endif // _WIN32_WCE
-				mii.dwTypeData = (LPTSTR)pUIData->m_lpData;
+				mii.dwTypeData = pUIData->m_lpstrText;
 			}
 		}
 
@@ -2725,7 +2729,7 @@ public:
 	{
 		// Note: only handles text
 		if(pUIData->m_wState & UPDUI_TEXT)
-			::SendMessage(hWndStatusBar, SB_SETTEXT, nID, (LPARAM)pUIData->m_lpData);
+			::SendMessage(hWndStatusBar, SB_SETTEXT, nID, (LPARAM)pUIData->m_lpstrText);
 	}
 
 	static void UIUpdateChildWindow(int nID, _AtlUpdateUIData* pUIData, HWND hWnd)
@@ -2752,7 +2756,7 @@ public:
 			::SendMessage(hWnd, DM_SETDEFID, nID, 0L);
 		}
 		if(pUIData->m_wState & UPDUI_TEXT)
-			::SetWindowText(hChild, (LPTSTR)pUIData->m_lpData);
+			::SetWindowText(hChild, pUIData->m_lpstrText);
 	}
 };
 
@@ -2856,7 +2860,7 @@ public:
 		for(int i = 0; i < m_arrUIData.GetSize(); i++)
 		{
 			if((m_arrUIData[i].m_wState & UPDUI_TEXT) != 0)
-				free(m_arrUIData[i].m_lpData);
+				delete [] m_arrUIData[i].m_lpstrText;
 		}
 
 		// Reset internal data pointers (memory will be released by CSimpleArray d-tor)

@@ -817,8 +817,8 @@ public:
 
 	~CHyperLinkImpl()
 	{
-		free(m_lpstrLabel);
-		free(m_lpstrHyperLink);
+		delete [] m_lpstrLabel;
+		delete [] m_lpstrHyperLink;
 		if(m_bInternalLinkFont && m_hFont != NULL)
 			::DeleteObject(m_hFont);
 #if (WINVER < 0x0500) && !defined(_WIN32_WCE)
@@ -863,10 +863,10 @@ public:
 
 	bool SetLabel(LPCTSTR lpstrLabel)
 	{
-		int cchLen = lstrlen(lpstrLabel) + 1;
-		free(m_lpstrLabel);
+		delete [] m_lpstrLabel;
 		m_lpstrLabel = NULL;
-		ATLTRY(m_lpstrLabel = (LPTSTR)malloc(cchLen * sizeof(TCHAR)));
+		int cchLen = lstrlen(lpstrLabel) + 1;
+		ATLTRY(m_lpstrLabel = new TCHAR[cchLen]);
 		if(m_lpstrLabel == NULL)
 			return false;
 #if _SECURE_ATL
@@ -902,10 +902,10 @@ public:
 
 	bool SetHyperLink(LPCTSTR lpstrLink)
 	{
-		int cchLen = lstrlen(lpstrLink) + 1;
-		free(m_lpstrHyperLink);
+		delete [] m_lpstrHyperLink;
 		m_lpstrHyperLink = NULL;
-		ATLTRY(m_lpstrHyperLink = (LPTSTR)malloc(cchLen * sizeof(TCHAR)));
+		int cchLen = lstrlen(lpstrLink) + 1;
+		ATLTRY(m_lpstrHyperLink = new TCHAR[cchLen]);
 		if(m_lpstrHyperLink == NULL)
 			return false;
 #if _SECURE_ATL
@@ -3852,7 +3852,7 @@ public:
 			return;
 
 		int cchLen = m_wndTitleBar.GetWindowTextLength() + 1;
-		ATLTRY(m_lpstrTitleBarBase = new TCHAR[cchLen * sizeof(TCHAR)]);
+		ATLTRY(m_lpstrTitleBarBase = new TCHAR[cchLen]);
 		if(m_lpstrTitleBarBase != NULL)
 		{
 			m_wndTitleBar.GetWindowText(m_lpstrTitleBarBase, cchLen);
