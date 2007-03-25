@@ -28,6 +28,7 @@ extern CAppModule _Module;
 #pragma comment(lib, "aygshell.lib")
 
 #include <atlframe.h>
+#include <atlmisc.h>
 #include <atlctrls.h>
 #include <atlddx.h>
 #define _WTL_CE_NO_ZOOMSCROLL
