@@ -70,16 +70,13 @@ function OnFinish(selProj, selObj)
 		selProj = CreateDeviceProject(strProjectName, strProjectPath);
 		AddConfigurations(selProj, strProjectName);
 		AddFilters(selProj);
-//		SetupFilters(selProj); // common.js
-//		SetFilters(selProj);
 
-            // Create the project's Templates.inf file 
-            var InfFile = CreateInfFile(); // common.js
-//		var InfFile = CreateCustomInfFile();
+        // Create the project's Templates.inf file 
+        var InfFile = CreateInfFile(); // common.js
+        
+        // Add the files in Templates.inf to the project.
 		AddFilesToCustomProj(selProj, strProjectName, strProjectPath, InfFile);
 
-            // Add the files in Templates.inf to the project.
-//            AddFilesToProject(selProj, strProjectName, InfFile);
 		SetCommonPchSettings(selProj);
 
 		SetWtlDeviceResourceConfigurations(selProj.Object);
@@ -202,9 +199,6 @@ function AddConfigurations(proj, strProjectName)
 				config.OutputDirectory = "$(PlatformName)\\Release";
 			}
 
-			//if(wizard.FindSymbol("WTL_USE_VIEW") && wizard.FindSymbol("WTL_COMBO_VIEW_TYPE") == "WTL_VIEWTYPE_HTML")
-			//	config.UseOfATL = useATLDynamic;
-
 			// Instruction set
 			var instructionSet = "";
 			var sIndex = config.Name.indexOf("(");
@@ -309,11 +303,11 @@ function AddConfigurations(proj, strProjectName)
 			LinkTool.AdditionalDependencies += " $(NOINHERIT)";
 			LinkTool.DelayLoadDLLs = "$(NOINHERIT)";
 
-			var DeployTool = config.DeploymentTool;
-			if(DeployTool)
-			{
+//			var DeployTool = config.DeploymentTool;
+//			if(DeployTool)
+//			{
 //				DeployTool.AdditionalFiles += "atl80.dll|$(VCInstallDir)ce\\dll\\$(INSTRUCTIONSET)\\|%CSIDL_WINDOWS%|0;";
-			}
+//			}
 
 			// Resource settings
 			var RCTool = config.Tools("VCResourceCompilerTool");
@@ -325,6 +319,7 @@ function AddConfigurations(proj, strProjectName)
 				strDefines = "NDEBUG";
 			strDefines += ";_UNICODE;UNICODE;_WIN32_WCE=$(CEVER);SHELLSDK_MODULES_AYGSHELL"
 			RCTool.PreprocessorDefinitions = strDefines;
+			RCTool.AdditionalOptions = "-n"; // null-terminated string resources
 
 			// MIDL settings
 			var MidlTool = config.Tools("VCMidlTool");
@@ -500,17 +495,16 @@ function AddFilesToCustomProj(proj, strProjectName, strProjectPath, InfFile)
 	}
 }
 
-/******************************************************************************
-	Description: Process and split a resource file depending on the project
-				 selected platforms
-		cppPath: Path name to a .cpp file
-******************************************************************************/
-
 function AddPlatformFile(proj, strTemplate, PlatFormFile)
 {
 	wizard.RenderTemplate(strTemplate, PlatFormFile);
 	proj.Object.AddFile(PlatFormFile);
 }
+
+/******************************************************************************
+	Description: Process and rename a resource file depending on the project
+				 selected platforms
+******************************************************************************/
 
 function SplitResourceFile(proj, strTemplate, strFile)
 {
@@ -618,7 +612,6 @@ function SetPlatformsCode(FileName)
 	var text = ts.ReadAll();
 	ts.Close();
 	
-//    var PlatformPattern = /(?:\r\n)?(^\/{2}\?(?:ppc|sp)\r\n)(?:^.*\r\n)+?(\/{2}\?(?:ppc|sp)\r\n)?(?:^.*\r\n)*?(^\/{2}\?end\r\n)/m
     var PlatformPattern = /(?:\r\n)?(^\/{2}\?(?:ppc|sp)\r\n)(?:^.*\r\n)+?(\/{2}\?(?:ppc|sp)\r\n)?(?:^.*\r\n)*?(^\/{2}\?end\r\n)/m
     var ppcPattern = /^\/{2}\?ppc\r\n/m   
     var spPattern  = /^\/{2}\?sp\r\n/m  
@@ -824,7 +817,6 @@ function SetWtlDeviceResourceConfigurations(selProj)
 	for (var fileIdx = 1; fileIdx <= selProj.Files.Count; fileIdx++)
 	{
 		var file = selProj.Files.Item(fileIdx);
-//		if (file.Extension.match(/\.rc[0-9]/i))
 		if (file.Extension.toLowerCase() == ".rc")
 		{
 			for (var fileCfgIdx = 1; fileCfgIdx <= file.FileConfigurations.Count; fileCfgIdx++)
