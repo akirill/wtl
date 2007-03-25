@@ -101,7 +101,7 @@ public:
 	LRESULT OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
 	{
 
-		HWND hMenuBar = AtlCreateMenuBar(m_hWnd, ATL_IDM_MENU_DONECANCEL);
+		HWND hMenuBar = CreateMenuBar(ATL_IDM_MENU_DONECANCEL);
 		UIAddToolBar(hMenuBar);
 		UIAddChildWindowContainer(m_hWnd);
 
