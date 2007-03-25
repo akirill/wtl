@@ -3975,6 +3975,19 @@ inline int AtlLoadString(UINT uID, LPTSTR lpBuffer, int nBufferMax)
 }
 #endif // (_ATL_VER < 0x0700)
 
+#ifdef _WIN32_WCE // CE only direct access to the resource
+inline LPCTSTR AtlLoadString(UINT uID)
+{
+	LPCTSTR s = (LPCTSTR)::LoadString(ModuleHelper::GetResourceInstance(), uID, NULL, 0);
+#ifdef DEBUG // Check for null-termination
+	if(s != NULL)
+		// Note: RC -n <file.rc> compiles null-terminated resource strings
+		ATLASSERT(s[*((WORD*)s -1) - 1] == L'\0');
+#endif
+	return s;
+}
+#endif // _WIN32_WCE
+
 inline bool AtlLoadString(UINT uID, BSTR& bstrText)
 {
 	USES_CONVERSION;
