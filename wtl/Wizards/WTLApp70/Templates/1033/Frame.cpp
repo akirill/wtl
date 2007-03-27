@@ -344,6 +344,13 @@ LRESULT [!output WTL_FRAME_CLASS]::OnWindowCloseAll(WORD /*wNotifyCode*/, WORD /
 
 	return 0;
 }
+
+LRESULT [!output WTL_FRAME_CLASS]::OnWindowTab(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+	m_view.SetActivePage(wID-ID_WINDOW_TABFIRST);
+
+	return 0;
+}
 [!endif]
 [!if WTL_APPTYPE_EXPLORER]
 
