@@ -1,10 +1,22 @@
 class CEditView : 
 #ifndef _WIN32_WCE
-	public CWindowImpl<CEditView, CRichEditCtrl>
+	public CWindowImpl<CEditView, CRichEditCtrl>,
+	public CRichEditCommands<CEditView>,
+	public CRichEditFindReplaceImpl<CEditView, CFindReplaceDialogWithMessageFilter>
 #else // _WIN32_WCE
-	public CWindowImpl<CEditView, CEdit>
+	public CWindowImpl<CEditView, CEdit>,
+	public CEditCommands<CEditView>
 #endif // _WIN32_WCE
 {
+protected:
+	typedef CEditView thisClass;
+#ifndef _WIN32_WCE
+	typedef CRichEditCommands<CEditView> editCommandsClass;
+#else
+	typedef CEditCommands<CEditView> editCommandsClass;
+#endif
+	typedef CRichEditFindReplaceImpl<CEditView, CFindReplaceDialogWithMessageFilter> findReplaceClass;
+
 public:
 #ifndef _WIN32_WCE
 	DECLARE_WND_SUPERCLASS(NULL, CRichEditCtrl::GetWndClassName())
@@ -15,7 +27,6 @@ public:
 	enum
 	{
 		cchTAB = 8,
-		nSearchStringLen = 128,
 		nMaxBufferLen = 4000000
 	};
 
@@ -23,27 +34,15 @@ public:
 	int m_nRow, m_nCol;
 	TCHAR m_strFilePath[MAX_PATH];
 	TCHAR m_strFileName[MAX_PATH];
-#ifndef _WIN32_WCE
-	CFindReplaceDialog* m_pFindDlg;
-#endif // _WIN32_WCE
-	TCHAR m_strFind[nSearchStringLen];
-	BOOL m_bMatchCase;
-	BOOL m_bWholeWord;
-	BOOL m_bFindOnly;
 	BOOL m_bWordWrap;
 
 	CEditView() : 
 		m_nRow(0), m_nCol(0), 
-#ifndef _WIN32_WCE
-		m_pFindDlg(NULL),
-#endif // _WIN32_WCE
-		m_bMatchCase(FALSE), m_bWholeWord(FALSE),
-		m_bFindOnly(TRUE), m_bWordWrap(FALSE)
+		m_bWordWrap(FALSE)
 	{
 		m_font = AtlGetDefaultGuiFont();
 		m_strFilePath[0] = 0;
 		m_strFileName[0] = 0;
-		m_strFind[0] = 0;
 	}
 
 	void Sorry()
@@ -51,26 +50,32 @@ public:
 		MessageBox(_T("Sorry, not yet implemented"), _T("MTPad"), MB_OK);
 	}
 
+	BOOL PreTranslateMessage(MSG* pMsg)
+	{
+#ifndef _WIN32_WCE
+		// In non Multi-thread SDI cases, CFindReplaceDialogWithMessageFilter will add itself to the
+		// global message filters list.  In our case, we'll call it directly.
+		if(m_pFindReplaceDialog != NULL)
+		{
+			if(m_pFindReplaceDialog->PreTranslateMessage(pMsg))
+				return TRUE;
+		}
+#endif
+		return FALSE;
+	}
+
 	BEGIN_MSG_MAP(CEditView)
 		MESSAGE_HANDLER(WM_CREATE, OnCreate)
 		MESSAGE_HANDLER(WM_KEYDOWN, OnKey)
 		MESSAGE_HANDLER(WM_KEYUP, OnKey)
 		MESSAGE_HANDLER(WM_LBUTTONDOWN, OnKey)
-#ifndef _WIN32_WCE
-		MESSAGE_HANDLER(CFindReplaceDialog::GetFindReplaceMsg(), OnFindReplaceCmd)
-#endif // _WIN32_WCE
-	ALT_MSG_MAP(1)
-		COMMAND_ID_HANDLER(ID_EDIT_UNDO, OnEditUndo)
-		COMMAND_ID_HANDLER(ID_EDIT_CUT, OnEditCut)
-		COMMAND_ID_HANDLER(ID_EDIT_COPY, OnEditCopy)
+
 		COMMAND_ID_HANDLER(ID_EDIT_PASTE, OnEditPaste)
-		COMMAND_ID_HANDLER(ID_EDIT_CLEAR, OnEditClear)
-		COMMAND_ID_HANDLER(ID_EDIT_SELECT_ALL, OnEditSelectAll)
+		CHAIN_MSG_MAP_ALT(editCommandsClass, 1)
+
 #ifndef _WIN32_WCE
+		CHAIN_MSG_MAP_ALT(findReplaceClass, 1)
 		COMMAND_ID_HANDLER(ID_EDIT_WORD_WRAP, OnEditWordWrap)
-		COMMAND_ID_HANDLER(ID_EDIT_FIND, OnEditFind)
-		COMMAND_ID_HANDLER(ID_EDIT_REPEAT, OnEditFindNext)
-		COMMAND_ID_HANDLER(ID_EDIT_REPLACE, OnEditReplace)
 		COMMAND_ID_HANDLER(ID_FORMAT_FONT, OnViewFormatFont)
 #endif // _WIN32_WCE
 	END_MSG_MAP()
@@ -140,24 +145,6 @@ public:
 		return lRet;
 	}
 
-	LRESULT OnEditUndo(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
-	{
-		Undo();
-		return 0;
-	}
-
-	LRESULT OnEditCut(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
-	{
-		Cut();
-		return 0;
-	}
-
-	LRESULT OnEditCopy(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
-	{
-		Copy();
-		return 0;
-	}
-
 	LRESULT OnEditPaste(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 	{
 #ifndef _WIN32_WCE
@@ -168,18 +155,6 @@ public:
 		return 0;
 	}
 
-	LRESULT OnEditClear(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
-	{
-		Clear();
-		return 0;
-	}
-
-	LRESULT OnEditSelectAll(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
-	{
-		SetSel(0, -1);
-		return 0;
-	}
-
 #ifndef _WIN32_WCE
 	LRESULT OnEditWordWrap(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 	{
@@ -187,207 +162,6 @@ public:
 		int nLine = m_bWordWrap ? 0 : 1;
 		SetTargetDevice(NULL, nLine);
 
-		return 0;
-	}
-
-	LRESULT OnEditFind(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
-	{
-		if(m_pFindDlg != NULL)
-		{
-			if(m_bFindOnly)
-			{
-				_ASSERTE(::IsWindow(m_pFindDlg->m_hWnd));
-				m_pFindDlg->SetFocus();
-				return 1;
-			}
-			else
-				m_pFindDlg->DestroyWindow();
-		}
-
-		m_pFindDlg = new CFindReplaceDialog;
-
-		if(m_pFindDlg == NULL)
-		{
-			_ASSERTE(FALSE);
-			::MessageBeep((UINT)-1);
-			return 1;
-		}
-
-		m_bFindOnly = TRUE;
-		DWORD dwFlags = FR_HIDEUPDOWN;
-		if(m_bMatchCase)
-			dwFlags |= FR_MATCHCASE;
-		if(m_bWholeWord)
-			dwFlags |= FR_WHOLEWORD;
-
-		if(!m_pFindDlg->Create(TRUE, m_strFind, NULL, dwFlags, m_hWnd))
-		{
-			delete m_pFindDlg;
-			m_pFindDlg = NULL;
-			::MessageBeep((UINT)-1);
-			return 1;
-		}
-
-		m_pFindDlg->ShowWindow(SW_NORMAL);
-		return 0;
-	}
-
-	LRESULT OnEditFindNext(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled)
-	{
-		if(m_strFind[0] == 0)
-			return OnEditFind(wNotifyCode, wID, hWndCtl, bHandled);
-
-		BOOL bRet = DoFindText();
-		if(!bRet)
-			::MessageBeep((UINT)-1);
-
-		return 0;
-	}
-
-	LRESULT OnFindReplaceCmd(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/)
-	{
-		CFindReplaceDialog* pDlg = CFindReplaceDialog::GetNotifier(lParam);
-		if(pDlg == NULL)
-		{
-			::MessageBeep((UINT)-1);
-			return 1;
-		}
-		_ASSERTE(pDlg == m_pFindDlg);
-
-		if(pDlg->FindNext())
-		{
-			lstrcpyn(m_strFind, pDlg->m_fr.lpstrFindWhat, nSearchStringLen);
-			m_bMatchCase = pDlg->MatchCase();
-			m_bWholeWord = pDlg->MatchWholeWord();
-
-			BOOL bRet = DoFindText();
-			if(!bRet)
-				::MessageBeep((UINT)-1);
-		}
-		else if(pDlg->ReplaceCurrent())
-		{
-			lstrcpyn(m_strFind, pDlg->m_fr.lpstrFindWhat, nSearchStringLen);
-			m_bMatchCase = pDlg->MatchCase();
-			m_bWholeWord = pDlg->MatchWholeWord();
-
-			CHARRANGE chrg;
-			GetSel(chrg);
-
-			if(chrg.cpMin != chrg.cpMax)
-			{
-				USES_CONVERSION;
-				LPSTR lpstrTextA = (LPSTR)_alloca(chrg.cpMax - chrg.cpMin + 2);
-				GetSelText(lpstrTextA);
-				LPTSTR lpstrText = A2T(lpstrTextA);
-				int nRet;
-				if(m_bMatchCase)
-					nRet = lstrcmp(lpstrText, m_strFind);
-				else
-					nRet = lstrcmpi(lpstrText, m_strFind);
-				if(nRet == 0)
-					ReplaceSel(pDlg->GetReplaceString(), TRUE);
-			}
-
-			BOOL bRet = DoFindText();
-			if(!bRet)
-				::MessageBeep((UINT)-1);
-
-		}
-		else if(pDlg->ReplaceAll())
-		{
-			lstrcpyn(m_strFind, pDlg->m_fr.lpstrFindWhat, nSearchStringLen);
-			m_bMatchCase = pDlg->MatchCase();
-			m_bWholeWord = pDlg->MatchWholeWord();
-
-			HCURSOR hOldCursor = NULL;
-			SetRedraw(FALSE);
-			BOOL bRet = DoFindText(FALSE);
-			if(!bRet)
-				::MessageBeep((UINT)-1);
-			else
-			{
-				hOldCursor = ::SetCursor(::LoadCursor(NULL, IDC_WAIT));
-				do
-				{
-					ReplaceSel(pDlg->GetReplaceString(), TRUE);
-				}
-				while(DoFindText(FALSE));
-			}
-			SetRedraw(TRUE);
-			Invalidate();
-			UpdateWindow();
-			if(hOldCursor != NULL)
-				::SetCursor(hOldCursor);
-		}
-		else if(pDlg->IsTerminating())
-			m_pFindDlg = NULL;
-
-		return 0;
-	}
-
-	BOOL DoFindText(BOOL bNext = TRUE)
-	{
-		DWORD dwFlags = FR_DOWN;
-		if(m_bMatchCase)
-			dwFlags |= FR_MATCHCASE;
-		if(m_bWholeWord)
-			dwFlags |= FR_WHOLEWORD;
-
-		CHARRANGE chrg;
-		GetSel(chrg);
-
-		FINDTEXTEX ft;
-		ft.chrg.cpMin = bNext ? chrg.cpMax : chrg.cpMin;
-		ft.chrg.cpMax = -1;
-		ft.lpstrText = m_strFind;
-
-		if(FindText(dwFlags, ft) == -1)
-			return FALSE;
-
-		SetSel(ft.chrgText);
-
-		return TRUE;
-	}
-
-	LRESULT OnEditReplace(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
-	{
-		if(m_pFindDlg != NULL)
-		{
-			if(!m_bFindOnly)
-			{
-				_ASSERTE(::IsWindow(m_pFindDlg->m_hWnd));
-				m_pFindDlg->SetFocus();
-				return 1;
-			}
-			else
-				m_pFindDlg->DestroyWindow();
-		}
-
-		m_pFindDlg = new CFindReplaceDialog;
-
-		if(m_pFindDlg == NULL)
-		{
-			_ASSERTE(FALSE);
-			::MessageBeep((UINT)-1);
-			return 1;
-		}
-
-		m_bFindOnly = FALSE;
-		DWORD dwFlags = FR_HIDEUPDOWN;
-		if(m_bMatchCase)
-			dwFlags |= FR_MATCHCASE;
-		if(m_bWholeWord)
-			dwFlags |= FR_WHOLEWORD;
-
-		if(!m_pFindDlg->Create(FALSE, m_strFind, NULL, dwFlags, m_hWnd))
-		{
-			delete m_pFindDlg;
-			m_pFindDlg = NULL;
-			::MessageBeep((UINT)-1);
-			return 1;
-		}
-
-		m_pFindDlg->ShowWindow(SW_NORMAL);
 		return 0;
 	}
 
@@ -403,6 +177,57 @@ public:
 			SetFont(m_font);
 		}
 		return 0;
+	}
+#endif // _WIN32_WCE
+
+// Overrides from CEditFindReplaceImpl
+#ifndef _WIN32_WCE
+	CFindReplaceDialogWithMessageFilter* CreateFindReplaceDialog(BOOL bFindOnly, // TRUE for Find, FALSE for FindReplace
+			LPCTSTR lpszFindWhat,
+			LPCTSTR lpszReplaceWith = NULL,
+			DWORD dwFlags = FR_DOWN,
+			HWND hWndParent = NULL)
+	{
+		// In non Multi-Threaded SDI cases, we'd pass in the message loop to CFindReplaceDialogWithMessageFilter.
+		// In our case, we'll call PreTranslateMessage directly from this class.
+		//CFindReplaceDialogWithMessageFilter* findReplaceDialog =
+		//	new CFindReplaceDialogWithMessageFilter(_Module.GetMessageLoop());
+		CFindReplaceDialogWithMessageFilter* findReplaceDialog =
+			new CFindReplaceDialogWithMessageFilter(NULL);
+
+		if(findReplaceDialog == NULL)
+		{
+			::MessageBeep(MB_ICONHAND);
+		}
+		else
+		{
+			HWND hWndFindReplace = findReplaceDialog->Create(bFindOnly,
+				lpszFindWhat, lpszReplaceWith, dwFlags, hWndParent);
+			if(hWndFindReplace == NULL)
+			{
+				delete findReplaceDialog;
+				findReplaceDialog = NULL;
+			}
+			else
+			{
+				findReplaceDialog->SetActiveWindow();
+				findReplaceDialog->ShowWindow(SW_SHOW);
+			}
+		}
+
+		return findReplaceDialog;
+	}
+
+	DWORD GetFindReplaceDialogFlags(void) const
+	{
+		DWORD dwFlags = FR_HIDEWHOLEWORD;
+
+		if(m_bFindDown)
+			dwFlags |= FR_DOWN;
+		if(m_bMatchCase)
+			dwFlags |= FR_MATCHCASE;
+
+		return dwFlags;
 	}
 #endif // _WIN32_WCE
 

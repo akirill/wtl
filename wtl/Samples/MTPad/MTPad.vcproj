@@ -160,6 +160,9 @@
 				RelativePath=".\aboutdlg.h">
 			</File>
 			<File
+				RelativePath=".\finddlg.h">
+			</File>
+			<File
 				RelativePath=".\mainfrm.h">
 			</File>
 			<File

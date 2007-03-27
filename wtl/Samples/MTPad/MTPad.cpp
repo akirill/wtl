@@ -15,6 +15,8 @@
 #ifndef _WIN32_WCE
 #include <atlctrlw.h>
 #include <atlprint.h>
+#include <atlfind.h>
+#include "finddlg.h"
 #endif // _WIN32_WCE
 
 #include "resource.h"

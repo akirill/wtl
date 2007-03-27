@@ -58,7 +58,7 @@ CAPTION "About MTPad"
 FONT 8, "MS Sans Serif"
 BEGIN
     DEFPUSHBUTTON   "OK",IDOK,130,81,50,14
-    CTEXT           "MTPad v2.0\nMultithreaded Notepad Sample\n\n\xA9 Microsoft 1999",
+    CTEXT           "MTPad v2.0\nMultithreaded Notepad Sample\n\n© Microsoft 2007",
                     IDC_STATIC,13,51,104,38
     ICON            IDR_MAINFRAME,IDC_STATIC,55,26,20,20
     GROUPBOX        "",IDC_STATIC,7,7,115,88
@@ -94,6 +94,7 @@ BEGIN
     "A",            ID_EDIT_SELECT_ALL,     VIRTKEY, CONTROL, NOINVERT
     "C",            ID_EDIT_COPY,           VIRTKEY, CONTROL, NOINVERT
     "F",            ID_EDIT_FIND,           VIRTKEY, CONTROL, NOINVERT
+    "H",            ID_EDIT_REPLACE,        VIRTKEY, CONTROL, NOINVERT
     "N",            ID_FILE_NEW,            VIRTKEY, CONTROL, NOINVERT
     "O",            ID_FILE_OPEN,           VIRTKEY, CONTROL, NOINVERT
     "P",            ID_FILE_PRINT,          VIRTKEY, CONTROL, NOINVERT
@@ -103,6 +104,7 @@ BEGIN
     VK_BACK,        ID_EDIT_UNDO,           VIRTKEY, ALT, NOINVERT
     VK_DELETE,      ID_EDIT_CUT,            VIRTKEY, SHIFT, NOINVERT
     VK_F3,          ID_EDIT_REPEAT,         VIRTKEY, NOINVERT
+    VK_F3,          ID_EDIT_REPEAT,         VIRTKEY, SHIFT, NOINVERT
     VK_F6,          ID_NEXT_PANE,           VIRTKEY, NOINVERT
     VK_F6,          ID_PREV_PANE,           VIRTKEY, SHIFT, NOINVERT
     VK_INSERT,      ID_EDIT_COPY,           VIRTKEY, CONTROL, NOINVERT
@@ -266,7 +268,7 @@ BEGIN
             VALUE "FileDescription", "MTPad WTL Application\0"
             VALUE "FileVersion", "1, 0, 0, 1\0"
             VALUE "InternalName", "MTPad\0"
-            VALUE "LegalCopyright", "Copyright \xA9 Microsoft 1998-1999\0"
+            VALUE "LegalCopyright", "Copyright © Microsoft 1998-2007\0"
             VALUE "LegalTrademarks", "\0"
             VALUE "OriginalFilename", "MTPad.EXE\0"
             VALUE "PrivateBuild", "\0"

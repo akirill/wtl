@@ -40,14 +40,8 @@ public:
 
 	BOOL PreTranslateMessage(MSG* pMsg)
 	{
-#ifndef _WIN32_WCE
-		if(m_view.m_pFindDlg != NULL)
-		{
-			_ASSERTE(::IsWindow(m_view.m_pFindDlg->m_hWnd));
-			if(::IsDialogMessage(m_view.m_pFindDlg->m_hWnd, pMsg))
-				return TRUE;
-		}
-#endif // _WIN32_WCE
+		if(m_view.PreTranslateMessage(pMsg))
+			return TRUE;
 
 		return CFrameWindowImpl<CMainFrame>::PreTranslateMessage(pMsg);
 	}
@@ -79,7 +73,8 @@ public:
 		MESSAGE_HANDLER(WM_CONTEXTMENU, OnContextMenu)
 		CHAIN_MSG_MAP(CFrameWindowImpl<CMainFrame>)
 		CHAIN_MSG_MAP(CUpdateUI<CMainFrame>)
-		CHAIN_COMMANDS_ALT_MEMBER((m_view), 1)
+		MESSAGE_HANDLER(CFindReplaceDialog::GetFindReplaceMsg(), m_view.OnFindReplaceCmd)
+		CHAIN_COMMANDS_MEMBER((m_view))
 	END_MSG_MAP()
 
 	BEGIN_UPDATE_UI_MAP(CMainFrame)
@@ -348,7 +343,7 @@ public:
 		}
 		// get file name from the MRU list
 		TCHAR szFile[MAX_PATH];
-		if(m_mru.GetFromList(wID, szFile))
+		if(m_mru.GetFromList(wID, szFile, MAX_PATH))
 		{
 			// find file name without the path
 			LPTSTR lpstrFileName = szFile;

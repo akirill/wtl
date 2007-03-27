@@ -12,6 +12,8 @@
 
 #endif // _WIN32_WCE
 
+#define _WTL_USE_CSTRING
+
 #include <atlbase.h>
 #include <atlapp.h>
 
