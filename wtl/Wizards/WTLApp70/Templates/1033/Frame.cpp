@@ -345,9 +345,10 @@ LRESULT [!output WTL_FRAME_CLASS]::OnWindowCloseAll(WORD /*wNotifyCode*/, WORD /
 	return 0;
 }
 
-LRESULT [!output WTL_FRAME_CLASS]::OnWindowTab(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+LRESULT [!output WTL_FRAME_CLASS]::OnWindowActivate(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-	m_view.SetActivePage(wID-ID_WINDOW_TABFIRST);
+	int nPage = wID - ID_WINDOW_TABFIRST;
+	m_view.SetActivePage(nPage);
 
 	return 0;
 }

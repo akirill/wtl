@@ -112,7 +112,7 @@ public:
 [!if WTL_APPTYPE_TABVIEW]
 		COMMAND_ID_HANDLER(ID_WINDOW_CLOSE, OnWindowClose)
 		COMMAND_ID_HANDLER(ID_WINDOW_CLOSE_ALL, OnWindowCloseAll)
-		COMMAND_RANGE_HANDLER(ID_WINDOW_TABFIRST, ID_WINDOW_TABLAST, OnWindowTab)
+		COMMAND_RANGE_HANDLER(ID_WINDOW_TABFIRST, ID_WINDOW_TABLAST, OnWindowActivate)
 [!endif]
 [!if WTL_APPTYPE_EXPLORER]
 		COMMAND_ID_HANDLER(ID_VIEW_TREEPANE, OnViewTreePane)
@@ -484,12 +484,13 @@ public:
 	}
 [!endif]
 [!if WTL_USE_CPP_FILES]
-LRESULT OnWindowTab(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+LRESULT OnWindowActivate(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 [!else]
 
-LRESULT OnWindowTab(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+LRESULT OnWindowActivate(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-	m_view.SetActivePage(wID-ID_WINDOW_TABFIRST);
+	int nPage = wID - ID_WINDOW_TABFIRST;
+	m_view.SetActivePage(nPage);
 
 	return 0;
 }
