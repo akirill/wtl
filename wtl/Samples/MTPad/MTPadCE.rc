@@ -7,7 +7,7 @@
 //
 // Generated from the TEXTINCLUDE 2 resource.
 //
-#include "atlres.h"
+#include "atlresCE.h"
 
 /////////////////////////////////////////////////////////////////////////////
 #undef APSTUDIO_READONLY_SYMBOLS
@@ -34,7 +34,7 @@ END
 
 2 TEXTINCLUDE DISCARDABLE 
 BEGIN
-    "#include ""atlres.h""\r\n"
+    "#include ""atlresCE.h""\r\n"
     "\0"
 END
 
@@ -58,7 +58,7 @@ CAPTION "About MTPad"
 FONT 8, "MS Sans Serif"
 BEGIN
     DEFPUSHBUTTON   "OK",IDOK,130,81,50,14
-    CTEXT           "MTPad v2.0\nMultithreaded Notepad Sample\n\n\xA9 Microsoft 1999",
+    CTEXT           "MTPad v2.0\nMultithreaded Notepad Sample\n\n\xA9 Microsoft 2007",
                     IDC_STATIC,13,51,104,38
     ICON            IDR_MAINFRAME,IDC_STATIC,55,26,20,20
     GROUPBOX        "",IDC_STATIC,7,7,115,88
@@ -227,7 +227,7 @@ BEGIN
             VALUE "FileDescription", "MTPad WTL Application\0"
             VALUE "FileVersion", "1, 0, 0, 1\0"
             VALUE "InternalName", "MTPad\0"
-            VALUE "LegalCopyright", "Copyright \xA9 Microsoft 1998-1999\0"
+            VALUE "LegalCopyright", "Copyright \xA9 Microsoft 1998-2007\0"
             VALUE "LegalTrademarks", "\0"
             VALUE "OriginalFilename", "MTPad.EXE\0"
             VALUE "PrivateBuild", "\0"

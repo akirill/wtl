@@ -12,10 +12,10 @@ protected:
 	typedef CEditView thisClass;
 #ifndef _WIN32_WCE
 	typedef CRichEditCommands<CEditView> editCommandsClass;
+	typedef CRichEditFindReplaceImpl<CEditView, CFindReplaceDialogWithMessageFilter> findReplaceClass;
 #else
 	typedef CEditCommands<CEditView> editCommandsClass;
 #endif
-	typedef CRichEditFindReplaceImpl<CEditView, CFindReplaceDialogWithMessageFilter> findReplaceClass;
 
 public:
 #ifndef _WIN32_WCE

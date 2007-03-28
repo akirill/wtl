@@ -58,7 +58,7 @@ CAPTION "About MTPad"
 FONT 8, "MS Sans Serif"
 BEGIN
     DEFPUSHBUTTON   "OK",IDOK,130,81,50,14
-    CTEXT           "MTPad v2.0\nMultithreaded Notepad Sample\n\n© Microsoft 2007",
+    CTEXT           "MTPad v2.0\nMultithreaded Notepad Sample\n\n\xA9 Microsoft 2007",
                     IDC_STATIC,13,51,104,38
     ICON            IDR_MAINFRAME,IDC_STATIC,55,26,20,20
     GROUPBOX        "",IDC_STATIC,7,7,115,88
@@ -268,7 +268,7 @@ BEGIN
             VALUE "FileDescription", "MTPad WTL Application\0"
             VALUE "FileVersion", "1, 0, 0, 1\0"
             VALUE "InternalName", "MTPad\0"
-            VALUE "LegalCopyright", "Copyright © Microsoft 1998-2007\0"
+            VALUE "LegalCopyright", "Copyright \xA9 Microsoft 1998-2007\0"
             VALUE "LegalTrademarks", "\0"
             VALUE "OriginalFilename", "MTPad.EXE\0"
             VALUE "PrivateBuild", "\0"

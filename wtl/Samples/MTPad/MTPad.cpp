@@ -1,10 +1,3 @@
-// This file is a part of Windows Template Library - WTL 3.0
-// The code and information is provided "as-is" without
-// warranty of any kind, either expressed or implied.
-//
-// Copyright (C) 1997-1999 Microsoft Corporation
-// All rights reserved.
-
 #include "stdatl.h"
 
 #include <atlframe.h>
