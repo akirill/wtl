@@ -1147,6 +1147,7 @@ public:
 		MESSAGE_HANDLER(WM_GETFONT, OnGetFont)
 		MESSAGE_HANDLER(WM_SETFONT, OnSetFont)
 		MESSAGE_HANDLER(WM_UPDATEUISTATE, OnUpdateUiState)
+		MESSAGE_HANDLER(WM_WINDOWPOSCHANGED, OnWindowPosChanged)
 	END_MSG_MAP()
 
 	LRESULT OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
@@ -1345,6 +1346,14 @@ public:
 	{
 		// If the control is subclassed or superclassed, this message can cause
 		// repainting without WM_PAINT. We don't use this state, so just do nothing.
+		return 0;
+	}
+
+	LRESULT OnWindowPosChanged(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+	{
+		T* pT = static_cast<T*>(this);
+		pT->CalcLabelRect();
+		pT->Invalidate();
 		return 0;
 	}
 
