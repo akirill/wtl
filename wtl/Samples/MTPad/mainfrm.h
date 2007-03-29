@@ -73,9 +73,6 @@ public:
 		MESSAGE_HANDLER(WM_CONTEXTMENU, OnContextMenu)
 		CHAIN_MSG_MAP(CFrameWindowImpl<CMainFrame>)
 		CHAIN_MSG_MAP(CUpdateUI<CMainFrame>)
-#ifndef _WIN32_WCE
-		MESSAGE_HANDLER(CFindReplaceDialog::GetFindReplaceMsg(), m_view.OnFindReplaceCmd)
-#endif
 		CHAIN_COMMANDS_MEMBER((m_view))
 	END_MSG_MAP()
 
