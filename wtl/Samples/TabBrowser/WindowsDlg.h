@@ -57,8 +57,6 @@ public:
 		m_ptMinTrackSize.x /= 2;
 		m_ptMinTrackSize.y /= 2;
 
-		SetIcon(NULL, FALSE);
-
 		UpdateUI();
 
 		return TRUE;

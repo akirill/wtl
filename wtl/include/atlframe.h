@@ -3057,10 +3057,15 @@ public:
 		if((dwStyle & dwForceStyle) != dwForceStyle)
 			pT->ModifyStyle(0, dwForceStyle);
 
-		// Adding this style removes an empty icon that dialogs with WS_THICKFRAME have
+		// Adding this style removes an empty icon that dialogs with WS_THICKFRAME have.
+		// Setting icon to NULL is required when XP themes are active.
 		// Note: This will not prevent adding an icon for the dialog using SetIcon()
 		if((dwStyle & WS_CHILD) == 0)
+		{
 			pT->ModifyStyleEx(0, WS_EX_DLGMODALFRAME);
+			if(pT->GetIcon(FALSE) == NULL)
+				pT->SetIcon(NULL, FALSE);
+		}
 
 		// Cleanup in case of multiple initialization
 		// block: first check for the gripper control, destroy it if needed
