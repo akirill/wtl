@@ -2158,7 +2158,7 @@ public:
 	BOOL UpdatePanesLayout()
 	{
 		// get pane positions
-		int* pPanesPos = pPanesPos = (int*)_alloca(m_nPanes * sizeof(int));
+		int* pPanesPos = (int*)_alloca(m_nPanes * sizeof(int));
 		int nRet = GetParts(m_nPanes, pPanesPos);
 		ATLASSERT(nRet == m_nPanes);
 		if(nRet != m_nPanes)
