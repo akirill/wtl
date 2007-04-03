@@ -936,12 +936,12 @@ public:
 
 #if defined(_WTL_USE_CSTRING) || defined(__ATLSTR_H__)
 #if (_ATL_VER < 0x0800)
-	LONG Save(CString& sval, ATL::_U_STRINGorID sName)
+	LONG Save(_CSTRING_NS::CString& sval, ATL::_U_STRINGorID sName)
 	{
 		return m_Key.SetValue(sval, sName.m_lpstr);
 	}
 
-	LONG Restore(CString& sval, ATL::_U_STRINGorID sName)
+	LONG Restore(_CSTRING_NS::CString& sval, ATL::_U_STRINGorID sName)
 	{
 		DWORD size = MAX_PATH;
 		LONG res = m_Key.QueryValue(sval.GetBuffer(size), sName.m_lpstr, &size);
@@ -949,12 +949,12 @@ public:
 		return res;
 	}
 #else // !(_ATL_VER < 0x0800)
-	LONG Save(CString& sval, ATL::_U_STRINGorID sName)
+	LONG Save(_CSTRING_NS::CString& sval, ATL::_U_STRINGorID sName)
 	{
-		return m_Key.SetStringValue(sName.m_lpstr, sval/*,REG_SZ*/);
+		return m_Key.SetStringValue(sName.m_lpstr, sval);
 	}
 
-	LONG Restore(CString& sval, ATL::_U_STRINGorID sName)
+	LONG Restore(_CSTRING_NS::CString& sval, ATL::_U_STRINGorID sName)
 	{
 		DWORD size = MAX_PATH;
 		LONG res = m_Key.QueryStringValue(sName.m_lpstr, sval.GetBuffer(size), &size);
