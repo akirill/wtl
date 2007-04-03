@@ -884,13 +884,16 @@ class ATL_NO_VTABLE CFolderDialogImpl
 public:
 	BROWSEINFO m_bi;
 	LPCTSTR m_lpstrInitialFolder;
+	LPCITEMIDLIST m_pidlInitialSelection;
+	bool m_bExpandInitialSelection;
 	TCHAR m_szFolderDisplayName[MAX_PATH];
 	TCHAR m_szFolderPath[MAX_PATH];
+	LPITEMIDLIST m_pidlSelected;
 	HWND m_hWnd;   // used only in the callback function
 
 // Constructor
 	CFolderDialogImpl(HWND hWndParent = NULL, LPCTSTR lpstrTitle = NULL, UINT uFlags = BIF_RETURNONLYFSDIRS) : 
-			m_lpstrInitialFolder(NULL), m_hWnd(NULL)
+			m_lpstrInitialFolder(NULL), m_pidlInitialSelection(NULL), m_bExpandInitialSelection(false), m_pidlSelected(NULL), m_hWnd(NULL)
 	{
 		memset(&m_bi, 0, sizeof(m_bi)); // initialize structure to 0/NULL
 
@@ -906,36 +909,65 @@ public:
 		m_szFolderDisplayName[0] = 0;
 	}
 
+	~CFolderDialogImpl()
+	{
+		::CoTaskMemFree(m_pidlSelected);
+	}
+
 // Operations
 	INT_PTR DoModal(HWND hWndParent = ::GetActiveWindow())
 	{
 		if(m_bi.hwndOwner == NULL)   // set only if not specified before
 			m_bi.hwndOwner = hWndParent;
 
-		INT_PTR nRet = -1;
-		LPITEMIDLIST pItemIDList = ::SHBrowseForFolder(&m_bi);
-		if(pItemIDList != NULL)
+		// Clear out any previous results
+		m_szFolderPath[0] = 0;
+		m_szFolderDisplayName[0] = 0;
+		::CoTaskMemFree(m_pidlSelected);
+
+		INT_PTR nRet = IDCANCEL;
+		m_pidlSelected = ::SHBrowseForFolder(&m_bi);
+
+		if(m_pidlSelected != NULL)
 		{
-			if(::SHGetPathFromIDList(pItemIDList, m_szFolderPath))
+			nRet = IDOK;
+
+			// If BIF_RETURNONLYFSDIRS is set, we try to get the filesystem path.
+			// Otherwise, the caller must handle the ID-list directly.
+			if((m_bi.ulFlags & BIF_RETURNONLYFSDIRS) != 0)
 			{
-				::CoTaskMemFree(pItemIDList);
-				nRet = IDOK;
-			}
-			else
-			{
-				nRet = IDCANCEL;
+				if(::SHGetPathFromIDList(m_pidlSelected, m_szFolderPath) == FALSE)
+					nRet = IDCANCEL;
 			}
 		}
 
 		return nRet;
 	}
 
-	void SetInitialFolder(LPCTSTR lpstrInitialFolder)
+	// Methods to call before DoModal
+	void SetInitialFolder(LPCTSTR lpstrInitialFolder, bool bExpand = true)
 	{
+		// lpstrInitialFolder may be a file if BIF_BROWSEINCLUDEFILES is specified
 		m_lpstrInitialFolder = lpstrInitialFolder;
+		m_bExpandInitialSelection = bExpand;
 	}
 
-	// filled after a call to DoModal
+	void SetInitialSelection(LPCITEMIDLIST pidl, bool bExpand = true)
+	{
+		m_pidlInitialSelection = pidl;
+		m_bExpandInitialSelection = bExpand;
+	}
+
+	// Methods to call after DoModal
+	LPITEMIDLIST GetSelectedItem(bool bDetach = false)
+	{
+		LPITEMIDLIST pidl = m_pidlSelected;
+		if(bDetach)
+			m_pidlSelected = NULL;
+
+		return pidl;
+	}
+
 	LPCTSTR GetFolderPath() const
 	{
 		return m_szFolderPath;
@@ -984,12 +1016,20 @@ public:
 		switch(uMsg)
 		{
 		case BFFM_INITIALIZED:
-			if(pT->m_lpstrInitialFolder != NULL)
+			// Set initial selection
+			// Note that m_pidlInitialSelection, if set, takes precedence over m_lpstrInitialFolder
+			if(pT->m_pidlInitialSelection != NULL)
+				pT->SetSelection(pT->m_pidlInitialSelection);
+			else if(pT->m_lpstrInitialFolder != NULL)
+				pT->SetSelection(pT->m_lpstrInitialFolder);
+
+			// Expand initial selection if appropriate
+			if(pT->m_bExpandInitialSelection && ((pT->m_bi.ulFlags & BIF_NEWDIALOGSTYLE) != 0))
 			{
-				if((pT->m_bi.ulFlags & BIF_NEWDIALOGSTYLE) != 0)
+				if(pT->m_pidlInitialSelection != NULL)
+					pT->SetExpanded(pT->m_pidlInitialSelection);
+				else if(pT->m_lpstrInitialFolder != NULL)
 					pT->SetExpanded(pT->m_lpstrInitialFolder);
-				else
-					pT->SetSelection(pT->m_lpstrInitialFolder);
 			}
 			pT->OnInitialized();
 			break;
@@ -1036,7 +1076,7 @@ public:
 		::SendMessage(m_hWnd, BFFM_ENABLEOK, 0, bEnable);
 	}
 
-	void SetSelection(LPITEMIDLIST pItemIDList)
+	void SetSelection(LPCITEMIDLIST pItemIDList)
 	{
 		ATLASSERT(m_hWnd != NULL);
 		::SendMessage(m_hWnd, BFFM_SETSELECTION, FALSE, (LPARAM)pItemIDList);
@@ -1065,7 +1105,7 @@ public:
 		::SendMessage(m_hWnd, BFFM_SETOKTEXT, (WPARAM)lpstr, 0L);
 	}
 
-	void SetExpanded(LPITEMIDLIST pItemIDList)
+	void SetExpanded(LPCITEMIDLIST pItemIDList)
 	{
 #ifndef BFFM_SETEXPANDED
 		const UINT BFFM_SETEXPANDED = WM_USER + 106;
