@@ -817,12 +817,12 @@ public: \
 			return TRUE; \
 	}
 
-// void OnTimer(UINT nIDEvent, TIMERPROC* pProc)
+// void OnTimer(UINT_PTR nIDEvent)
 #define MSG_WM_TIMER(func) \
 	if (uMsg == WM_TIMER) \
 	{ \
 		SetMsgHandled(TRUE); \
-		func((UINT)wParam, (TIMERPROC)lParam); \
+		func((UINT_PTR)wParam); \
 		lResult = 0; \
 		if(IsMsgHandled()) \
 			return TRUE; \
