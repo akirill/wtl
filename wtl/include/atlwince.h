@@ -786,7 +786,7 @@ public:
 	{
 		T* pT = static_cast<T*>(this);
 		ATLASSERT(pT->IsWindow());
-		if (wParam & SETTINGCHANGE_RESET)
+		if (wParam == SETTINGCHANGE_RESET)
 		{
 			SetOrientation(DRA::GetDisplayMode());
 			pT->StdPlatformInit();
