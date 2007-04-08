@@ -959,8 +959,12 @@ public:
 			m_bFirstSearch = FALSE;
 		}
 
-		// lpstrText should be const
-		ft.lpstrText = (LPTSTR) lpszFind;
+#if (_RICHEDIT_VER >= 0x0200)
+		ft.lpstrText = (LPTSTR)lpszFind;
+#else // !(_RICHEDIT_VER >= 0x0200)
+		USES_CONVERSION;
+		ft.lpstrText = T2A((LPTSTR)lpszFind);
+#endif // !(_RICHEDIT_VER >= 0x0200)
 
 		if(ft.chrg.cpMin != ft.chrg.cpMax) // i.e. there is a selection
 		{
