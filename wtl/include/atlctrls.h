@@ -611,12 +611,15 @@ public:
 		if(nLen == LB_ERR)
 			return FALSE;
 
-		LPTSTR lpszText = (LPTSTR)_alloca((nLen + 1) * sizeof(TCHAR));
-
-		if(GetText(nIndex, lpszText) == LB_ERR)
+		CTempBuffer<TCHAR, _WTL_STACK_ALLOC_THRESHOLD> buff;
+		LPTSTR lpstrText = buff.Allocate(nLen + 1);
+		if(lpstrText == NULL)
 			return FALSE;
 
-		bstrText = ::SysAllocString(T2OLE(lpszText));
+		if(GetText(nIndex, lpstrText) == LB_ERR)
+			return FALSE;
+
+		bstrText = ::SysAllocString(T2OLE(lpstrText));
 		return (bstrText != NULL) ? TRUE : FALSE;
 	}
 #endif // _OLEAUTO_H_
@@ -949,12 +952,15 @@ public:
 		if(nLen == CB_ERR)
 			return FALSE;
 
-		LPTSTR lpszText = (LPTSTR)_alloca((nLen + 1) * sizeof(TCHAR));
-
-		if(GetLBText(nIndex, lpszText) == CB_ERR)
+		CTempBuffer<TCHAR, _WTL_STACK_ALLOC_THRESHOLD> buff;
+		LPTSTR lpstrText = buff.Allocate(nLen + 1);
+		if(lpstrText == NULL)
 			return FALSE;
 
-		bstrText = ::SysAllocString(T2OLE(lpszText));
+		if(GetLBText(nIndex, lpstrText) == CB_ERR)
+			return FALSE;
+
+		bstrText = ::SysAllocString(T2OLE(lpstrText));
 		return (bstrText != NULL) ? TRUE : FALSE;
 	}
 #endif // !_ATL_NO_COM
@@ -5706,11 +5712,20 @@ public:
 		int nLength = (int)(short)LOWORD(::SendMessage(m_hWnd, TB_GETSTRING, MAKEWPARAM(0, nString), NULL));
 		if(nLength != -1)
 		{
-			LPTSTR lpszString = (LPTSTR)_alloca((nLength + 1) * sizeof(TCHAR));
-			nLength = (int)::SendMessage(m_hWnd, TB_GETSTRING, MAKEWPARAM(nLength + 1, nString), (LPARAM)lpszString);
-			if(nLength != -1)
-				bstrString = ::SysAllocString(T2OLE(lpszString));
+			CTempBuffer<TCHAR, _WTL_STACK_ALLOC_THRESHOLD> buff;
+			LPTSTR lpstrText = buff.Allocate(nLength + 1);
+			if(lpstrText != NULL)
+			{
+				nLength = (int)::SendMessage(m_hWnd, TB_GETSTRING, MAKEWPARAM(nLength + 1, nString), (LPARAM)lpstrText);
+				if(nLength != -1)
+					bstrString = ::SysAllocString(T2OLE(lpstrText));
+			}
+			else
+			{
+				nLength = -1;
+			}
 		}
+
 		return nLength;
 	}
 
@@ -6070,11 +6085,15 @@ public:
 		if(nLength == 0)
 			return FALSE;
 
-		LPTSTR lpszText = (LPTSTR)_alloca((nLength + 1) * sizeof(TCHAR));
-		if(!GetText(nPane, lpszText, pType))
+		CTempBuffer<TCHAR, _WTL_STACK_ALLOC_THRESHOLD> buff;
+		LPTSTR lpstrText = buff.Allocate(nLength + 1);
+		if(lpstrText == NULL)
 			return FALSE;
 
-		bstrText = ::SysAllocString(T2OLE(lpszText));
+		if(!GetText(nPane, lpstrText, pType))
+			return FALSE;
+
+		bstrText = ::SysAllocString(T2OLE(lpstrText));
 		return (bstrText != NULL) ? TRUE : FALSE;
 	}
 #endif // !_ATL_NO_COM
@@ -7403,15 +7422,19 @@ public:
 		::SendMessage(m_hWnd, EM_EXGETSEL, 0, (LPARAM)&cr);
 
 #if (_RICHEDIT_VER >= 0x0200)
-		LPTSTR lpstrText = (LPTSTR)_alloca((cr.cpMax - cr.cpMin + 1) * sizeof(TCHAR));
-		lpstrText[0] = 0;
+		CTempBuffer<TCHAR, _WTL_STACK_ALLOC_THRESHOLD> buff;
+		LPTSTR lpstrText = buff.Allocate(cr.cpMax - cr.cpMin + 1);
+		if(lpstrText == NULL)
+			return FALSE;
 		if(::SendMessage(m_hWnd, EM_GETSELTEXT, 0, (LPARAM)lpstrText) == 0)
 			return FALSE;
 
 		bstrText = ::SysAllocString(T2W(lpstrText));
 #else // !(_RICHEDIT_VER >= 0x0200)
-		LPSTR lpstrText = (char*)_alloca(cr.cpMax - cr.cpMin + 1);
-		lpstrText[0] = 0;
+		CTempBuffer<char, _WTL_STACK_ALLOC_THRESHOLD> buff;
+		LPSTR lpstrText = buff.Allocate(cr.cpMax - cr.cpMin + 1);
+		if(lpstrText == NULL)
+			return FALSE;
 		if(::SendMessage(m_hWnd, EM_GETSELTEXT, 0, (LPARAM)lpstrText) == 0)
 			return FALSE;
 
@@ -7439,8 +7462,10 @@ public:
 			strText.ReleaseBuffer();
 		}
 #else // !(_RICHEDIT_VER >= 0x0200)
-		LPSTR lpstrText = (char*)_alloca(cr.cpMax - cr.cpMin + 1);
-		lpstrText[0] = 0;
+		CTempBuffer<char, _WTL_STACK_ALLOC_THRESHOLD> buff;
+		LPSTR lpstrText = buff.Allocate(cr.cpMax - cr.cpMin + 1);
+		if(lpstrText == NULL)
+			return 0;
 		LONG lLen = (LONG)::SendMessage(m_hWnd, EM_GETSELTEXT, 0, (LPARAM)lpstrText);
 		if(lLen == 0)
 			return 0;

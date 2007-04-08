@@ -389,7 +389,10 @@ public:
 		}
 
 		nLen++;   // increment to include terminating NULL char
-		LPTSTR lpszText = (LPTSTR)_alloca((nLen) * sizeof(TCHAR));
+		CTempBuffer<TCHAR, _WTL_STACK_ALLOC_THRESHOLD> buff;
+		LPTSTR lpszText = buff.Allocate(nLen);
+		if(lpszText == NULL)
+			return FALSE;
 
 		if(!GetMenuString(nIDItem, lpszText, nLen, nFlags))
 			return FALSE;

@@ -2559,7 +2559,10 @@ public:
 		if(nLen == 0)
 			return FALSE;
 
-		LPTSTR lpszText = (LPTSTR)_alloca(nLen * sizeof(TCHAR));
+		CTempBuffer<TCHAR, _WTL_STACK_ALLOC_THRESHOLD> buff;
+		LPTSTR lpszText = buff.Allocate(nLen);
+		if(lpszText == NULL)
+			return FALSE;
 
 		if(!GetTextFace(lpszText, nLen))
 			return FALSE;

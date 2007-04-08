@@ -867,6 +867,86 @@ public:
 
 
 ///////////////////////////////////////////////////////////////////////////////
+// CTempBuffer - helper class for stack allocations for ATL3
+
+#ifndef _WTL_STACK_ALLOC_THRESHOLD
+  #define _WTL_STACK_ALLOC_THRESHOLD   512
+#endif
+
+#if (_ATL_VER >= 0x0700)
+
+using ATL::CTempBuffer;
+
+#else // !(_ATL_VER >= 0x0700)
+
+#ifndef SIZE_MAX
+  #ifdef _WIN64 
+    #define SIZE_MAX _UI64_MAX
+  #else
+    #define SIZE_MAX UINT_MAX
+  #endif
+#endif
+
+#pragma warning(disable: 4284)   // warning for operator ->
+
+template<typename T, int t_nFixedBytes = 128>
+class CTempBuffer
+{
+public:
+	CTempBuffer() : m_p(NULL)
+	{
+	}
+
+	CTempBuffer(size_t nElements) : m_p(NULL)
+	{
+		Allocate(nElements);
+	}
+
+	~CTempBuffer()
+	{
+		if(m_p != reinterpret_cast<T*>(m_abFixedBuffer))
+			free(m_p);
+	}
+
+	operator T*() const
+	{
+		return m_p;
+	}
+
+	T* operator ->() const
+	{
+		ATLASSERT(m_p != NULL);
+		return m_p;
+	}
+
+	T* Allocate(size_t nElements)
+	{
+		ATLASSERT(nElements <= (SIZE_MAX / sizeof(T)));
+		return AllocateBytes(nElements * sizeof(T));
+	}
+
+	T* AllocateBytes(size_t nBytes)
+	{
+		ATLASSERT(m_p == NULL);
+		if(nBytes > t_nFixedBytes)
+			m_p = static_cast<T*>(malloc(nBytes));
+		else
+			m_p = reinterpret_cast<T*>(m_abFixedBuffer);
+
+		return m_p;
+	}
+
+private:
+	T* m_p;
+	BYTE m_abFixedBuffer[t_nFixedBytes];
+};
+
+#pragma warning(default: 4284)
+
+#endif // !(_ATL_VER >= 0x0700)
+
+
+///////////////////////////////////////////////////////////////////////////////
 // CAppModule - module class for an application
 
 class CAppModule : public ATL::CComModule

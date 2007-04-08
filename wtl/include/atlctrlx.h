@@ -1425,9 +1425,11 @@ public:
 			int nLen = GetWindowTextLength();
 			if(nLen > 0)
 			{
-				LPTSTR lpszText = (LPTSTR)_alloca((nLen + 1) * sizeof(TCHAR));
-				if(GetWindowText(lpszText, nLen + 1))
-					SetLabel(lpszText);
+				CTempBuffer<TCHAR, _WTL_STACK_ALLOC_THRESHOLD> buff;
+				LPTSTR lpstrText = buff.Allocate(nLen + 1);
+				ATLASSERT(lpstrText != NULL);
+				if((lpstrText != NULL) && (GetWindowText(lpstrText, nLen + 1) > 0))
+					SetLabel(lpstrText);
 			}
 		}
 
@@ -1945,13 +1947,18 @@ public:
 		ATLASSERT(m_pPane != NULL);
 		if(m_pPane == NULL)
 			return FALSE;
+
+		CTempBuffer<int, _WTL_STACK_ALLOC_THRESHOLD> buff;
+		int* pPanesPos = buff.Allocate(nPanes);
+		ATLASSERT(pPanesPos != NULL);
+		if(pPanesPos == NULL)
+			return FALSE;
+
 #if _SECURE_ATL
 		ATL::Checked::memcpy_s(m_pPane, nPanes * sizeof(int), pPanes, nPanes * sizeof(int));
 #else
 		memcpy(m_pPane, pPanes, nPanes * sizeof(int));
 #endif
-
-		int* pPanesPos = (int*)_alloca(nPanes * sizeof(int));
 
 		// get status bar DC and set font
 		CClientDC dc(m_hWnd);
@@ -2060,7 +2067,10 @@ public:
 			return FALSE;
 
 		// get pane positions
-		int* pPanesPos = (int*)_alloca(m_nPanes * sizeof(int));
+		CTempBuffer<int, _WTL_STACK_ALLOC_THRESHOLD> buff;
+		int* pPanesPos = buff.Allocate(m_nPanes);
+		if(pPanesPos == NULL)
+			return FALSE;
 		GetParts(m_nPanes, pPanesPos);
 		// calculate offset
 		int cxPaneWidth = pPanesPos[nIndex] - ((nIndex == 0) ? 0 : pPanesPos[nIndex - 1]);
@@ -2158,7 +2168,11 @@ public:
 	BOOL UpdatePanesLayout()
 	{
 		// get pane positions
-		int* pPanesPos = (int*)_alloca(m_nPanes * sizeof(int));
+		CTempBuffer<int, _WTL_STACK_ALLOC_THRESHOLD> buff;
+		int* pPanesPos = buff.Allocate(m_nPanes);
+		ATLASSERT(pPanesPos != NULL);
+		if(pPanesPos == NULL)
+			return FALSE;
 		int nRet = GetParts(m_nPanes, pPanesPos);
 		ATLASSERT(nRet == m_nPanes);
 		if(nRet != m_nPanes)
@@ -3918,9 +3932,13 @@ public:
 		if(m_tab.GetItem(nPage, tcix) == FALSE)
 			return false;
 
+		CTempBuffer<TCHAR, _WTL_STACK_ALLOC_THRESHOLD> buff;
+		LPTSTR lpstrTabText = buff.Allocate(m_cchTabTextLength + 1);
+		if(lpstrTabText == NULL)
+			return false;
+
 		delete [] tcix.tvpage.lpstrTitle;
 
-		LPTSTR lpstrTabText = (LPTSTR)_alloca((m_cchTabTextLength + 1) * sizeof(TCHAR));
 		pT->ShortenTitle(lpstrTitle, lpstrTabText, m_cchTabTextLength + 1);
 
 		tcix.tciheader.mask = TCIF_TEXT | TCIF_PARAM;
@@ -4015,7 +4033,11 @@ public:
 		lstrcpy(lpstrBuff, lpstrTitle);
 #endif
 
-		LPTSTR lpstrTabText = (LPTSTR)_alloca((m_cchTabTextLength + 1) * sizeof(TCHAR));
+		CTempBuffer<TCHAR, _WTL_STACK_ALLOC_THRESHOLD> buff;
+		LPTSTR lpstrTabText = buff.Allocate(m_cchTabTextLength + 1);
+		if(lpstrTabText == NULL)
+			return false;
+
 		pT->ShortenTitle(lpstrTitle, lpstrTabText, m_cchTabTextLength + 1);
 
 		SetRedraw(FALSE);
@@ -4205,23 +4227,29 @@ public:
 		if(nPageCount > 0)
 		{
 			// Append menu items for all pages
-			const int cchBuff = 256;
-			TCHAR szBuff[cchBuff] = { 0 };
-			const int cchPrefix = 3;   // 3 digits + space
+			const int cchPrefix = 3;   // 2 digits + space
 			nMenuItemsCount = min(min(nPageCount, nMenuItemsCount), (int)m_nMenuItemsMax);
+			ATLASSERT(nMenuItemsCount < 100);   // 2 digits only
+			if(nMenuItemsCount >= 100)
+				nMenuItemsCount = 99;
+
 			for(int i = 0; i < nMenuItemsCount; i++)
 			{
 				LPCTSTR lpstrTitle = GetPageTitle(i);
 				int nLen = lstrlen(lpstrTitle);
-				LPTSTR lpstrText = ((cchPrefix + nLen) < cchBuff) ? szBuff : (LPTSTR)_alloca((cchPrefix + nLen + 1) * sizeof(TCHAR));
-				LPCTSTR lpstrFormat = (i < 9) ? _T("&%i %s") : _T("%i %s");
+				CTempBuffer<TCHAR, _WTL_STACK_ALLOC_THRESHOLD> buff;
+				LPTSTR lpstrText = buff.Allocate(cchPrefix + nLen + 1);
+				ATLASSERT(lpstrText != NULL);
+				if(lpstrText != NULL)
+				{
+					LPCTSTR lpstrFormat = (i < 9) ? _T("&%i %s") : _T("%i %s");
 #if _SECURE_ATL && !defined(_ATL_MIN_CRT) && !defined(_WIN32_WCE)
-				int nLen2 = ((cchPrefix + nLen) < cchBuff) ? cchBuff : cchPrefix + nLen + 1;
-				_stprintf_s(lpstrText, nLen2, lpstrFormat, i + 1, lpstrTitle);
+					_stprintf_s(lpstrText, cchPrefix + nLen + 1, lpstrFormat, i + 1, lpstrTitle);
 #else
-				wsprintf(lpstrText, lpstrFormat, i + 1, lpstrTitle);
+					wsprintf(lpstrText, lpstrFormat, i + 1, lpstrTitle);
 #endif
-				menu.AppendMenu(MF_STRING, ID_WINDOW_TABFIRST + i, lpstrText);
+					menu.AppendMenu(MF_STRING, ID_WINDOW_TABFIRST + i, lpstrText);
+				}
 			}
 
 			// Mark active page
@@ -4531,7 +4559,10 @@ public:
 		if(nMovePage == nInsertBeforePage)
 			return true;   // nothing to do
 
-		LPTSTR lpstrTabText = (LPTSTR)_alloca((m_cchTabTextLength + 1) * sizeof(TCHAR));
+		CTempBuffer<TCHAR, _WTL_STACK_ALLOC_THRESHOLD> buff;
+		LPTSTR lpstrTabText = buff.Allocate(m_cchTabTextLength + 1);
+		if(lpstrTabText == NULL)
+			return false;
 		TCITEMEXTRA tcix = { 0 };
 		tcix.tciheader.mask = TCIF_TEXT | TCIF_IMAGE | TCIF_PARAM;
 		tcix.tciheader.pszText = lpstrTabText;
@@ -4638,17 +4669,26 @@ public:
 			T* pT = static_cast<T*>(this);
 			LPCTSTR lpstrTitle = pT->GetPageTitle(m_nActivePage);
 			LPCTSTR lpstrDivider = pT->GetTitleDividerText();
-			int cchDivider = lstrlen(lpstrDivider);
-			int cchBase = lstrlen(m_lpstrTitleBarBase);
-			LPTSTR lpstrPageTitle = (LPTSTR)_alloca((m_cchTitleBarLength + cchDivider + cchBase + 1) * sizeof(TCHAR));
-			pT->ShortenTitle(lpstrTitle, lpstrPageTitle, m_cchTitleBarLength + 1);
+			int cchBuffer = m_cchTitleBarLength + lstrlen(lpstrDivider) + lstrlen(m_lpstrTitleBarBase) + 1;
+			CTempBuffer<TCHAR, _WTL_STACK_ALLOC_THRESHOLD> buff;
+			LPTSTR lpstrPageTitle = buff.Allocate(cchBuffer);
+			ATLASSERT(lpstrPageTitle != NULL);
+			if(lpstrPageTitle != NULL)
+			{
+				pT->ShortenTitle(lpstrTitle, lpstrPageTitle, m_cchTitleBarLength + 1);
 #if _SECURE_ATL
-			ATL::Checked::tcscat_s(lpstrPageTitle, m_cchTitleBarLength + cchDivider + cchBase + 1, lpstrDivider);
-			ATL::Checked::tcscat_s(lpstrPageTitle, m_cchTitleBarLength + cchDivider + cchBase + 1, m_lpstrTitleBarBase);
+				ATL::Checked::tcscat_s(lpstrPageTitle, cchBuffer, lpstrDivider);
+				ATL::Checked::tcscat_s(lpstrPageTitle, cchBuffer, m_lpstrTitleBarBase);
 #else
-			lstrcat(lpstrPageTitle, lpstrDivider);
-			lstrcat(lpstrPageTitle, m_lpstrTitleBarBase);
+				lstrcat(lpstrPageTitle, lpstrDivider);
+				lstrcat(lpstrPageTitle, m_lpstrTitleBarBase);
 #endif
+			}
+			else
+			{
+				lpstrPageTitle = m_lpstrTitleBarBase;
+			}
+
 			m_wndTitleBar.SetWindowText(lpstrPageTitle);
 		}
 		else

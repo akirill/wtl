@@ -3327,15 +3327,18 @@ public:
 		ATLASSERT(::IsWindow(hWndMDIClient));
 		if(!::IsWindow(hWndMDIClient))
 			return FALSE;
+
 #ifdef _DEBUG
-		LPCTSTR lpszMDIClientClass = _T("MDICLIENT");
-		int nNameLen = lstrlen(lpszMDIClientClass) + 1;
-		LPTSTR lpstrClassName = (LPTSTR)_alloca(nNameLen * sizeof(TCHAR));
-		::GetClassName(hWndMDIClient, lpstrClassName, nNameLen);
-		ATLASSERT(lstrcmpi(lpstrClassName, lpszMDIClientClass) == 0);
-		if(lstrcmpi(lpstrClassName, lpszMDIClientClass) != 0)
-			return FALSE;   // not an "MDIClient" window
+		// BLOCK: Test if the passed window is MDICLIENT
+		{
+			LPCTSTR lpszMDIClientClass = _T("MDICLIENT");
+			const int nNameLen = 9 + 1;   // "MDICLIENT" + NULL
+			TCHAR szClassName[nNameLen] = { 0 };
+			::GetClassName(hWndMDIClient, szClassName, nNameLen);
+			ATLASSERT(lstrcmpi(szClassName, lpszMDIClientClass) == 0);
+		}
 #endif // _DEBUG
+
 		if(m_wndMDIClient.IsWindow())
 /*scary!*/		m_wndMDIClient.UnsubclassWindow();
 

@@ -470,7 +470,11 @@ public:
 
 		WORD* pItems = pData->items();
 		int nItems = pData->wItemCount + (bInitialSeparator ? 1 : 0);
-		TBBUTTON* pTBBtn = (TBBUTTON*)_alloca(nItems * sizeof(TBBUTTON));
+		CTempBuffer<TBBUTTON, _WTL_STACK_ALLOC_THRESHOLD> buff;
+		TBBUTTON* pTBBtn = buff.Allocate(nItems);
+		ATLASSERT(pTBBtn != NULL);
+		if(pTBBtn == NULL)
+			return NULL;
 
 		const int cxSeparator = 8;
 
@@ -1416,7 +1420,10 @@ public:
 		int nLen = ::GetMenuString(hMenu, nCount - 2, NULL, 0, MF_BYPOSITION);
 		if(nLen == 0)
 			return NULL;
-		LPTSTR lpszText = (LPTSTR)_alloca((nLen + 1) * sizeof(TCHAR));
+		CTempBuffer<TCHAR, _WTL_STACK_ALLOC_THRESHOLD> buff;
+		LPTSTR lpszText = buff.Allocate(nLen + 1);
+		if(lpszText == NULL)
+			return NULL;
 		if(::GetMenuString(hMenu, nCount - 2, lpszText, nLen + 1, MF_BYPOSITION) != nLen)
 			return NULL;
 		if(lstrcmp(lpszText, _WTL_MDIWINDOWMENU_TEXT) != 0)

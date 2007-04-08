@@ -435,14 +435,19 @@ public:
 	// based on the existing devmode, but retargeted at the new printer
 	bool UpdateForNewPrinter(HANDLE hPrinter)
 	{
+		bool bRet = false;
 		LONG nLen = ::DocumentProperties(NULL, hPrinter, NULL, NULL, NULL, 0);
-		DEVMODE* pdm = (DEVMODE*)_alloca(nLen);
-		memset(pdm, 0, nLen);
-		LONG l = ::DocumentProperties(NULL, hPrinter, NULL, pdm, m_pDevMode, DM_IN_BUFFER | DM_OUT_BUFFER);
-		bool b = false;
-		if (l == IDOK)
-			b = CopyFromDEVMODE(pdm);
-		return b;
+		CTempBuffer<DEVMODE, _WTL_STACK_ALLOC_THRESHOLD> buff;
+		DEVMODE* pdm = buff.AllocateBytes(nLen);
+		if(pdm != NULL)
+		{
+			memset(pdm, 0, nLen);
+			LONG l = ::DocumentProperties(NULL, hPrinter, NULL, pdm, m_pDevMode, DM_IN_BUFFER | DM_OUT_BUFFER);
+			if (l == IDOK)
+				bRet = CopyFromDEVMODE(pdm);
+		}
+
+		return bRet;
 	}
 
 	bool DocumentProperties(HANDLE hPrinter, HWND hWnd = NULL)
@@ -452,14 +457,19 @@ public:
 		if (hWnd == NULL)
 			hWnd = ::GetActiveWindow();
 
+		bool bRet = false;
 		LONG nLen = ::DocumentProperties(hWnd, hPrinter, pi.m_pi->pName, NULL, NULL, 0);
-		DEVMODE* pdm = (DEVMODE*)_alloca(nLen);
-		memset(pdm, 0, nLen);
-		LONG l = ::DocumentProperties(hWnd, hPrinter, pi.m_pi->pName, pdm, m_pDevMode, DM_IN_BUFFER | DM_OUT_BUFFER | DM_PROMPT);
-		bool b = false;
-		if (l == IDOK)
-			b = CopyFromDEVMODE(pdm);
-		return b;
+		CTempBuffer<DEVMODE, _WTL_STACK_ALLOC_THRESHOLD> buff;
+		DEVMODE* pdm = buff.AllocateBytes(nLen);
+		if(pdm != NULL)
+		{
+			memset(pdm, 0, nLen);
+			LONG l = ::DocumentProperties(hWnd, hPrinter, pi.m_pi->pName, pdm, m_pDevMode, DM_IN_BUFFER | DM_OUT_BUFFER | DM_PROMPT);
+			if (l == IDOK)
+				bRet = CopyFromDEVMODE(pdm);
+		}
+
+		return bRet;
 	}
 
 	operator HANDLE() const { return m_hDevMode; }

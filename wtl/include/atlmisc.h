@@ -1988,20 +1988,27 @@ public:
 					break;
 				case _T('f'):
 					{
+						double f = va_arg(argList, double);
 						// 312 == strlen("-1+(309 zeroes).")
 						// 309 zeroes == max precision of a double
 						// 6 == adjustment in case precision is not specified,
 						//   which means that the precision defaults to 6
 						int cchLen = max(nWidth, 312 + nPrecision + 6);
-						LPTSTR pszTemp = (LPTSTR)_alloca(cchLen * sizeof(TCHAR));
-
-						double f = va_arg(argList, double);
+						CTempBuffer<TCHAR, _WTL_STACK_ALLOC_THRESHOLD> buff;
+						LPTSTR pszTemp = buff.Allocate(cchLen);
+						if(pszTemp != NULL)
+						{
 #if _SECURE_ATL && !defined(_ATL_MIN_CRT) && !defined(_WIN32_WCE)
-						_stprintf_s(pszTemp, cchLen, _T("%*.*f"), nWidth, nPrecision + 6, f);
+							_stprintf_s(pszTemp, cchLen, _T("%*.*f"), nWidth, nPrecision + 6, f);
 #else
-						_stprintf(pszTemp, _T("%*.*f"), nWidth, nPrecision + 6, f);
+							_stprintf(pszTemp, _T("%*.*f"), nWidth, nPrecision + 6, f);
 #endif
-						nItemLen = (int)_tcslen(pszTemp);
+							nItemLen = (int)_tcslen(pszTemp);
+						}
+						else
+						{
+							nItemLen = cchLen;
+						}
 					}
 					break;
 #endif // _ATL_USE_CSTRING_FLOAT

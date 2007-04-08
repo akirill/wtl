@@ -2785,12 +2785,15 @@ public:
 	}
 
 // Operations
-	int SetToolTipText(LPCTSTR pstrTipText)
+	BOOL SetToolTipText(LPCTSTR pstrTipText)
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
 		ATLASSERT(pstrTipText);
 		ATLASSERT(lstrlen(pstrTipText)<= 253);
-		LPTSTR pstr = (LPTSTR)_alloca((lstrlen(pstrTipText) + 3) * sizeof(TCHAR));
+		CTempBuffer<TCHAR, _WTL_STACK_ALLOC_THRESHOLD> buff;
+		LPTSTR pstr = buff.Allocate(lstrlen(pstrTipText) + 3);
+		if(pstr == NULL)
+			return FALSE;
 		::lstrcpy(pstr, _T("~~"));
 		::lstrcat(pstr, pstrTipText);
 		return SetWindowText(pstr);
@@ -2833,12 +2836,15 @@ public:
 	}
 
 // Operations
-	int SetToolTipText(LPCTSTR pstrTipText)
+	BOOL SetToolTipText(LPCTSTR pstrTipText)
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
 		ATLASSERT(pstrTipText);
 		ATLASSERT(lstrlen(pstrTipText)<= 253);
-		LPTSTR pstr = (LPTSTR)_alloca((lstrlen(pstrTipText) + 3) * sizeof(TCHAR));
+		CTempBuffer<TCHAR, _WTL_STACK_ALLOC_THRESHOLD> buff;
+		LPTSTR pstr = buff.Allocate(lstrlen(pstrTipText) + 3);
+		if(pstr == NULL)
+			return FALSE;
 		::lstrcpy(pstr, _T("~~"));
 		::lstrcat(pstr, pstrTipText);
 		return SetWindowText(pstr);
