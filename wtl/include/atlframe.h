@@ -120,17 +120,9 @@ public:
 				if (m_wc.lpszClassName == NULL)
 				{
 #if (_WIN32_WINNT >= 0x0500) || defined(_WIN64)
-  #if _SECURE_ATL && !defined(_ATL_MIN_CRT)
-					_stprintf_s(m_szAutoName, cchAutoName, _T("ATL:%p"), &m_wc);
-  #else
-					wsprintf(m_szAutoName, _T("ATL:%p"), &m_wc);
-  #endif
+					SecureHelper::wsprintf_x(m_szAutoName, cchAutoName, _T("ATL:%p"), &m_wc);
 #else // !((_WIN32_WINNT >= 0x0500) || defined(_WIN64))
-  #if _SECURE_ATL && !defined(_ATL_MIN_CRT) && !defined(_WIN32_WCE)
-					_stprintf_s(m_szAutoName, cchAutoName, _T("ATL:%8.8X"), (DWORD_PTR)&m_wc);
-  #else
-					wsprintf(m_szAutoName, _T("ATL:%8.8X"), (DWORD_PTR)&m_wc);
-  #endif
+					SecureHelper::wsprintf_x(m_szAutoName, cchAutoName, _T("ATL:%8.8X"), (DWORD_PTR)&m_wc);
 #endif // !((_WIN32_WINNT >= 0x0500) || defined(_WIN64))
 					m_wc.lpszClassName = m_szAutoName;
 				}
@@ -964,11 +956,7 @@ public:
 			{
 				if(szBuff[i] == '\n')
 				{
-#if _SECURE_ATL
-					ATL::Checked::strncpy_s(pDispInfo->szText, _countof(pDispInfo->szText), &szBuff[i + 1], _TRUNCATE);
-#else
-					lstrcpynA(pDispInfo->szText, &szBuff[i + 1], sizeof(pDispInfo->szText) / sizeof(pDispInfo->szText[0]));
-#endif
+					SecureHelper::strncpyA_x(pDispInfo->szText, _countof(pDispInfo->szText), &szBuff[i + 1], _TRUNCATE);
 					break;
 				}
 			}
@@ -996,11 +984,7 @@ public:
 			{
 				if(szBuff[i] == L'\n')
 				{
-#if _SECURE_ATL
-					ATL::Checked::wcsncpy_s(pDispInfo->szText, _countof(pDispInfo->szText), &szBuff[i + 1], _TRUNCATE);
-#else
-					lstrcpynW(pDispInfo->szText, &szBuff[i + 1], sizeof(pDispInfo->szText) / sizeof(pDispInfo->szText[0]));
-#endif
+					SecureHelper::strncpyW_x(pDispInfo->szText, _countof(pDispInfo->szText), &szBuff[i + 1], _TRUNCATE);
 					break;
 				}
 			}
@@ -2422,11 +2406,7 @@ public:
 						ATLTRACE2(atlTraceUI, 0, _T("UISetText - memory allocation failed\n"));
 						break;
 					}
-#if _SECURE_ATL
-					ATL::Checked::tcscpy_s(pUIData->m_lpstrText, nStrLen + 1, lpstrText);
-#else
-					lstrcpy(pUIData->m_lpstrText, lpstrText);
-#endif
+					SecureHelper::strcpy_x(pUIData->m_lpstrText, nStrLen + 1, lpstrText);
 					pUIData->m_wState |= (UPDUI_TEXT | pMap->m_wType);
 				}
 

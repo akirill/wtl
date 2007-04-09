@@ -1315,11 +1315,7 @@ public:
 						ATLTRY(pMI->lpstrText = new TCHAR[cchLen]);
 						ATLASSERT(pMI->lpstrText != NULL);
 						if(pMI->lpstrText != NULL)
-#if _SECURE_ATL
-							ATL::Checked::tcscpy_s(pMI->lpstrText, cchLen, szString);
-#else
-							lstrcpy(pMI->lpstrText, szString);
-#endif
+							SecureHelper::strcpy_x(pMI->lpstrText, cchLen, szString);
 						mii.dwItemData = (ULONG_PTR)pMI;
 						bRet = menuPopup.SetMenuItemInfo(i, TRUE, &mii);
 						ATLASSERT(bRet);

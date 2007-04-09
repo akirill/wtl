@@ -815,16 +815,7 @@ public:
 		ATLASSERT((UINT)nEndChar <= pT->GetBufferLength());
 		LPCTSTR lpszText = pT->LockBuffer();
 		LONG nLen = pT->EndOfLine(lpszText, nEndChar, nStartChar) - nStartChar;
-#if _SECURE_ATL
-		ATL::Checked::memcpy_s(strText.GetBuffer(nLen),
-			nLen * sizeof(TCHAR),
-			lpszText + nStartChar,
-			nLen * sizeof(TCHAR));
-#else
-		memcpy(strText.GetBuffer(nLen),
-			lpszText + nStartChar,
-			nLen * sizeof(TCHAR));
-#endif
+		SecureHelper::memcpy_x(strText.GetBuffer(nLen), nLen * sizeof(TCHAR), lpszText + nStartChar, nLen * sizeof(TCHAR));
 		strText.ReleaseBuffer(nLen);
 		pT->UnlockBuffer();
 

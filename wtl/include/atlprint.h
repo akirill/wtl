@@ -261,11 +261,7 @@ public:
 				memset(pv, 0, nLen);
 				pdev->wDeviceOffset = sizeof(DEVNAMES) / sizeof(TCHAR);
 				pv = pv + sizeof(DEVNAMES); // now points to end
-#if _SECURE_ATL
-				ATL::Checked::tcscpy_s((LPTSTR)pv, lstrlen(lpszPrinterName) + 1, lpszPrinterName);
-#else
-				lstrcpy((LPTSTR)pv, lpszPrinterName);
-#endif
+				SecureHelper::strcpy_x((LPTSTR)pv, lstrlen(lpszPrinterName) + 1, lpszPrinterName);
 				::GlobalUnlock(h);
 			}
 		}
@@ -389,11 +385,7 @@ public:
 		if (h != NULL)
 		{
 			void* p = ::GlobalLock(h);
-#if _SECURE_ATL
-			ATL::Checked::memcpy_s(p, nSize, pdm, nSize);
-#else
-			memcpy(p, pdm, nSize);
-#endif
+			SecureHelper::memcpy_x(p, nSize, pdm, nSize);
 			::GlobalUnlock(h);
 		}
 		Attach(h);
@@ -421,11 +413,7 @@ public:
 		if (h != NULL)
 		{
 			void* p = ::GlobalLock(h);
-#if _SECURE_ATL
-			ATL::Checked::memcpy_s(p, nSize, m_pDevMode, nSize);
-#else
-			memcpy(p, m_pDevMode, nSize);
-#endif
+			SecureHelper::memcpy_x(p, nSize, m_pDevMode, nSize);
 			::GlobalUnlock(h);
 		}
 		return h;

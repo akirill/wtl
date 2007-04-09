@@ -175,11 +175,7 @@ public:
 
 		// setup initial file name
 		if(lpszFileName != NULL)
-#if _SECURE_ATL
-			ATL::Checked::tcsncpy_s(m_szFileName, _countof(m_szFileName), lpszFileName, _TRUNCATE);
-#else
-			lstrcpyn(m_szFileName, lpszFileName, _MAX_PATH);
-#endif
+		SecureHelper::strncpy_x(m_szFileName, _countof(m_szFileName), lpszFileName, _TRUNCATE);
 	}
 
 	INT_PTR DoModal(HWND hWndParent = ::GetActiveWindow())
@@ -567,11 +563,7 @@ public:
 		{
 			if(lstrlenW(lpstrName) < cchLength)
 			{
-#if _SECURE_ATL
-				ATL::Checked::wcscpy_s(lpstr, cchLength, lpstrName);
-#else
-				ATLVERIFY(lstrcpyW(lpstr, lpstrName) != NULL);
-#endif
+				SecureHelper::strcpyW_x(lpstr, cchLength, lpstrName);
 			}
 			else
 			{
@@ -1254,11 +1246,7 @@ public:
 		m_hWnd = NULL;
 
 		if(bRet)   // copy logical font from user's initialization buffer (if needed)
-#if _SECURE_ATL
-			ATL::Checked::memcpy_s(&m_lf, sizeof(m_lf), m_cf.lpLogFont, sizeof(m_lf));
-#else
-			memcpy(&m_lf, m_cf.lpLogFont, sizeof(m_lf));
-#endif
+			SecureHelper::memcpy_x(&m_lf, sizeof(m_lf), m_cf.lpLogFont, sizeof(m_lf));
 
 		return bRet ? IDOK : IDCANCEL;
 	}
@@ -1420,17 +1408,9 @@ public:
 			cf.dwMask |= CFM_FACE;
 			cf.bPitchAndFamily = m_cf.lpLogFont->lfPitchAndFamily;
 #if (_RICHEDIT_VER >= 0x0200)
-  #if _SECURE_ATL
-			ATL::Checked::tcscpy_s(cf.szFaceName, _countof(cf.szFaceName), GetFaceName());
-  #else
-			lstrcpy(cf.szFaceName, GetFaceName());
-  #endif
+			SecureHelper::strcpy_x(cf.szFaceName, _countof(cf.szFaceName), GetFaceName());
 #else // !(_RICHEDIT_VER >= 0x0200)
-  #if _SECURE_ATL
-			ATL::Checked::strcpy_s(cf.szFaceName, _countof(cf.szFaceName), T2A((LPTSTR)(LPCTSTR)GetFaceName()));
-  #else
-			lstrcpyA(cf.szFaceName, T2A((LPTSTR)(LPCTSTR)GetFaceName()));
-  #endif
+			SecureHelper::strcpyA_x(cf.szFaceName, _countof(cf.szFaceName), T2A((LPTSTR)(LPCTSTR)GetFaceName()));
 #endif // !(_RICHEDIT_VER >= 0x0200)
 		}
 
@@ -1501,17 +1481,9 @@ public:
 		{
 			m_lf.lfPitchAndFamily = cf.bPitchAndFamily;
 #if (_RICHEDIT_VER >= 0x0200)
-  #if _SECURE_ATL
-			ATL::Checked::tcscpy_s(m_lf.lfFaceName, _countof(m_lf.lfFaceName), cf.szFaceName);
-  #else
-			lstrcpy(m_lf.lfFaceName, cf.szFaceName);
-  #endif
+			SecureHelper::strcpy_x(m_lf.lfFaceName, _countof(m_lf.lfFaceName), cf.szFaceName);
 #else // !(_RICHEDIT_VER >= 0x0200)
-  #if _SECURE_ATL
-			ATL::Checked::tcscpy_s(m_lf.lfFaceName, _countof(m_lf.lfFaceName), A2T((LPSTR)cf.szFaceName));
-  #else
-			lstrcpy(m_lf.lfFaceName, A2T((LPSTR)cf.szFaceName));
-  #endif
+			SecureHelper::strcpy_x(m_lf.lfFaceName, _countof(m_lf.lfFaceName), A2T((LPSTR)cf.szFaceName));
 #endif // !(_RICHEDIT_VER >= 0x0200)
 		}
 		else
@@ -2452,18 +2424,10 @@ public:
 		ATLASSERT(m_fr.hwndOwner != NULL); // must have an owner for modeless dialog
 
 		if(lpszFindWhat != NULL)
-#if _SECURE_ATL
-			ATL::Checked::tcsncpy_s(m_szFindWhat, _countof(m_szFindWhat), lpszFindWhat, _TRUNCATE);
-#else
-			lstrcpyn(m_szFindWhat, lpszFindWhat, _cchFindReplaceBuffer);
-#endif
+			SecureHelper::strncpy_x(m_szFindWhat, _countof(m_szFindWhat), lpszFindWhat, _TRUNCATE);
 
 		if(lpszReplaceWith != NULL)
-#if _SECURE_ATL
-			ATL::Checked::tcsncpy_s(m_szReplaceWith, _countof(m_szReplaceWith), lpszReplaceWith, _TRUNCATE);
-#else
-			lstrcpyn(m_szReplaceWith, lpszReplaceWith, _cchFindReplaceBuffer);
-#endif
+			SecureHelper::strncpy_x(m_szReplaceWith, _countof(m_szReplaceWith), lpszReplaceWith, _TRUNCATE);
 
 		ATLASSERT(m_hWnd == NULL);
 		ModuleHelper::AddCreateWndData(&m_thunk.cd, (CCommonDialogImplBase*)this);
@@ -2793,11 +2757,7 @@ protected:
 			m_pPtr = m_pData + ptrPos;
 		}
 
-#if _SECURE_ATL
-		ATL::Checked::memcpy_s(m_pPtr, m_cAllocated - (m_pPtr - m_pData), pData, nData);
-#else
-		memcpy(m_pPtr, pData, nData);
-#endif
+		SecureHelper::memcpy_x(m_pPtr, m_cAllocated - (m_pPtr - m_pData), pData, nData);
 
 		m_pPtr += nData;
 	}
@@ -4409,11 +4369,7 @@ public:
 								{
 									BYTE* pBytes = (BYTE*) GlobalLock(h);
 									BYTE* pSource = pData; 
-#if _SECURE_ATL
-									ATL::Checked::memcpy_s(pBytes, dwLen, pSource, dwLen);
-#else
-									memcpy(pBytes, pSource, dwLen);
-#endif
+									SecureHelper::memcpy_x(pBytes, dwLen, pSource, dwLen);
 									GlobalUnlock(h);
 									CreateStreamOnHGlobal(h, TRUE, &spStream);
 								}
@@ -4785,11 +4741,7 @@ public:
 		// as Verdana Bold, 12pt.
 		titleLogFont.lfCharSet = DEFAULT_CHARSET;
 		titleLogFont.lfWeight = FW_BOLD;
-#if _SECURE_ATL
-		ATL::Checked::tcscpy_s(titleLogFont.lfFaceName, _countof(titleLogFont.lfFaceName), _T("Verdana Bold"));
-#else
-		lstrcpy(titleLogFont.lfFaceName, _T("Verdana Bold"));
-#endif
+		SecureHelper::strcpy_x(titleLogFont.lfFaceName, _countof(titleLogFont.lfFaceName), _T("Verdana Bold"));
 		INT titleFontPointSize = 12;
 		titleLogFont.lfHeight = -::MulDiv(titleFontPointSize, dcScreen.GetDeviceCaps(LOGPIXELSY), 72);
 		m_fontExteriorPageTitle.CreateFontIndirect(&titleLogFont);
@@ -4798,11 +4750,7 @@ public:
 		// static text of "h" in the Marlett font.
 		bulletLogFont.lfCharSet = DEFAULT_CHARSET;
 		bulletLogFont.lfWeight = FW_NORMAL;
-#if _SECURE_ATL
-		ATL::Checked::tcscpy_s(bulletLogFont.lfFaceName, _countof(bulletLogFont.lfFaceName), _T("Marlett"));
-#else
-		lstrcpy(bulletLogFont.lfFaceName, _T("Marlett"));
-#endif
+		SecureHelper::strcpy_x(bulletLogFont.lfFaceName, _countof(bulletLogFont.lfFaceName), _T("Marlett"));
 		INT bulletFontSize = 8;
 		bulletLogFont.lfHeight = -::MulDiv(bulletFontSize, dcScreen.GetDeviceCaps(LOGPIXELSY), 72);
 		m_fontBullet.CreateFontIndirect(&bulletLogFont);

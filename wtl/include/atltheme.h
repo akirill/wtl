@@ -578,18 +578,9 @@ public:
 		if(m_lpstrThemeClassList == NULL)
 			return false;
 
-#if _SECURE_ATL
-		ATL::Checked::wcscpy_s(m_lpstrThemeClassList, cchLen, lpstrThemeClassList);
-		bool bRet = true;
-#else
-		bool bRet = (lstrcpyW(m_lpstrThemeClassList, lpstrThemeClassList) != NULL);
-#endif
-		if(!bRet)
-		{
-			delete [] m_lpstrThemeClassList;
-			m_lpstrThemeClassList = NULL;
-		}
-		return bRet;
+		SecureHelper::strcpyW_x(m_lpstrThemeClassList, cchLen, lpstrThemeClassList);
+
+		return true;
 	}
 
 	bool GetThemeClassList(LPWSTR lpstrThemeClassList, int cchListBuffer) const
@@ -598,12 +589,9 @@ public:
 		if(cchListBuffer < cchLen)
 			return false;
 
-#if _SECURE_ATL
-		ATL::Checked::wcscpy_s(lpstrThemeClassList, cchListBuffer, m_lpstrThemeClassList);
+		SecureHelper::strcpyW_x(lpstrThemeClassList, cchListBuffer, m_lpstrThemeClassList);
+
 		return true;
-#else
-		return (lstrcpyW(lpstrThemeClassList, m_lpstrThemeClassList) != NULL);
-#endif
 	}
 
 	LPCWSTR GetThemeClassList() const

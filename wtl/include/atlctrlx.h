@@ -178,12 +178,10 @@ public:
 		ATLASSERT(lpstrText != NULL);
 		if(m_lpstrToolTipText == NULL)
 			return false;
-#if _SECURE_ATL
-		ATL::Checked::tcsncpy_s(lpstrText, nLength, m_lpstrToolTipText, _TRUNCATE);
-		return true;
-#else
-		return (lstrcpyn(lpstrText, m_lpstrToolTipText, min(nLength, lstrlen(m_lpstrToolTipText) + 1)) != NULL);
-#endif
+
+		errno_t nRet = SecureHelper::strncpy_x(lpstrText, nLength, m_lpstrToolTipText, _TRUNCATE);
+
+		return (nRet == 0 || nRet == STRUNCATE);
 	}
 
 	bool SetToolTipText(LPCTSTR lpstrText)
@@ -205,19 +203,15 @@ public:
 		ATLTRY(m_lpstrToolTipText = new TCHAR[cchLen]);
 		if(m_lpstrToolTipText == NULL)
 			return false;
-#if _SECURE_ATL
-		ATL::Checked::tcscpy_s(m_lpstrToolTipText, cchLen, lpstrText);
-		bool bRet = true;
-#else
-		bool bRet = (lstrcpy(m_lpstrToolTipText, lpstrText) != NULL);
-#endif
-		if(bRet && m_tip.IsWindow())
+
+		SecureHelper::strcpy_x(m_lpstrToolTipText, cchLen, lpstrText);
+		if(m_tip.IsWindow())
 		{
 			m_tip.Activate(TRUE);
 			m_tip.AddTool(m_hWnd, m_lpstrToolTipText);
 		}
 
-		return bRet;
+		return true;
 	}
 
 // Operations
@@ -849,16 +843,12 @@ public:
 		if(m_lpstrLabel == NULL)
 			return false;
 		ATLASSERT(lpstrBuffer != NULL);
-		if(nLength > lstrlen(m_lpstrLabel))
-		{
-#if _SECURE_ATL
-			ATL::Checked::tcscpy_s(lpstrBuffer, nLength, m_lpstrLabel);
-#else
-			lstrcpy(lpstrBuffer, m_lpstrLabel);
-#endif
-			return true;
-		}
-		return false;
+		if(nLength <= lstrlen(m_lpstrLabel))
+			return false;
+
+		SecureHelper::strcpy_x(lpstrBuffer, nLength, m_lpstrLabel);
+
+		return true;
 	}
 
 	bool SetLabel(LPCTSTR lpstrLabel)
@@ -869,11 +859,8 @@ public:
 		ATLTRY(m_lpstrLabel = new TCHAR[cchLen]);
 		if(m_lpstrLabel == NULL)
 			return false;
-#if _SECURE_ATL
-		ATL::Checked::tcscpy_s(m_lpstrLabel, cchLen, lpstrLabel);
-#else
-		lstrcpy(m_lpstrLabel, lpstrLabel);
-#endif
+
+		SecureHelper::strcpy_x(m_lpstrLabel, cchLen, lpstrLabel);
 		T* pT = static_cast<T*>(this);
 		pT->CalcLabelRect();
 
@@ -888,16 +875,12 @@ public:
 		if(m_lpstrHyperLink == NULL)
 			return false;
 		ATLASSERT(lpstrBuffer != NULL);
-		if(nLength > lstrlen(m_lpstrHyperLink))
-		{
-#if _SECURE_ATL
-			ATL::Checked::tcscpy_s(lpstrBuffer, nLength, m_lpstrHyperLink);
-#else
-			lstrcpy(lpstrBuffer, m_lpstrHyperLink);
-#endif
-			return true;
-		}
-		return false;
+		if(nLength <= lstrlen(m_lpstrHyperLink))
+			return false;
+
+		SecureHelper::strcpy_x(lpstrBuffer, nLength, m_lpstrHyperLink);
+
+		return true;
 	}
 
 	bool SetHyperLink(LPCTSTR lpstrLink)
@@ -908,11 +891,8 @@ public:
 		ATLTRY(m_lpstrHyperLink = new TCHAR[cchLen]);
 		if(m_lpstrHyperLink == NULL)
 			return false;
-#if _SECURE_ATL
-		ATL::Checked::tcscpy_s(m_lpstrHyperLink, cchLen, lpstrLink);
-#else
-		lstrcpy(m_lpstrHyperLink, lpstrLink);
-#endif
+
+		SecureHelper::strcpy_x(m_lpstrHyperLink, cchLen, lpstrLink);
 		if(m_lpstrLabel == NULL)
 		{
 			T* pT = static_cast<T*>(this);
@@ -1954,11 +1934,7 @@ public:
 		if(pPanesPos == NULL)
 			return FALSE;
 
-#if _SECURE_ATL
-		ATL::Checked::memcpy_s(m_pPane, nPanes * sizeof(int), pPanes, nPanes * sizeof(int));
-#else
-		memcpy(m_pPane, pPanes, nPanes * sizeof(int));
-#endif
+		SecureHelper::memcpy_x(m_pPane, nPanes * sizeof(int), pPanes, nPanes * sizeof(int));
 
 		// get status bar DC and set font
 		CClientDC dc(m_hWnd);
@@ -2341,28 +2317,24 @@ public:
 	BOOL GetTitle(LPTSTR lpstrTitle, int cchLength) const
 	{
 		ATLASSERT(lpstrTitle != NULL);
-#if _SECURE_ATL
-		ATL::Checked::tcsncpy_s(lpstrTitle, cchLength, m_szTitle, _TRUNCATE);
-		return TRUE;
-#else
-		return (lstrcpyn(lpstrTitle, m_szTitle, cchLength) != NULL);
-#endif
+
+		errno_t nRet = SecureHelper::strncpy_x(lpstrTitle, cchLength, m_szTitle, _TRUNCATE);
+
+		return (nRet == 0 || nRet == STRUNCATE);
 	}
 
 	BOOL SetTitle(LPCTSTR lpstrTitle)
 	{
 		ATLASSERT(lpstrTitle != NULL);
-#if _SECURE_ATL
-		ATL::Checked::tcsncpy_s(m_szTitle, m_cchTitle, lpstrTitle, _TRUNCATE);
-		BOOL bRet = TRUE;
-#else
-		BOOL bRet = (lstrcpyn(m_szTitle, lpstrTitle, m_cchTitle) != NULL);
-#endif
+
+		errno_t nRet = SecureHelper::strncpy_x(m_szTitle, m_cchTitle, lpstrTitle, _TRUNCATE);
+		bool bRet = (nRet == 0 || nRet == STRUNCATE);
 		if(bRet && m_hWnd != NULL)
 		{
 			T* pT = static_cast<T*>(this);
 			pT->UpdateLayout();
 		}
+
 		return bRet;
 	}
 
@@ -2376,11 +2348,7 @@ public:
 			DWORD dwExStyle = 0, UINT nID = 0, LPVOID lpCreateParam = NULL)
 	{
 		if(lpstrTitle != NULL)
-#if _SECURE_ATL
-			ATL::Checked::tcsncpy_s(m_szTitle, m_cchTitle, lpstrTitle, _TRUNCATE);
-#else
-			lstrcpyn(m_szTitle, lpstrTitle, m_cchTitle);
-#endif
+			SecureHelper::strncpy_x(m_szTitle, m_cchTitle, lpstrTitle, _TRUNCATE);
 #if (_MSC_VER >= 1300)
 		return ATL::CWindowImpl< T, TBase, TWinTraits >::Create(hWndParent, rcDefault, NULL, dwStyle, dwExStyle, nID, lpCreateParam);
 #else // !(_MSC_VER >= 1300)
@@ -3922,11 +3890,8 @@ public:
 		ATLTRY(lpstrBuff = new TCHAR[cchBuff]);
 		if(lpstrBuff == NULL)
 			return false;
-#if _SECURE_ATL
-		ATL::Checked::tcscpy_s(lpstrBuff, cchBuff, lpstrTitle);
-#else
-		lstrcpy(lpstrBuff, lpstrTitle);
-#endif
+
+		SecureHelper::strcpy_x(lpstrBuff, cchBuff, lpstrTitle);
 		TCITEMEXTRA tcix = { 0 };
 		tcix.tciheader.mask = TCIF_PARAM;
 		if(m_tab.GetItem(nPage, tcix) == FALSE)
@@ -4027,11 +3992,8 @@ public:
 		ATLTRY(lpstrBuff = new TCHAR[cchBuff]);
 		if(lpstrBuff == NULL)
 			return false;
-#if _SECURE_ATL
-		ATL::Checked::tcscpy_s(lpstrBuff, cchBuff, lpstrTitle);
-#else
-		lstrcpy(lpstrBuff, lpstrTitle);
-#endif
+
+		SecureHelper::strcpy_x(lpstrBuff, cchBuff, lpstrTitle);
 
 		CTempBuffer<TCHAR, _WTL_STACK_ALLOC_THRESHOLD> buff;
 		LPTSTR lpstrTabText = buff.Allocate(m_cchTabTextLength + 1);
@@ -4243,11 +4205,7 @@ public:
 				if(lpstrText != NULL)
 				{
 					LPCTSTR lpstrFormat = (i < 9) ? _T("&%i %s") : _T("%i %s");
-#if _SECURE_ATL && !defined(_ATL_MIN_CRT) && !defined(_WIN32_WCE)
-					_stprintf_s(lpstrText, cchPrefix + nLen + 1, lpstrFormat, i + 1, lpstrTitle);
-#else
-					wsprintf(lpstrText, lpstrFormat, i + 1, lpstrTitle);
-#endif
+					SecureHelper::wsprintf_x(lpstrText, cchPrefix + nLen + 1, lpstrFormat, i + 1, lpstrTitle);
 					menu.AppendMenu(MF_STRING, ID_WINDOW_TABFIRST + i, lpstrText);
 				}
 			}
@@ -4676,13 +4634,8 @@ public:
 			if(lpstrPageTitle != NULL)
 			{
 				pT->ShortenTitle(lpstrTitle, lpstrPageTitle, m_cchTitleBarLength + 1);
-#if _SECURE_ATL
-				ATL::Checked::tcscat_s(lpstrPageTitle, cchBuffer, lpstrDivider);
-				ATL::Checked::tcscat_s(lpstrPageTitle, cchBuffer, m_lpstrTitleBarBase);
-#else
-				lstrcat(lpstrPageTitle, lpstrDivider);
-				lstrcat(lpstrPageTitle, m_lpstrTitleBarBase);
-#endif
+				SecureHelper::strcat_x(lpstrPageTitle, cchBuffer, lpstrDivider);
+				SecureHelper::strcat_x(lpstrPageTitle, cchBuffer, m_lpstrTitleBarBase);
 			}
 			else
 			{
@@ -4806,21 +4759,12 @@ public:
 		{
 			LPCTSTR lpstrEllipsis = _T("...");
 			int cchEllipsis = lstrlen(lpstrEllipsis);
-#if _SECURE_ATL
-			ATL::Checked::tcsncpy_s(lpstrShortTitle, cchShortTitle, lpstrTitle, cchShortTitle - cchEllipsis - 1);
-			ATL::Checked::tcscat_s(lpstrShortTitle, cchShortTitle, lpstrEllipsis);
-#else
-			lstrcpyn(lpstrShortTitle, lpstrTitle, cchShortTitle - cchEllipsis - 1);
-			lstrcat(lpstrShortTitle, lpstrEllipsis);
-#endif
+			SecureHelper::strncpy_x(lpstrShortTitle, cchShortTitle, lpstrTitle, cchShortTitle - cchEllipsis - 1);
+			SecureHelper::strcat_x(lpstrShortTitle, cchShortTitle, lpstrEllipsis);
 		}
 		else
 		{
-#if _SECURE_ATL
-			ATL::Checked::tcscpy_s(lpstrShortTitle, cchShortTitle, lpstrTitle);
-#else
-			lstrcpy(lpstrShortTitle, lpstrTitle);
-#endif
+			SecureHelper::strcpy_x(lpstrShortTitle, cchShortTitle, lpstrTitle);
 		}
 	}
 

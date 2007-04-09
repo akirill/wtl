@@ -45,6 +45,10 @@
   #include <process.h>	// for _beginthreadex
 #endif
 
+#if (_ATL_VER < 0x0800) && !defined(_DEBUG)
+  #include <stdio.h>
+#endif
+
 #include <commctrl.h>
 #ifndef _WIN32_WCE
 #pragma comment(lib, "comctl32.lib")
@@ -203,6 +207,25 @@ inline int WINAPI lstrlenA(LPCSTR lpszString)
 		return NULL;
 	int nLen = min(lstrlen(lpstrSrc), nLength - 1);
 	LPTSTR lpstrRet = (LPTSTR)memcpy(lpstrDest, lpstrSrc, nLen * sizeof(TCHAR));
+	lpstrDest[nLen] = 0;
+	return lpstrRet;
+  }
+#endif // !lstrcpyn
+
+#ifndef lstrcpynW
+  inline LPWSTR lstrcpynW(LPWSTR lpstrDest, LPCWSTR lpstrSrc, int nLength)
+  {
+	return lstrcpyn(lpstrDest, lpstrSrc, nLength);   // WinCE is Unicode only
+  }
+#endif // !lstrcpynW
+
+#ifndef lstrcpynA
+  inline LPSTR lstrcpynA(LPSTR lpstrDest, LPCSTR lpstrSrc, int nLength)
+  {
+	if(lpstrDest == NULL || lpstrSrc == NULL || nLength <= 0)
+		return NULL;
+	int nLen = min(lstrlenA(lpstrSrc), nLength - 1);
+	LPSTR lpstrRet = (LPSTR)memcpy(lpstrDest, lpstrSrc, nLen * sizeof(char));
 	lpstrDest[nLen] = 0;
 	return lpstrRet;
   }
@@ -373,6 +396,29 @@ static CWndClassInfo& GetWndClassInfo() \
 
 #endif // !defined(_WIN64) && (_ATL_VER < 0x0700)
 #endif // !_ATL_NO_OLD_HEADERS_WIN64
+
+
+///////////////////////////////////////////////////////////////////////////////
+// Global support for SecureHelper functions
+
+#ifndef _TRUNCATE
+  #define _TRUNCATE ((size_t)-1)
+#endif
+
+#ifndef _ERRCODE_DEFINED
+  #define _ERRCODE_DEFINED
+  typedef int errno_t;
+#endif
+
+#ifndef _SECURECRT_ERRCODE_VALUES_DEFINED
+  #define _SECURECRT_ERRCODE_VALUES_DEFINED
+  #define EINVAL          22
+  #define STRUNCATE       80
+#endif
+
+#ifndef _countof
+  #define _countof(_Array) (sizeof(_Array) / sizeof(_Array[0]))
+#endif
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -636,6 +682,194 @@ namespace ModuleHelper
 #endif // !(_ATL_VER >= 0x0700)
 	}
 };
+
+
+///////////////////////////////////////////////////////////////////////////////
+// SecureHelper - helper functions for VS2005 secure CRT
+
+namespace SecureHelper
+{
+	inline void strcpyA_x(char* lpstrDest, size_t cchDest, const char* lpstrSrc)
+	{
+#if _SECURE_ATL
+		ATL::Checked::strcpy_s(lpstrDest, cchDest, lpstrSrc);
+#else
+		if(cchDest > (size_t)lstrlenA(lpstrSrc))
+			ATLVERIFY(lstrcpyA(lpstrDest, lpstrSrc) != NULL);
+		else
+			ATLASSERT(FALSE);
+#endif
+	}
+
+	inline void strcpyW_x(wchar_t* lpstrDest, size_t cchDest, const wchar_t* lpstrSrc)
+	{
+#if _SECURE_ATL
+		ATL::Checked::wcscpy_s(lpstrDest, cchDest, lpstrSrc);
+#else
+		if(cchDest > (size_t)lstrlenW(lpstrSrc))
+			ATLVERIFY(lstrcpyW(lpstrDest, lpstrSrc) != NULL);
+		else
+			ATLASSERT(FALSE);
+#endif
+	}
+
+	inline void strcpy_x(LPTSTR lpstrDest, size_t cchDest, LPCTSTR lpstrSrc)
+	{
+#ifdef _UNICODE
+		strcpyW_x(lpstrDest, cchDest, lpstrSrc);
+#else
+		strcpyA_x(lpstrDest, cchDest, lpstrSrc);
+#endif
+	}
+
+	inline errno_t strncpyA_x(char* lpstrDest, size_t cchDest, const char* lpstrSrc, size_t cchCount)
+	{
+#if _SECURE_ATL
+		return ATL::Checked::strncpy_s(lpstrDest, cchDest, lpstrSrc, cchCount);
+#else
+		errno_t nRet = 0;
+		if(cchCount == _TRUNCATE)
+		{
+			cchCount = min(cchDest, (size_t)(lstrlenA(lpstrSrc) + 1));
+			nRet = STRUNCATE;
+		}
+		else if(cchDest < cchCount)
+		{
+			nRet = EINVAL;
+		}
+		if(nRet == 0 || nRet == STRUNCATE)
+			nRet = (lstrcpynA(lpstrDest, lpstrSrc, (int)cchCount) != NULL) ? nRet : EINVAL;
+		ATLASSERT(nRet == 0 || nRet == STRUNCATE);
+		return nRet;
+#endif
+	}
+
+	inline errno_t strncpyW_x(wchar_t* lpstrDest, size_t cchDest, const wchar_t* lpstrSrc, size_t cchCount)
+	{
+#if _SECURE_ATL
+		return ATL::Checked::wcsncpy_s(lpstrDest, cchDest, lpstrSrc, cchCount);
+#else
+		errno_t nRet = 0;
+		if(cchCount == _TRUNCATE)
+		{
+			cchCount = min(cchDest, (size_t)(lstrlenW(lpstrSrc) + 1));
+			nRet = STRUNCATE;
+		}
+		else if(cchDest < cchCount)
+		{
+			nRet = EINVAL;
+		}
+		if(nRet == 0 || nRet == STRUNCATE)
+			nRet = (lstrcpynW(lpstrDest, lpstrSrc, (int)cchCount) != NULL) ? nRet : EINVAL;
+		ATLASSERT(nRet == 0 || nRet == STRUNCATE);
+		return nRet;
+#endif
+	}
+
+	inline errno_t strncpy_x(LPTSTR lpstrDest, size_t cchDest, LPCTSTR lpstrSrc, size_t cchCount)
+	{
+#ifdef _UNICODE
+		return strncpyW_x(lpstrDest, cchDest, lpstrSrc, cchCount);
+#else
+		return strncpyA_x(lpstrDest, cchDest, lpstrSrc, cchCount);
+#endif
+	}
+
+	inline void strcatA_x(char* lpstrDest, size_t cchDest, const char* lpstrSrc)
+	{
+#if _SECURE_ATL
+		ATL::Checked::strcat_s(lpstrDest, cchDest, lpstrSrc);
+#else
+		if(cchDest > (size_t)lstrlenA(lpstrSrc))
+			ATLVERIFY(lstrcatA(lpstrDest, lpstrSrc) != NULL);
+		else
+			ATLASSERT(FALSE);
+#endif
+	}
+
+	inline void strcatW_x(wchar_t* lpstrDest, size_t cchDest, const wchar_t* lpstrSrc)
+	{
+#if _SECURE_ATL
+		ATL::Checked::wcscat_s(lpstrDest, cchDest, lpstrSrc);
+#else
+		if(cchDest > (size_t)lstrlenW(lpstrSrc))
+			ATLVERIFY(lstrcatW(lpstrDest, lpstrSrc) != NULL);
+		else
+			ATLASSERT(FALSE);
+#endif
+	}
+
+	inline void strcat_x(LPTSTR lpstrDest, size_t cchDest, LPCTSTR lpstrSrc)
+	{
+#ifdef _UNICODE
+		strcatW_x(lpstrDest, cchDest, lpstrSrc);
+#else
+		strcatA_x(lpstrDest, cchDest, lpstrSrc);
+#endif
+	}
+
+	inline void memcpy_x(void* pDest, size_t cbDest, const void* pSrc, size_t cbSrc)
+	{
+#if _SECURE_ATL
+		ATL::Checked::memcpy_s(pDest, cbDest, pSrc, cbSrc);
+#else
+		if(cbDest >= cbSrc)
+			memcpy(pDest, pSrc, cbSrc);
+		else
+			ATLASSERT(FALSE);
+#endif
+	}
+
+	inline void memmove_x(void* pDest, size_t cbDest, const void* pSrc, size_t cbSrc)
+	{
+#if _SECURE_ATL
+		ATL::Checked::memmove_s(pDest, cbDest, pSrc, cbSrc);
+#else
+		if(cbDest >= cbSrc)
+			memmove(pDest, pSrc, cbSrc);
+		else
+			ATLASSERT(FALSE);
+#endif
+	}
+
+	inline int vsprintf_x(LPTSTR lpstrBuff, size_t cchBuff, LPCTSTR lpstrFormat, va_list args)
+	{
+#if _SECURE_ATL && !defined(_ATL_MIN_CRT) && !defined(_WIN32_WCE)
+		return _vstprintf_s(lpstrBuff, cchBuff, lpstrFormat, args);
+#else
+		cchBuff;   // Avoid unused argument warning
+		return _vstprintf(lpstrBuff, lpstrFormat, args);
+#endif
+	}
+
+	inline int wvsprintf_x(LPTSTR lpstrBuff, size_t cchBuff, LPCTSTR lpstrFormat, va_list args)
+	{
+#if _SECURE_ATL && !defined(_ATL_MIN_CRT) && !defined(_WIN32_WCE)
+		return _vstprintf_s(lpstrBuff, cchBuff, lpstrFormat, args);
+#else
+		cchBuff;   // Avoid unused argument warning
+		return wvsprintf(lpstrBuff, lpstrFormat, args);
+#endif
+	}
+
+	inline int sprintf_x(LPTSTR lpstrBuff, size_t cchBuff, LPCTSTR lpstrFormat, ...)
+	{
+		va_list args;
+		va_start(args, lpstrFormat);
+		int nRes = vsprintf_x(lpstrBuff, cchBuff, lpstrFormat, args);
+		va_end(args);
+		return nRes;
+	}
+
+	inline int wsprintf_x(LPTSTR lpstrBuff, size_t cchBuff, LPCTSTR lpstrFormat, ...)
+	{
+		va_list args;
+		va_start(args, lpstrFormat);
+		int nRes = wvsprintf_x(lpstrBuff, cchBuff, lpstrFormat, args);
+		va_end(args);
+		return nRes;
+	}
+}; // namespace SecureHelper
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1258,7 +1492,7 @@ public:
 		m_hEventShutdown = ::CreateEvent(NULL, false, false, NULL);
 		if(m_hEventShutdown == NULL)
 			return false;
-		DWORD dwThreadID;
+		DWORD dwThreadID = 0;
 #if !defined(_ATL_MIN_CRT) && defined(_MT) && !defined(_WIN32_WCE)
 		HANDLE hThread = (HANDLE)_beginthreadex(NULL, 0, (UINT (WINAPI*)(void*))MonitorProc, this, 0, (UINT*)&dwThreadID);
 #else
