@@ -37,7 +37,7 @@ public:
 
 		HFONT hOld = dc.SelectFont(m_Font);
 
-		DrawAeroText(dc, L"WTL is great with Aero", &rClient, 
+		AeroDrawText(dc, L"WTL is great with Aero", &rClient, 
 			DT_SINGLELINE | DT_CENTER | DT_VCENTER | DT_NOPREFIX, 
 			DTT_COMPOSITED | DTT_GLOWSIZE, 20);
 

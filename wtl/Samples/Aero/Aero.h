@@ -95,17 +95,13 @@ public:
 		RECT rView = {rClient.left + m_Margins.cxLeftWidth, rClient.top + m_Margins.cyTopHeight, 
 			rClient.right - m_Margins.cxRightWidth, rClient.bottom - m_Margins.cyBottomHeight};
 
-		RECT rFrame;
-		pT->GetWindowRect(&rFrame);
-		::MapWindowPoints(NULL, pT->m_hWnd, (LPPOINT)&rFrame, 2);
-
 		if (IsCompositionEnabled())
-				dc.FillSolidRect(&rFrame, RGB(0, 0, 0));
+				dc.FillSolidRect(&rClient, RGB(0, 0, 0));
 		else
 			if (IsTheming())
-				pT->DrawThemeBackground(dc, WP_FRAMEBOTTOM, pT->m_hWnd == GetFocus() ? 1 : 2, &rFrame, &rDest);
+				pT->DrawThemeBackground(dc, WP_FRAMEBOTTOM, pT->m_hWnd == GetFocus() ? 1 : 2, &rClient, &rDest);
 			else
-				dc.FillSolidRect(&rFrame, GetSysColor(COLOR_MENUBAR));
+				dc.FillSolidRect(&rClient, GetSysColor(COLOR_MENUBAR));
 
 		if (m_Margins.cxLeftWidth != -1)
 			dc.FillSolidRect(&rView, GetSysColor(COLOR_WINDOW));
@@ -115,7 +111,7 @@ public:
 		pT->AeroDoPaint(dc, rClient, rView, rDest);
 	}
 
-	void DrawAeroText(HDC dc, LPCTSTR pStr, LPRECT prText, UINT uFormat, DTTOPTS &dto)
+	void AeroDrawText(HDC dc, LPCTSTR pStr, LPRECT prText, UINT uFormat, DTTOPTS &dto)
 	{
         if(IsTheming())
 			if (IsAeroSupported())
@@ -126,12 +122,12 @@ public:
 			CDCHandle(dc).DrawText(pStr, -1, prText, uFormat);
 	}
 
-	void DrawAeroText(HDC dc, LPCTSTR pStr, LPRECT prText, UINT uFormat, DWORD dwFlags, int iGlowSize)
+	void AeroDrawText(HDC dc, LPCTSTR pStr, LPRECT prText, UINT uFormat, DWORD dwFlags, int iGlowSize)
 	{
 		DTTOPTS dto = { sizeof(DTTOPTS) };
 		dto.dwFlags = dwFlags;
 		dto.iGlowSize = iGlowSize;
-		DrawAeroText(dc, pStr, prText, uFormat, dto);
+		AeroDrawText(dc, pStr, prText, uFormat, dto);
 	}
 
 // overridable
@@ -147,7 +143,7 @@ public:
 		CHAIN_MSG_MAP(CBufferedPaintImpl<T>)
 	END_MSG_MAP()
 
-	LRESULT OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled/**/)
+	LRESULT OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
 	{
 		if (IsThemingSupported())
 			OpenThemeData();
@@ -157,7 +153,7 @@ public:
 		return bHandled = FALSE;
 	}
 
-	LRESULT OnActivate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+	LRESULT OnActivate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
 	{
 		if (!IsCompositionEnabled() && IsTheming())
 			static_cast<T*>(this)->Invalidate(FALSE);
@@ -194,7 +190,7 @@ public:
 		if (!::IsRectEmpty(&rView))
 		{
 			if (IsTheming())
-				DrawThemeBackground(dc, WP_DIALOG, 1, &rView, NULL);
+				DrawThemeBackground(dc, WP_DIALOG, 1, &rView, &rDest);
 			else
 				dc.FillSolidRect(&rView, GetSysColor(COLOR_BTNFACE));
 		}
@@ -205,7 +201,7 @@ public:
 		CHAIN_MSG_MAP(CAeroImpl<T>)
 	END_MSG_MAP()
 
-	LRESULT OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled/**/)
+	LRESULT OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
 	{
 		if (IsThemingSupported())
 		{
