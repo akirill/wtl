@@ -40,6 +40,8 @@
 // CFileDialogImpl<T>
 // CFileDialog
 // CFileDialogEx
+// CMultiFileDialogImpl<T>
+// CMultiFileDialog
 // CShellFileDialogImpl<T>
 // CShellFileOpenDialogImpl<T>
 // CShellFileOpenDialog
@@ -439,6 +441,448 @@ public:
 	DECLARE_EMPTY_MSG_MAP()
 };
 #endif // defined(__AYGSHELL_H__) && (_WIN32_WCE >= 0x0501)
+
+
+///////////////////////////////////////////////////////////////////////////////
+// Multi File Dialog - Multi-select File Open dialog
+
+#ifndef _WIN32_WCE
+
+// The class dynamically resizes the buffer as the file selection changes
+// (as described in Knowledge Base article 131462). It also expands selected
+// shortcut files to take into account the full path of the target file.
+// Note that this doesn't work on Win9x for the old style dialogs, as well as
+// on NT for non-Unicode builds. 
+
+#ifndef _WTL_FIXED_OFN_BUFFER_LENGTH
+  #define _WTL_FIXED_OFN_BUFFER_LENGTH 0x10000
+#endif
+
+template <class T>
+class ATL_NO_VTABLE CMultiFileDialogImpl : public CFileDialogImpl< T >
+{
+public:
+	mutable LPCTSTR m_pNextFile; 
+#ifndef _UNICODE
+	bool m_bIsNT;
+#endif
+
+	CMultiFileDialogImpl(
+		LPCTSTR lpszDefExt = NULL,
+		LPCTSTR lpszFileName = NULL,
+		DWORD dwFlags = OFN_HIDEREADONLY,
+		LPCTSTR lpszFilter = NULL,
+		HWND hWndParent = NULL)
+		: CFileDialogImpl<T>(TRUE, lpszDefExt, lpszFileName, dwFlags, lpszFilter, hWndParent), 
+		  m_pNextFile(NULL)
+	{
+		m_ofn.Flags |= OFN_ALLOWMULTISELECT;   // Force multiple selection mode
+
+#ifndef _UNICODE
+		OSVERSIONINFO ovi = { sizeof(ovi) };
+		::GetVersionEx(&ovi);
+		m_bIsNT = (ovi.dwPlatformId == VER_PLATFORM_WIN32_NT);
+		if (m_bIsNT)
+		{
+			// On NT platforms, GetOpenFileNameA thunks to GetOpenFileNameW and there 
+			// is absolutely nothing we can do except to start off with a large buffer.
+			ATLVERIFY(ResizeFilenameBuffer(_WTL_FIXED_OFN_BUFFER_LENGTH));
+		}
+#endif
+	}
+
+	~CMultiFileDialogImpl()
+	{
+		if (m_ofn.lpstrFile != m_szFileName)   // Free the buffer if we allocated it
+			delete[] m_ofn.lpstrFile;
+	}
+
+// Operations
+	// Get the directory that the files were chosen from.
+	// The function returns the number of characters copied, not including the terminating zero. 
+	// If the buffer is NULL, the function returns the required size, in characters, including the terminating zero.
+	// If the function fails, the return value is zero.
+	int GetDirectory(LPTSTR pBuffer, int nBufLen) const
+	{
+		if (m_ofn.lpstrFile == NULL)
+			return 0;
+
+		LPCTSTR pStr = m_ofn.lpstrFile;
+		int nLength = lstrlen(pStr);
+		if (pStr[nLength + 1] == 0)
+		{
+			// The OFN buffer contains a single item so extract its path.
+			LPCTSTR pSep = _strrchr(pStr, _T('\\'));
+			if (pSep != NULL)
+				nLength = (int)(DWORD_PTR)(pSep - pStr);
+		}
+
+		int nRet = 0;
+		if (pBuffer == NULL)   // If the buffer is NULL, return the required length
+		{
+			nRet = nLength + 1;
+		}
+		else if (nBufLen > nLength)
+		{
+			SecureHelper::strncpy_x(pBuffer, nBufLen, pStr, nLength);
+			nRet = nLength;
+		}
+
+		return nRet;
+	}
+
+#if defined(_WTL_USE_CSTRING) || defined(__ATLSTR_H__)
+	bool GetDirectory(_CSTRING_NS::CString& strDir) const
+	{
+		bool bRet = false;
+
+		int nLength = GetDirectory(NULL, 0);
+		if (nLength > 0)
+		{
+			bRet = (GetDirectory(strDir.GetBuffer(nLength), nLength) > 0);
+			strDir.ReleaseBuffer(nLength - 1);
+		}
+
+		return bRet;
+	}
+#endif // defined(_WTL_USE_CSTRING) || defined(__ATLSTR_H__)
+
+	// Get the first filename as a pointer into the buffer.
+	LPCTSTR GetFirstFileName() const
+	{
+		if (m_ofn.lpstrFile == NULL)
+			return NULL;
+
+		m_pNextFile = NULL;   // Reset internal buffer pointer
+
+		LPCTSTR pStr = m_ofn.lpstrFile;
+		int nLength = lstrlen(pStr);
+		if (pStr[nLength + 1] != 0)
+		{
+			// Multiple items were selected. The first string is the directory,
+			// so skip forwards to the second string.
+			pStr += nLength + 1;
+
+			// Set up m_pNext so it points to the second item (or null).
+			m_pNextFile = pStr;
+			GetNextFileName();
+		}
+		else
+		{
+			// A single item was selected. Skip forward past the path.
+			LPCTSTR pSep = _strrchr(pStr, _T('\\'));
+			if (pSep != NULL)
+				pStr = pSep + 1;
+		}
+
+		return pStr;
+	}
+
+	// Get the next filename as a pointer into the buffer.
+	LPCTSTR GetNextFileName() const
+	{
+		if (m_pNextFile == NULL)
+			return NULL;
+
+		LPCTSTR pStr = m_pNextFile;
+		// Set "m_pNextFile" to point to the next file name, or null if we 
+		// have reached the last file in the list.
+		int nLength = lstrlen(pStr);
+		m_pNextFile = (pStr[nLength + 1] != 0) ? &pStr[nLength + 1] : NULL;
+
+		return pStr;
+	}
+
+	// Get the first filename as a full path.
+	// The function returns the number of characters copied, not including the terminating zero. 
+	// If the buffer is NULL, the function returns the required size, in characters, including the terminating zero.
+	// If the function fails, the return value is zero.
+	int GetFirstPathName(LPTSTR pBuffer, int nBufLen) const
+	{
+		LPCTSTR pStr = GetFirstFileName();
+		int nLengthDir = GetDirectory(NULL, 0);
+		if((pStr == NULL) || (nLengthDir == 0))
+			return 0;
+
+		// Figure out the required length.
+		int nLengthTotal = nLengthDir + lstrlen(pStr);
+
+		int nRet = 0;
+		if(pBuffer == NULL) // If the buffer is NULL, return the required length
+		{
+			nRet = nLengthTotal + 1;
+		}
+		else if (nBufLen > nLengthTotal) // If the buffer is big enough, go ahead and construct the path
+		{		
+			GetDirectory(pBuffer, nBufLen);
+			SecureHelper::strcat_x(pBuffer, nBufLen, _T("\\"));
+			SecureHelper::strcat_x(pBuffer, nBufLen, pStr);
+			nRet = nLengthTotal;
+		}
+
+		return nRet;
+	}
+
+#if defined(_WTL_USE_CSTRING) || defined(__ATLSTR_H__)
+	bool GetFirstPathName(_CSTRING_NS::CString& strPath) const
+	{
+		bool bRet = false;
+
+		int nLength = GetFirstPathName(NULL, 0);
+		if (nLength > 0)
+		{
+			bRet = (GetFirstPathName(strPath.GetBuffer(nLength), nLength) > 0);
+			strPath.ReleaseBuffer(nLength - 1);
+		}
+
+		return bRet;
+	}
+#endif // defined(_WTL_USE_CSTRING) || defined(__ATLSTR_H__)
+
+	// Get the next filename as a full path.
+	// The function returns the number of characters copied, not including the terminating zero. 
+	// If the buffer is NULL, the function returns the required size, in characters, including the terminating zero.
+	// If the function fails, the return value is zero.
+	// The internal position marker is moved forward only if the function succeeds and the buffer was large enough.
+	int GetNextPathName(LPTSTR pBuffer, int nBufLen) const
+	{
+		if (m_pNextFile == NULL)
+			return 0;
+
+		int nRet = 0;
+		LPCTSTR pStr = m_pNextFile;
+		// Does the filename contain a backslash?
+		if (_strrchr(pStr, _T('\\')) != NULL)
+		{
+			// Yes, so we'll assume it's a full path.
+			int nLength = lstrlen(pStr);
+
+			if (pBuffer == NULL) // If the buffer is NULL, return the required length
+			{
+				nRet = nLength + 1;
+			}
+			else if (nBufLen > nLength) // The buffer is big enough, so go ahead and copy the filename
+			{
+				SecureHelper::strcpy_x(pBuffer, nBufLen, GetNextFileName());
+				nRet = nBufLen;
+			}
+		}
+		else
+		{
+			// The filename is relative, so construct the full path.
+			int nLengthDir = GetDirectory(NULL, 0);
+			if (nLengthDir > 0)
+			{
+				// Calculate the required space.
+				int nLengthTotal = nLengthDir + lstrlen(pStr);
+
+				if(pBuffer == NULL) // If the buffer is NULL, return the required length
+				{
+					nRet = nLengthTotal + 1;
+				}
+				else if (nBufLen > nLengthTotal) // If the buffer is big enough, go ahead and construct the path
+				{
+					GetDirectory(pBuffer, nBufLen);
+					SecureHelper::strcat_x(pBuffer, nBufLen, _T("\\"));
+					SecureHelper::strcat_x(pBuffer, nBufLen, GetNextFileName());
+					nRet = nLengthTotal;
+				}
+			}
+		}
+
+		return nRet;
+	}
+
+#if defined(_WTL_USE_CSTRING) || defined(__ATLSTR_H__)
+	bool GetNextPathName(_CSTRING_NS::CString& strPath) const
+	{
+		bool bRet = false;
+
+		int nLength = GetNextPathName(NULL, 0);
+		if (nLength > 0)
+		{
+			bRet = (GetNextPathName(strPath.GetBuffer(nLength), nLength) > 0);
+			strPath.ReleaseBuffer(nLength - 1);
+		}
+
+		return bRet;
+	}
+#endif // defined(_WTL_USE_CSTRING) || defined(__ATLSTR_H__)
+
+// Implementation
+	bool ResizeFilenameBuffer(DWORD dwLength)
+	{
+		if (dwLength > m_ofn.nMaxFile)
+		{
+			// Free the old buffer.
+			if (m_ofn.lpstrFile != m_szFileName)
+			{
+				delete[] m_ofn.lpstrFile;
+				m_ofn.lpstrFile = NULL;
+				m_ofn.nMaxFile = 0;
+			}
+
+			// Allocate the new buffer.
+			LPTSTR lpstrBuff = NULL;
+			ATLTRY(lpstrBuff = new TCHAR[dwLength]);
+			if (lpstrBuff != NULL)
+			{
+				m_ofn.lpstrFile = lpstrBuff;
+				m_ofn.lpstrFile[0] = 0;
+				m_ofn.nMaxFile = dwLength;
+			}
+		}
+
+		return (m_ofn.lpstrFile != NULL);
+	}
+
+	void OnSelChange(LPOFNOTIFY /*lpon*/)
+	{
+#ifndef _UNICODE
+		// There is no point resizing the buffer in ANSI builds running on NT.
+		if (m_bIsNT)
+			return;
+#endif
+
+		// Get the buffer length required to hold the spec.
+		int nLength = GetSpec(NULL, 0);
+		if (nLength <= 1)
+			return; // no files are selected, presumably
+		
+		// Add room for the directory, and an extra terminating zero.
+		nLength += GetFolderPath(NULL, 0) + 1;
+
+		if (!ResizeFilenameBuffer(nLength))
+		{
+			ATLASSERT(FALSE);
+			return;
+		}
+
+		// If we are not following links then our work is done.
+		if ((m_ofn.Flags & OFN_NODEREFERENCELINKS) != 0)
+			return;
+
+		// Get the file spec, which is the text in the edit control.
+		if (GetSpec(m_ofn.lpstrFile, m_ofn.nMaxFile) <= 0)
+			return;
+		
+		// Get the ID-list of the current folder.
+		int nBytes = GetFolderIDList(NULL, 0);
+		CTempBuffer<ITEMIDLIST> idlist;
+		idlist.AllocateBytes(nBytes);
+		if ((nBytes <= 0) || (GetFolderIDList(idlist, nBytes) <= 0))
+			return;
+
+		// First bind to the desktop folder, then to the current folder.
+		ATL::CComPtr<IShellFolder> pDesktop, pFolder;
+		if (FAILED(::SHGetDesktopFolder(&pDesktop)))
+			return;
+		if (FAILED(pDesktop->BindToObject(idlist, NULL, IID_IShellFolder, (void**)&pFolder)))
+			return;
+
+		// Work through the file spec, looking for quoted filenames. If we find a shortcut file, then 
+		// we need to add enough extra buffer space to hold its target path.
+		DWORD nExtraChars = 0;
+		bool bInsideQuotes = false;
+		LPCTSTR pAnchor = m_ofn.lpstrFile;
+		LPCTSTR pChar = m_ofn.lpstrFile;
+		for ( ; *pChar; ++pChar)
+		{
+			// Look for quotation marks.
+			if (*pChar == _T('\"'))
+			{
+				// We are either entering or leaving a passage of quoted text.
+				bInsideQuotes = !bInsideQuotes;
+
+				// Is it an opening or closing quote?
+				if (bInsideQuotes)
+				{
+					// We found an opening quote, so set "pAnchor" to the following character.
+					pAnchor = pChar + 1;
+				}
+				else // closing quote
+				{
+					// Each quoted entity should be shorter than MAX_PATH.
+					if (pChar - pAnchor >= MAX_PATH)
+						return;
+
+					// Get the ID-list and attributes of the file.
+					USES_CONVERSION;
+					int nFileNameLength = (int)(DWORD_PTR)(pChar - pAnchor);
+					TCHAR szFileName[MAX_PATH];
+					SecureHelper::strncpy_x(szFileName, MAX_PATH, pAnchor, nFileNameLength);
+					LPITEMIDLIST pidl = NULL;
+					DWORD dwAttrib = SFGAO_LINK;
+					if (SUCCEEDED(pFolder->ParseDisplayName(NULL, NULL, T2W(szFileName), NULL, &pidl, &dwAttrib)))
+					{
+						// Is it a shortcut file?
+						if (dwAttrib & SFGAO_LINK)
+						{
+							// Bind to its IShellLink interface.
+							ATL::CComPtr<IShellLink> pLink;
+							if (SUCCEEDED(pFolder->BindToObject(pidl, NULL, IID_IShellLink, (void**)&pLink)))
+							{
+								// Get the shortcut's target path.
+								TCHAR szPath[MAX_PATH];
+								if (SUCCEEDED(pLink->GetPath(szPath, MAX_PATH, NULL, 0)))
+								{
+									// If the target path is longer than the shortcut name, then add on the number 
+									// of extra characters that are required.
+									int nNewLength = lstrlen(szPath);
+									if (nNewLength > nFileNameLength)
+										nExtraChars += nNewLength - nFileNameLength;
+								}
+							}
+						}
+
+						// Free the ID-list returned by ParseDisplayName.
+						::CoTaskMemFree(pidl);
+					}
+				}
+			}
+		}
+
+		// If we need more space for shortcut targets, then reallocate.
+		if (nExtraChars > 0)
+			ATLVERIFY(ResizeFilenameBuffer(m_ofn.nMaxFile + nExtraChars));
+	}
+
+	// Helper for _ATM_MIN_CRT
+	static const TCHAR* _strrchr(const TCHAR* p, TCHAR ch)
+	{
+#ifndef _ATL_MIN_CRT
+		return _tcsrchr(p, ch);
+#else // _ATL_MIN_CRT
+		const TCHAR* lpsz = NULL;
+		while (*p != 0)
+		{
+			if (*p == ch)
+				lpsz = p;
+			p = ::CharNext(p);
+		}
+		return lpsz;
+#endif // _ATL_MIN_CRT
+	}
+};
+
+class CMultiFileDialog : public CMultiFileDialogImpl<CMultiFileDialog>
+{
+public:
+	CMultiFileDialog(
+		LPCTSTR lpszDefExt = NULL,
+		LPCTSTR lpszFileName = NULL,
+		DWORD dwFlags = OFN_HIDEREADONLY,
+		LPCTSTR lpszFilter = NULL,
+		HWND hWndParent = NULL)
+		: CMultiFileDialogImpl<CMultiFileDialog>(lpszDefExt, lpszFileName, dwFlags, lpszFilter, hWndParent)
+	{ }
+
+	BEGIN_MSG_MAP(CMultiFileDialog)
+		CHAIN_MSG_MAP(CMultiFileDialogImpl<CMultiFileDialog>)
+	END_MSG_MAP()
+};
+
+#endif // !_WIN32_WCE
 
 
 ///////////////////////////////////////////////////////////////////////////////
