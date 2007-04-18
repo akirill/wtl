@@ -728,17 +728,22 @@ namespace SecureHelper
 		return ATL::Checked::strncpy_s(lpstrDest, cchDest, lpstrSrc, cchCount);
 #else
 		errno_t nRet = 0;
-		if(cchCount == _TRUNCATE)
-		{
-			cchCount = min(cchDest, (size_t)(lstrlenA(lpstrSrc) + 1));
-			nRet = STRUNCATE;
-		}
-		else if(cchDest < cchCount)
+		if(lpstrDest == NULL || cchDest == 0 || lpstrSrc == NULL)
 		{
 			nRet = EINVAL;
 		}
+		else if(cchCount == _TRUNCATE)
+		{
+			cchCount = min(cchDest - 1, size_t(lstrlenA(lpstrSrc)));
+			nRet = STRUNCATE;
+		}
+		else if(cchDest <= cchCount)
+		{
+			lpstrDest[0] = 0;
+			nRet = EINVAL;
+		}
 		if(nRet == 0 || nRet == STRUNCATE)
-			nRet = (lstrcpynA(lpstrDest, lpstrSrc, (int)cchCount) != NULL) ? nRet : EINVAL;
+			nRet = (lstrcpynA(lpstrDest, lpstrSrc, (int)cchCount + 1) != NULL) ? nRet : EINVAL;
 		ATLASSERT(nRet == 0 || nRet == STRUNCATE);
 		return nRet;
 #endif
@@ -750,17 +755,22 @@ namespace SecureHelper
 		return ATL::Checked::wcsncpy_s(lpstrDest, cchDest, lpstrSrc, cchCount);
 #else
 		errno_t nRet = 0;
-		if(cchCount == _TRUNCATE)
-		{
-			cchCount = min(cchDest, (size_t)(lstrlenW(lpstrSrc) + 1));
-			nRet = STRUNCATE;
-		}
-		else if(cchDest < cchCount)
+		if(lpstrDest == NULL || cchDest == 0 || lpstrSrc == NULL)
 		{
 			nRet = EINVAL;
 		}
+		else if(cchCount == _TRUNCATE)
+		{
+			cchCount = min(cchDest - 1, size_t(lstrlenW(lpstrSrc)));
+			nRet = STRUNCATE;
+		}
+		else if(cchDest <= cchCount)
+		{
+			lpstrDest[0] = 0;
+			nRet = EINVAL;
+		}
 		if(nRet == 0 || nRet == STRUNCATE)
-			nRet = (lstrcpynW(lpstrDest, lpstrSrc, (int)cchCount) != NULL) ? nRet : EINVAL;
+			nRet = (lstrcpynW(lpstrDest, lpstrSrc, (int)cchCount + 1) != NULL) ? nRet : EINVAL;
 		ATLASSERT(nRet == 0 || nRet == STRUNCATE);
 		return nRet;
 #endif
