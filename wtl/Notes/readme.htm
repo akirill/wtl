@@ -14,6 +14,9 @@
 	font-family: Arial;
 	font-size: x-small;
 }
+.style3 {
+	text-align: right;
+}
 </style>
 </head>
 
@@ -21,8 +24,9 @@
 
 <table border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111" id="AutoNumber3">
   <tr>
-    <td><font face="Arial"><b>Windows Template Library - WTL Version 8.0</b></font><font face="Arial" size="2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
-(build 7078) 3/19/07</font></td>
+    <td class="style3"><font face="Arial"><b>Windows Template Library - WTL Version 8.0</b></font><font face="Arial" size="2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+(build 7108) 4/18/07<br>
+	<strong>Beta 1</strong></font></td>
   </tr>
   <tr>
     <td><hr></td>
@@ -38,7 +42,7 @@ All rights reserved.</font></td>
     <td><font face="Arial" size="2">This file is a part of the Windows Template 
 	Library.<br>
 	The use and distribution terms for this software are covered by the<br>
-	Common Public License 1.0 (<a target="_blank" href="http://opensource.org/licenses/cpl.php">http://opensource.org/licenses/cpl.php</a>)<br>
+	Common Public License 1.0 (<a target="_blank" href="http://opensource.org/osi3.0/licenses/cpl1.0.php">http://opensource.org/osi3.0/licenses/cpl1.0.php</a>)<br>
 	which can be found in the file CPL.TXT at the root of this distribution.<br>
 	By using this software in any fashion, you are agreeing to be bound by<br>
 	the terms of this license. You must not remove this notice, or<br>
@@ -235,6 +239,11 @@ Visual C++ 2005 - Pocket PC 2003 SE, Smartphone 2003 SE, STANDARDSDK_500,</font>
     sheet and page classes</font></td>
   </tr>
   <tr>
+    <td width="136"><font face="Arial" size="2">&nbsp;&nbsp;&nbsp; atlfind.h</font></td>
+    <td width="358"><font face="Arial" size="2">Find/Replace support for Edit 
+	and RichEdit</font></td>
+  </tr>
+  <tr>
     <td width="136"><font face="Arial" size="2">&nbsp;&nbsp;&nbsp; atlframe.h</font></td>
     <td width="358"><font face="Arial" size="2">frame window classes, MDI, 
     update UI classes</font></td>
@@ -291,6 +300,10 @@ Visual C++ 2005 - Pocket PC 2003 SE, Smartphone 2003 SE, STANDARDSDK_500,</font>
   </tr>
   <tr>
     <td width="494" colspan="2"><font face="Arial" size="2">Samples\</font></td>
+  </tr>
+  <tr>
+    <td width="136"><font face="Arial" size="2">&nbsp;&nbsp;&nbsp; Aero\...</font></td>
+    <td width="358"><font face="Arial" size="2">Vista Aero glass showcase</font></td>
   </tr>
   <tr>
     <td width="136"><font face="Arial" size="2">&nbsp;&nbsp;&nbsp; Alpha\...</font></td>
@@ -890,8 +903,18 @@ Visual C++ 2005 - Pocket PC 2003 SE, Smartphone 2003 SE, STANDARDSDK_500,</font>
     <td width="115"><font face="Arial" size="2">impl</font></td>
     <td width="255"><font face="Arial" size="2">GetOpenFileName/GetSaveFileName</font></td>
   </tr>
-  <tr>
+	<tr>
     <td width="221"><b><font face="Arial" size="2">CFileDialog</font></b></td>
+    <td width="115"><font face="Arial" size="2">as-is</font></td>
+    <td width="255"><font face="Arial" size="2">&nbsp;</font></td>
+  </tr>
+  <tr>
+    <td width="221"><b><font face="Arial" size="2">CMultiFileDialogImpl&lt;&gt;</font></b></td>
+    <td width="115"><font face="Arial" size="2">impl</font></td>
+    <td width="255"><font face="Arial" size="2">Multi-select GetOpenFileName</font></td>
+  </tr>
+  <tr>
+    <td width="221"><b><font face="Arial" size="2">CMultiFileDialog</font></b></td>
     <td width="115"><font face="Arial" size="2">as-is</font></td>
     <td width="255"><font face="Arial" size="2">&nbsp;</font></td>
   </tr>
@@ -1281,7 +1304,12 @@ Visual C++ 2005 - Pocket PC 2003 SE, Smartphone 2003 SE, STANDARDSDK_500,</font>
 	<tr>
     <td width="221"><b><font face="Arial" size="2">CBufferedPaint</font></b></td>
     <td width="115"><font face="Arial" size="2">as-is</font></td>
-    <td width="255" class="style2">buffered paint support</td>
+    <td width="255" class="style2">buffered paint</td>
+  </tr>
+	<tr>
+    <td width="221"><b><font face="Arial" size="2">C</font></b><span class="style1">BufferedPaintImpl&lt;&gt;</span></td>
+    <td width="115"><font face="Arial" size="2">impl mi</font></td>
+    <td width="255"><font face="Arial" size="2">buffered paint support</font></td>
   </tr>
 	<tr>
     <td width="221"><b><font face="Arial" size="2">C</font></b><span class="style1">BufferedPaintWindowImpl&lt;&gt;</span></td>
@@ -1291,12 +1319,37 @@ Visual C++ 2005 - Pocket PC 2003 SE, Smartphone 2003 SE, STANDARDSDK_500,</font>
 	<tr>
     <td width="221"><b><font face="Arial" size="2">C</font></b><span class="style1">BufferedAnimation</span></td>
     <td width="115"><font face="Arial" size="2">as-is</font></td>
-    <td width="255" class="style2">b<font size="2">uffered animation support</font></td>
+    <td width="255" class="style2">b<font size="2">uffered animation</font></td>
+  </tr>
+	<tr>
+    <td width="221"><b><font face="Arial" size="2">C</font></b><span class="style1">BufferedAnimationImpl&lt;&gt;</span></td>
+    <td width="115"><font face="Arial" size="2">impl mi</font></td>
+    <td width="255"><font face="Arial" size="2">buffered animation support</font></td>
   </tr>
 	<tr>
     <td width="221"><b><font face="Arial" size="2">C</font></b><span class="style1">BufferedAnimationWindowImpl&lt;&gt;</span></td>
     <td width="115"><font face="Arial" size="2">impl</font></td>
     <td width="255"><font face="Arial" size="2">window with buffered animation</font></td>
+  </tr>
+  <tr>
+    <td colspan="3" width="593"><font face="Arial" size="2"><br>
+    Edit and RichEdit Find/Replace support</font></td>
+  </tr>
+	<tr>
+    <td width="221"><b><font face="Arial" size="2">CEditFindReplaceImplBase&lt;&gt;</font></b></td>
+    <td width="115"><font face="Arial" size="2">base</font></td>
+    <td width="255" class="style2">&nbsp;</td>
+  </tr>
+	<tr>
+    <td width="221"><b><font face="Arial" size="2">CEditFindReplaceImpl&lt;&gt;</font></b></td>
+    <td width="115"><font face="Arial" size="2">mi</font></td>
+    <td width="255"><font face="Arial" size="2">Edit Find/Replace support</font></td>
+  </tr>
+	<tr>
+    <td width="221"><b><font face="Arial" size="2">CRichEditFindReplaceImpl&lt;&gt;</font></b></td>
+    <td width="115"><font face="Arial" size="2">mi</font></td>
+    <td width="255" class="style2"><font face="Arial" size="2">RichEdit 
+	Find/Replace support</font></td>
   </tr>
   <tr>
     <td colspan="3" width="593"><font face="Arial" size="2"><br>
@@ -1603,7 +1656,7 @@ WTL application. It has options to create code for different application types a
   <li><font face="Arial" size="2">Toolbar, rebar, command bar, status bar</font></li>
   <li><font face="Arial" size="2">View window, and it's type (generic, dialog 
   based form, or a list box, edit, list view, tree view, rich edit based, HTML 
-  page)</font></li>
+  page, scroll window)</font></li>
   <li><font face="Arial" size="2">For dialog based apps or a form based view 
   window - support for hosting ActiveX controls in the dialog</font></li>
 </ul>
