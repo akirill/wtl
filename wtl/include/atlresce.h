@@ -62,6 +62,11 @@
 	#undef APSTUDIO_HIDDEN_SYMBOLS
 #endif // APSTUDIO_INVOKED
 
+// Visual Studio dialog editor bug fix
+#ifndef DS_FIXEDSYS 
+	#define DS_FIXEDSYS 0
+#endif
+
 #define IDC_INFOSTATIC 0xFFFE   // == IDC_STATIC -1
 
 ///////////////////////////////////////////////////////////////////////////////
