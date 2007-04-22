@@ -1894,7 +1894,7 @@ public:
 		ATLTRACE2(atlTraceUI, 0, _T("CmdBar - Hook WM_SYSKEYDOWN (0x%2.2X)\n"), wParam);
 #endif
 
-		if(wParam == VK_MENU && m_bUseKeyboardCues && !m_bShowKeyboardCues && m_bAllowKeyboardCues)
+		if(wParam == VK_MENU && m_bParentActive && m_bUseKeyboardCues && !m_bShowKeyboardCues && m_bAllowKeyboardCues)
 			ShowKeyboardCues(true);
 
 		if(wParam != VK_SPACE && !m_bMenuActive && ::GetFocus() == m_hWnd)
