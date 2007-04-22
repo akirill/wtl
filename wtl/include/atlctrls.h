@@ -6280,7 +6280,7 @@ public:
 		return (BOOL)::SendMessage(m_hWnd, TCM_SETITEM, nItem, (LPARAM)pTabCtrlItem);
 	}
 
-	int SetItem(int nItem, UINT mask, LPCTSTR lpszItem, DWORD dwState, DWORD dwStateMask, int iImage, DWORD lParam)
+	int SetItem(int nItem, UINT mask, LPCTSTR lpszItem, DWORD dwState, DWORD dwStateMask, int iImage, LPARAM lParam)
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
 		TCITEM tci = { 0 };
@@ -6411,7 +6411,7 @@ public:
 		return (int)::SendMessage(m_hWnd, TCM_INSERTITEM, nItem, (LPARAM)pTabCtrlItem);
 	}
 
-	int InsertItem(int nItem, UINT mask, LPCTSTR lpszItem, int iImage, DWORD lParam)
+	int InsertItem(int nItem, UINT mask, LPCTSTR lpszItem, int iImage, LPARAM lParam)
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
 		TCITEM tci = { 0 };
@@ -6436,7 +6436,7 @@ public:
 		return InsertItem(GetItemCount(), pTabCtrlItem);
 	}
 
-	int AddItem(UINT mask, LPCTSTR lpszItem, int iImage, DWORD lParam)
+	int AddItem(UINT mask, LPCTSTR lpszItem, int iImage, LPARAM lParam)
 	{
 		return InsertItem(GetItemCount(), mask, lpszItem, iImage, lParam);
 	}
@@ -8743,7 +8743,7 @@ public:
 	}
 
 	int InsertItem(UINT nMask, int nIndex, LPCTSTR lpszItem, int nImage, int nSelImage, 
-	               int iIndent, int iOverlay, DWORD lParam)
+	               int iIndent, int iOverlay, LPARAM lParam)
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
 		COMBOBOXEXITEM cbex = { 0 };
@@ -8758,7 +8758,7 @@ public:
 		return (int)::SendMessage(m_hWnd, CBEM_INSERTITEM, 0, (LPARAM)&cbex);
 	}
 
-	int InsertItem(int nIndex, LPCTSTR lpszItem, int nImage, int nSelImage, int iIndent, DWORD lParam = 0)
+	int InsertItem(int nIndex, LPCTSTR lpszItem, int nImage, int nSelImage, int iIndent, LPARAM lParam = 0)
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
 		COMBOBOXEXITEM cbex = { 0 };
@@ -8772,12 +8772,12 @@ public:
 		return (int)::SendMessage(m_hWnd, CBEM_INSERTITEM, 0, (LPARAM)&cbex);
 	}
 
-	int AddItem(UINT nMask, LPCTSTR lpszItem, int nImage, int nSelImage, int iIndent, int iOverlay, DWORD lParam)
+	int AddItem(UINT nMask, LPCTSTR lpszItem, int nImage, int nSelImage, int iIndent, int iOverlay, LPARAM lParam)
 	{
 		return InsertItem(nMask, -1, lpszItem, nImage, nSelImage, iIndent, iOverlay, lParam);
 	}
 
-	int AddItem(LPCTSTR lpszItem, int nImage, int nSelImage, int iIndent, DWORD lParam = 0)
+	int AddItem(LPCTSTR lpszItem, int nImage, int nSelImage, int iIndent, LPARAM lParam = 0)
 	{
 		return InsertItem(-1, lpszItem, nImage, nSelImage, iIndent, lParam);
 	}
@@ -8801,7 +8801,7 @@ public:
 	}
 
 	int SetItem(int nIndex, UINT nMask, LPCTSTR lpszItem, int nImage, int nSelImage, 
-	            int iIndent, int iOverlay, DWORD lParam)
+	            int iIndent, int iOverlay, LPARAM lParam)
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
 		COMBOBOXEXITEM cbex = { 0 };
