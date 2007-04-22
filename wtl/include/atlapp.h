@@ -858,7 +858,7 @@ namespace SecureHelper
 		return _vstprintf_s(lpstrBuff, cchBuff, lpstrFormat, args);
 #else
 		cchBuff;   // Avoid unused argument warning
-		return wvsprintf(lpstrBuff, lpstrFormat, args);
+		return ATL::wvsprintf(lpstrBuff, lpstrFormat, args);
 #endif
 	}
 
