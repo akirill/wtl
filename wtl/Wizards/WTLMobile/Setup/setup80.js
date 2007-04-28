@@ -11,52 +11,82 @@
 
 // Setup program for the Windows Mobile WTL App Wizard for VC++ 8.0 (Whidbey)
 
+try // Check Vista need for elevated privilege
+{
+	// Decode command line arguments
+	var bElevated = false;
+	var Args = WScript.Arguments;
+	for(var i = 0; i < Args.length ; i++)
+		bElevated = (Args(i) == "/elevated");
+
+	// See if UAC is enabled
+	var AppShell = WScript.CreateObject("Shell.Application");
+	if (!bElevated && AppShell.IsRestricted("System", "EnableLUA"))
+		// Check that the script is being run interactively.
+		if(WScript.Interactive)
+	        throw "Restricted";
+		else
+			throw "ERROR: Elevation required.";
+}
+catch(e)
+{
+    if (e == "Restricted")
+    {
+	    var scriptParams = WScript.ScriptFullName + " /elevated";
+	    AppShell.ShellExecute("WScript.exe", scriptParams, null, "RunAs");
+	    WScript.Quit();	
+	}
+	else
+	    throw e;
+}
+
 try
 {
-	var fso = WScript.CreateObject("Scripting.FileSystemObject");
-	var SourceBase = fso.GetParentFolderName(WScript.ScriptFullName) + "\\Files";
-	var Source = SourceBase + "\\WTLMobile.";
+    var fso = WScript.CreateObject("Scripting.FileSystemObject");
+    var SourceBase = fso.GetParentFolderName(WScript.ScriptFullName) + "\\Files";
+    var Source = SourceBase + "\\WTLMobile.";
 	
-	var shell = WScript.CreateObject("WScript.Shell");
-	var DestBase = shell.RegRead("HKLM\\Software\\Microsoft\\VisualStudio\\8.0\\Setup\\VC\\ProductDir") + "\\vcprojects";
-	var Dest =DestBase + "\\WTLMobile.";
+    var shell = WScript.CreateObject("WScript.Shell");
+    var DestBase = shell.RegRead("HKLM\\Software\\Microsoft\\VisualStudio\\8.0\\Setup\\VC\\ProductDir") + "\\vcprojects";
+    var Dest =DestBase + "\\WTLMobile.";
 	
-	var vsz = Source + "vsz" 
-	var vsdir = Source + "vsdir";
-	var vszText, vsdirText; 
+    var vsz = Source + "vsz" 
+    var vsdir = Source + "vsdir";
+    var vszText, vsdirText; 
 	
-	var ts = fso.OpenTextFile(vsz,1);
-	vszText = ts.ReadAll();
-	ts.Close();
-	vszText = vszText.replace(/(.+PATH\s=).+/,"$1" + SourceBase +"\"\r");
-	ts = fso.OpenTextFile(vsdir,1);
-	vsdirText = ts.ReadAll();
-	ts.Close();
+    var ts = fso.OpenTextFile(vsz,1);
+    vszText = ts.ReadAll();
+    ts.Close();
+    vszText = vszText.replace(/(.+PATH\s=).+/,"$1" + SourceBase +"\"\r");
+    ts = fso.OpenTextFile(vsdir,1);
+    vsdirText = ts.ReadAll();
+    ts.Close();
 	
-	fso.CopyFile(Source + "ico", Dest + "ico");
+    fso.CopyFile(Source + "ico", Dest + "ico");
 	
-	ts = fso.OpenTextFile(Dest + "vsz", 2, true);
-	ts.Write(vszText);
-	ts.Close();
+    ts = fso.OpenTextFile(Dest + "vsz", 2, true);
+    ts.Write(vszText);
+    ts.Close();
 	 
-	ts = fso.OpenTextFile(Dest + "vsdir", 2, true);
-	ts.Write(vsdirText);
-	ts.Close(); 
+    ts = fso.OpenTextFile(Dest + "vsdir", 2, true);
+    ts.Write(vsdirText);
+    ts.Close(); 
 	
-	vsdirText = "..\\" + vsdirText;
+    vsdirText = "..\\" + vsdirText;
 	
-	Dest = DestBase + "\\WTL\\WTLMobile.vsdir";
-	ts = fso.OpenTextFile(Dest, 2, true);
-	ts.Write(vsdirText);
-	ts.Close();
+    Dest = DestBase + "\\WTL\\WTLMobile.vsdir";
+    ts = fso.OpenTextFile(Dest, 2, true);
+    ts.Write(vsdirText);
+    ts.Close();
 
-	Dest = DestBase + "\\smartdevice\\WTLMobile.vsdir";
-	ts = fso.OpenTextFile(Dest, 2, true);
-	ts.Write(vsdirText);
-	ts.Close();
+    Dest = DestBase + "\\smartdevice\\WTLMobile.vsdir";
+    ts = fso.OpenTextFile(Dest, 2, true);
+    ts.Write(vsdirText);
+    ts.Close();
 	
-	WScript.Echo("WTL Mobile App Wizard successfully installed!");
+    WScript.Echo("WTL Mobile App Wizard successfully installed!");
 }
+
 catch(e)
 {
 	WScript.Echo("Error " + e);
