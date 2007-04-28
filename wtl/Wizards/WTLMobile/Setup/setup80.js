@@ -13,13 +13,14 @@
 
 try
 {
-	var shell = WScript.CreateObject("WScript.Shell");
-	var SourceBase = shell.CurrentDirectory + "\\Files";
+	var fso = WScript.CreateObject("Scripting.FileSystemObject");
+	var SourceBase = fso.GetParentFolderName(WScript.ScriptFullName) + "\\Files";
 	var Source = SourceBase + "\\WTLMobile.";
+	
+	var shell = WScript.CreateObject("WScript.Shell");
 	var DestBase = shell.RegRead("HKLM\\Software\\Microsoft\\VisualStudio\\8.0\\Setup\\VC\\ProductDir") + "\\vcprojects";
 	var Dest =DestBase + "\\WTLMobile.";
 	
-	var fso = WScript.CreateObject("Scripting.FileSystemObject");
 	var vsz = Source + "vsz" 
 	var vsdir = Source + "vsdir";
 	var vszText, vsdirText; 
