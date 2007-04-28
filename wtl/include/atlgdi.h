@@ -2478,6 +2478,13 @@ public:
 	int DrawText(LPCTSTR lpstrText, int cchText, LPRECT lpRect, UINT uFormat)
 	{
 		ATLASSERT(m_hDC != NULL);
+		ATLASSERT((uFormat & DT_MODIFYSTRING) == 0);
+		return ::DrawText(m_hDC, lpstrText, cchText, lpRect, uFormat);
+	}
+
+	int DrawText(LPTSTR lpstrText, int cchText, LPRECT lpRect, UINT uFormat)
+	{
+		ATLASSERT(m_hDC != NULL);
 		return ::DrawText(m_hDC, lpstrText, cchText, lpRect, uFormat);
 	}
 
