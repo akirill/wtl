@@ -286,14 +286,20 @@ public:
 		m_hBrush = ::CreateHatchBrush(nIndex, crColor);
 		return m_hBrush;
 	}
+#endif // !_WIN32_WCE
 
+#if !defined(_WIN32_WCE) || (_ATL_VER >= 0x0800)
 	HBRUSH CreateBrushIndirect(const LOGBRUSH* lpLogBrush)
 	{
 		ATLASSERT(m_hBrush == NULL);
+#ifndef _WIN32_WCE
 		m_hBrush = ::CreateBrushIndirect(lpLogBrush);
+#else
+		m_hBrush = ATL::CreateBrushIndirect(lpLogBrush);
+#endif // !_WIN32_WCE
 		return m_hBrush;
 	}
-#endif // !_WIN32_WCE
+#endif // !defined(_WIN32_WCE) || (_ATL_VER >= 0x0800)
 
 	HBRUSH CreatePatternBrush(HBITMAP hBitmap)
 	{
@@ -569,8 +575,7 @@ public:
 		return m_hFont;
 	}
 
-#ifndef _WIN32_WCE
-#if (_WIN32_WINNT >= 0x0500)
+#if !defined(_WIN32_WCE) && (_WIN32_WINNT >= 0x0500)
 	HFONT CreateFontIndirectEx(CONST ENUMLOGFONTEXDV* penumlfex)
 	{
 		ATLASSERT(m_hFont == NULL);
@@ -579,6 +584,7 @@ public:
 	}
 #endif // (_WIN32_WINNT >= 0x0500)
 
+#if !defined(_WIN32_WCE) || (_ATL_VER >= 0x0800)
 	HFONT CreateFont(int nHeight, int nWidth, int nEscapement,
 			int nOrientation, int nWeight, BYTE bItalic, BYTE bUnderline,
 			BYTE cStrikeOut, BYTE nCharSet, BYTE nOutPrecision,
@@ -586,13 +592,20 @@ public:
 			LPCTSTR lpszFacename)
 	{
 		ATLASSERT(m_hFont == NULL);
+#ifndef _WIN32_WCE
 		m_hFont = ::CreateFont(nHeight, nWidth, nEscapement,
 			nOrientation, nWeight, bItalic, bUnderline, cStrikeOut,
 			nCharSet, nOutPrecision, nClipPrecision, nQuality,
 			nPitchAndFamily, lpszFacename);
+#else
+		m_hFont = ATL::CreateFont(nHeight, nWidth, nEscapement,
+			nOrientation, nWeight, bItalic, bUnderline, cStrikeOut,
+			nCharSet, nOutPrecision, nClipPrecision, nQuality,
+			nPitchAndFamily, lpszFacename);
+#endif // !_WIN32_WCE
 		return m_hFont;
 	}
-#endif // !_WIN32_WCE
+#endif // !defined(_WIN32_WCE) || (_ATL_VER >= 0x0800)
 
 	HFONT CreatePointFont(int nPointSize, LPCTSTR lpszFaceName, HDC hDC = NULL, bool bBold = false, bool bItalic = false)
 	{
@@ -2287,25 +2300,37 @@ public:
 	}
 #endif // !_WIN32_WCE
 
-#if !defined(_ATL_NO_MSIMG) && !defined(_WIN32_WCE)
-	BOOL AlphaBlend(int x, int y, int nWidth, int nHeight, HDC hSrcDC, int xSrc, int ySrc, int nSrcWidth, int nSrcHeight, BLENDFUNCTION bf)
+#if !defined(_ATL_NO_MSIMG) || defined(_WIN32_WCE)
+#ifdef _WIN32_WCE
+	BOOL TransparentImage(int x, int y, int nWidth, int nHeight, HDC hSrcDC, int xSrc, int ySrc, int nSrcWidth, int nSrcHeight, UINT crTransparent)
 	{
 		ATLASSERT(m_hDC != NULL);
-		return ::AlphaBlend(m_hDC, x, y, nWidth, nHeight, hSrcDC, xSrc, ySrc, nSrcWidth, nSrcHeight, bf);
+		return ::TransparentImage(m_hDC, x, y, nWidth, nHeight, hSrcDC, xSrc, ySrc, nSrcWidth, nSrcHeight, crTransparent);
 	}
-
+#else
 	BOOL TransparentBlt(int x, int y, int nWidth, int nHeight, HDC hSrcDC, int xSrc, int ySrc, int nSrcWidth, int nSrcHeight, UINT crTransparent)
 	{
 		ATLASSERT(m_hDC != NULL);
 		return ::TransparentBlt(m_hDC, x, y, nWidth, nHeight, hSrcDC, xSrc, ySrc, nSrcWidth, nSrcHeight, crTransparent);
 	}
+#endif // _WIN32_WCE
 
+#if (!defined(_WIN32_WCE) || (_WIN32_WCE >= 420))
 	BOOL GradientFill(const PTRIVERTEX pVertices, DWORD nVertices, void* pMeshElements, DWORD nMeshElements, DWORD dwMode)
 	{
 		ATLASSERT(m_hDC != NULL);
 		return ::GradientFill(m_hDC, pVertices, nVertices, pMeshElements, nMeshElements, dwMode);
 	}
-#endif // !defined(_ATL_NO_MSIMG) && !defined(_WIN32_WCE)
+#endif // !defined(_WIN32_WCE) || (_WIN32_WCE >= 420)
+
+#if (!defined(_WIN32_WCE) || (_WIN32_WCE >= 0x500))
+	BOOL AlphaBlend(int x, int y, int nWidth, int nHeight, HDC hSrcDC, int xSrc, int ySrc, int nSrcWidth, int nSrcHeight, BLENDFUNCTION bf)
+	{
+		ATLASSERT(m_hDC != NULL);
+		return ::AlphaBlend(m_hDC, x, y, nWidth, nHeight, hSrcDC, xSrc, ySrc, nSrcWidth, nSrcHeight, bf);
+	}
+#endif // !defined(_WIN32_WCE) || (_WIN32_WCE >= 0x500)
+#endif //  !defined(_ATL_NO_MSIMG) || defined(_WIN32_WCE)
 
 // Extra bitmap functions
 	// Helper function for painting a disabled toolbar or menu bitmap
