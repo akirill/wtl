@@ -11,35 +11,31 @@
 
 // Setup program for the Windows Mobile WTL App Wizard for VC++ 8.0 (Whidbey)
 
-try // Check Vista need for elevated privilege
+// Elevated privilege check
+try 
 {
-	// Decode command line arguments
 	var bElevated = false;
 	var Args = WScript.Arguments;
-	for(var i = 0; i < Args.length ; i++)
-		bElevated = (Args(i) == "/elevated");
+	for(i = 0; i < Args.length ; i++)
+		if (bElevated = (Args(i) == "/elevated"))
+		    break;
 
-	// See if UAC is enabled
 	var AppShell = WScript.CreateObject("Shell.Application");
-	if (!bElevated && AppShell.IsRestricted("System", "EnableLUA"))
-		// Check that the script is being run interactively.
-		if(WScript.Interactive)
-	        throw "Restricted";
-		else
-			throw "ERROR: Elevation required.";
+	
+	if (!bElevated && AppShell.IsRestricted("System", "EnableLUA")) 
+        throw (WScript.Interactive == true) ? "Restricted" : "Elevation required.";
 }
 catch(e)
 {
     if (e == "Restricted")
-    {
-	    var scriptParams = WScript.ScriptFullName + " /elevated";
-	    AppShell.ShellExecute("WScript.exe", scriptParams, null, "RunAs");
-	    WScript.Quit();	
-	}
+	    AppShell.ShellExecute("WScript.exe", WScript.ScriptFullName + " /elevated", null, "RunAs");
 	else
-	    throw e;
+	    WScript.Echo("Error: " + e);
+
+    WScript.Quit();	
 }
 
+// WTLMobile AppWizard registration
 try
 {
     var fso = WScript.CreateObject("Scripting.FileSystemObject");
@@ -86,8 +82,7 @@ try
 	
     WScript.Echo("WTL Mobile App Wizard successfully installed!");
 }
-
 catch(e)
 {
-	WScript.Echo("Error " + e);
+    WScript.Echo("Error " + e);
 }
