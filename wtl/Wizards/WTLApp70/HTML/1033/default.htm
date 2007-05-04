@@ -85,7 +85,6 @@
 		<SYMBOL NAME='WTL_APPTYPE_MDI' TYPE="checkbox" VALUE="false"></SYMBOL>
 		<SYMBOL NAME='WTL_APPTYPE_TABVIEW' TYPE="checkbox" VALUE="false"></SYMBOL>
 		<SYMBOL NAME='WTL_APPTYPE_EXPLORER' TYPE="checkbox" VALUE="false"></SYMBOL>
-		<SYMBOL NAME='WTL_APPTYPE_DLL' TYPE="checkbox" VALUE="false"></SYMBOL>
 		<SYMBOL NAME='WTL_APPTYPE_DLG' TYPE="checkbox" VALUE="false"></SYMBOL>
 		<SYMBOL NAME='WTL_APPTYPE_DLG_MODAL' TYPE="checkbox" VALUE="false"></SYMBOL>
 		<SYMBOL NAME='WTL_ENABLE_AX' TYPE="checkbox" VALUE="false"></SYMBOL>
@@ -410,7 +409,7 @@ function InitDocument(document)
 
 function Next(document, linkto)
 {
-	if(!(linkto == "UIFeatures.htm" && (window.external.FindSymbol("WTL_APPTYPE_DLG") || window.external.FindSymbol("WTL_APPTYPE_DLL"))))
+	if(!(linkto == "UIFeatures.htm" && window.external.FindSymbol("WTL_APPTYPE_DLG")))
 		window.external.Next(document, linkto);
 }
 
@@ -421,7 +420,7 @@ function OnFinish(document)
 
 function OnInit()
 {
-	if(window.external.FindSymbol("WTL_APPTYPE_DLG") || window.external.FindSymbol("WTL_APPTYPE_DLL"))
+	if(window.external.FindSymbol("WTL_APPTYPE_DLG"))
 		UIFeatures.className = "inactivelink";
 	else
 		UIFeatures.className = "activelink";
@@ -446,12 +445,10 @@ function OnInit()
 	{
 		APP_TYPE_SUMMARY.innerText = "Explorer Application";
 	}
-	else if(window.external.FindSymbol("WTL_APPTYPE_DLG") || window.external.FindSymbol("WTL_APPTYPE_DLL"))
+	else if(window.external.FindSymbol("WTL_APPTYPE_DLG"))
 	{
 		var strText = "";
-		if(window.external.FindSymbol("WTL_APPTYPE_DLL"))
-			strText = "DLL-based Application";
-		else if(window.external.FindSymbol("WTL_APPTYPE_DLG_MODAL"))
+		if(window.external.FindSymbol("WTL_APPTYPE_DLG_MODAL"))
 			strText = "Modal Dialog Application";
 		else
 			strText = "Dialog-based Application";
@@ -472,7 +469,7 @@ function OnInit()
 		COM_SERVER_SUMMARY.parentNode.style.display = 'none';
 	}
 
-	if(!window.external.FindSymbol("WTL_APPTYPE_DLG") && !window.external.FindSymbol("WTL_APPTYPE_DLL") && window.external.FindSymbol("WTL_USE_VIEW"))
+	if(!window.external.FindSymbol("WTL_APPTYPE_DLG") && window.external.FindSymbol("WTL_USE_VIEW"))
 	{
 		var strText = "View window";
 

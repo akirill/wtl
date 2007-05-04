@@ -21,7 +21,7 @@ function OnFinish(selProj, selObj)
 		if(WizardVersion >= 8.0)
 		{
 			// Use embedded manifest for VS2005
-			if(wizard.FindSymbol("WTL_USE_MANIFEST") && !wizard.FindSymbol("WTL_APPTYPE_DLL"))
+			if(wizard.FindSymbol("WTL_USE_MANIFEST"))
 			{
 				wizard.AddSymbol("WTL_USE_EMBEDDED_MANIFEST", true);
 				wizard.AddSymbol("WTL_USE_MANIFEST", false);
@@ -73,16 +73,13 @@ function OnFinish(selProj, selObj)
 			wizard.AddSymbol("WTL_FRAME_BASE_CLASS","CMDIFrameWindowImpl");
 			wizard.AddSymbol("WTL_CHILD_FRAME_BASE_CLASS","CMDIChildWindowImpl");
 		}
-		else if(wizard.FindSymbol("WTL_APPTYPE_DLG") || wizard.FindSymbol("WTL_APPTYPE_DLL"))
-		{
-			if(wizard.FindSymbol("WTL_APPTYPE_DLG"))
+		else if(wizard.FindSymbol("WTL_APPTYPE_DLG"))
 		{
 			wizard.AddSymbol("WTL_MAINDLG_CLASS","CMainDlg");
 			if(wizard.FindSymbol("WTL_ENABLE_AX"))
 				wizard.AddSymbol("WTL_MAINDLG_BASE_CLASS", "CAxDialogImpl");
 			else
 				wizard.AddSymbol("WTL_MAINDLG_BASE_CLASS", "CDialogImpl");
-			}
 
 			wizard.AddSymbol("WTL_USE_TOOLBAR", false);
 			wizard.AddSymbol("WTL_USE_REBAR", false);
@@ -285,9 +282,6 @@ function AddConfigurations(proj, strProjectName)
 			// General settings
 			var config = proj.Object.Configurations(astrConfigName[nCntr]);
 
-			if(wizard.FindSymbol("WTL_APPTYPE_DLL"))
-				config.ConfigurationType = 2;
-
 			if(wizard.FindSymbol("WTL_USE_UNICODE"))
 				config.CharacterSet = charSetUnicode;
 			else
@@ -330,8 +324,6 @@ function AddConfigurations(proj, strProjectName)
 
 			var strDefines = GetPlatformDefine(config);
 			strDefines += "_WINDOWS;STRICT;";
-			if(wizard.FindSymbol("WTL_APPTYPE_DLL"))
-				strDefines += "WIN32;_USRDLL;" + wizard.FindSymbol("UPPERCASE_SAFE_PROJECT_NAME") + "_EXPORTS;";
 			if(bDebug)
 				strDefines += "_DEBUG";
 			else

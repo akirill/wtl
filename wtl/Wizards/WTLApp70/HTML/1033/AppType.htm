@@ -232,12 +232,6 @@
 																	E<U>x</U>plorer Application</LABEL>
 															</DIV>
 															<BR>
-															<INPUT TYPE="radio" CLASS="Radio" NAME="apptype" ID="WTL_APPTYPE_DLL" ACCESSKEY="L" TITLE="Create a DLL-based application." VALUE="ON" onClick="OnAppType();">
-															<DIV CLASS="itemTextRadioB" TITLE="Create a DLL-based application." ID="WTL_APPTYPE_DLL_DIV">
-																<LABEL FOR="WTL_APPTYPE_DLL" TITLE="Create a DLL-based application." ID="WTL_APPTYPE_DLL_LABEL">
-																	D<U>L</U>L Application</LABEL>
-															</DIV>
-															<BR>
 															<INPUT TYPE="radio" CLASS="Radio" NAME="apptype" ID="WTL_APPTYPE_DLG" ACCESSKEY="D" TITLE="Create a dialog-based application." VALUE="ON" onClick="OnAppType();">
 															<DIV CLASS="itemTextRadioB" TITLE="Create a dialog-based application." ID="WTL_APPTYPE_DLG_DIV">
 																<LABEL FOR="WTL_APPTYPE_DLG" TITLE="Create a dialog-based application." ID="WTL_APPTYPE_DLG_LABEL">
@@ -399,7 +393,7 @@ function InitDocument(document)
 
 function Next(document, linkto)
 {
-	if(!(linkto == "UIFeatures.htm" && (WTL_APPTYPE_DLG.checked || WTL_APPTYPE_DLL.checked)))
+	if(!(linkto == "UIFeatures.htm" && WTL_APPTYPE_DLG.checked))
 		window.external.Next(document, linkto);
 }
 
@@ -415,23 +409,17 @@ function OnInit()
 
 function OnAppType()
 {
-	WTL_ENABLE_AX.disabled = WTL_APPTYPE_DLL.checked;
-	WTL_COM_SERVER.disabled = WTL_APPTYPE_DLL.checked;
-
-	if(WTL_APPTYPE_DLG.checked || WTL_APPTYPE_DLL.checked)
-	{
 	if(WTL_APPTYPE_DLG.checked)
 	{
 		WTL_APPTYPE_DLG_MODAL.disabled = false;
 		WTL_APPTYPE_DLG_MODAL_LABEL.disabled = false;
-			window.external.AddSymbol("WTL_WAS_DLG", true);
-		}
 
 		UIFeatures.className = "inactivelink";
 		var WizardVersion = window.external.FindSymbol('WIZARD_VERSION');
 		if(WizardVersion >= 8.0)
 			NextBtn.disabled = true;
 
+		window.external.AddSymbol("WTL_WAS_DLG", true);
 	}
 	else
 	{

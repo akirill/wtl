@@ -2,7 +2,6 @@
 //
 
 #include "stdafx.h"
-[!if !WTL_APPTYPE_DLL]
 [!if !WTL_USE_CPP_FILES]
 
 #include <atlframe.h>
@@ -374,21 +373,3 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR /*
 
 	return nRet;
 }
-[!else]
-CAppModule _Module;
-
-BOOL APIENTRY DllMain(HMODULE hModule, DWORD dwReason, LPVOID /*lpvReserved*/)
-{
-	switch (dwReason)
-	{
-	case DLL_PROCESS_ATTACH:
-		ATLVERIFY(SUCCEEDED(_Module.Init(NULL, hModule)));
-		DisableThreadLibraryCalls(hModule);
-		break;
-	case DLL_PROCESS_DETACH:
-		_Module.Term();
-		break;
-	}
-	return TRUE;
-}
-[!endif]
