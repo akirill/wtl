@@ -52,7 +52,7 @@ END
 #endif    // APSTUDIO_INVOKED
 
 
-[!if !WTL_APPTYPE_DLG]
+[!if !WTL_APPTYPE_DLG && !WTL_APPTYPE_DLL]
 [!if WTL_USE_TOOLBAR]
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -310,7 +310,7 @@ BEGIN
 END
 #endif    // APSTUDIO_INVOKED
 
-
+[!if !WTL_APPTYPE_DLL]
 /////////////////////////////////////////////////////////////////////////////
 //
 // Accelerator
@@ -335,7 +335,7 @@ BEGIN
     VK_F6,          ID_NEXT_PANE,           VIRTKEY 
     VK_F6,          ID_PREV_PANE,           VIRTKEY, SHIFT
 END
-
+[!endif]
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -390,7 +390,7 @@ BEGIN
     IDR_MDICHILD        "Document"
 [!endif]
 END
-
+[!if !WTL_APPTYPE_DLL]
 STRINGTABLE 
 BEGIN
     ID_FILE_NEW             "Create a new document\nNew"
@@ -490,6 +490,7 @@ BEGIN
 	ID_FILE_NEW_WINDOW  "Open a new window\nNew Window"
 END
 
+[!endif]
 [!endif]
 #endif    // English (U.S.) resources
 /////////////////////////////////////////////////////////////////////////////

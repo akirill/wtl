@@ -4,7 +4,7 @@ root.cpp
 root.h
 root.rc
 
-[!if !WTL_APPTYPE_DLG]
+[!if !WTL_APPTYPE_DLG && !WTL_APPTYPE_DLL]
 frame.h
 [!if WTL_USE_CPP_FILES]
 frame.cpp
