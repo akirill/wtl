@@ -718,8 +718,11 @@ public:
 		BOOL bRet = m_arrCommand.Add((WORD)nCommandID);
 		ATLASSERT(::ImageList_GetImageCount(m_hImageList) == m_arrCommand.GetSize());
 #if _WTL_CMDBAR_VISTA_MENUS
-		pT->_AddVistaBitmapFromImageList(m_arrCommand.GetSize() - 1);
-		ATLASSERT(m_arrVistaBitmap.GetSize() == m_arrCommand.GetSize());
+		if(RunTimeHelper::IsVista())
+		{
+			pT->_AddVistaBitmapFromImageList(m_arrCommand.GetSize() - 1);
+			ATLASSERT(m_arrVistaBitmap.GetSize() == m_arrCommand.GetSize());
+		}
 #endif // _WTL_CMDBAR_VISTA_MENUS
 		return bRet;
 	}
@@ -750,8 +753,11 @@ public:
 		BOOL bRet = m_arrCommand.Add((WORD)nCommandID);
 		ATLASSERT(::ImageList_GetImageCount(m_hImageList) == m_arrCommand.GetSize());
 #if _WTL_CMDBAR_VISTA_MENUS
-		pT->_AddVistaBitmapFromImageList(m_arrCommand.GetSize() - 1);
-		ATLASSERT(m_arrVistaBitmap.GetSize() == m_arrCommand.GetSize());
+		if(RunTimeHelper::IsVista())
+		{
+			pT->_AddVistaBitmapFromImageList(m_arrCommand.GetSize() - 1);
+			ATLASSERT(m_arrVistaBitmap.GetSize() == m_arrCommand.GetSize());
+		}
 #endif // _WTL_CMDBAR_VISTA_MENUS
 		return bRet;
 	}
@@ -779,9 +785,12 @@ public:
 				{
 					m_arrCommand.RemoveAt(i);
 #if _WTL_CMDBAR_VISTA_MENUS
-					if(m_arrVistaBitmap[i] != NULL)
-						::DeleteObject(m_arrVistaBitmap[i]);
-					m_arrVistaBitmap.RemoveAt(i);
+					if(RunTimeHelper::IsVista())
+					{
+						if(m_arrVistaBitmap[i] != NULL)
+							::DeleteObject(m_arrVistaBitmap[i]);
+						m_arrVistaBitmap.RemoveAt(i);
+					}
 #endif // _WTL_CMDBAR_VISTA_MENUS
 				}
 				break;
@@ -811,7 +820,7 @@ public:
 			{
 				bRet = (::ImageList_ReplaceIcon(m_hImageList, i, hIcon) != -1);
 #if _WTL_CMDBAR_VISTA_MENUS
-				if(bRet != FALSE)
+				if(RunTimeHelper::IsVista() && bRet != FALSE)
 				{
 					T* pT = static_cast<T*>(this);
 					pT->_ReplaceVistaBitmapFromImageList(i);
@@ -837,9 +846,12 @@ public:
 				{
 					m_arrCommand.RemoveAt(i);
 #if _WTL_CMDBAR_VISTA_MENUS
-					if(m_arrVistaBitmap[i] != NULL)
-						::DeleteObject(m_arrVistaBitmap[i]);
-					m_arrVistaBitmap.RemoveAt(i);
+					if(RunTimeHelper::IsVista())
+					{
+						if(m_arrVistaBitmap[i] != NULL)
+							::DeleteObject(m_arrVistaBitmap[i]);
+						m_arrVistaBitmap.RemoveAt(i);
+					}
 #endif // _WTL_CMDBAR_VISTA_MENUS
 				}
 				break;
@@ -3152,10 +3164,6 @@ public:
 
 	void _AddVistaBitmapFromImageList(int nIndex)
 	{
-		// Delete existing bitmap
-		if(m_arrVistaBitmap[nIndex] != NULL)
-			::DeleteObject(m_arrVistaBitmap[nIndex]);
-
 		// Create display compatible memory DC
 		HDC hDC = ::GetDC(NULL);
 		CDC dcMem;
