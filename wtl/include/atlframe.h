@@ -3283,7 +3283,7 @@ public:
 		{
 			if((data.m_dwResizeFlags & DLSZ_CENTER_X) != 0)
 			{
-				int cxRight = ::MulDiv(rectGroup.right, cxWidth, m_sizeDialog.cx);
+				int cxRight = rectGroup.right + cxWidth - m_sizeDialog.cx;
 				int cxCtl = data.m_rect.right - data.m_rect.left;
 				rectCtl.left = rectGroup.left + (cxRight - rectGroup.left - cxCtl) / 2;
 				rectCtl.right = rectCtl.left + cxCtl;
@@ -3302,11 +3302,9 @@ public:
 						RECT rcPrev = { 0 };
 						ctlPrev.GetWindowRect(&rcPrev);
 						::MapWindowPoints(NULL, pT->m_hWnd, (LPPOINT)&rcPrev, 2);
-						int xPrev = rcPrev.right;
-						int dxAdjust = (rectCtl.left - xPrev) - (data.m_rect.left - pDataPrev->m_rect.right);
-						rcPrev.right += dxAdjust - (dxAdjust / 2);
+						int dxAdjust = (rectCtl.left - rcPrev.right) - (data.m_rect.left - pDataPrev->m_rect.right);
+						rcPrev.right += dxAdjust;
 						ctlPrev.SetWindowPos(NULL, &rcPrev, SWP_NOZORDER | SWP_NOACTIVATE | SWP_NOMOVE);
-						rectCtl.left -= dxAdjust / 2;
 					}
 				}
 				else
@@ -3317,7 +3315,7 @@ public:
 
 			if((data.m_dwResizeFlags & DLSZ_CENTER_Y) != 0)
 			{
-				int cyBottom = ::MulDiv(rectGroup.bottom, cyHeight, m_sizeDialog.cy);
+				int cyBottom = rectGroup.bottom + cyHeight - m_sizeDialog.cy;
 				int cyCtl = data.m_rect.bottom - data.m_rect.top;
 				rectCtl.top = rectGroup.top + (cyBottom - rectGroup.top - cyCtl) / 2;
 				rectCtl.bottom = rectCtl.top + cyCtl;
@@ -3336,11 +3334,9 @@ public:
 						RECT rcPrev = { 0 };
 						ctlPrev.GetWindowRect(&rcPrev);
 						::MapWindowPoints(NULL, pT->m_hWnd, (LPPOINT)&rcPrev, 2);
-						int yPrev = rcPrev.bottom;
-						int dxAdjust = (rectCtl.top - yPrev) - (data.m_rect.top - pDataPrev->m_rect.bottom);
-						rcPrev.bottom += dxAdjust - (dxAdjust / 2);
+						int dxAdjust = (rectCtl.top - rcPrev.bottom) - (data.m_rect.top - pDataPrev->m_rect.bottom);
+						rcPrev.bottom += dxAdjust;
 						ctlPrev.SetWindowPos(NULL, &rcPrev, SWP_NOZORDER | SWP_NOACTIVATE | SWP_NOMOVE);
-						rectCtl.top -= dxAdjust / 2;
 					}
 				}
 				else
