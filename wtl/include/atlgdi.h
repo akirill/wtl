@@ -294,9 +294,9 @@ public:
 		ATLASSERT(m_hBrush == NULL);
 #ifndef _WIN32_WCE
 		m_hBrush = ::CreateBrushIndirect(lpLogBrush);
-#else
+#else // CE specific
 		m_hBrush = ATL::CreateBrushIndirect(lpLogBrush);
-#endif // !_WIN32_WCE
+#endif // _WIN32_WCE
 		return m_hBrush;
 	}
 #endif // !defined(_WIN32_WCE) || (_ATL_VER >= 0x0800)
@@ -433,7 +433,7 @@ public:
 #else // CE specific
 		// DP and LP are always the same on CE
 		return ::MulDiv(abs(lfHeight), 720, ::GetDeviceCaps(hDC, LOGPIXELSY));   // 72 points/inch, 10 decipoints/point
-#endif // !_WIN32_WCE
+#endif // _WIN32_WCE
 	}
 
 	void SetHeightFromDeciPoint(LONG nDeciPtHeight, HDC hDC = NULL)
@@ -448,7 +448,7 @@ public:
 #else // CE specific
 		// DP and LP are always the same on CE
 		lfHeight = -abs(::MulDiv(::GetDeviceCaps(hDC, LOGPIXELSY), nDeciPtHeight, 720));   // 72 points/inch, 10 decipoints/point
-#endif // !_WIN32_WCE
+#endif // _WIN32_WCE
 	}
 
 #ifndef _WIN32_WCE
@@ -582,7 +582,7 @@ public:
 		m_hFont = ::CreateFontIndirectEx(penumlfex);
 		return m_hFont;
 	}
-#endif // (_WIN32_WINNT >= 0x0500)
+#endif // !defined(_WIN32_WCE) && (_WIN32_WINNT >= 0x0500)
 
 #if !defined(_WIN32_WCE) || (_ATL_VER >= 0x0800)
 	HFONT CreateFont(int nHeight, int nWidth, int nEscapement,
@@ -597,12 +597,12 @@ public:
 			nOrientation, nWeight, bItalic, bUnderline, cStrikeOut,
 			nCharSet, nOutPrecision, nClipPrecision, nQuality,
 			nPitchAndFamily, lpszFacename);
-#else
+#else // CE specific
 		m_hFont = ATL::CreateFont(nHeight, nWidth, nEscapement,
 			nOrientation, nWeight, bItalic, bUnderline, cStrikeOut,
 			nCharSet, nOutPrecision, nClipPrecision, nQuality,
 			nPitchAndFamily, lpszFacename);
-#endif // !_WIN32_WCE
+#endif // _WIN32_WCE
 		return m_hFont;
 	}
 #endif // !defined(_WIN32_WCE) || (_ATL_VER >= 0x0800)
@@ -638,7 +638,7 @@ public:
 #else // CE specific
 		// DP and LP are always the same on CE
 		logFont.lfHeight = -abs(::MulDiv(::GetDeviceCaps(hDC1, LOGPIXELSY), logFont.lfHeight, 720));   // 72 points/inch, 10 decipoints/point
-#endif // !_WIN32_WCE
+#endif // _WIN32_WCE
 
 		if(hDC == NULL)
 			::ReleaseDC(NULL, hDC1);
@@ -2301,17 +2301,17 @@ public:
 #endif // !_WIN32_WCE
 
 #if !defined(_ATL_NO_MSIMG) || defined(_WIN32_WCE)
-#ifdef _WIN32_WCE
-	BOOL TransparentImage(int x, int y, int nWidth, int nHeight, HDC hSrcDC, int xSrc, int ySrc, int nSrcWidth, int nSrcHeight, UINT crTransparent)
-	{
-		ATLASSERT(m_hDC != NULL);
-		return ::TransparentImage(m_hDC, x, y, nWidth, nHeight, hSrcDC, xSrc, ySrc, nSrcWidth, nSrcHeight, crTransparent);
-	}
-#else
+#ifndef _WIN32_WCE
 	BOOL TransparentBlt(int x, int y, int nWidth, int nHeight, HDC hSrcDC, int xSrc, int ySrc, int nSrcWidth, int nSrcHeight, UINT crTransparent)
 	{
 		ATLASSERT(m_hDC != NULL);
 		return ::TransparentBlt(m_hDC, x, y, nWidth, nHeight, hSrcDC, xSrc, ySrc, nSrcWidth, nSrcHeight, crTransparent);
+	}
+#else // CE specific
+	BOOL TransparentImage(int x, int y, int nWidth, int nHeight, HDC hSrcDC, int xSrc, int ySrc, int nSrcWidth, int nSrcHeight, UINT crTransparent)
+	{
+		ATLASSERT(m_hDC != NULL);
+		return ::TransparentImage(m_hDC, x, y, nWidth, nHeight, hSrcDC, xSrc, ySrc, nSrcWidth, nSrcHeight, crTransparent);
 	}
 #endif // _WIN32_WCE
 
@@ -2323,13 +2323,13 @@ public:
 	}
 #endif // !defined(_WIN32_WCE) || (_WIN32_WCE >= 420)
 
-#if (!defined(_WIN32_WCE) || (_WIN32_WCE >= 0x500))
+#if !defined(_WIN32_WCE) || (_WIN32_WCE > 0x500)
 	BOOL AlphaBlend(int x, int y, int nWidth, int nHeight, HDC hSrcDC, int xSrc, int ySrc, int nSrcWidth, int nSrcHeight, BLENDFUNCTION bf)
 	{
 		ATLASSERT(m_hDC != NULL);
 		return ::AlphaBlend(m_hDC, x, y, nWidth, nHeight, hSrcDC, xSrc, ySrc, nSrcWidth, nSrcHeight, bf);
 	}
-#endif // !defined(_WIN32_WCE) || (_WIN32_WCE >= 0x500)
+#endif // !defined(_WIN32_WCE) || (_WIN32_WCE > 0x500)
 #endif //  !defined(_ATL_NO_MSIMG) || defined(_WIN32_WCE)
 
 // Extra bitmap functions
