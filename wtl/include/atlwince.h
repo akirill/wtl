@@ -300,10 +300,17 @@ public:
 		dc.DrawText(sTitle, nLen, &rTitle, DT_VCENTER | DT_SINGLELINE);
 		dc.SelectFont(fontOld);
 
-		// Draw bottom line
+		// Draw bottom line, 2 pixels thick if HI_RES_AWARE
 		CPenHandle penOld = dc.SelectStockPen(BLACK_PEN);
-		POINT line[2] = { { 0, nTitleHeight }, { nWidth, nTitleHeight } };
-		dc.Polyline(line, 2);
+		POINT line[4] = {{0, nTitleHeight}, {nWidth, nTitleHeight}, {0, nTitleHeight - 1}, {nWidth, nTitleHeight - 1}};
+
+	#ifdef _WTL_CE_DRA
+		int nSeg = DRA::SCALEX(1);
+	#else // !_WTL_CE_DRA
+		int nSeg = nTitleHeight / 24; 
+	#endif // !_WTL_CE_DRA
+
+		dc.Polyline(line, nSeg <= 2 ? nSeg * 2 : 4);
 		dc.SelectPen(penOld);
 
 		return false;
