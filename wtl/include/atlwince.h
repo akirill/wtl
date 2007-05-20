@@ -305,7 +305,7 @@ public:
 		POINT line[4] = {{0, nTitleHeight}, {nWidth, nTitleHeight}, {0, nTitleHeight - 1}, {nWidth, nTitleHeight - 1}};
 
 	#ifdef _WTL_CE_DRA
-		int nSeg = DRA::SCALEX(1);
+		int nSeg = DRA::SCALEY(1);
 	#else // !_WTL_CE_DRA
 		int nSeg = nTitleHeight / 24; 
 	#endif // !_WTL_CE_DRA
