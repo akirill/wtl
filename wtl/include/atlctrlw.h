@@ -3772,17 +3772,20 @@ public:
 
 	LRESULT OnCaptureChanged(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
 	{
-		if(m_bChildMaximized && m_nBtnPressed != -1)
+		if(m_bChildMaximized)
 		{
-			ATLASSERT(m_nBtnPressed == m_nBtnWasPressed);   // must be
-			m_nBtnPressed = -1;
-			RECT rect = { 0 };
-			GetWindowRect(&rect);
-			RECT arrRect[3] = { 0 };
-			T* pT = static_cast<T*>(this);
-			pT->_CalcBtnRects(rect.right - rect.left, rect.bottom - rect.top, arrRect);
-			CWindowDC dc(m_hWnd);
-			pT->_DrawMDIButton(dc, arrRect, m_nBtnWasPressed);
+			if(m_nBtnPressed != -1)
+			{
+				ATLASSERT(m_nBtnPressed == m_nBtnWasPressed);   // must be
+				m_nBtnPressed = -1;
+				RECT rect = { 0 };
+				GetWindowRect(&rect);
+				RECT arrRect[3] = { 0 };
+				T* pT = static_cast<T*>(this);
+				pT->_CalcBtnRects(rect.right - rect.left, rect.bottom - rect.top, arrRect);
+				CWindowDC dc(m_hWnd);
+				pT->_DrawMDIButton(dc, arrRect, m_nBtnWasPressed);
+			}
 			m_nBtnWasPressed = -1;
 		}
 		else
