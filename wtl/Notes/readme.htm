@@ -25,8 +25,8 @@
 <table border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111" id="AutoNumber3">
   <tr>
     <td class="style3"><font face="Arial"><b>Windows Template Library - WTL Version 8.0</b></font><font face="Arial" size="2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
-(build 7108) 4/18/07<br>
-	<strong>Beta 1</strong></font></td>
+	(build 7141) 5/21/07<br>
+	<strong>Beta</strong></font></td>
   </tr>
   <tr>
     <td><hr></td>
@@ -1745,6 +1745,28 @@ use Common Controls 6, that should be used only for test programs and is not
 recommended or supported for released projects. If you want to use Common 
 Controls 6, build your application as Unicode.</font></p>
 <p style=margin:0in>&nbsp;</p>
+<p style=margin:0in><font face="Arial" size="2"><b>~</b>&nbsp;&nbsp;&nbsp; 
+</font><span class="style2">If you build your app that hosts ActiveX controls 
+with VC++ 7.x, you can see this assert failing:<br>
+<strong><br>
+&nbsp;&nbsp;&nbsp; !InlineIsEqualGUID(*m_plibid, GUID_NULL) &amp;&amp; &quot;Did you forget 
+to pass the LIBID to CComModule::Init?&quot;<br>
+<br>
+</strong>There are two ways to fix this:</span></p>
+<ul>
+	<li>
+	<p style=margin:0in><span class="style2">In the main .CPP file of your 
+	project, replace the line<br>
+	<strong>&nbsp;&nbsp;&nbsp; hRes = _Module.Init(NULL, hInstance);<br>
+	</strong>with this one<br>
+	<strong>&nbsp;&nbsp;&nbsp; hRes = _Module.Init(NULL, hInstance, &amp;LIBID_ATLLib);<br>
+&nbsp;</strong></span></p>
+	</li>
+	<li>
+	<p style=margin:0in><span class="style2">Compile you project with _ATL_DLL 
+	defined (dynamic link to ATL)</span></p>
+	</li>
+</ul>
 <p style=margin:0in><font face="Arial" size="2"><b>~</b>&nbsp;&nbsp;&nbsp; 
 Several of the sample programs included with WTL were extended to support 
 building for Windows CE. These samples are not specially redesigned for Windows 
