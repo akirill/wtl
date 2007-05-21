@@ -4789,106 +4789,106 @@ public:
 		return InsertItem(TVIF_TEXT, lpszItem, 0, 0, 0, 0, 0, hParent, hInsertAfter);
 	}
 
-	CTreeItemT<TBase> GetNextItem(HTREEITEM hItem, UINT nCode)
+	CTreeItemT<TBase> GetNextItem(HTREEITEM hItem, UINT nCode) const
 	{
 		ATLASSERT(::IsWindow(m_hWnd)); 
 		HTREEITEM hTreeItem = (HTREEITEM)::SendMessage(m_hWnd, TVM_GETNEXTITEM, nCode, (LPARAM)hItem);
-		return CTreeItemT<TBase>(hTreeItem, this);
+		return CTreeItemT<TBase>(hTreeItem, (CTreeViewCtrlExT<TBase>*)this);
 	}
 
-	CTreeItemT<TBase> GetChildItem(HTREEITEM hItem)
+	CTreeItemT<TBase> GetChildItem(HTREEITEM hItem) const
 	{
 		ATLASSERT(::IsWindow(m_hWnd)); 
 		HTREEITEM hTreeItem = (HTREEITEM)::SendMessage(m_hWnd, TVM_GETNEXTITEM, TVGN_CHILD, (LPARAM)hItem);
-		return CTreeItemT<TBase>(hTreeItem, this); 
+		return CTreeItemT<TBase>(hTreeItem, (CTreeViewCtrlExT<TBase>*)this); 
 	}
 
-	CTreeItemT<TBase> GetNextSiblingItem(HTREEITEM hItem)
+	CTreeItemT<TBase> GetNextSiblingItem(HTREEITEM hItem) const
 	{
 		ATLASSERT(::IsWindow(m_hWnd)); 
 		HTREEITEM hTreeItem = (HTREEITEM)::SendMessage(m_hWnd, TVM_GETNEXTITEM, TVGN_NEXT, (LPARAM)hItem); 
-		return CTreeItemT<TBase>(hTreeItem, this);
+		return CTreeItemT<TBase>(hTreeItem, (CTreeViewCtrlExT<TBase>*)this);
 	}
 
-	CTreeItemT<TBase> GetPrevSiblingItem(HTREEITEM hItem)
+	CTreeItemT<TBase> GetPrevSiblingItem(HTREEITEM hItem) const
 	{
 		ATLASSERT(::IsWindow(m_hWnd)); 
 		HTREEITEM hTreeItem = (HTREEITEM)::SendMessage(m_hWnd, TVM_GETNEXTITEM, TVGN_PREVIOUS, (LPARAM)hItem);
-		return CTreeItemT<TBase>(hTreeItem, this);
+		return CTreeItemT<TBase>(hTreeItem, (CTreeViewCtrlExT<TBase>*)this);
 	}
 
-	CTreeItemT<TBase> GetParentItem(HTREEITEM hItem)
+	CTreeItemT<TBase> GetParentItem(HTREEITEM hItem) const
 	{
 		ATLASSERT(::IsWindow(m_hWnd)); 
 		HTREEITEM hTreeItem = (HTREEITEM)::SendMessage(m_hWnd, TVM_GETNEXTITEM, TVGN_PARENT, (LPARAM)hItem); 
-		return CTreeItemT<TBase>(hTreeItem, this);
+		return CTreeItemT<TBase>(hTreeItem, (CTreeViewCtrlExT<TBase>*)this);
 	}
 
-	CTreeItemT<TBase> GetFirstVisibleItem()
+	CTreeItemT<TBase> GetFirstVisibleItem() const
 	{
 		ATLASSERT(::IsWindow(m_hWnd)); 
 		HTREEITEM hTreeItem = (HTREEITEM)::SendMessage(m_hWnd, TVM_GETNEXTITEM, TVGN_FIRSTVISIBLE, 0L);
-		return CTreeItemT<TBase>(hTreeItem, this);
+		return CTreeItemT<TBase>(hTreeItem, (CTreeViewCtrlExT<TBase>*)this);
 	}
 
-	CTreeItemT<TBase> GetNextVisibleItem(HTREEITEM hItem)
+	CTreeItemT<TBase> GetNextVisibleItem(HTREEITEM hItem) const
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
 		HTREEITEM hTreeItem = (HTREEITEM)::SendMessage(m_hWnd, TVM_GETNEXTITEM, TVGN_NEXTVISIBLE, (LPARAM)hItem);
-		return CTreeItemT<TBase>(hTreeItem, this);
+		return CTreeItemT<TBase>(hTreeItem, (CTreeViewCtrlExT<TBase>*)this);
 	}
 
-	CTreeItemT<TBase> GetPrevVisibleItem(HTREEITEM hItem)
+	CTreeItemT<TBase> GetPrevVisibleItem(HTREEITEM hItem) const
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
 		HTREEITEM hTreeItem = (HTREEITEM)::SendMessage(m_hWnd, TVM_GETNEXTITEM, TVGN_PREVIOUSVISIBLE, (LPARAM)hItem);
-		return CTreeItemT<TBase>(hTreeItem, this);
+		return CTreeItemT<TBase>(hTreeItem, (CTreeViewCtrlExT<TBase>*)this);
 	}
 
-	CTreeItemT<TBase> GetSelectedItem()
+	CTreeItemT<TBase> GetSelectedItem() const
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
 		HTREEITEM hTreeItem = (HTREEITEM)::SendMessage(m_hWnd, TVM_GETNEXTITEM, TVGN_CARET, 0L);
-		return CTreeItemT<TBase>(hTreeItem, this);
+		return CTreeItemT<TBase>(hTreeItem, (CTreeViewCtrlExT<TBase>*)this);
 	}
 
-	CTreeItemT<TBase> GetDropHilightItem()
+	CTreeItemT<TBase> GetDropHilightItem() const
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
 		HTREEITEM hTreeItem = (HTREEITEM)::SendMessage(m_hWnd, TVM_GETNEXTITEM, TVGN_DROPHILITE, 0L);
-		return CTreeItemT<TBase>(hTreeItem, this);
+		return CTreeItemT<TBase>(hTreeItem, (CTreeViewCtrlExT<TBase>*)this);
 	}
 
-	CTreeItemT<TBase> GetRootItem()
+	CTreeItemT<TBase> GetRootItem() const
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
 		HTREEITEM hTreeItem = (HTREEITEM)::SendMessage(m_hWnd, TVM_GETNEXTITEM, TVGN_ROOT, 0L);
-		return CTreeItemT<TBase>(hTreeItem, this);
+		return CTreeItemT<TBase>(hTreeItem, (CTreeViewCtrlExT<TBase>*)this);
 	}
 
 #if !defined(_WIN32_WCE) && (_WIN32_IE >= 0x0400)
-	CTreeItemT<TBase> GetLastVisibleItem()
+	CTreeItemT<TBase> GetLastVisibleItem() const
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
 		HTREEITEM hTreeItem = (HTREEITEM)::SendMessage(m_hWnd, TVM_GETNEXTITEM, TVGN_LASTVISIBLE, 0L);
-		return CTreeItemT<TBase>(hTreeItem, this);
+		return CTreeItemT<TBase>(hTreeItem, (CTreeViewCtrlExT<TBase>*)this);
 	}
 #endif // !defined(_WIN32_WCE) && (_WIN32_IE >= 0x0400)
 
 #if (_WIN32_IE >= 0x0600)
-	CTreeItemT<TBase> GetNextSelectedItem()
+	CTreeItemT<TBase> GetNextSelectedItem() const
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
 		HTREEITEM hTreeItem = (HTREEITEM)::SendMessage(m_hWnd, TVM_GETNEXTITEM, TVGN_NEXTSELECTED, 0L);
-		return CTreeItemT<TBase>(hTreeItem, this);
+		return CTreeItemT<TBase>(hTreeItem, (CTreeViewCtrlExT<TBase>*)this);
 	}
 #endif // (_WIN32_IE >= 0x0600)
 
-	CTreeItemT<TBase> HitTest(TVHITTESTINFO* pHitTestInfo)
+	CTreeItemT<TBase> HitTest(TVHITTESTINFO* pHitTestInfo) const
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
 		HTREEITEM hTreeItem = (HTREEITEM)::SendMessage(m_hWnd, TVM_HITTEST, 0, (LPARAM)pHitTestInfo);
-		return CTreeItemT<TBase>(hTreeItem, this);
+		return CTreeItemT<TBase>(hTreeItem, (CTreeViewCtrlExT<TBase>*)this);
 	}
 
 	CTreeItemT<TBase> InsertItem(UINT nMask, LPCTSTR lpszItem, int nImage,
@@ -4910,7 +4910,7 @@ public:
 		return CTreeItemT<TBase>(hTreeItem, this);
 	}
 
-	CTreeItemT<TBase> HitTest(POINT pt, UINT* pFlags)
+	CTreeItemT<TBase> HitTest(POINT pt, UINT* pFlags) const
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
 		TVHITTESTINFO hti = { 0 };
@@ -4918,7 +4918,7 @@ public:
 		HTREEITEM hTreeItem = (HTREEITEM)::SendMessage(m_hWnd, TVM_HITTEST, 0, (LPARAM)&hti);
 		if (pFlags != NULL)
 			*pFlags = hti.flags;
-		return CTreeItemT<TBase>(hTreeItem, this);
+		return CTreeItemT<TBase>(hTreeItem, (CTreeViewCtrlExT<TBase>*)this);
 	}
 
 #if (_WIN32_WINNT >= 0x0501)
@@ -4926,7 +4926,7 @@ public:
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
 		HTREEITEM hTreeItem = (HTREEITEM)::SendMessage(m_hWnd, TVM_MAPACCIDTOHTREEITEM, uID, 0L);
-		return CTreeItemT<TBase>(hTreeItem, (CTreeViewCtrlEx*)this);
+		return CTreeItemT<TBase>(hTreeItem, (CTreeViewCtrlExT<TBase>*)this);
 	}
 #endif // (_WIN32_WINNT >= 0x0501)
 };
