@@ -1595,13 +1595,13 @@ public:
 		return ::SetViewportOrgEx(m_hDC, x, y, lpPoint);
 	}
 
-#ifndef _WIN32_WCE
 	BOOL SetViewportOrg(POINT point, LPPOINT lpPointRet = NULL)
 	{
 		ATLASSERT(m_hDC != NULL);
 		return SetViewportOrg(point.x, point.y, lpPointRet);
 	}
 
+#ifndef _WIN32_WCE
 	BOOL OffsetViewportOrg(int nWidth, int nHeight, LPPOINT lpPoint = NULL)
 	{
 		ATLASSERT(m_hDC != NULL);

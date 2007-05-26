@@ -1027,12 +1027,28 @@ public:
 
 		if(wParam != NULL)
 		{
-			pT->DoPrePaint((HDC)wParam, rc);
-			pT->DoPaint((HDC)wParam, rc);
+			CDCHandle dc = (HDC)wParam;
+			int nMapModeSav = dc.GetMapMode();
+			dc.SetMapMode(MM_ANISOTROPIC);
+			SIZE szWindowExt = { 0, 0 };
+			dc.SetWindowExt(m_sizeLogAll, &szWindowExt);
+			SIZE szViewportExt = { 0, 0 };
+			dc.SetViewportExt(m_sizeAll, &szViewportExt);
+			POINT ptViewportOrg = { 0, 0 };
+			dc.SetViewportOrg(-m_ptOffset.x, -m_ptOffset.y, &ptViewportOrg);
+
+			pT->DoPrePaint(dc, rc);
+			pT->DoPaint(dc, rc);
+
+			dc.SetMapMode(nMapModeSav);
+			dc.SetWindowExt(szWindowExt);
+			dc.SetViewportExt(szViewportExt);
+			dc.SetViewportOrg(ptViewportOrg);
 		}
 		else
 		{
 			CPaintDC dc(pT->m_hWnd);
+			pT->PrepareDC(dc.m_hDC);
 			pT->DoPrePaint(dc.m_hDC, rc);
 			pT->DoPaint(dc.m_hDC, rc);
 		}
@@ -1048,7 +1064,6 @@ public:
 
 	void DoPrePaint(CDCHandle dc, RECT& rc)
 	{
-		PrepareDC(dc.m_hDC);
 		RECT rcClient;
 		GetClientRect(&rcClient);
 		RECT rcArea = rcClient;

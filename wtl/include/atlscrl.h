@@ -613,8 +613,10 @@ public:
 		if(wParam != NULL)
 		{
 			CDCHandle dc = (HDC)wParam;
-			dc.SetViewportOrg(-m_ptOffset.x, -m_ptOffset.y);
+			POINT ptViewportOrg = { 0, 0 };
+			dc.SetViewportOrg(-m_ptOffset.x, -m_ptOffset.y, &ptViewportOrg);
 			pT->DoPaint(dc);
+			dc.SetViewportOrg(ptViewportOrg);
 		}
 		else
 		{
@@ -1138,13 +1140,21 @@ public:
 		if(wParam != NULL)
 		{
 			CDCHandle dc = (HDC)wParam;
+			int nMapModeSav = dc.GetMapMode();
 			dc.SetMapMode(m_nMapMode);
+			POINT ptViewportOrg = { 0, 0 };
 			if(m_nMapMode == MM_TEXT)
-				dc.SetViewportOrg(-m_ptOffset.x, -m_ptOffset.y);
+				dc.SetViewportOrg(-m_ptOffset.x, -m_ptOffset.y, &ptViewportOrg);
 			else
-				dc.SetViewportOrg(-m_ptOffset.x, -m_ptOffset.y + m_sizeAll.cy);
-			dc.SetWindowOrg(m_rectLogAll.left, m_rectLogAll.top);
+				dc.SetViewportOrg(-m_ptOffset.x, -m_ptOffset.y + m_sizeAll.cy, &ptViewportOrg);
+			POINT ptWindowOrg = { 0, 0 };
+			dc.SetWindowOrg(m_rectLogAll.left, m_rectLogAll.top, &ptWindowOrg);
+
 			pT->DoPaint(dc);
+
+			dc.SetMapMode(nMapModeSav);
+			dc.SetViewportOrg(ptViewportOrg);
+			dc.SetWindowOrg(ptWindowOrg);
 		}
 		else
 		{
@@ -1675,8 +1685,21 @@ public:
 		if(wParam != NULL)
 		{
 			CDCHandle dc = (HDC)wParam;
-			pT->PrepareDC(dc);
+			int nMapModeSav = dc.GetMapMode();
+			dc.SetMapMode(MM_ANISOTROPIC);
+			SIZE szWindowExt = { 0, 0 };
+			dc.SetWindowExt(m_sizeLogAll, &szWindowExt);
+			SIZE szViewportExt = { 0, 0 };
+			dc.SetViewportExt(m_sizeAll, &szViewportExt);
+			POINT ptViewportOrg = { 0, 0 };
+			dc.SetViewportOrg(-m_ptOffset.x, -m_ptOffset.y, &ptViewportOrg);
+
 			pT->DoPaint(dc);
+
+			dc.SetMapMode(nMapModeSav);
+			dc.SetWindowExt(szWindowExt);
+			dc.SetViewportExt(szViewportExt);
+			dc.SetViewportOrg(ptViewportOrg);
 		}
 		else
 		{
