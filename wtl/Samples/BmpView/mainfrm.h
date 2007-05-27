@@ -416,8 +416,8 @@ public:
 		UINT uBandID = ATL_IDW_BAND_FIRST + 1;	// toolbar is second added band
 		CReBarCtrl rebar = m_hWndToolBar;
 		int nBandIndex = rebar.IdToIndex(uBandID);
-		REBARBANDINFO rbbi;
-		rbbi.cbSize = sizeof(REBARBANDINFO);
+		REBARBANDINFO rbbi = { 0 };
+		rbbi.cbSize = RunTimeHelper::SizeOf_REBARBANDINFO();
 		rbbi.fMask = RBBIM_CHILD;
 		rebar.GetBandInfo(nBandIndex, &rbbi);
 		CToolBarCtrl wndToolBar = rbbi.hwndChild;
