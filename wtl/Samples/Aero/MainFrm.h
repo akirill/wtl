@@ -8,7 +8,7 @@ class CMainFrame : public CAeroFrameImpl<CMainFrame>, public CUpdateUI<CMainFram
 		public CMessageFilter, public CIdleHandler
 {
 public:
-	DECLARE_FRAME_WND_CLASS(NULL, IDR_MAINFRAME)
+	DECLARE_FRAME_WND_CLASS_EX(NULL, IDR_MAINFRAME, 0, -1)
 
 	CAeroView m_view;
 	CCommandBarCtrl m_CmdBar;
@@ -19,7 +19,9 @@ public:
 	{
 		LOGFONT lf = {0};
 		if (IsTheming())
+		{
 			GetThemeSysFont (TMT_MSGBOXFONT, &lf);
+		}
 		else
 		{
 			NONCLIENTMETRICS ncm = { sizeof(NONCLIENTMETRICS) };
@@ -171,5 +173,4 @@ public:
 		dlg.DoModal();
 		return 0;
 	}
-
 };
