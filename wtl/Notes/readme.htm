@@ -1752,10 +1752,322 @@ available in the previous release, WTL 7.1.</font></p>
 <p style=margin:0in><b><font face="Arial">
 <a name="Changes Between WTL 8.0 And 7.5"></a>Changes Between WTL 8.0 And 7.5</font></b></p>
 <p style=margin:0in>&nbsp;</p>
-  <p style=margin:0in><font face="Arial" size="2">&lt;&lt;&lt; TODO: Add list of changes 
-	&gt;&gt;&gt;</font></p>
-<p style=margin:0in>&nbsp;</p>
-<p style=margin:0in>&nbsp;</p>
+  <p style=margin:0in><font face="Arial" size="2">New and improved:</font></p>
+<blockquote style='margin-top:0in;margin-bottom:0in'>
+  <p style=margin:0in><font face="Arial" size="2">RunTimeHelper functions for 
+	correct struct sizes on different versions of Windows<br>ModuleHelper functions for uniform support of ATL3 and ATL7 module classes<br>SecureHelper functions for support of secure and non-secure run-time 
+	functions<br>Support for new Vista features:</font></p>
+	<ul style='margin-top:0in;margin-bottom:0in'>
+		<li>
+		<p style=margin:0in><font face="Arial" size="2">Support for new messages for common controls, dialogs, etc.</font></p>
+		</li>
+		<li>
+		<p style=margin:0in><font face="Arial" size="2">Support for TaskDialog</font></p>
+		</li>
+		<li>
+		<p style=margin:0in><font face="Arial" size="2">New Shell file dialogs (IFileOpenDialog and IFileSaveDialog)</font></p>
+		</li>
+		<li>
+		<p style=margin:0in><font face="Arial" size="2">New Aero Wizard support classes</font></p>
+		</li>
+		<li>
+		<p style=margin:0in><font face="Arial" size="2">New classes for Buffered Paint and Buffered Animation</font></p>
+		</li>
+	</ul>
+	<p style=margin:0in><font face="Arial" size="2">New TabView classes<br>New dialog class that uses in-memory dialog templates<br>New CMultiFileDialogImpl and CMultiFileDialog classes that support 
+	multi-select file dialogs<br>Added message cracker handler prototypes for all handlers<br>Replaced use of _alloca with CTempBuffer everywhere (and added CTempBuffer 
+	version for ATL3)<br>New classes for find/replace support for Edit or RichEdit<br>New class CFileDialogEx that supports GetOpenFileNameEx for Windows Mobile 5<br>
+	New features for the App Wizard:</font></p>
+	<ul style='margin-top:0in;margin-bottom:0in'>
+		<li>
+		<p style=margin:0in><font face="Arial" size="2">New default version values</font></p>
+		</li>
+		<li>
+		<p style=margin:0in><font face="Arial" size="2">Unicode build option</font></p>
+		</li>
+		<li>
+		<p style=margin:0in><font face="Arial" size="2">Support for TabView applications</font></p>
+		</li>
+		<li>
+		<p style=margin:0in><font face="Arial" size="2">Support for Explorer applications</font></p>
+		</li>
+	</ul>
+	<p style=margin:0in><font face="Arial" size="2">Updates for the desktop App Wizard:</font></p>
+	<ul style='margin-top:0in;margin-bottom:0in'>
+		<li>
+		<p style=margin:0in><font face="Arial" size="2">Added calls to set font for views based on controls that use font</font></p>
+		</li>
+		<li>
+		<p style=margin:0in><font face="Arial" size="2">Added scroll window as another view type</font></p>
+		</li>
+	</ul>
+	<p style=margin:0in><font face="Arial" size="2">Support for VC2005 Express:</font></p>
+	<ul style='margin-top:0in;margin-bottom:0in'>
+		<li>
+		<p style=margin:0in><font face="Arial" size="2">Setup for VS2005x</font></p>
+		</li>
+		<li>
+		<p style=margin:0in><font face="Arial" size="2">Changes in default.js to take into account that VC2005x does not have a 
+	resource editor</font></p></li>
+		<li>
+		<p style=margin:0in><font face="Arial" size="2">Generated code allows use of ATL3 from the Platform SDK</font></p>
+		</li>
+	</ul>
+	<p style=margin:0in><font face="Arial" size="2">New AppWizard for Mobile 2003 and 2005 platforms<br>
+	New sample: MiniPie - Windows Mobile 2005 PPC and Smartphone sample<br>New sample: TabBrowser - a web browser using TabView class<br>MTPad sample updated to show usage of CRichEditFindReplaceImpl and 
+	CEditCommands/CRichEditComma</font></p>
+</blockquote>
+  <p style=margin:0in>&nbsp;</p>
+<p style=margin:0in><font face="Arial" size="2">Fixes and enhancements:</font></p>
+  <blockquote style='margin-top:0in;margin-bottom:0in'>
+  <p style=margin:0in><font face="Arial" size="2">Command Bar:</font></p>
+	<ul style='margin-top:0in;margin-bottom:0in'>
+	<li>
+	<p style=margin:0in><font face="Arial" size="2">Added support for menu items 
+	with bitmaps on Vista</font></p></li>
+	<li>
+	<p style=margin:0in><font face="Arial" size="2">Fix: Keyboard cues shown 
+	even if the window is disabled</font></p></li>
+	</ul>
+	<p style=margin:0in>&nbsp;</p>
+	<p style=margin:0in><font face="Arial" size="2">CFolderDialog:</font></p>
+	<ul style='margin-top:0in;margin-bottom:0in'>
+	<li>
+	<p style=margin:0in><font face="Arial" size="2">Added support for PIDLs in 
+	addition to the file path</font></p></li>
+	<li>
+	<p style=margin:0in><font face="Arial" size="2">Replaced use of SHGetMalloc 
+	with CoTaskMemFree</font></p></li>
+	</ul>
+	<p style=margin:0in>&nbsp;</p>
+	<p style=margin:0in><font face="Arial" size="2">Scroll Windows:</font></p>
+	<ul style='margin-top:0in;margin-bottom:0in'>
+	<li>
+	<p style=margin:0in><font face="Arial" size="2">Fix: CZoomScrollImpl - some 
+	methods should be overridable</font></p></li>
+	<li>
+	<p style=margin:0in><font face="Arial" size="2">Added support for 
+	WM_MOUSEHWHEEL in CScrollImpl</font></p></li>
+	</ul>
+	<p style=margin:0in>&nbsp;</p>
+	<p style=margin:0in><font face="Arial" size="2">App Wizard:</font></p>
+	<ul style='margin-top:0in;margin-bottom:0in'>
+	<li>
+	<p style=margin:0in><font face="Arial" size="2">Fix: AppWizard fails to add 
+	files if C:\Temp does not exist</font></p></li>
+	<li>
+	<p style=margin:0in><font face="Arial" size="2">Fix: App Wizard generates 
+	security warning when loaded</font></p></li>
+	<li>
+	<p style=margin:0in><font face="Arial" size="2">Fix: App Wizard generates 
+	level 4 warning for modal dlg project</font></p></li>
+	<li>
+	<p style=margin:0in><font face="Arial" size="2">Fix: App Wizard setupXX.js 
+	scripts silently fail on Vista</font></p></li>
+	<li>
+	<p style=margin:0in><font face="Arial" size="2">Fix: Added code to 
+	unregister message filer and idle processing</font></p></li>
+	<li>
+	<p style=margin:0in><font face="Arial" size="2">Fix: Added WS_CLIPSIBLINGS 
+	to dialog forms to avoid rebar drawing problems</font></p></li>
+	</ul>
+	<p style=margin:0in>&nbsp;</p>
+	<p style=margin:0in><font face="Arial" size="2">App Wizard CE:</font></p>
+	<ul style='margin-top:0in;margin-bottom:0in'>
+	<li>
+	<p style=margin:0in><font face="Arial" size="2">Fix: App Wizard CE should 
+	not have rich edit as a view option</font></p></li>
+	<li>
+	<p style=margin:0in><font face="Arial" size="2">Fix: App Wizard CE generates 
+	level 4 warnings for single instance apps</font></p></li>
+	<li>
+	<p style=margin:0in><font face="Arial" size="2">Added support for Windows 
+	Mobile 6 SDKs</font></p></li>
+	</ul>
+	<p style=margin:0in>&nbsp;</p>
+	<p style=margin:0in><font face="Arial" size="2">Cracked Handlers:</font></p>
+	<ul style='margin-top:0in;margin-bottom:0in'>
+	<li>
+	<p style=margin:0in><font face="Arial" size="2">Fix: Corrected MSG_WM_TIMER 
+	and handler prototype, removed unused argument (breaking change)</font></p>
+	</li>
+	<li>
+	<p style=margin:0in><font face="Arial" size="2">Fix: atlcrack.h does not 
+	support WTL namespace</font></p></li>
+	</ul>
+	<p style=margin:0in>&nbsp;</p>
+	<p style=margin:0in><font face="Arial" size="2">CDialogResize:</font></p>
+	<ul style='margin-top:0in;margin-bottom:0in'>
+	<li>
+	<p style=margin:0in><font face="Arial" size="2">Added SetIcon(NULL, FALSE) 
+	for CDialogResize to remove the generic icon for resizable dialogs</font></p>
+	</li>
+	<li>
+	<p style=margin:0in><font face="Arial" size="2">Fix: Enabled size/move for 
+	both X and Y</font></p></li>
+	<li>
+	<p style=margin:0in><font face="Arial" size="2">Added center flags for 
+	controls</font></p></li>
+	</ul>
+	<p style=margin:0in>&nbsp;</p>
+	<p style=margin:0in><font face="Arial" size="2">CFrameWindowImpl:</font></p>
+	<ul style='margin-top:0in;margin-bottom:0in'>
+	<li>
+	<p style=margin:0in><font face="Arial" size="2">Fix: Const issue with title 
+	argument of AddSimpleReBarBand</font></p></li>
+	<li>
+	<p style=margin:0in><font face="Arial" size="2">Fix: DECLARE_FRAME_WND_CLASS 
+	definition missing WTL namespace</font></p></li>
+	</ul>
+	<p style=margin:0in>&nbsp;</p>
+	<p style=margin:0in><font face="Arial" size="2">Windows CE:</font></p>
+	<ul style='margin-top:0in;margin-bottom:0in'>
+	<li>
+	<p style=margin:0in><font face="Arial" size="2">Fix: Some symbols not 
+	defined for CE 4.0</font></p></li>
+	<li>
+	<p style=margin:0in><font face="Arial" size="2">Fix: Incorrect WinCE 
+	exclusions</font></p></li>
+	<li>
+	<p style=margin:0in><font face="Arial" size="2">Fix: Pocket PC - assert 
+	after navigating a CHyperLink</font></p></li>
+	<li>
+	<p style=margin:0in><font face="Arial" size="2">Fix: Property sheet with 
+	listview on WM5.0 causes stack overflow</font></p></li>
+	<li>
+	<p style=margin:0in><font face="Arial" size="2">Fix: CFindFile::GetFilePath() 
+	fails on diskless root requests</font></p></li>
+	<li>
+	<p style=margin:0in><font face="Arial" size="2">Fix: VS 2005 dialog editor 
+	bug - DS_FIXEDSYS used but not defined</font></p></li>
+	<li>
+	<p style=margin:0in><font face="Arial" size="2">Fix: Windows Mobile 2005 
+	compatibility issues</font></p></li>
+	<li>
+	<p style=margin:0in><font face="Arial" size="2">Fix: CFullScreenFrame on 
+	Smartphone 20003</font></p></li>
+	<li>
+	<p style=margin:0in><font face="Arial" size="2">Fix: SmartPhone back key 
+	handling in CAppWindow</font></p></li>
+	<li>
+	<p style=margin:0in><font face="Arial" size="2">Added orientation aware 
+	support to CAppStdDialogImpl</font></p></li>
+	<li>
+	<p style=margin:0in><font face="Arial" size="2">Added CAxDialogImpl base for 
+	CStdDialogImpl, CStdDialogResizeImpl and CStdOrientedDialogImpl</font></p>
+	</li>
+	<li>
+	<p style=margin:0in><font face="Arial" size="2">Added various CStdDialogxxx 
+	enhancements</font></p></li>
+	<li>
+	<p style=margin:0in><font face="Arial" size="2">Fix: CStdDialogBase does not 
+	scale dialog title on VGA</font></p></li>
+	<li>
+	<p style=margin:0in><font face="Arial" size="2">Fix: DIBINFO16 triggers code 
+	analysis warning</font></p></li>
+	<li>
+	<p style=margin:0in><font face="Arial" size="2">Added LPCTSTR 
+	AtlLoadString(UINT uID) - CE only overload</font></p></li>
+	<li>
+	<p style=margin:0in><font face="Arial" size="2">Added imaging draw support 
+	to CZoomScrollImpl</font></p></li>
+	<li>
+	<p style=margin:0in><font face="Arial" size="2">Added CBottomTabViewImpl and 
+	CBottomTabView classes for PPC</font></p></li>
+	</ul>
+	<p style=margin:0in>&nbsp;</p>
+	<p style=margin:0in><font face="Arial" size="2">CFindFile:</font></p>
+	<ul style='margin-top:0in;margin-bottom:0in'>
+	<li>
+	<p style=margin:0in><font face="Arial" size="2">Fix: CFindFile class uses 
+	CRT functions</font></p></li>
+	<li>
+	<p style=margin:0in><font face="Arial" size="2">Fix: FindFile() uses lstrcpy 
+	without checking length</font></p></li>
+	</ul>
+	<p style=margin:0in>&nbsp;</p>
+	<p style=margin:0in><font face="Arial" size="2">General:</font></p>
+	<ul style='margin-top:0in;margin-bottom:0in'>
+	<li>
+	<p style=margin:0in><font face="Arial" size="2">Fix: Adding ReBar bands 
+	fails with new Windows SDK</font></p></li>
+	<li>
+	<p style=margin:0in><font face="Arial" size="2">Added support for relative 
+	include paths</font></p></li>
+	<li>
+	<p style=margin:0in><font face="Arial" size="2">Fix: Using std::min and 
+	std::max</font></p></li>
+	<li>
+	<p style=margin:0in><font face="Arial" size="2">Fix: Problems using WTL with 
+	MFC</font></p></li>
+	<li>
+	<p style=margin:0in><font face="Arial" size="2">Improved support for Secure 
+	CRT</font></p></li>
+	<li>
+	<p style=margin:0in><font face="Arial" size="2">Changed implementation of 
+	CSize, CPoint, CRect, and CString to be inside class definitions</font></p>
+	</li>
+	<li>
+	<p style=margin:0in><font face="Arial" size="2">atltheme.h: Corrected method 
+	signatures for differences in uxtheme.h versions</font></p></li>
+	<li>
+	<p style=margin:0in><font face="Arial" size="2">Replaced malloc/free with 
+	new/delete where appropriate</font></p></li>
+	</ul>
+	<p style=margin:0in>&nbsp;</p>
+	<p style=margin:0in><font face="Arial" size="2">Misc:</font></p>
+	<ul style='margin-top:0in;margin-bottom:0in'>
+	<li>
+	<p style=margin:0in><font face="Arial" size="2">Fix: CString::FormatV can 
+	cause GPF with Unicode strings</font></p></li>
+	<li>
+	<p style=margin:0in><font face="Arial" size="2">CHyperLink: Added handler 
+	for WM_SIZE</font></p></li>
+	<li>
+	<p style=margin:0in><font face="Arial" size="2">Fix: CTheme needs 
+	constructor from HTHEME handle</font></p></li>
+	<li>
+	<p style=margin:0in><font face="Arial" size="2">Added Add* methods to 
+	several control classes in atlctrls.h to augment Insert* methods</font></p>
+	</li>
+	<li>
+	<p style=margin:0in><font face="Arial" size="2">Fix: Incorrect casting in 
+	CRichEditCtrl::GetLine()</font></p></li>
+	<li>
+	<p style=margin:0in><font face="Arial" size="2">Fix: 
+	CTreeViewCtrl::GetItemState changed to return only state-bits as specified 
+	by mask</font></p></li>
+	<li>
+	<p style=margin:0in><font face="Arial" size="2">Fix: CBitmapButton::DoPaint 
+	- wrong button image</font></p></li>
+	<li>
+	<p style=margin:0in><font face="Arial" size="2">Added another variant of 
+	CDCT::Drawtext with LPTSTR argument that allows text change</font></p></li>
+	<li>
+	<p style=margin:0in><font face="Arial" size="2">Fix: 
+	CRecentDocumentListBase::AddToList() uses lstrcpy</font></p></li>
+	<li>
+	<p style=margin:0in><font face="Arial" size="2">Fix: AtlLoadString(uID, 
+	lpBuffer, nBufferMax) has unnecessary code</font></p></li>
+	<li>
+	<p style=margin:0in><font face="Arial" size="2">Fix: CCursor::LoadOEMCursor 
+	asserts on IDC_HAND</font></p></li>
+	<li>
+	<p style=margin:0in><font face="Arial" size="2">Fix: Memory leak when using 
+	CRT functions while printing</font></p></li>
+	<li>
+	<p style=margin:0in><font face="Arial" size="2">Fix: Undefined CString 
+	namespace</font></p></li>
+	<li>
+	<p style=margin:0in><font face="Arial" size="2">CPaneContainer: Added border 
+	styles</font></p></li>
+	<li>
+	<p style=margin:0in><font face="Arial" size="2">CSplitterImpl: Added 
+	SetSplitterPosPct, and changed App Wizard code to use it</font></p></li>
+	</ul>
+  </blockquote>
+	<p style=margin:0in>&nbsp;</p>
+	<p style=margin:0in>&nbsp;</p>
 <p style=margin:0in><b><font face="Arial">
 <a name="Changes Between WTL 7.5 And 7.1"></a>Changes Between WTL 7.5 And 7.1</font></b></p>
 <p style=margin:0in>&nbsp;</p>
