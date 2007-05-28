@@ -883,8 +883,8 @@ public:
 								{
 									pThisNoConst->m_bShadowBufferNeeded = TRUE;
 
-									ATLTRACE(_T("Warning: You have compiled for MBCS/ANSI but are using common controls version 6 or later (likely through a manifest file).\r\n"));
-									ATLTRACE(_T("If you use common controls version 6 or later, you should only do so for UNICODE builds.\r\n"));
+									ATLTRACE2(atlTraceUI, 0, _T("Warning: You have compiled for MBCS/ANSI but are using common controls version 6 or later (likely through a manifest file).\r\n"));
+									ATLTRACE2(atlTraceUI, 0, _T("If you use common controls version 6 or later, you should only do so for UNICODE builds.\r\n"));
 								}
 							}
 						}
