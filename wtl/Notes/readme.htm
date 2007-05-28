@@ -1285,7 +1285,7 @@ Visual C++ 2005 - Pocket PC 2003 SE, Smartphone 2003 SE, STANDARDSDK_500,</font>
 	<tr>
     <td width="221"><b><font face="Arial" size="2">CBufferedPaint</font></b></td>
     <td width="115"><font face="Arial" size="2">as-is</font></td>
-    <td width="255" class="style2">buffered paint</td>
+    <td width="255"><font face="Arial" size="2">buffered paint</font></td>
   </tr>
 	<tr>
     <td width="221"><b><font face="Arial" size="2">CBufferedPaintImpl</font></b></td>
@@ -1711,13 +1711,13 @@ recommended or supported for released projects. If you want to use Common
 Controls 6, build your application as Unicode.</font></p>
 <p style=margin:0in>&nbsp;</p>
 <p style=margin:0in><font face="Arial" size="2"><b>~</b>&nbsp;&nbsp;&nbsp; 
-</font><span class="style2">If you build your app that hosts ActiveX controls 
+If you build your app that hosts ActiveX controls 
 with VC++ 7.x, you can see this assert failing:<br>
-<strong><br>
+<span class="style2"><strong><br>
 &nbsp;&nbsp;&nbsp; !InlineIsEqualGUID(*m_plibid, GUID_NULL) &amp;&amp; &quot;Did you forget 
 to pass the LIBID to CComModule::Init?&quot;<br>
 <br>
-</strong>There are two ways to fix this:</span></p>
+</strong></span>There are two ways to fix this:</font></p>
 <ul>
 	<li>
 	<p style=margin:0in><span class="style2">In the main .CPP file of your 
