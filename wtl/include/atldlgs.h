@@ -4103,6 +4103,7 @@ public:
 
 	BEGIN_MSG_MAP(CPropertySheet)
 		MESSAGE_HANDLER(WM_COMMAND, CPropertySheetImpl<CPropertySheet>::OnCommand)
+		MESSAGE_HANDLER(WM_SYSCOMMAND, CPropertySheetImpl<CPropertySheet>::OnSysCommand)
 	END_MSG_MAP()
 };
 
