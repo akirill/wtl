@@ -4100,11 +4100,6 @@ public:
 	CPropertySheet(ATL::_U_STRINGorID title = (LPCTSTR)NULL, UINT uStartPage = 0, HWND hWndParent = NULL)
 		: CPropertySheetImpl<CPropertySheet>(title, uStartPage, hWndParent)
 	{ }
-
-	BEGIN_MSG_MAP(CPropertySheet)
-		MESSAGE_HANDLER(WM_COMMAND, CPropertySheetImpl<CPropertySheet>::OnCommand)
-		MESSAGE_HANDLER(WM_SYSCOMMAND, CPropertySheetImpl<CPropertySheet>::OnSysCommand)
-	END_MSG_MAP()
 };
 
 
