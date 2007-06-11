@@ -18,79 +18,79 @@ try
 	var Args = WScript.Arguments;
 	for(i = 0; i < Args.length ; i++)
 		if (bElevated = (Args(i) == "/elevated"))
-		    break;
+			break;
 
 	var AppShell = WScript.CreateObject("Shell.Application");
-	
+
 	if (!bElevated && AppShell.IsRestricted("System", "EnableLUA")) 
-        throw (WScript.Interactive == true) ? "Restricted" : "Elevation required.";
+		throw (WScript.Interactive == true) ? "Restricted" : "Elevation required.";
 }
 catch(e)
 {
-    if (e == "Restricted")
-	    AppShell.ShellExecute("WScript.exe", "\"" + WScript.ScriptFullName + "\"" + " /elevated", null, "RunAs");
+	if (e == "Restricted")
+		AppShell.ShellExecute("WScript.exe", "\"" + WScript.ScriptFullName + "\"" + " /elevated", null, "RunAs");
 	else
-	    WScript.Echo("Error: " + e);
+		WScript.Echo("Error: " + e);
 
-    WScript.Quit();	
+	WScript.Quit();
 }
 
 // WTLMobile AppWizard registration
 try
 {
-    var fso = WScript.CreateObject("Scripting.FileSystemObject");
-    var SourceBase = fso.GetParentFolderName(WScript.ScriptFullName) + "\\Files";
-    var Source = SourceBase + "\\WTLMobile.";
-	
-    var shell = WScript.CreateObject("WScript.Shell");
-    var DestBase = shell.RegRead("HKLM\\Software\\Microsoft\\VisualStudio\\8.0\\Setup\\VC\\ProductDir") + "\\vcprojects";
-    var Dest =DestBase + "\\WTLMobile.";
-	
-    var vsz = Source + "vsz" 
-    var vsdir = Source + "vsdir";
-    var vszText, vsdirText; 
-	
-    var ts = fso.OpenTextFile(vsz,1);
-    vszText = ts.ReadAll();
-    ts.Close();
-    vszText = vszText.replace(/(.+PATH\s=).+/,"$1" + SourceBase +"\"\r");
-    ts = fso.OpenTextFile(vsdir,1);
-    vsdirText = ts.ReadAll();
-    ts.Close();
-	
-    fso.CopyFile(Source + "ico", Dest + "ico");
-	
-    ts = fso.OpenTextFile(Dest + "vsz", 2, true);
-    ts.Write(vszText);
-    ts.Close();
-	 
-    ts = fso.OpenTextFile(Dest + "vsdir", 2, true);
-    ts.Write(vsdirText);
-    ts.Close(); 
-	
-    vsdirText = "..\\" + vsdirText;
-	
+	var fso = WScript.CreateObject("Scripting.FileSystemObject");
+	var SourceBase = fso.GetParentFolderName(WScript.ScriptFullName) + "\\Files";
+	var Source = SourceBase + "\\WTLMobile.";
+
+	var shell = WScript.CreateObject("WScript.Shell");
+	var DestBase = shell.RegRead("HKLM\\Software\\Microsoft\\VisualStudio\\8.0\\Setup\\VC\\ProductDir") + "\\vcprojects";
+	var Dest =DestBase + "\\WTLMobile.";
+
+	var vsz = Source + "vsz";
+	var vsdir = Source + "vsdir";
+	var vszText, vsdirText; 
+
+	var ts = fso.OpenTextFile(vsz,1);
+	vszText = ts.ReadAll();
+	ts.Close();
+	vszText = vszText.replace(/(.+PATH\s=).+/,"$1" + SourceBase +"\"\r");
+	ts = fso.OpenTextFile(vsdir, 1);
+	vsdirText = ts.ReadAll();
+	ts.Close();
+
+	fso.CopyFile(Source + "ico", Dest + "ico");
+
+	ts = fso.OpenTextFile(Dest + "vsz", 2, true);
+	ts.Write(vszText);
+	ts.Close();
+
+	ts = fso.OpenTextFile(Dest + "vsdir", 2, true);
+	ts.Write(vsdirText);
+	ts.Close();
+
+	vsdirText = "..\\" + vsdirText;
+
 	var DestFolder = DestBase + "\\WTL";
 	if(!fso.FolderExists(DestFolder))
 		fso.CreateFolder(DestFolder);
 
-    Dest = DestBase + "\\WTL\\WTLMobile.vsdir";
-    ts = fso.OpenTextFile(Dest, 2, true);
-    ts.Write(vsdirText);
-    ts.Close();
+	Dest = DestBase + "\\WTL\\WTLMobile.vsdir";
+	ts = fso.OpenTextFile(Dest, 2, true);
+	ts.Write(vsdirText);
+	ts.Close();
 
 	DestFolder = DestBase + "\\smartdevice";
 	if(!fso.FolderExists(DestFolder))
 		fso.CreateFolder(DestFolder);
 
-    Dest = DestBase + "\\smartdevice\\WTLMobile.vsdir";
-    ts = fso.OpenTextFile(Dest, 2, true);
-    ts.Write(vsdirText);
-    ts.Close();
-	
-    WScript.Echo("WTL Mobile App Wizard successfully installed!");
+	Dest = DestBase + "\\smartdevice\\WTLMobile.vsdir";
+	ts = fso.OpenTextFile(Dest, 2, true);
+	ts.Write(vsdirText);
+	ts.Close();
+
+	WScript.Echo("WTL Mobile App Wizard successfully installed!");
 }
 catch(e)
 {
-    WScript.Echo("Error " + e);
+	WScript.Echo("Error " + e);
 }
