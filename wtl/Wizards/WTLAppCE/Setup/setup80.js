@@ -39,7 +39,7 @@ function main()
 		}
 		
 		// Now relaunch the script, using the "RunAs" verb to elevate
-		var strParams = WScript.ScriptFullName;
+		var strParams = "\"" + WScript.ScriptFullName + "\"";
 		if (bDebug)
 			strParams += " /debug";
 		strParams += " /elevated";

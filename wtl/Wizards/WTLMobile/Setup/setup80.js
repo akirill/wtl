@@ -28,7 +28,7 @@ try
 catch(e)
 {
     if (e == "Restricted")
-	    AppShell.ShellExecute("WScript.exe", WScript.ScriptFullName + " /elevated", null, "RunAs");
+	    AppShell.ShellExecute("WScript.exe", "\"" + WScript.ScriptFullName + "\"" + " /elevated", null, "RunAs");
 	else
 	    WScript.Echo("Error: " + e);
 
@@ -70,10 +70,18 @@ try
 	
     vsdirText = "..\\" + vsdirText;
 	
+	var DestFolder = DestBase + "\\WTL";
+	if(!fso.FolderExists(DestFolder))
+		fso.CreateFolder(DestFolder);
+
     Dest = DestBase + "\\WTL\\WTLMobile.vsdir";
     ts = fso.OpenTextFile(Dest, 2, true);
     ts.Write(vsdirText);
     ts.Close();
+
+	DestFolder = DestBase + "\\smartdevice";
+	if(!fso.FolderExists(DestFolder))
+		fso.CreateFolder(DestFolder);
 
     Dest = DestBase + "\\smartdevice\\WTLMobile.vsdir";
     ts = fso.OpenTextFile(Dest, 2, true);
