@@ -169,7 +169,7 @@ public:
 		m_CmdBar.SetMDIClient(m_hWndMDIClient);
 [!endif]
 [!endif]
-[!if WTL_APPTYPE_SDI || WTL_APPTYPE_MTSDI || WTL_APPTYPE_TABVIEW]
+[!if WTL_APPTYPE_SDI || WTL_APPTYPE_MTSDI]
 [!if WTL_USE_VIEW]
 [!if WTL_VIEWTYPE_FORM]
 
@@ -180,13 +180,8 @@ public:
 		//TODO: Replace with a URL of your choice
 		m_hWndClient = m_view.Create(m_hWnd, rcDefault, _T("http://www.microsoft.com"), [!output WTL_VIEW_STYLES], [!output WTL_VIEW_EX_STYLES]);
 [!else]
-[!if WTL_APPTYPE_TABVIEW]
-
-		m_hWndClient = m_view.Create(m_hWnd, rcDefault, NULL, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, WS_EX_CLIENTEDGE);
-[!else]
 
 		m_hWndClient = m_view.Create(m_hWnd, rcDefault, NULL, [!output WTL_VIEW_STYLES], [!output WTL_VIEW_EX_STYLES]);
-[!endif]
 [!endif]
 [!if WTL_VIEWTYPE_LISTBOX || WTL_VIEWTYPE_EDIT || WTL_VIEWTYPE_LISTVIEW || WTL_VIEWTYPE_TREEVIEW || WTL_VIEWTYPE_RICHEDIT]
 		m_view.SetFont(AtlGetDefaultGuiFont());
@@ -197,6 +192,10 @@ public:
 [!endif]
 [!endif]
 [!endif]
+[!endif]
+[!if WTL_APPTYPE_TABVIEW]
+
+		m_hWndClient = m_view.Create(m_hWnd, rcDefault, NULL, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, WS_EX_CLIENTEDGE);
 [!endif]
 [!if WTL_APPTYPE_EXPLORER]
 
@@ -343,8 +342,23 @@ public:
 	{
 [!if WTL_APPTYPE_TABVIEW]
 		[!output WTL_VIEW_CLASS]* pView = new [!output WTL_VIEW_CLASS];
+[!if WTL_VIEWTYPE_FORM]
+		pView->Create(m_view);
+[!else]
+[!if WTL_VIEWTYPE_HTML]
+		//TODO: Replace with a URL of your choice
+		pView->Create(m_view, rcDefault, _T("http://www.microsoft.com"), [!output WTL_VIEW_STYLES], [!output WTL_VIEW_EX_STYLES]);
+[!else]
 		pView->Create(m_view, rcDefault, NULL, [!output WTL_VIEW_STYLES], [!output WTL_VIEW_EX_STYLES]);
+[!endif]
+[!if WTL_VIEWTYPE_LISTBOX || WTL_VIEWTYPE_EDIT || WTL_VIEWTYPE_LISTVIEW || WTL_VIEWTYPE_TREEVIEW || WTL_VIEWTYPE_RICHEDIT]
 		pView->SetFont(AtlGetDefaultGuiFont());
+[!endif]
+[!if WTL_VIEWTYPE_SCROLL]
+		// replace with appropriate values for the app
+		pView->SetScrollSize(2000, 1000);
+[!endif]
+[!endif]
 		m_view.AddPage(pView->m_hWnd, _T("Document"));
 
 [!endif]
