@@ -151,7 +151,12 @@ public:
 
 		m_bOpenFileDialog = bOpenFileDialog;
 
+#if defined(__AYGSHELL_H__) && (_WIN32_WCE >= 0x0501)
+		m_ofn.lStructSize = bOpenFileDialog ? sizeof(m_ofn) : sizeof(OPENFILENAME);
+#else
 		m_ofn.lStructSize = sizeof(m_ofn);
+#endif
+
 #if (_WIN32_WINNT >= 0x0500)
 		// adjust struct size if running on older version of Windows
 		if(AtlIsOldWindows())
