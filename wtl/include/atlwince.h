@@ -546,6 +546,26 @@ public:
 	typedef CIndirectDialogImpl< T, CMemDlgTemplate, CStdDialogImpl<T, t_shidiFlags, t_bModal> >	_baseClass;
 	typedef CStdDialogImpl<T, t_shidiFlags, t_bModal> _baseStd;
 
+	void CheckStyle()
+	{
+		// Mobile devices don't support DLGTEMPLATEEX
+		ATLASSERT(!m_Template.IsTemplateEx());
+
+		// Standard dialogs need only DS_CENTER
+		DWORD &dwStyle = m_Template.GetTemplatePtr()->style; 
+		if (dwStyle & DS_CENTER)
+			if(t_bModal)
+			{
+				ATLASSERT((dwStyle & WS_CHILD) != WS_CHILD);
+				dwStyle |= WS_POPUP;
+			}
+			else
+			{
+				if((dwStyle & WS_CHILD) != WS_CHILD)
+					dwStyle |= WS_POPUP;
+			}
+	}
+
 	INT_PTR DoModal(HWND hWndParent = ::GetActiveWindow(), LPARAM dwInitParam = NULL)
 	{
 		ATLASSERT(t_bModal);
@@ -553,22 +573,7 @@ public:
 		if (!m_Template.IsValid())
 			CreateTemplate();
 
-		if (m_Template.IsTemplateEx())
-		{
-			if (m_Template.GetTemplateExPtr()->style & DS_CENTER)
-			{
-				ATLASSERT(m_Template.GetTemplateExPtr()->style ^ WS_CHILD);
-				GetTemplateExPtr()->style |= WS_POPUP;
-			}
-		}
-		else
-		{
-			if (m_Template.GetTemplatePtr()->style & DS_CENTER)
-			{
-				ATLASSERT(m_Template.GetTemplatePtr()->style ^ WS_CHILD);
-				m_Template.GetTemplatePtr()->style |= WS_POPUP;
-			}
-		}
+		CheckStyle();
 
 		return _baseClass::DoModal(hWndParent, dwInitParam);
 	}
@@ -580,22 +585,7 @@ public:
 		if (!m_Template.IsValid())
 			CreateTemplate();
 
-		if (m_Template.IsTemplateEx())
-		{
-			if (GetTemplateExPtr()->style & DS_CENTER)
-			{
-				ATLASSERT(GetTemplateExPtr()->style ^ WS_CHILD);
-				GetTemplateExPtr()->style |= WS_POPUP;
-			}
-		}
-		else
-		{
-			if (GetTemplatePtr()->style & DS_CENTER)
-			{
-				ATLASSERT(GetTemplatePtr()->style ^ WS_CHILD);
-				GetTemplatePtr()->style |= WS_POPUP;
-			}
-		}
+		CheckStyle();
 
 		return _baseClass::Create(hWndParent, dwInitParam);
 	}
