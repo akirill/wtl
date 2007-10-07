@@ -37,10 +37,14 @@
 #if defined(_WTL_USE_VSSYM32) || (defined(NTDDI_VERSION) && (NTDDI_VERSION >= NTDDI_LONGHORN))
   #include <vssym32.h>
 #else
+  #ifndef TMSCHEMA_H
   #include <tmschema.h>
+  #endif
 #endif
 
+#ifndef _UXTHEME_H_
 #include <uxtheme.h>
+#endif
 #pragma comment(lib, "uxtheme.lib")
 
 // Note: To create an application that also runs on older versions of Windows,
