@@ -40,7 +40,7 @@ extern CAppModule _Module;
 [!endif]
 
 [!if WTL_EVC_COMPAT]
-#if _WIN32_WCE >= 0x420
+#if _WIN32_WCE >= 420
 #include <tpcshell.h>
 #endif
 [!else]
