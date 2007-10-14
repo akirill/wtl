@@ -249,7 +249,8 @@ public:
 		T* pT = static_cast<T*>(this);
 		ATLASSERT(pT->IsWindow());
 		BOOL bRes = ::GetClientRect(pT->m_hWnd, lpRect);
-		lpRect->top += nTitleHeight;
+		if (nTitleHeight)
+			lpRect->top += nTitleHeight + 1;
 		return bRes;
 	}
 
@@ -1498,7 +1499,7 @@ public:
 #ifndef SETTINGCHANGE_RESET // not defined for PPC 2002
 	#define SETTINGCHANGE_RESET SPI_SETWORKAREA
 #endif
-		if (m_bFullScreen && (wParam & SETTINGCHANGE_RESET))
+		if (m_bFullScreen && (wParam == SETTINGCHANGE_RESET))
 			SetFullScreen(m_bFullScreen);
 		return bHandled = FALSE;
 	}
