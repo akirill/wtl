@@ -5633,7 +5633,13 @@ inline int AtlTaskDialog(HWND hWndParent,
 
 #ifdef _WTL_TASKDIALOG_DIRECT
 	USES_CONVERSION;
-	HRESULT hRet = ::TaskDialog(hWndParent, ModuleHelper::GetResourceInstance(), T2CW(WindowTitle.m_lpstr), T2CW(MainInstructionText.m_lpstr), T2CW(ContentText.m_lpstr), dwCommonButtons, T2CW(Icon.m_lpstr), &nRet);
+	HRESULT hRet = ::TaskDialog(hWndParent, ModuleHelper::GetResourceInstance(), 
+		IS_INTRESOURCE(WindowTitle.m_lpstr) ? (LPCWSTR) WindowTitle.m_lpstr : T2CW(WindowTitle.m_lpstr), 
+		IS_INTRESOURCE(MainInstructionText.m_lpstr) ? (LPCWSTR) MainInstructionText.m_lpstr : T2CW(MainInstructionText.m_lpstr), 
+		IS_INTRESOURCE(ContentText.m_lpstr) ?  (LPCWSTR) ContentText.m_lpstr : T2CW(ContentText.m_lpstr), 
+		dwCommonButtons, 
+		IS_INTRESOURCE(Icon.m_lpstr) ? (LPCWSTR) Icon.m_lpstr : T2CW(Icon.m_lpstr),
+		&nRet);
 	ATLVERIFY(SUCCEEDED(hRet));
 #else
 	// This allows apps to run on older versions of Windows
@@ -5646,7 +5652,13 @@ inline int AtlTaskDialog(HWND hWndParent,
 		if(pfnTaskDialog != NULL)
 		{
 			USES_CONVERSION;
-			HRESULT hRet = pfnTaskDialog(hWndParent, ModuleHelper::GetResourceInstance(), T2CW(WindowTitle.m_lpstr), T2CW(MainInstructionText.m_lpstr), T2CW(ContentText.m_lpstr), dwCommonButtons, T2CW(Icon.m_lpstr), &nRet);
+			HRESULT hRet = pfnTaskDialog(hWndParent, ModuleHelper::GetResourceInstance(), 
+				IS_INTRESOURCE(WindowTitle.m_lpstr) ? (LPCWSTR) WindowTitle.m_lpstr : T2CW(WindowTitle.m_lpstr), 
+				IS_INTRESOURCE(MainInstructionText.m_lpstr) ? (LPCWSTR) MainInstructionText.m_lpstr : T2CW(MainInstructionText.m_lpstr), 
+				IS_INTRESOURCE(ContentText.m_lpstr) ?  (LPCWSTR) ContentText.m_lpstr : T2CW(ContentText.m_lpstr), 
+				dwCommonButtons, 
+				IS_INTRESOURCE(Icon.m_lpstr) ? (LPCWSTR) Icon.m_lpstr : T2CW(Icon.m_lpstr),
+				&nRet);
 			ATLVERIFY(SUCCEEDED(hRet));
 		}
 
