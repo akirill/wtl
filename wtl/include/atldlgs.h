@@ -2977,7 +2977,7 @@ struct DLGITEMTEMPLATEEX
 	short y;
 	short cx;
 	short cy;
-	WORD id;
+	DWORD id;
 };
 #pragma pack(pop)
 #endif // (_ATL_VER >= 0x800)
