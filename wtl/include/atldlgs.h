@@ -64,6 +64,7 @@
 // CFindReplaceDialogImpl<T>
 // CFindReplaceDialog
 //
+// CDialogBaseUnits
 // CMemDlgTemplate
 // CIndirectDialogImpl<T, TDlgTemplate, TBase>
 //
@@ -2960,6 +2961,139 @@ public:
 };
 
 #endif // !_WIN32_WCE
+
+
+/////////////////////////////////////////////////////////////////////////
+// CDialogBaseUnits - Dialog Units helper
+//
+
+class CDialogBaseUnits
+{
+public:
+   SIZE m_sizeUnits;
+
+// Constructors
+   CDialogBaseUnits()
+   {
+      // The base units of the out-dated System Font
+      LONG nDlgBaseUnits = ::GetDialogBaseUnits();
+      m_sizeUnits.cx = LOWORD(nDlgBaseUnits);
+      m_sizeUnits.cy = HIWORD(nDlgBaseUnits);
+   }
+
+   CDialogBaseUnits(HWND hWnd)
+   {
+      m_sizeUnits.cx = m_sizeUnits.cy = 0;
+      InitDialogBaseUnits(hWnd);
+   }
+
+   CDialogBaseUnits(HFONT hFont, HWND hWnd = NULL)
+   {
+      m_sizeUnits.cx = m_sizeUnits.cy = 0;
+      InitDialogBaseUnits(hFont, hWnd);
+   }
+
+   CDialogBaseUnits(LOGFONT lf, HWND hWnd = NULL)
+   {
+      m_sizeUnits.cx = m_sizeUnits.cy = 0;
+      InitDialogBaseUnits(lf, hWnd);
+   }
+
+// Operations
+   BOOL InitDialogBaseUnits(HWND hWnd)
+   {
+      ATLASSERT(::IsWindow(hWnd));
+      RECT rc = { 0, 0, 4, 8 };
+      if( !::MapDialogRect(hWnd, &rc) ) return FALSE;
+      m_sizeUnits.cx = rc.bottom;
+      m_sizeUnits.cy = rc.right;
+      return TRUE;
+   }
+
+   BOOL InitDialogBaseUnits(LOGFONT lf, HWND hWnd = NULL)
+   {
+      CFont font;
+      font.CreateFontIndirect(&lf);
+      if( font.IsNull() ) return FALSE;
+      return InitDialogBaseUnits(font, hWnd);
+   }
+
+   BOOL InitDialogBaseUnits(HFONT hFont, HWND hWnd = NULL)
+   {
+      ATLASSERT(hFont != NULL);
+      CWindowDC dc = hWnd;
+      TEXTMETRIC tmText = { 0 };
+      SIZE sizeText = { 0 };
+      HFONT hFontOld = dc.SelectFont(hFont);
+      dc.GetTextMetrics(&tmText);
+      m_sizeUnits.cy = tmText.tmHeight + tmText.tmExternalLeading;
+      dc.GetTextExtent(_T("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"), 52, &sizeText);
+      m_sizeUnits.cx = (sizeText.cx + 26) / 52;
+      dc.SelectFont(hFontOld);
+      return TRUE;
+   }
+
+   SIZE GetDialogBaseUnits() const
+   {
+      return m_sizeUnits;
+   }
+
+   INT MapDialogPixelsX(INT x) const
+   {
+      return MulDiv(x, 4, m_sizeUnits.cx);  // Pixels X to DLU
+   }
+
+   INT MapDialogPixelsY(INT y) const
+   {
+      return MulDiv(y, 8, m_sizeUnits.cy);  // Pixels Y to DLU
+   }
+
+   POINT MapDialogPixels(POINT pt) const
+   {
+      POINT out = { MapDialogPixelsX(pt.x), MapDialogPixelsY(pt.y) };
+      return out;
+   }
+
+   SIZE MapDialogPixels(SIZE input) const
+   {
+      SIZE out = { MapDialogPixelsX(input.cx), MapDialogPixelsY(input.cy) };
+      return out;
+   }
+
+   RECT MapDialogPixels(RECT input) const
+   {
+      RECT out = { MapDialogPixelsX(input.left), MapDialogPixelsY(input.top), MapDialogPixelsX(input.right), MapDialogPixelsY(input.bottom) };
+      return out;
+   }
+
+   INT MapDialogUnitsX(INT x) const
+   {
+      return MulDiv(x, m_sizeUnits.cx, 4);  // DLU to Pixels X
+   }
+
+   INT MapDialogUnitsY(INT y) const
+   {
+      return MulDiv(y, m_sizeUnits.cx, 8);  // DLU to Pixels Y
+   }
+
+   POINT MapDialogUnits(POINT pt) const
+   {
+      POINT out = { MapDialogUnitsX(pt.x), MapDialogUnitsY(pt.y) };
+      return out;
+   }
+
+   SIZE MapDialogUnits(SIZE input) const
+   {
+      SIZE out = { MapDialogUnitsX(input.cx), MapDialogUnitsY(input.cy) };
+      return out;
+   }
+
+   RECT MapDialogUnits(RECT input) const
+   {
+      RECT out = { MapDialogUnitsX(input.left), MapDialogUnitsY(input.top), MapDialogUnitsX(input.right), MapDialogUnitsY(input.bottom) };
+      return out;
+   }
+};
 
 
 ///////////////////////////////////////////////////////////////////////////////
