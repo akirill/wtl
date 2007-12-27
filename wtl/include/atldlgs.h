@@ -2962,6 +2962,9 @@ public:
 #endif // !_WIN32_WCE
 
 
+///////////////////////////////////////////////////////////////////////////////
+// CMemDlgTemplate - in-memory dialog template - DLGTEMPLATE or DLGTEMPLATEEX
+
 #if (_ATL_VER >= 0x800)
 typedef ATL::_DialogSplitHelper::DLGTEMPLATEEX DLGTEMPLATEEX;
 typedef ATL::_DialogSplitHelper::DLGITEMTEMPLATEEX DLGITEMTEMPLATEEX;
@@ -2983,9 +2986,6 @@ struct DLGITEMTEMPLATEEX
 #endif // (_ATL_VER >= 0x800)
 
 
-///////////////////////////////////////////////////////////////////////////////
-// CMemDlgTemplate - in-memory dialog template - DLGTEMPLATE or DLGTEMPLATEEX
-
 class CMemDlgTemplate
 {
 public:
@@ -2999,7 +2999,7 @@ public:
 		CTRL_COMBOBOX  = 0x0085
 	};
 
-	CMemDlgTemplate() : m_pData(NULL), m_pPtr(NULL), m_cAllocated(0)
+	CMemDlgTemplate() : m_hData(NULL), m_pData(NULL), m_pPtr(NULL), m_cAllocated(0)
 	{ }
 
 	~CMemDlgTemplate()
@@ -3029,17 +3029,28 @@ public:
 
 	void Reset()
 	{
-		if (IsValid())
-			ATLVERIFY(::GlobalFree(m_pData) == NULL);
+		if (IsValid()) {
+			::GlobalUnlock(m_pData);
+			ATLVERIFY(::GlobalFree(m_hData) == NULL);
+		}
 
+		m_hData = NULL;
 		m_pData = NULL;
 		m_pPtr = NULL;
 		m_cAllocated = 0;
 	}
 
-	void Create(bool bDlgEx, LPCTSTR lpszCaption, short nX, short nY, short nWidth, short nHeight, DWORD dwStyle = 0, DWORD dwExStyle = 0, 
-	            LPCTSTR lpstrFontName = NULL, WORD wFontSize = 0, WORD wWeight = 0, BYTE bItalic = 0, BYTE bCharset = 0, DWORD dwHelpID = 0,
-				ATL::_U_STRINGorID ClassName = 0U, ATL::_U_STRINGorID Menu = 0U)
+	void Create(bool bDlgEx, LPCTSTR lpszCaption, RECT rc, DWORD dwStyle = 0, DWORD dwExStyle = 0,
+		LPCTSTR lpstrFontName = NULL, WORD wFontSize = 0, WORD wWeight = 0, BYTE bItalic = 0, BYTE bCharset = 0, DWORD dwHelpID = 0,
+		ATL::_U_STRINGorID ClassName = 0U, ATL::_U_STRINGorID Menu = 0U)
+	{
+		Create(bDlgEx, lpszCaption, (short) rc.left, (short) rc.top, (short) (rc.right - rc.left), (short) (rc.bottom - rc.top), dwStyle, dwExStyle,
+			lpstrFontName, wFontSize, wWeight, bItalic, bCharset, dwHelpID, ClassName.m_lpstr, Menu.m_lpstr);
+	}
+
+	void Create(bool bDlgEx, LPCTSTR lpszCaption, short nX, short nY, short nWidth, short nHeight, DWORD dwStyle = 0, DWORD dwExStyle = 0,
+		LPCTSTR lpstrFontName = NULL, WORD wFontSize = 0, WORD wWeight = 0, BYTE bItalic = 0, BYTE bCharset = 0, DWORD dwHelpID = 0,
+		ATL::_U_STRINGorID ClassName = 0U, ATL::_U_STRINGorID Menu = 0U)
 	{
 		// Should have DS_SETFONT style to set the dialog font name and size
 		if (lpstrFontName != NULL)
@@ -3118,6 +3129,13 @@ public:
 		}
 	}
 
+	void AddControl(ATL::_U_STRINGorID ClassName, WORD wId, RECT rc, DWORD dwStyle, DWORD dwExStyle,
+	                ATL::_U_STRINGorID Text, const WORD* pCreationData = NULL, WORD nCreationData = 0, DWORD dwHelpID = 0)
+	{
+		AddControl(ClassName.m_lpstr, wId, (short) rc.left, (short) rc.top, (short) (rc.right - rc.left), (short) (rc.bottom - rc.top), dwStyle, dwExStyle,
+			Text.m_lpstr, pCreationData, nCreationData, dwHelpID);
+	}
+
 	void AddControl(ATL::_U_STRINGorID ClassName, WORD wId, short nX, short nY, short nWidth, short nHeight, DWORD dwStyle, DWORD dwExStyle,
 	                ATL::_U_STRINGorID Text, const WORD* pCreationData = NULL, WORD nCreationData = 0, DWORD dwHelpID = 0)
 	{
@@ -3184,24 +3202,28 @@ public:
 		AddControl(CtrlType, wId, nX, nY, nWidth, nHeight, dwStyle, dwExStyle, Text, pCreationData, nCreationData, dwHelpID);
 	}
 
-protected:
 	void AddData(LPCVOID pData, size_t nData)
 	{
 		ATLASSERT(pData != NULL);
 
-		const size_t ALLOCATION_INCREMENT = 1024;
+		const SIZE_T ALLOCATION_INCREMENT = 1024;
 
 		if (m_pData == NULL)
 		{
 			m_cAllocated = ((nData / ALLOCATION_INCREMENT) + 1) * ALLOCATION_INCREMENT;
-			m_pPtr = m_pData = static_cast<LPBYTE>(::GlobalAlloc(GPTR, m_cAllocated));
+			m_hData = ::GlobalAlloc(GMEM_MOVEABLE | GMEM_ZEROINIT, m_cAllocated);
+			ATLASSERT(m_hData != NULL);
+			m_pPtr = m_pData = static_cast<LPBYTE>(::GlobalLock(m_hData));
 			ATLASSERT(m_pData != NULL);
 		}
 		else if (((m_pPtr - m_pData) + nData) > m_cAllocated)
 		{
-			size_t ptrPos = (m_pPtr - m_pData);
+			SIZE_T ptrPos = (m_pPtr - m_pData);
 			m_cAllocated += ((nData / ALLOCATION_INCREMENT) + 1) * ALLOCATION_INCREMENT;
-			m_pData = static_cast<LPBYTE>(::GlobalReAlloc(m_pData, m_cAllocated, 0));
+			::GlobalUnlock(m_pData);
+			m_hData = ::GlobalReAlloc(m_hData, m_cAllocated, GMEM_MOVEABLE | GMEM_ZEROINIT);
+			ATLASSERT(m_hData != NULL);
+			m_pData = static_cast<LPBYTE>(::GlobalLock(m_hData));
 			ATLASSERT(m_pData != NULL);
 			m_pPtr = m_pData + ptrPos;
 		}
@@ -3227,6 +3249,7 @@ protected:
 		}
 	}
 
+	HANDLE m_hData;
 	LPBYTE m_pData;
 	LPBYTE m_pPtr;
 	SIZE_T m_cAllocated;
