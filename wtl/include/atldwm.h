@@ -55,8 +55,9 @@
 // CDwm
 // CDwmImpl<T, TBase>
 // CDwmWindowT<TBase> - CDwmWindow
-// CDwmThumbnailImpl<TBase>
+// CDwmThumbnailT<t_bManaged, TBase>
 // CDwmThumbnail
+// CDwmThumbnailHandle
 // CAeroControlImpl
 
 

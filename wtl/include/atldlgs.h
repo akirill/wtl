@@ -2983,20 +2983,29 @@ public:
 
 	CDialogBaseUnits(HWND hWnd)
 	{
-		m_sizeUnits.cx = m_sizeUnits.cy = 0;
-		InitDialogBaseUnits(hWnd);
+		if(!InitDialogBaseUnits(hWnd)) {
+			LONG nDlgBaseUnits = ::GetDialogBaseUnits();
+			m_sizeUnits.cx = LOWORD(nDlgBaseUnits);
+			m_sizeUnits.cy = HIWORD(nDlgBaseUnits);
+		}
 	}
 
 	CDialogBaseUnits(HFONT hFont, HWND hWnd = NULL)
 	{
-		m_sizeUnits.cx = m_sizeUnits.cy = 0;
-		InitDialogBaseUnits(hFont, hWnd);
+		if(!InitDialogBaseUnits(hFont, hWnd)) {
+			LONG nDlgBaseUnits = ::GetDialogBaseUnits();
+			m_sizeUnits.cx = LOWORD(nDlgBaseUnits);
+			m_sizeUnits.cy = HIWORD(nDlgBaseUnits);
+		}
 	}
 
 	CDialogBaseUnits(LOGFONT lf, HWND hWnd = NULL)
 	{
-		m_sizeUnits.cx = m_sizeUnits.cy = 0;
-		InitDialogBaseUnits(lf, hWnd);
+		if(!InitDialogBaseUnits(lf, hWnd)) {
+			LONG nDlgBaseUnits = ::GetDialogBaseUnits();
+			m_sizeUnits.cx = LOWORD(nDlgBaseUnits);
+			m_sizeUnits.cy = HIWORD(nDlgBaseUnits);
+		}
 	}
 
 // Operations
@@ -3004,9 +3013,9 @@ public:
 	{
 		ATLASSERT(::IsWindow(hWnd));
 		RECT rc = { 0, 0, 4, 8 };
-		if( !::MapDialogRect(hWnd, &rc) ) return FALSE;
-		m_sizeUnits.cx = rc.bottom;
-		m_sizeUnits.cy = rc.right;
+		if(!::MapDialogRect(hWnd, &rc)) return FALSE;
+		m_sizeUnits.cx = rc.right;
+		m_sizeUnits.cy = rc.bottom;
 		return TRUE;
 	}
 
@@ -3014,7 +3023,7 @@ public:
 	{
 		CFont font;
 		font.CreateFontIndirect(&lf);
-		if( font.IsNull() ) return FALSE;
+		if(font.IsNull()) return FALSE;
 		return InitDialogBaseUnits(font, hWnd);
 	}
 
