@@ -110,7 +110,7 @@ public:
 // Operations
 	BOOL DwmIsCompositionEnabled() const
 	{
-		if(!IsDwmSupported()) return E_NOTIMPL;
+		if(!IsDwmSupported()) return FALSE;
 		BOOL bRes = FALSE;
 		return SUCCEEDED(::DwmIsCompositionEnabled(&bRes)) && bRes;
 	}
