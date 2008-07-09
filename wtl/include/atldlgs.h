@@ -3049,12 +3049,12 @@ public:
 
 	INT MapDialogPixelsX(INT x) const
 	{
-		return MulDiv(x, 4, m_sizeUnits.cx);  // Pixels X to DLU
+		return ::MulDiv(x, 4, m_sizeUnits.cx);  // Pixels X to DLU
 	}
 
 	INT MapDialogPixelsY(INT y) const
 	{
-		return MulDiv(y, 8, m_sizeUnits.cy);  // Pixels Y to DLU
+		return ::MulDiv(y, 8, m_sizeUnits.cy);  // Pixels Y to DLU
 	}
 
 	POINT MapDialogPixels(POINT pt) const
@@ -3077,12 +3077,12 @@ public:
 
 	INT MapDialogUnitsX(INT x) const
 	{
-		return MulDiv(x, m_sizeUnits.cx, 4);  // DLU to Pixels X
+		return ::MulDiv(x, m_sizeUnits.cx, 4);  // DLU to Pixels X
 	}
 
 	INT MapDialogUnitsY(INT y) const
 	{
-		return MulDiv(y, m_sizeUnits.cx, 8);  // DLU to Pixels Y
+		return ::MulDiv(y, m_sizeUnits.cx, 8);  // DLU to Pixels Y
 	}
 
 	POINT MapDialogUnits(POINT pt) const
@@ -3173,7 +3173,9 @@ public:
 	void Reset()
 	{
 		if (IsValid()) {
+#ifndef UNDER_CE
 			::GlobalUnlock(m_pData);
+#endif
 			ATLVERIFY(::GlobalFree(m_hData) == NULL);
 		}
 
@@ -3356,17 +3358,27 @@ public:
 			m_cAllocated = ((nData / ALLOCATION_INCREMENT) + 1) * ALLOCATION_INCREMENT;
 			m_hData = ::GlobalAlloc(GMEM_MOVEABLE | GMEM_ZEROINIT, m_cAllocated);
 			ATLASSERT(m_hData != NULL);
+#ifndef UNDER_CE
 			m_pPtr = m_pData = static_cast<LPBYTE>(::GlobalLock(m_hData));
+#else
+			m_pPtr = m_pData = static_cast<LPBYTE>(m_hData);
+#endif
 			ATLASSERT(m_pData != NULL);
 		}
 		else if (((m_pPtr - m_pData) + nData) > m_cAllocated)
 		{
 			SIZE_T ptrPos = (m_pPtr - m_pData);
 			m_cAllocated += ((nData / ALLOCATION_INCREMENT) + 1) * ALLOCATION_INCREMENT;
+#ifndef UNDER_CE
 			::GlobalUnlock(m_pData);
+#endif
 			m_hData = ::GlobalReAlloc(m_hData, m_cAllocated, GMEM_MOVEABLE | GMEM_ZEROINIT);
 			ATLASSERT(m_hData != NULL);
+#ifndef UNDER_CE
 			m_pData = static_cast<LPBYTE>(::GlobalLock(m_hData));
+#else
+			m_pData = static_cast<LPBYTE>(m_hData);
+#endif
 			ATLASSERT(m_pData != NULL);
 			m_pPtr = m_pData + ptrPos;
 		}
