@@ -583,6 +583,35 @@ namespace RunTimeHelper
 		BOOL bRet = ::GetVersionEx(&ovi);
 		return ((bRet != FALSE) && (ovi.dwMajorVersion >= 6));
 	}
+
+	inline bool IsThemeAvailable()
+	{
+		bool bRet = false;
+
+		if(IsCommCtrl6())
+		{
+			HMODULE hThemeDLL = ::LoadLibrary(_T("uxtheme.dll"));
+			if(hThemeDLL != NULL)
+			{
+				typedef BOOL (STDAPICALLTYPE *PFN_IsThemeActive)();
+				PFN_IsThemeActive pfnIsThemeActive = (PFN_IsThemeActive)::GetProcAddress(hThemeDLL, "IsThemeActive");
+				ATLASSERT(pfnIsThemeActive != NULL);
+				bRet = (pfnIsThemeActive != NULL) && (pfnIsThemeActive() != FALSE);
+
+				if(bRet)
+				{
+					typedef BOOL (STDAPICALLTYPE *PFN_IsAppThemed)();
+					PFN_IsAppThemed pfnIsAppThemed = (PFN_IsAppThemed)::GetProcAddress(hThemeDLL, "IsAppThemed");
+					ATLASSERT(pfnIsAppThemed != NULL);
+					bRet = (pfnIsAppThemed != NULL) && (pfnIsAppThemed() != FALSE);
+				}
+
+				::FreeLibrary(hThemeDLL);
+			}
+		}
+
+		return bRet;
+	}
 #endif // !_WIN32_WCE
 
 	inline int SizeOf_REBARBANDINFO()
