@@ -2321,6 +2321,31 @@ public:
 		ATLASSERT(m_hDC != NULL);
 		return ::GradientFill(m_hDC, pVertices, nVertices, pMeshElements, nMeshElements, dwMode);
 	}
+
+	BOOL GradientFillRect(RECT& rect, COLORREF clr1, COLORREF clr2, bool bHorizontal)
+	{
+		ATLASSERT(m_hDC != NULL);
+
+		TRIVERTEX arrTvx[2] = { { 0 }, { 0 } };
+
+		arrTvx[0].x = rect.left;
+		arrTvx[0].y = rect.top;
+		arrTvx[0].Red = MAKEWORD(0, GetRValue(clr1));
+		arrTvx[0].Green = MAKEWORD(0, GetGValue(clr1));
+		arrTvx[0].Blue = MAKEWORD(0, GetBValue(clr1));
+		arrTvx[0].Alpha = 0;
+
+		arrTvx[1].x = rect.right;
+		arrTvx[1].y = rect.bottom;
+		arrTvx[1].Red = MAKEWORD(0, GetRValue(clr2));
+		arrTvx[1].Green = MAKEWORD(0, GetGValue(clr2));
+		arrTvx[1].Blue = MAKEWORD(0, GetBValue(clr2));
+		arrTvx[1].Alpha = 0;
+
+		GRADIENT_RECT gr = { 0, 1 };
+
+		return ::GradientFill(m_hDC, arrTvx, 2, &gr, 1, bHorizontal ? GRADIENT_FILL_RECT_H : GRADIENT_FILL_RECT_V);
+	}
 #endif // !defined(_WIN32_WCE) || (_WIN32_WCE >= 420)
 
 #if !defined(_WIN32_WCE) || (_WIN32_WCE > 0x500)
