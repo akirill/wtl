@@ -3922,15 +3922,19 @@ public:
 	}
 #endif // (_WIN32_WINNT >= 0x0600)
 
-	// single-selection only
+	// Note: selects only one item
 	BOOL SelectItem(int nIndex)
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
-		ATLASSERT((GetStyle() & LVS_SINGLESEL) != 0);
+
+		// multi-selection only: de-select all items
+		if((GetStyle() & LVS_SINGLESEL) == 0)
+			SetItemState(-1, 0, LVIS_SELECTED);
 
 		BOOL bRet = SetItemState(nIndex, LVIS_SELECTED | LVIS_FOCUSED, LVIS_SELECTED | LVIS_FOCUSED);
 		if(bRet)
 			bRet = EnsureVisible(nIndex, FALSE);
+
 		return bRet;
 	}
 };
