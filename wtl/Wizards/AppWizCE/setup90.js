@@ -142,6 +142,8 @@ function main()
 			var strLine = fileSrc.ReadLine();
 			if(strLine.indexOf("Wizard=VsWizard.VsWizardEngine") != -1)
 				strLine += ".9.0";
+			else if(strLine.indexOf("WIZARD_VERSION") != -1)
+				strLine = "Param=\"WIZARD_VERSION = 9.0\"";
 			else if(strLine.indexOf("ABSOLUTE_PATH") != -1)
 				strLine = "Param=\"ABSOLUTE_PATH = " + strSourceFolder + "\"";
 			fileDest.WriteLine(strLine);
