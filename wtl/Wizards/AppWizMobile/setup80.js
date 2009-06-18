@@ -43,7 +43,21 @@ try
 	var Source = SourceBase + "\\WTLMobile.";
 
 	var shell = WScript.CreateObject("WScript.Shell");
-	var DestBase = shell.RegRead("HKLM\\Software\\Microsoft\\VisualStudio\\8.0\\Setup\\VC\\ProductDir") + "\\vcprojects";
+	var DestBase;
+	try { 
+	    DestBase = shell.RegRead("HKLM\\Software\\Microsoft\\VisualStudio\\8.0\\Setup\\VC\\ProductDir") + "\\vcprojects";
+	    }
+    catch (e) {
+        try {
+            DestBase = shell.RegRead("HKLM\\Software\\Wow6432Node\\Microsoft\\VisualStudio\\8.0\\Setup\\VC\\ProductDir") + "\\vcprojects";
+        }
+        catch (e) {
+            WScript.Echo("ERROR: Cannot find where Visual Studio 8.0 is installed.");
+            WScript.Quit();
+        }
+	}
+	        
+        
 	var Dest =DestBase + "\\WTLMobile.";
 
 	var vsz = Source + "vsz";

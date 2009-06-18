@@ -11,7 +11,12 @@
 
 
 var ProjWiz;
-ProjWiz = new ActiveXObject("ProjWiz.SDProjWiz2.2");
+var WizardVersion = wizard.FindSymbol('WIZARD_VERSION');
+
+if (WizardVersion >= 9.0)
+    ProjWiz = new ActiveXObject("ProjWiz.SDProjWiz2.3");
+else
+    ProjWiz = new ActiveXObject("ProjWiz.SDProjWiz2.2");
 
 function OnFinish(selProj, selObj)
 {
@@ -822,7 +827,6 @@ function SetViewSymbols(strBaseName)
 
 function SetWtlDeviceResourceConfigurations(selProj)
 {
-    var ProjWiz = new ActiveXObject("ProjWiz.SDProjWiz2.2");
 	var projectName = wizard.FindSymbol("PROJECT_NAME");
 	projectName = projectName.toLowerCase();
 	for (var fileIdx = 1; fileIdx <= selProj.Files.Count; fileIdx++)

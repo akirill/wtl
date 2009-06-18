@@ -43,8 +43,20 @@ try
 	var Source = SourceBase + "\\WTLMobile.";
 
 	var shell = WScript.CreateObject("WScript.Shell");
-	var DestBase = shell.RegRead("HKLM\\Software\\Microsoft\\VisualStudio\\9.0\\Setup\\VC\\ProductDir") + "vcprojects";
-	var Dest =DestBase + "\\WTLMobile.";
+	var DestBase;
+	try {
+	    DestBase = shell.RegRead("HKLM\\Software\\Microsoft\\VisualStudio\\9.0\\Setup\\VC\\ProductDir") + "\\vcprojects";
+	}
+	catch (e) {
+	    try {
+	        DestBase = shell.RegRead("HKLM\\Software\\Wow6432Node\\Microsoft\\VisualStudio\\9.0\\Setup\\VC\\ProductDir") + "\\vcprojects";
+	    }
+	    catch (e) {
+	        WScript.Echo("ERROR: Cannot find where Visual Studio 9.0 is installed.");
+	        WScript.Quit();
+	    }
+	}
+	var Dest = DestBase + "\\WTLMobile.";
 
 	var vsz = Source + "vsz";
 	var vsdir = Source + "vsdir";
@@ -53,6 +65,7 @@ try
 	var ts = fso.OpenTextFile(vsz,1);
 	vszText = ts.ReadAll();
 	ts.Close();
+	vszText = vszText.replace(/8\.0/g,"9.0");
 	vszText = vszText.replace(/(.+PATH\s=).+/,"$1" + SourceBase +"\"\r");
 	ts = fso.OpenTextFile(vsdir, 1);
 	vsdirText = ts.ReadAll();

@@ -17,20 +17,26 @@
 		<META NAME="vs_targetSchema" CONTENT="http://schemas.microsoft.com/intellisense/ie5">
 		<META HTTP-EQUIV="MSThemeCompatible" CONTENT="Yes">
 	    <LINK ID="LINKURL" REL="stylesheet" HREF="../../1033/NewStyles.css">
-		<OBJECT id="ProjWiz" classid="CLSID:D245F352-3F45-4516-B1E6-04608DA126CC" VIEWASTEXT>
+
+	    <OBJECT id="ProjWiz80" classid="CLSID:D245F352-3F45-4516-B1E6-04608DA126CC" VIEWASTEXT>
 		</OBJECT>
-		<SCRIPT>
-			// Load the New Project Wizard DLL
-			var ProjWiz;
-			try
-			{
-				ProjWiz = document.all.tags("OBJECT").item("ProjWiz");
-				ProjWiz.Init(window.external);
-			}
-			catch(e)
-			{
-				window.external.Finish(document, 'cancel');
-			}
+        <OBJECT id="ProjWiz90" classid="CLSID:5AFCAD52-F3CC-43BB-A605-6602EE5BD94A" VIEWASTEXT>
+        </OBJECT>
+
+        <SCRIPT>
+		// Load the New Project Wizard DLL
+		var ProjWiz;
+		try {
+		    var WizardVersion = window.external.FindSymbol('WIZARD_VERSION');
+		    if (WizardVersion >= 9.0)
+		        ProjWiz = document.all.tags("OBJECT").item("ProjWiz90");
+		    else
+		        ProjWiz = document.all.tags("OBJECT").item("ProjWiz80");
+			ProjWiz.Init(window.external);
+		}
+		catch(e) {
+			window.external.Finish(document, 'cancel');
+		}
 		</SCRIPT>
 	</HEAD>
 	<BODY BGCOLOR="buttonface" TOPMARGIN="0" LEFTMARGIN="0" RIGHTMARGIN="0" BOTTOMMARGIN="0" ONLOAD="InitDocument(document);" ONKEYDOWN="OnKey();" ONKEYPRESS="OnPress();">
