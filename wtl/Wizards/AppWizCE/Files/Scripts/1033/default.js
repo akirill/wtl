@@ -11,7 +11,12 @@
 
 
 var ProjWiz;
-ProjWiz = new ActiveXObject("ProjWiz.SDProjWiz2.2");
+var WizardVersion = wizard.FindSymbol('WIZARD_VERSION');
+
+if(WizardVersion >= 9.0)
+	ProjWiz = new ActiveXObject("ProjWiz.SDProjWiz2.3");
+else
+	ProjWiz = new ActiveXObject("ProjWiz.SDProjWiz2.2");
 
 function SetDCOMSymbols()
 {
