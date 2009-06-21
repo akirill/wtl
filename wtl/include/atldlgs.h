@@ -1544,7 +1544,7 @@ public:
 		ATLASSERT(m_hWnd != NULL);
 		USES_CONVERSION;
 		LPCWSTR lpstr = T2CW(lpstrOKText);
-		::SendMessage(m_hWnd, BFFM_SETOKTEXT, (WPARAM)lpstr, 0L);
+		::SendMessage(m_hWnd, BFFM_SETOKTEXT, 0, (LPARAM)lpstr);
 	}
 
 	void SetExpanded(LPCITEMIDLIST pItemIDList)
