@@ -20,6 +20,9 @@
 #define _WIN32_WCE_AYGSHELL 1
 
 [!endif]
+#if _ATL_VER == 0x900
+#define _SECURE_ATL 1
+#endif
 #include <atlbase.h>
 #include <atlapp.h>
 
