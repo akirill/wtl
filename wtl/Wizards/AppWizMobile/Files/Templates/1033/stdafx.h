@@ -11,9 +11,6 @@
 #define _CE_ALLOW_SINGLE_THREADED_OBJECTS_IN_MTA
 [!endif]
 #include <atlbase.h>
-#if _ATL_VER == 0x900
-#define _SECURE_ATL 1
-#endif
 [!if WTL_USE_STRING]
 [!if WTL_STRING_ATL]
 #include <atlstr.h>

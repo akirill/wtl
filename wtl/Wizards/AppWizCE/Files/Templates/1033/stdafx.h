@@ -21,11 +21,6 @@
 
 [!endif]
 #include <atlbase.h>
-
-#if _ATL_VER == 0x900
-#define _SECURE_ATL 1
-#endif
-
 #include <atlapp.h>
 
 [!if WTL_COM_SERVER]

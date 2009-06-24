@@ -63,6 +63,10 @@
 // We need to disable this warning because of template class arguments
 #pragma warning(disable: 4127)
 
+#if (_ATL_VER >= 0x0900) && !defined(_SECURE_ATL)
+  #define _SECURE_ATL	1
+#endif
+
 
 ///////////////////////////////////////////////////////////////////////////////
 // WTL version number
