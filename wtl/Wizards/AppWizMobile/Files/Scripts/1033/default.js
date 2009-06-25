@@ -524,8 +524,12 @@ function AddPlatformFile(proj, strTemplate, PlatFormFile)
 
 function SplitResourceFile(proj, strTemplate, strFile)
 {
-	var ppcFile = strFile.replace(/\./, "ppc.");
-	var spFile = strFile.replace(/\./, "sp.");
+    var dotPos = strFile.lastIndexOf(".");
+    var fileExt = strFile.substring(dotPos, strFile.length);
+    var fileName = strFile.substr(0, dotPos);
+
+    var ppcFile = fileName + "ppc" + fileExt;
+    var spFile = fileName + "sp" + fileExt;
 	
 	if(wizard.FindSymbol("POCKETPC2003_UI_MODEL"))
 		AddPlatformFile(proj, strTemplate, ppcFile);
