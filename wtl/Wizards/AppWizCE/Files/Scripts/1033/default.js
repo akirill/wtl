@@ -343,7 +343,12 @@ function AddConfigurations(proj, strProjectName)
 			var DeployTool = config.DeploymentTool;
 			if(DeployTool)
 			{
-				DeployTool.AdditionalFiles += "atl80.dll|$(VCInstallDir)ce\\dll\\$(INSTRUCTIONSET)\\|%CSIDL_WINDOWS%|0;";
+			    var strAddDll = ".dll|$(VCInstallDir)ce\\dll\\$(INSTRUCTIONSET)\\|%CSIDL_WINDOWS%|0;"
+			    
+                if(WizardVersion >= 9.0)
+				    DeployTool.AdditionalFiles += "atl90" + strAddDll;
+                else
+				    DeployTool.AdditionalFiles += "atl80" + strAddDll;
 			}
 
 			// Resource settings
