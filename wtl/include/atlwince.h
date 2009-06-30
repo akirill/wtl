@@ -2214,22 +2214,37 @@ public:
 		::SendMessage(m_hWnd, EM_UNDOEVENT, 0, 0L);
 	}
 
+	void Undo()
+	{
+		UndoEvent();
+	}
+
 // Standard EM_xxx messages
 	DWORD GetSel() const
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
+		ATLASSERT(GetViewStyle() != VT_DRAWINGVIEW);
 		return (DWORD)::SendMessage(m_hWnd, EM_GETSEL, 0, 0L);
 	}
 
 	void GetSel(int& nStartChar, int& nEndChar) const
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
+		ATLASSERT(GetViewStyle() != VT_DRAWINGVIEW);
 		::SendMessage(m_hWnd, EM_GETSEL, (WPARAM)&nStartChar, (LPARAM)&nEndChar);
+	}
+
+	void SetSel(int nStartChar, int nEndChar)
+	{
+		ATLASSERT(::IsWindow(m_hWnd));
+		ATLASSERT(GetViewStyle() != VT_DRAWINGVIEW);
+		::SendMessage(m_hWnd, EM_SETSEL, nStartChar, nEndChar);
 	}
 
 	void ReplaceSel(LPCTSTR lpszNewText, BOOL bCanUndo = FALSE)
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
+		ATLASSERT(GetViewStyle() != VT_DRAWINGVIEW);
 		::SendMessage(m_hWnd, EM_REPLACESEL, (WPARAM)bCanUndo, (LPARAM)lpszNewText);
 	}
 
