@@ -756,8 +756,14 @@ public:
 		RECT rect = { 0 };
 		if(GetSplitterBarRect(&rect))
 		{
-			// invert the brush pattern (looks just like frame window sizing)
+			// convert client to window coordinates
 			T* pT = static_cast<T*>(this);
+			RECT rcWnd = { 0 };
+			pT->GetWindowRect(&rcWnd);
+			::MapWindowPoints(NULL, pT->m_hWnd, (LPPOINT)&rcWnd, 2);
+			::OffsetRect(&rect, -rcWnd.left, -rcWnd.top);
+
+			// invert the brush pattern (looks just like frame window sizing)
 			CWindowDC dc(pT->m_hWnd);
 			CBrush brush = CDCHandle::GetHalftoneBrush();
 			if(brush.m_hBrush != NULL)
