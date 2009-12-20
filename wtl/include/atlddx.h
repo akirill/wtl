@@ -629,7 +629,7 @@ public:
 	template <class TCtrl>
 	BOOL _setSel(TCtrl& tCtrl, INT iSel)
 	{
-		return tCtrl.SetCurSel(iSel);
+		return tCtrl.SetCurSel(iSel) != iSel;
 	}
 
 #ifdef __ATLCTRLS_H__
@@ -658,18 +658,19 @@ public:
 		 INT nMin = 0, 
 		 INT nMax = 0)
 	{
-		 T* pT = static_cast<T*>(this);
-		 BOOL bSuccess = TRUE;
+        T* pT = static_cast<T*>(this);
+        BOOL bSuccess = TRUE;
+
+        TCtrl ctrl(pT->GetDlgItem(nID));
 
 		if(bSave)
 		{
-			 nVal = _getSel(TCtrl(pT->GetDlgItem(nID)));
-			 bSuccess = nVal != -1;
+            bSuccess = _getSel(ctrl) != -1;
 		}
 		else
 		{
 			ATLASSERT(!bValidate || nVal >= nMin && nVal <= nMax);
-			bSuccess = _setSel(TCtrl(pT->GetDlgItem(nID)), nVal);
+			bSuccess = _setSel(ctrl, nVal);
 		}
 			
 		if(!bSuccess)
