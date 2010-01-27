@@ -629,7 +629,7 @@ public:
 	template <class TCtrl>
 	BOOL _setSel(TCtrl& tCtrl, INT iSel)
 	{
-		return tCtrl.SetCurSel(iSel) != iSel;
+		return tCtrl.SetCurSel(iSel) == iSel;
 	}
 
 #ifdef __ATLCTRLS_H__
