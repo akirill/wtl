@@ -386,18 +386,6 @@ public:
 	HWND m_hWndCECommandBar;
 #endif // _WIN32_WCE
 
-	struct _AtlToolBarData
-	{
-		WORD wVersion;
-		WORD wWidth;
-		WORD wHeight;
-		WORD wItemCount;
-		//WORD aItems[wItemCount]
-
-		WORD* items()
-			{ return (WORD*)(this+1); }
-	};
-
 #if (_WIN32_IE >= 0x0500) && !defined(_WIN32_WCE)
 	struct _ChevronMenuInfo
 	{
