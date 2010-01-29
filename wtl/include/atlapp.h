@@ -616,6 +616,37 @@ namespace RunTimeHelper
 
 		return bRet;
 	}
+
+	inline bool IsWin7()
+	{
+		OSVERSIONINFO ovi = { sizeof(OSVERSIONINFO) };
+		BOOL bRet = ::GetVersionEx(&ovi);
+		return ((bRet != FALSE) && (ovi.dwMajorVersion == 6) && (ovi.dwMinorVersion >= 1));
+	}
+
+	inline bool IsRibbonUIAvailable()
+	{
+		static INT iRibbonUI = -1;
+
+#if defined NTDDI_WIN7 && (NTDDI_VERSION >= NTDDI_WIN7)
+		if (iRibbonUI == -1)
+			if (HMODULE hRibbonDLL = ::LoadLibrary(_T("propsys.dll"))) 
+			{
+				const GUID CLSID_UIRibbonFramework = {0x926749fa, 0x2615, 0x4987, {0x88, 0x45, 0xc3, 0x3e, 0x65, 0xf2, 0xb9, 0x57}};
+				{
+					ATL::CComPtr<IUnknown> pIUIFramework;
+					iRibbonUI = 
+						SUCCEEDED(pIUIFramework.CoCreateInstance(CLSID_UIRibbonFramework)) ? 1 : 0;
+				}
+				::FreeLibrary(hRibbonDLL);
+			}
+			else
+				iRibbonUI = 0;
+#endif // defined NTDDI_WIN7 && (NTDDI_VERSION >= NTDDI_WIN7)
+
+		return iRibbonUI == 1;
+	}
+
 #endif // !_WIN32_WCE
 
 	inline int SizeOf_REBARBANDINFO()
