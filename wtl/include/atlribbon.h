@@ -180,9 +180,6 @@ public:
 
 	BOOL UISetText(int nID, UINT uIdResource, BOOL bForceUpdate = FALSE)
 	{
-#if _ATL_VER >= 0x700
-		using ATL::AtlLoadString;
-#endif
 		T* pT = static_cast<T*>(this);
 		CTempBuffer<WCHAR> sText(RIBBONUI_MAX_TEXT);
 		return AtlLoadString(uIdResource, sText, RIBBONUI_MAX_TEXT) ? 
@@ -329,50 +326,42 @@ HRESULT SetPropertyVal(REFPROPERTYKEY key, V val, PROPVARIANT* ppv)
 	}
 }
 
-template <>
-HRESULT SetPropertyVal(REFPROPERTYKEY key, DOUBLE val, PROPVARIANT* ppv)
+inline HRESULT SetPropertyVal(REFPROPERTYKEY key, DOUBLE val, PROPVARIANT* ppv)
 {
 	return SetPropertyVal(key, (LONG)val, ppv);
 }
 
-template <>
-HRESULT SetPropertyVal(REFPROPERTYKEY key, IUIImage* val, PROPVARIANT* ppv)
+inline HRESULT SetPropertyVal(REFPROPERTYKEY key, IUIImage* val, PROPVARIANT* ppv)
 {
 	return UIInitPropertyFromImage(key, val, ppv);
 }
 
-template <>
-HRESULT SetPropertyVal(REFPROPERTYKEY key, IUnknown* val, PROPVARIANT* ppv)
+inline HRESULT SetPropertyVal(REFPROPERTYKEY key, IUnknown* val, PROPVARIANT* ppv)
 {
 	return UIInitPropertyFromInterface(key, val, ppv);
 }
 
-template <>
-HRESULT SetPropertyVal(REFPROPERTYKEY key, IPropertyStore* val, PROPVARIANT* ppv)
+inline HRESULT SetPropertyVal(REFPROPERTYKEY key, IPropertyStore* val, PROPVARIANT* ppv)
 {
 	return UIInitPropertyFromInterface(key, val, ppv);
 }
 
-template <>
-HRESULT SetPropertyVal(REFPROPERTYKEY key, SAFEARRAY* val, PROPVARIANT* ppv)
+inline HRESULT SetPropertyVal(REFPROPERTYKEY key, SAFEARRAY* val, PROPVARIANT* ppv)
 {
 	return UIInitPropertyFromIUnknownArray(key, val, ppv);
 }
 
-template <>
-HRESULT SetPropertyVal(REFPROPERTYKEY key, DECIMAL* val, PROPVARIANT* ppv)
+inline HRESULT SetPropertyVal(REFPROPERTYKEY key, DECIMAL* val, PROPVARIANT* ppv)
 {
 	return UIInitPropertyFromDecimal(key, *val, ppv);
 }
 
-template <>
-HRESULT SetPropertyVal(REFPROPERTYKEY key, bool val, PROPVARIANT* ppv)
+inline HRESULT SetPropertyVal(REFPROPERTYKEY key, bool val, PROPVARIANT* ppv)
 {
 	return UIInitPropertyFromBoolean(key, val, ppv);
 }
 
-template <>
-HRESULT SetPropertyVal(REFPROPERTYKEY key, LPCWSTR val, PROPVARIANT* ppv)
+inline HRESULT SetPropertyVal(REFPROPERTYKEY key, LPCWSTR val, PROPVARIANT* ppv)
 {
 	return UIInitPropertyFromString(key, val, ppv);
 }
@@ -1069,7 +1058,7 @@ public:
 		m_uSelected = uItem;
 
 		TCtrl::WndRibbon& ribbon = static_cast<TCtrl*>(this)->GetWndRibbon();
-		return bUpdate ? 
+		return bUpdate ?
 			ribbon.SetProperty(TCtrl::GetID(), UI_PKEY_SelectedItem, uItem) : 
 			S_OK;
 	}
@@ -2603,9 +2592,6 @@ public:
 
 	LPCTSTR DefRibbonQueryText(UINT nCmdID, REFPROPERTYKEY key)
 	{
-#if _ATL_VER >= 0x700
-		using ATL::AtlLoadString;
-#endif
 		static WCHAR sText[RIBBONUI_MAX_TEXT] = {0}; 
 
 		if (k_(key) == k_Label)
