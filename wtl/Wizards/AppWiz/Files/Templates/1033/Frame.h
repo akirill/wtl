@@ -8,8 +8,12 @@
 #define WINDOW_MENU_POSITION	3
 
 [!endif]
-class [!output WTL_FRAME_CLASS] : public [!output WTL_FRAME_BASE_CLASS]<[!output WTL_FRAME_CLASS]>, public CUpdateUI<[!output WTL_FRAME_CLASS]>,
-		public CMessageFilter, public CIdleHandler
+class [!output WTL_FRAME_CLASS] : 
+	public [!output WTL_FRAME_BASE_CLASS]<[!output WTL_FRAME_CLASS]>, 
+[!if !WTL_USE_RIBBON]
+	public CUpdateUI<[!output WTL_FRAME_CLASS]>,
+[!endif]
+	public CMessageFilter, public CIdleHandler
 {
 public:
 	DECLARE_FRAME_WND_CLASS(NULL, IDR_MAINFRAME)
@@ -29,7 +33,7 @@ public:
 
 [!endif]
 [!endif]
-[!if WTL_USE_CMDBAR]
+[!if WTL_USE_CMDBAR || WTL_USE_RIBBON]
 [!if WTL_APPTYPE_MDI]
 	CMDICommandBarCtrl m_CmdBar;
 
@@ -37,6 +41,14 @@ public:
 	CCommandBarCtrl m_CmdBar;
 
 [!endif]
+[!endif]
+[!if WTL_USE_RIBBON]
+	//TODO: Declare ribbon controls
+
+	// Ribbon control map
+	BEGIN_RIBBON_CONTROL_MAP(CMainFrame)
+	END_RIBBON_CONTROL_MAP()
+
 [!endif]
 [!if WTL_USE_CPP_FILES]
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
@@ -77,6 +89,7 @@ public:
 	}
 [!endif]
 
+[!if !WTL_RIBBON_SINGLE_UI]
 	BEGIN_UPDATE_UI_MAP([!output WTL_FRAME_CLASS])
 [!if WTL_USE_TOOLBAR]
 		UPDATE_ELEMENT(ID_VIEW_TOOLBAR, UPDUI_MENUPOPUP)
@@ -88,6 +101,7 @@ public:
 		UPDATE_ELEMENT(ID_VIEW_TREEPANE, UPDUI_MENUPOPUP)
 [!endif]
 	END_UPDATE_UI_MAP()
+[!endif]
 
 	BEGIN_MSG_MAP([!output WTL_FRAME_CLASS])
 		MESSAGE_HANDLER(WM_CREATE, OnCreate)
@@ -102,6 +116,9 @@ public:
 [!endif]
 [!if WTL_USE_STATUSBAR]
 		COMMAND_ID_HANDLER(ID_VIEW_STATUS_BAR, OnViewStatusBar)
+[!endif]
+[!if WTL_RIBBON_DUAL_UI]
+		COMMAND_ID_HANDLER(ID_VIEW_RIBBON, OnViewRibbon)
 [!endif]
 		COMMAND_ID_HANDLER(ID_APP_ABOUT, OnAppAbout)
 [!if WTL_APPTYPE_MDI]
@@ -118,7 +135,9 @@ public:
 		COMMAND_ID_HANDLER(ID_VIEW_TREEPANE, OnViewTreePane)
 		COMMAND_ID_HANDLER(ID_PANE_CLOSE, OnTreePaneClose)
 [!endif]
+[!if !WTL_USE_RIBBON]
 		CHAIN_MSG_MAP(CUpdateUI<[!output WTL_FRAME_CLASS]>)
+[!endif]
 		CHAIN_MSG_MAP([!output WTL_FRAME_BASE_CLASS]<[!output WTL_FRAME_CLASS]>)
 	END_MSG_MAP()
 
@@ -132,6 +151,24 @@ public:
 [!else]
 	LRESULT OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 	{
+[!if WTL_RIBBON_DUAL_UI]
+		bool bRibbonUI = RunTimeHelper::IsRibbonUIAvailable(); 
+		if (bRibbonUI) 
+		   UIAddMenu(GetMenu(), true); 
+		else
+			CMenuHandle(GetMenu()).DeleteMenu(ID_VIEW_RIBBON, MF_BYCOMMAND);
+
+[!else]
+[!if WTL_RIBBON_SINGLE_UI]
+		UIAddMenu(GetMenu(), true); 
+[!endif]
+[!endif]
+[!if WTL_USE_RIBBON && !WTL_USE_CMDBAR]
+		m_CmdBar.Create(m_hWnd, rcDefault, NULL, WS_CHILD);
+		m_CmdBar.AttachMenu(GetMenu());
+		m_CmdBar.LoadImages(IDR_MAINFRAME);
+
+[!endif]
 [!if WTL_USE_TOOLBAR]
 [!if WTL_USE_REBAR]
 [!if WTL_USE_CMDBAR]
@@ -254,6 +291,16 @@ public:
 		pLoop->AddMessageFilter(this);
 		pLoop->AddIdleHandler(this);
 
+[!if WTL_USE_RIBBON]
+[!if WTL_RIBBON_SINGLE_UI]
+		ShowRibbonUI(true); 
+
+[!else]
+		ShowRibbonUI(bRibbonUI); 
+		UISetCheck(ID_VIEW_RIBBON, bRibbonUI); 
+
+[!endif]
+[!endif]
 [!if WTL_APPTYPE_TABVIEW]
 [!if WTL_USE_CMDBAR]
 		CMenuHandle menuMain = m_CmdBar.GetMenu();
@@ -424,6 +471,23 @@ public:
 		UpdateLayout();
 		return 0;
 	}
+[!endif]
+[!endif]
+[!if WTL_RIBBON_DUAL_UI]
+[!if WTL_USE_CPP_FILES]
+	LRESULT OnViewRibbon(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+[!else]
+
+	LRESULT OnViewRibbon(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/) 
+	{ 
+		ShowRibbonUI(!IsRibbonUI());
+		UISetCheck(ID_VIEW_RIBBON, IsRibbonUI()); 
+[!if !WTL_USE_CMDBAR]
+		if (!IsRibbonUI())
+			SetMenu(AtlLoadMenu(IDR_MAINFRAME));
+[!endif]
+		return 0; 
+	} 
 [!endif]
 [!endif]
 [!if WTL_USE_CPP_FILES]

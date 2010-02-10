@@ -23,6 +23,11 @@
 [!endif]
 [!endif]
 [!endif]
+[!if WTL_USE_RIBBON]
+#include <atlribbon.h>
+
+#include "Ribbon.h"
+[!endif]
 
 #include "resource.h"
 
@@ -325,6 +330,9 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR /*
 			nRet = dlgMain.DoModal();
 		}
 [!else]
+[!if WTL_RIBBON_SINGLE_UI]
+		if (RunTimeHelper::IsRibbonUIAvailable())
+[!endif]
 [!if WTL_APPTYPE_MTSDI]
 		{
 			C[!output SAFE_PROJECT_NAME]ThreadManager mgr;
@@ -334,6 +342,10 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR /*
 		{
 			nRet = Run(lpstrCmdLine, nCmdShow);
 		}
+[!endif]
+[!if WTL_RIBBON_SINGLE_UI]
+		else
+			AtlMessageBox(NULL, L"Cannot run with this version of Windows", IDR_MAINFRAME);
 [!endif]
 [!endif]
 
@@ -352,12 +364,27 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR /*
 [!if WTL_APPTYPE_MTSDI]
 	int nRet = 0;
 	// BLOCK: Run application
+[!if WTL_RIBBON_SINGLE_UI]
+	if (RunTimeHelper::IsRibbonUIAvailable())
+[!endif]
 	{
 		C[!output SAFE_PROJECT_NAME]ThreadManager mgr;
 		nRet = mgr.Run(lpstrCmdLine, nCmdShow);
 	}
+[!if WTL_RIBBON_SINGLE_UI]
+	else
+		AtlMessageBox(NULL, L"Cannot run with this version of Windows", IDR_MAINFRAME);
+[!endif]
+[!else]
+[!if WTL_RIBBON_SINGLE_UI]
+	int nRet = 0;
+	if (RunTimeHelper::IsRibbonUIAvailable())
+		nRet = Run(lpstrCmdLine, nCmdShow);
+	else
+		AtlMessageBox(NULL, L"Cannot run with this version of Windows", IDR_MAINFRAME);
 [!else]
 	int nRet = Run(lpstrCmdLine, nCmdShow);
+[!endif]
 [!endif]
 [!endif]
 [!endif]

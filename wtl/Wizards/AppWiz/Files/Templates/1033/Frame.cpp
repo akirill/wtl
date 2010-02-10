@@ -3,6 +3,9 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
+[!if WTL_USE_RIBBON]
+#include "Ribbon.h"
+[!endif]
 #include "resource.h"
 
 #include "aboutdlg.h"
@@ -47,6 +50,24 @@ BOOL [!output WTL_FRAME_CLASS]::OnIdle()
 
 LRESULT [!output WTL_FRAME_CLASS]::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
+[!if WTL_RIBBON_DUAL_UI]
+	bool bRibbonUI = RunTimeHelper::IsRibbonUIAvailable(); 
+	if (bRibbonUI) 
+	   UIAddMenu(GetMenu(), true); 
+	else
+		CMenuHandle(GetMenu()).DeleteMenu(ID_VIEW_RIBBON, MF_BYCOMMAND);
+
+[!else]
+[!if WTL_RIBBON_SINGLE_UI]
+	UIAddMenu(GetMenu(), true); 
+[!endif]
+[!endif]
+[!if WTL_USE_RIBBON && !WTL_USE_CMDBAR]
+	m_CmdBar.Create(m_hWnd, rcDefault, NULL, WS_CHILD);
+	m_CmdBar.AttachMenu(GetMenu());
+	m_CmdBar.LoadImages(IDR_MAINFRAME);
+
+[!endif]
 [!if WTL_USE_TOOLBAR]
 [!if WTL_USE_REBAR]
 [!if WTL_USE_CMDBAR]
@@ -169,6 +190,16 @@ LRESULT [!output WTL_FRAME_CLASS]::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LP
 	pLoop->AddMessageFilter(this);
 	pLoop->AddIdleHandler(this);
 
+[!if WTL_USE_RIBBON]
+[!if WTL_RIBBON_SINGLE_UI]
+		ShowRibbonUI(true); 
+
+[!else]
+		ShowRibbonUI(bRibbonUI); 
+		UISetCheck(ID_VIEW_RIBBON, bRibbonUI); 
+
+[!endif]
+[!endif]
 [!if WTL_APPTYPE_TABVIEW]
 [!if WTL_USE_CMDBAR]
 	CMenuHandle menuMain = m_CmdBar.GetMenu();
@@ -310,6 +341,19 @@ LRESULT [!output WTL_FRAME_CLASS]::OnViewStatusBar(WORD /*wNotifyCode*/, WORD /*
 	UISetCheck(ID_VIEW_STATUS_BAR, bVisible);
 	UpdateLayout();
 	return 0;
+}
+
+[!endif]
+[!if WTL_RIBBON_DUAL_UI]
+LRESULT [!output WTL_FRAME_CLASS]::OnViewRibbon(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+	ShowRibbonUI(!IsRibbonUI());
+	UISetCheck(ID_VIEW_RIBBON, IsRibbonUI()); 
+[!if !WTL_USE_CMDBAR]
+	if (!IsRibbonUI())
+		SetMenu(AtlLoadMenu(IDR_MAINFRAME));
+[!endif]
+	return 0; 
 }
 
 [!endif]

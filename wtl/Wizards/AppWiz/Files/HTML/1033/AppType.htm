@@ -399,11 +399,20 @@ function Next(document, linkto)
 
 function OnFinish(document)
 {
+    WTL_USE_UNICODE.disabled = false;
 	OnWizFinish(document);
 }
 
-function OnInit()
+function OnInit() 
 {
+    if (window.external.FindSymbol("WTL_USE_RIBBON")) 
+    {
+        WTL_USE_UNICODE.checked = true;
+        WTL_USE_UNICODE.disabled = true;
+    }
+    else
+        WTL_USE_UNICODE.disabled = false;
+        
 	OnAppType();
 }
 
@@ -434,6 +443,7 @@ function OnAppType()
 			if(WizardVersion >= 8.0)
 				NextBtn.disabled = false;
 
+			window.external.AddSymbol("WTL_USE_RIBBON", false);
 			window.external.AddSymbol("WTL_USE_TOOLBAR", true);
 			window.external.AddSymbol("WTL_USE_REBAR", true);
 			window.external.AddSymbol("WTL_USE_CMDBAR", true);

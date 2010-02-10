@@ -8,6 +8,9 @@
 // Generated from the TEXTINCLUDE 2 resource.
 //
 #include "atlres.h"
+[!if WTL_USE_RIBBON]
+#include "Ribbon.h"
+[!endif]
 
 /////////////////////////////////////////////////////////////////////////////
 #undef APSTUDIO_READONLY_SYMBOLS
@@ -35,6 +38,9 @@ END
 2 TEXTINCLUDE 
 BEGIN
     "#include ""atlres.h""\r\n"
+[!if WTL_USE_RIBBON]
+    "#include ""Ribbon.h""\r\n"
+[!endif]
     "\0"
 END
 
@@ -46,6 +52,9 @@ BEGIN
 [!if WTL_USE_MANIFEST]
     "CREATEPROCESS_MANIFEST_RESOURCE_ID RT_MANIFEST ""res\\\\[!output PROJECT_NAME].exe.manifest""\r\n"
 [!endif]
+[!if WTL_USE_RIBBON]
+    "#include ""Ribbon.rc""\r\n"
+[!endif]
     "\0"
 END
 
@@ -53,7 +62,7 @@ END
 
 
 [!if !WTL_APPTYPE_DLG]
-[!if WTL_USE_TOOLBAR]
+[!if WTL_USE_TOOLBAR || WTL_USE_RIBBON]
 /////////////////////////////////////////////////////////////////////////////
 //
 // Toolbar
@@ -115,9 +124,12 @@ BEGIN
         MENUITEM "&Copy\tCtrl+C",               ID_EDIT_COPY
         MENUITEM "&Paste\tCtrl+V",              ID_EDIT_PASTE
     END
-[!if WTL_USE_TOOLBAR || WTL_USE_STATUSBAR || WTL_APPTYPE_EXPLORER]
+[!if WTL_USE_TOOLBAR || WTL_USE_STATUSBAR || WTL_RIBBON_DUAL_UI || WTL_APPTYPE_EXPLORER]
     POPUP "&View"
     BEGIN
+[!if WTL_USE_RIBBON]
+        MENUITEM "&Ribbon",                     ID_VIEW_RIBBON
+[!endif]
 [!if WTL_USE_TOOLBAR]
         MENUITEM "&Toolbar",                    ID_VIEW_TOOLBAR
 [!endif]
@@ -441,7 +453,7 @@ BEGIN
     ID_EDIT_REDO            "Redo the previously undone action\nRedo"
 END
 
-[!if WTL_USE_TOOLBAR || WTL_USE_STATUSBAR]
+[!if WTL_USE_TOOLBAR || WTL_USE_STATUSBAR || WTL_RIBBON_DUAL_UI]
 STRINGTABLE 
 BEGIN
 [!if WTL_USE_TOOLBAR]
@@ -449,6 +461,9 @@ BEGIN
 [!endif]
 [!if WTL_USE_STATUSBAR]
     ID_VIEW_STATUS_BAR      "Show or hide the status bar\nToggle StatusBar"
+[!endif]
+[!if WTL_USE_RIBBON]
+    ID_VIEW_RIBBON          "Show or hide the ribbon\nToggle Ribbon"
 [!endif]
 END
 
@@ -499,7 +514,7 @@ IDR_[!output UPPERCASE_SAFE_PROJECT_NAME] REGISTRY "[!output PROJECT_NAME].rgs"
 [!endif]
 
 #ifndef APSTUDIO_INVOKED
-[!if WTL_COM_SERVER || WTL_USE_MANIFEST]
+[!if WTL_COM_SERVER || WTL_USE_MANIFEST || WTL_USE_RIBBON]
 /////////////////////////////////////////////////////////////////////////////
 //
 // Generated from the TEXTINCLUDE 3 resource.
@@ -509,6 +524,9 @@ IDR_[!output UPPERCASE_SAFE_PROJECT_NAME] REGISTRY "[!output PROJECT_NAME].rgs"
 [!endif]
 [!if WTL_USE_MANIFEST]
 CREATEPROCESS_MANIFEST_RESOURCE_ID RT_MANIFEST "res\\[!output PROJECT_NAME].exe.manifest"
+[!endif]
+[!if WTL_USE_RIBBON]
+#include "Ribbon.rc"
 [!endif]
 
 /////////////////////////////////////////////////////////////////////////////

@@ -3,6 +3,9 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
+[!if WTL_USE_RIBBON]
+#include "Ribbon.h"
+[!endif]
 #include "resource.h"
 
 #include "[!output WTL_VIEW_FILE].h"

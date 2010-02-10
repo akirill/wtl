@@ -1,14 +1,20 @@
 // stdafx.h : include file for standard system include files,
 //  or project specific include files that are used frequently, but
-//      are changed infrequently
+//	  are changed infrequently
 //
 
 #pragma once
 
 // Change these values to use different versions
+[!if WTL_USE_RIBBON]
+#define WINVER		0x0601
+#define _WIN32_WINNT	0x0601
+#define _WIN32_IE	0x0700
+[!else]
 #define WINVER		0x0500
 #define _WIN32_WINNT	0x0501
 #define _WIN32_IE	0x0501
+[!endif]
 #define _RICHEDIT_VER	0x0200
 
 [!if WTL_COM_SERVER]
@@ -92,6 +98,9 @@ extern CAppModule _Module;
 [!if WTL_VIEWTYPE_SCROLL]
 #include <atlscrl.h>
 [!endif]
+[!endif]
+[!if WTL_USE_RIBBON]
+#include <atlribbon.h>
 [!endif]
 [!endif]
 [!if WTL_USE_EMBEDDED_MANIFEST]
