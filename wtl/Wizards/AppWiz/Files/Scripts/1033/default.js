@@ -222,8 +222,11 @@ function CreateCustomProject(strProjectName, strProjectPath)
 	try
 	{
 		var strProjTemplatePath = wizard.FindSymbol('PROJECT_TEMPLATE_PATH');
-		var strProjTemplate = '';
-		strProjTemplate = strProjTemplatePath + '\\default.vcproj';
+        var wizVersion = wizard.FindSymbol('WIZARD_VERSION')
+        if (wizVersion < 10)
+            strProjTemplate = strProjTemplatePath + '\\default.vcproj';
+        else
+		    strProjTemplate = strProjTemplatePath + '\\default.vcxproj';
 
 		var Solution = dte.Solution;
 		var strSolutionName = "";
