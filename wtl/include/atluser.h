@@ -1339,7 +1339,7 @@ inline HICON AtlLoadSysIconImage(ATL::_U_STRINGorID icon, UINT fuLoad = LR_DEFAU
 #if (_ATL_VER < 0x0700)
 inline int AtlLoadString(UINT uID, LPTSTR lpBuffer, int nBufferMax)
 {
-	return ::LoadString(_Module.GetResourceInstance(), uID, lpBuffer, nBufferMax);
+	return ::LoadString(ModuleHelper::GetResourceInstance(), uID, lpBuffer, nBufferMax);
 }
 #else
     
