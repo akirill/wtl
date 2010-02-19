@@ -3264,9 +3264,10 @@ public:
 
 		if (IsRibbonUI() && !IsRibbonHidden())
 		{
+			BOOL bComp = FALSE;
 			if (INT iHeight = GetRibbonHeight())
 				rect.top += iHeight;
-			else if (!RunTimeHelper::IsWin7())
+			else if (!RunTimeHelper::IsWin7() || (SUCCEEDED(::DwmIsCompositionEnabled(&bComp)) && bComp))
 				PostMessage(WM_SIZE); 
 		}
 		else if (!IsRibbonUI() && NeedWin7Fix())
