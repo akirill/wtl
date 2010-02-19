@@ -3264,11 +3264,10 @@ public:
 
 		if (IsRibbonUI() && !IsRibbonHidden())
 		{
-			INT iHeight = GetRibbonHeight();
-			if (!iHeight)
-				PostMessage(WM_SIZE); 
-			else
+			if (INT iHeight = GetRibbonHeight())
 				rect.top += iHeight;
+			else if (!RunTimeHelper::IsWin7())
+				PostMessage(WM_SIZE); 
 		}
 		else if (!IsRibbonUI() && NeedWin7Fix())
 			ResetFrame();
