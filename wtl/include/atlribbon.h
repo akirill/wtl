@@ -3160,6 +3160,8 @@ public:
 		if (IsRibbonUI() == bShow)
 			return bShow;
 
+		SetRedraw(FALSE);
+
 		if (bShow && ::IsWindow(m_hWndToolBar))
 		{
 			::ShowWindow(m_hWndToolBar, SW_HIDE);
@@ -3172,7 +3174,8 @@ public:
 
 		m_bWin7Fix = SUCCEEDED(hr) && !bShow;
 
-		if (SUCCEEDED(hr)) 
+		if (SUCCEEDED(hr))
+		{
 			if(::IsWindow(m_hWndToolBar) && !bShow)
 			{
 				::ShowWindow(m_hWndToolBar, SW_SHOWNA);
@@ -3181,8 +3184,12 @@ public:
 			{
 				SetRibbonModes(imodes);
 			}
+		}
 
 		UpdateLayout();
+
+		SetRedraw(TRUE);
+		RedrawWindow(NULL, NULL, RDW_FRAME | RDW_INVALIDATE | RDW_UPDATENOW | RDW_ALLCHILDREN);
 
 		return SUCCEEDED(hr) ? bShow : !bShow;
 	}
