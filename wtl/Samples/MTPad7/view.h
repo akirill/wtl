@@ -27,7 +27,21 @@ public:
 		m_nRow(0), m_nCol(0), 
 		m_bWordWrap(FALSE)
 	{
-		m_font = AtlGetDefaultGuiFont();
+		// Set "Segoe UI" font for Vista or higher, or "Tahoma" otherwise
+		CLogFont lf;
+		lf.lfWeight = FW_NORMAL;
+		if(RunTimeHelper::IsVista())
+		{
+			lf.SetHeight(9);
+			SecureHelper::strcpy_x(lf.lfFaceName, LF_FACESIZE, _T("Segoe UI"));
+		}
+		else
+		{
+			lf.SetHeight(8);
+			SecureHelper::strcpy_x(lf.lfFaceName, LF_FACESIZE, _T("Tahoma"));
+		}
+		m_font.CreateFontIndirect(&lf);
+
 		m_strFilePath[0] = 0;
 		m_strFileName[0] = 0;
 	}

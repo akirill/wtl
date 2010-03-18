@@ -334,7 +334,6 @@ public:
 		// create address bar combo
 		RECT rcCombo = { 0, 0, 1, 300 };
 		m_cb.Create(m_hWnd, rcCombo, NULL, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBS_DROPDOWN | CBS_AUTOHSCROLL);
-		m_cb.SetFont(AtlGetDefaultGuiFont());
 
 		CString strAddress;
 		strAddress.LoadString(IDS_ADDRESS);
