@@ -570,7 +570,6 @@ public:
 	}
 };
 
-
 class CBitmapButton : public CBitmapButtonImpl<CBitmapButton>
 {
 public:
@@ -757,14 +756,16 @@ __declspec(selectany) struct
 };
 #endif // (WINVER < 0x0500) && !defined(_WIN32_WCE)
 
-#define HLINK_UNDERLINED      0x00000000
-#define HLINK_NOTUNDERLINED   0x00000001
-#define HLINK_UNDERLINEHOVER  0x00000002
-#define HLINK_COMMANDBUTTON   0x00000004
-#define HLINK_NOTIFYBUTTON    0x0000000C
-#define HLINK_USETAGS         0x00000010
-#define HLINK_USETAGSBOLD     0x00000030
-#define HLINK_NOTOOLTIP       0x00000040
+#define HLINK_UNDERLINED           0x00000000
+#define HLINK_NOTUNDERLINED        0x00000001
+#define HLINK_UNDERLINEHOVER       0x00000002
+#define HLINK_COMMANDBUTTON        0x00000004
+#define HLINK_NOTIFYBUTTON         0x0000000C
+#define HLINK_USETAGS              0x00000010
+#define HLINK_USETAGSBOLD          0x00000030
+#define HLINK_NOTOOLTIP            0x00000040
+#define HLINK_AUTOCREATELINKFONT   0x00000080
+#define HLINK_SINGLELINE           0x00000100
 
 // Notes:
 // - HLINK_USETAGS and HLINK_USETAGSBOLD are always left-aligned
@@ -778,7 +779,7 @@ public:
 	LPTSTR m_lpstrHyperLink;
 
 	HCURSOR m_hCursor;
-	HFONT m_hFont;
+	HFONT m_hFontLink;
 	HFONT m_hFontNormal;
 
 	RECT m_rcLink;
@@ -800,7 +801,7 @@ public:
 // Constructor/Destructor
 	CHyperLinkImpl(DWORD dwExtendedStyle = HLINK_UNDERLINED) : 
 			m_lpstrLabel(NULL), m_lpstrHyperLink(NULL),
-			m_hCursor(NULL), m_hFont(NULL), m_hFontNormal(NULL),
+			m_hCursor(NULL), m_hFontLink(NULL), m_hFontNormal(AtlGetDefaultGuiFont()),
 			m_clrLink(RGB(0, 0, 255)), m_clrVisited(RGB(128, 0, 128)),
 			m_dwExtendedStyle(dwExtendedStyle),
 			m_bPaintLabel(true), m_bVisited(false),
@@ -813,8 +814,8 @@ public:
 	{
 		delete [] m_lpstrLabel;
 		delete [] m_lpstrHyperLink;
-		if(m_bInternalLinkFont && m_hFont != NULL)
-			::DeleteObject(m_hFont);
+		if(m_bInternalLinkFont && m_hFontLink != NULL)
+			::DeleteObject(m_hFontLink);
 #if (WINVER < 0x0500) && !defined(_WIN32_WCE)
 		// It was created, not loaded, so we have to destroy it
 		if(m_hCursor != NULL)
@@ -910,17 +911,21 @@ public:
 
 	HFONT GetLinkFont() const
 	{
-		return m_hFont;
+		return m_hFontLink;
 	}
 
 	void SetLinkFont(HFONT hFont)
 	{
-		if(m_bInternalLinkFont && m_hFont != NULL)
+		if(m_bInternalLinkFont && m_hFontLink != NULL)
 		{
-			::DeleteObject(m_hFont);
+			::DeleteObject(m_hFontLink);
 			m_bInternalLinkFont = false;
 		}
-		m_hFont = hFont;
+
+		m_hFontLink = hFont;
+
+		T* pT = static_cast<T*>(this);
+		pT->CalcLabelRect();
 	}
 
 	int GetIdealHeight() const
@@ -931,15 +936,17 @@ public:
 		if(!m_bPaintLabel)
 			return -1;
 
+		UINT uFormat = IsSingleLine() ? DT_SINGLELINE : DT_WORDBREAK;
+
 		CClientDC dc(m_hWnd);
 		RECT rect = { 0 };
 		GetClientRect(&rect);
 		HFONT hFontOld = dc.SelectFont(m_hFontNormal);
 		RECT rcText = rect;
-		dc.DrawText(_T("NS"), -1, &rcText, DT_LEFT | DT_WORDBREAK | DT_CALCRECT);
-		dc.SelectFont(m_hFont);
+		dc.DrawText(_T("NS"), -1, &rcText, DT_LEFT | uFormat | DT_CALCRECT);
+		dc.SelectFont(m_hFontLink);
 		RECT rcLink = rect;
-		dc.DrawText(_T("NS"), -1, &rcLink, DT_LEFT | DT_WORDBREAK | DT_CALCRECT);
+		dc.DrawText(_T("NS"), -1, &rcLink, DT_LEFT | uFormat | DT_CALCRECT);
 		dc.SelectFont(hFontOld);
 		return max(rcText.bottom - rcText.top, rcLink.bottom - rcLink.top);
 	}
@@ -983,17 +990,19 @@ public:
 			pT->CalcLabelParts(lpstrLeft, cchLeft, lpstrLink, cchLink, lpstrRight, cchRight);
 
 			// get label part rects
+			UINT uFormat = IsSingleLine() ? DT_SINGLELINE : DT_WORDBREAK;
+
 			HFONT hFontOld = dc.SelectFont(m_hFontNormal);
 			RECT rcLeft = rcClient;
-			dc.DrawText(lpstrLeft, cchLeft, &rcLeft, DT_LEFT | DT_WORDBREAK | DT_CALCRECT);
+			dc.DrawText(lpstrLeft, cchLeft, &rcLeft, DT_LEFT | uFormat | DT_CALCRECT);
 
-			dc.SelectFont(m_hFont);
+			dc.SelectFont(m_hFontLink);
 			RECT rcLink = { rcLeft.right, rcLeft.top, rcClient.right, rcClient.bottom };
-			dc.DrawText(lpstrLink, cchLink, &rcLink, DT_LEFT | DT_WORDBREAK | DT_CALCRECT);
+			dc.DrawText(lpstrLink, cchLink, &rcLink, DT_LEFT | uFormat | DT_CALCRECT);
 
 			dc.SelectFont(m_hFontNormal);
 			RECT rcRight = { rcLink.right, rcLink.top, rcClient.right, rcClient.bottom };
-			dc.DrawText(lpstrRight, cchRight, &rcRight, DT_LEFT | DT_WORDBREAK | DT_CALCRECT);
+			dc.DrawText(lpstrRight, cchRight, &rcRight, DT_LEFT | uFormat | DT_CALCRECT);
 
 			dc.SelectFont(hFontOld);
 
@@ -1003,17 +1012,18 @@ public:
 		else
 		{
 			HFONT hOldFont = NULL;
-			if(m_hFont != NULL)
-				hOldFont = dc.SelectFont(m_hFont);
+			if(m_hFontLink != NULL)
+				hOldFont = dc.SelectFont(m_hFontLink);
 			LPTSTR lpstrText = (m_lpstrLabel != NULL) ? m_lpstrLabel : m_lpstrHyperLink;
 			DWORD dwStyle = GetStyle();
-			int nDrawStyle = DT_LEFT;
+			UINT uFormat = DT_LEFT;
 			if (dwStyle & SS_CENTER)
-				nDrawStyle = DT_CENTER;
+				uFormat = DT_CENTER;
 			else if (dwStyle & SS_RIGHT)
-				nDrawStyle = DT_RIGHT;
-			dc.DrawText(lpstrText, -1, &rcAll, nDrawStyle | DT_WORDBREAK | DT_CALCRECT);
-			if(m_hFont != NULL)
+				uFormat = DT_RIGHT;
+			uFormat |= IsSingleLine() ? DT_SINGLELINE : DT_WORDBREAK;
+			dc.DrawText(lpstrText, -1, &rcAll, uFormat | DT_CALCRECT);
+			if(m_hFontLink != NULL)
 				dc.SelectFont(hOldFont);
 			if (dwStyle & SS_CENTER)
 			{
@@ -1098,6 +1108,28 @@ public:
 			}
 		}
 		return bRet;
+	}
+
+	void CreateLinkFontFromNormal()
+	{
+		if(m_bInternalLinkFont && m_hFontLink != NULL)
+		{
+			::DeleteObject(m_hFontLink);
+			m_bInternalLinkFont = false;
+		}
+
+		CFontHandle font = (m_hFontNormal != NULL) ? m_hFontNormal : (HFONT)::GetStockObject(SYSTEM_FONT);
+		LOGFONT lf = { 0 };
+		font.GetLogFont(&lf);
+
+		if(IsUsingTagsBold())
+			lf.lfWeight = FW_BOLD;
+		else if(!IsNotUnderlined())
+			lf.lfUnderline = TRUE;
+
+		m_hFontLink = ::CreateFontIndirect(&lf);
+		m_bInternalLinkFont = true;
+		ATLASSERT(m_hFontLink != NULL);
 	}
 
 // Message map and handlers
@@ -1314,11 +1346,19 @@ public:
 	LRESULT OnSetFont(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/)
 	{
 		m_hFontNormal = (HFONT)wParam;
+
+		if(IsAutoCreateLinkFont())
+			CreateLinkFontFromNormal();
+
+		T* pT = static_cast<T*>(this);
+		pT->CalcLabelRect();
+
 		if((BOOL)lParam)
 		{
 			Invalidate();
 			UpdateWindow();
 		}
+
 		return 0;
 	}
 
@@ -1372,26 +1412,8 @@ public:
 		ATLASSERT(m_hCursor != NULL);
 
 		// set font
-		if(m_bPaintLabel)
-		{
-			ATL::CWindow wnd = GetParent();
-			m_hFontNormal = wnd.GetFont();
-			if(m_hFontNormal == NULL)
-				m_hFontNormal = (HFONT)::GetStockObject(SYSTEM_FONT);
-			if(m_hFontNormal != NULL && m_hFont == NULL)
-			{
-				LOGFONT lf = { 0 };
-				CFontHandle font = m_hFontNormal;
-				font.GetLogFont(&lf);
-				if(IsUsingTagsBold())
-					lf.lfWeight = FW_BOLD;
-				else if(!IsNotUnderlined())
-					lf.lfUnderline = TRUE;
-				m_hFont = ::CreateFontIndirect(&lf);
-				m_bInternalLinkFont = true;
-				ATLASSERT(m_hFont != NULL);
-			}
-		}
+		if(m_bPaintLabel && (m_hFontLink == NULL))
+			CreateLinkFontFromNormal();
 
 #ifndef _WIN32_WCE
 		// create a tool tip
@@ -1530,15 +1552,17 @@ public:
 			// get label part rects
 			HFONT hFontOld = dc.SelectFont(m_hFontNormal);
 
+			UINT uFormat = IsSingleLine() ? DT_SINGLELINE : DT_WORDBREAK;
+
 			RECT rcLeft = rcClient;
 			if(lpstrLeft != NULL)
-				dc.DrawText(lpstrLeft, cchLeft, &rcLeft, DT_LEFT | DT_WORDBREAK | DT_CALCRECT);
+				dc.DrawText(lpstrLeft, cchLeft, &rcLeft, DT_LEFT | uFormat | DT_CALCRECT);
 
-			dc.SelectFont(m_hFont);
+			dc.SelectFont(m_hFontLink);
 			RECT rcLink = rcClient;
 			if(lpstrLeft != NULL)
 				rcLink.left = rcLeft.right;
-			dc.DrawText(lpstrLink, cchLink, &rcLink, DT_LEFT | DT_WORDBREAK | DT_CALCRECT);
+			dc.DrawText(lpstrLink, cchLink, &rcLink, DT_LEFT | uFormat | DT_CALCRECT);
 
 			dc.SelectFont(hFontOld);
 
@@ -1547,17 +1571,18 @@ public:
 		else
 		{
 			HFONT hOldFont = NULL;
-			if(m_hFont != NULL)
-				hOldFont = dc.SelectFont(m_hFont);
+			if(m_hFontLink != NULL)
+				hOldFont = dc.SelectFont(m_hFontLink);
 			LPTSTR lpstrText = (m_lpstrLabel != NULL) ? m_lpstrLabel : m_lpstrHyperLink;
 			DWORD dwStyle = GetStyle();
-			int nDrawStyle = DT_LEFT;
+			UINT uFormat = DT_LEFT;
 			if (dwStyle & SS_CENTER)
-				nDrawStyle = DT_CENTER;
+				uFormat = DT_CENTER;
 			else if (dwStyle & SS_RIGHT)
-				nDrawStyle = DT_RIGHT;
-			dc.DrawText(lpstrText, -1, &m_rcLink, nDrawStyle | DT_WORDBREAK | DT_CALCRECT);
-			if(m_hFont != NULL)
+				uFormat = DT_RIGHT;
+			uFormat |= IsSingleLine() ? DT_SINGLELINE : DT_WORDBREAK;
+			dc.DrawText(lpstrText, -1, &m_rcLink, uFormat | DT_CALCRECT);
+			if(m_hFontLink != NULL)
 				dc.SelectFont(hOldFont);
 			if (dwStyle & SS_CENTER)
 			{
@@ -1654,23 +1679,25 @@ public:
 			dc.SetBkMode(TRANSPARENT);
 			HFONT hFontOld = dc.SelectFont(m_hFontNormal);
 
+			UINT uFormat = IsSingleLine() ? DT_SINGLELINE : DT_WORDBREAK;
+
 			if(lpstrLeft != NULL)
-				dc.DrawText(lpstrLeft, cchLeft, &rcClient, DT_LEFT | DT_WORDBREAK);
+				dc.DrawText(lpstrLeft, cchLeft, &rcClient, DT_LEFT | uFormat);
 
 			COLORREF clrOld = dc.SetTextColor(IsWindowEnabled() ? (m_bVisited ? m_clrVisited : m_clrLink) : (::GetSysColor(COLOR_GRAYTEXT)));
-			if(m_hFont != NULL && (!IsUnderlineHover() || (IsUnderlineHover() && m_bHover)))
-				dc.SelectFont(m_hFont);
+			if(m_hFontLink != NULL && (!IsUnderlineHover() || (IsUnderlineHover() && m_bHover)))
+				dc.SelectFont(m_hFontLink);
 			else
 				dc.SelectFont(m_hFontNormal);
 
-			dc.DrawText(lpstrLink, cchLink, &m_rcLink, DT_LEFT | DT_WORDBREAK);
+			dc.DrawText(lpstrLink, cchLink, &m_rcLink, DT_LEFT | uFormat);
 
 			dc.SetTextColor(clrOld);
 			dc.SelectFont(m_hFontNormal);
 			if(lpstrRight != NULL)
 			{
 				RECT rcRight = { m_rcLink.right, m_rcLink.top, rcClient.right, rcClient.bottom };
-				dc.DrawText(lpstrRight, cchRight, &rcRight, DT_LEFT | DT_WORDBREAK);
+				dc.DrawText(lpstrRight, cchRight, &rcRight, DT_LEFT | uFormat);
 			}
 
 			if(GetFocus() == m_hWnd)
@@ -1684,21 +1711,22 @@ public:
 			COLORREF clrOld = dc.SetTextColor(IsWindowEnabled() ? (m_bVisited ? m_clrVisited : m_clrLink) : (::GetSysColor(COLOR_GRAYTEXT)));
 
 			HFONT hFontOld = NULL;
-			if(m_hFont != NULL && (!IsUnderlineHover() || (IsUnderlineHover() && m_bHover)))
-				hFontOld = dc.SelectFont(m_hFont);
+			if(m_hFontLink != NULL && (!IsUnderlineHover() || (IsUnderlineHover() && m_bHover)))
+				hFontOld = dc.SelectFont(m_hFontLink);
 			else
 				hFontOld = dc.SelectFont(m_hFontNormal);
 
 			LPTSTR lpstrText = (m_lpstrLabel != NULL) ? m_lpstrLabel : m_lpstrHyperLink;
 
 			DWORD dwStyle = GetStyle();
-			int nDrawStyle = DT_LEFT;
+			UINT uFormat = DT_LEFT;
 			if (dwStyle & SS_CENTER)
-				nDrawStyle = DT_CENTER;
+				uFormat = DT_CENTER;
 			else if (dwStyle & SS_RIGHT)
-				nDrawStyle = DT_RIGHT;
+				uFormat = DT_RIGHT;
+			uFormat |= IsSingleLine() ? DT_SINGLELINE : DT_WORDBREAK;
 
-			dc.DrawText(lpstrText, -1, &m_rcLink, nDrawStyle | DT_WORDBREAK);
+			dc.DrawText(lpstrText, -1, &m_rcLink, uFormat);
 
 			if(GetFocus() == m_hWnd)
 				dc.DrawFocusRect(&m_rcLink);
@@ -1760,6 +1788,16 @@ public:
 		return ((m_dwExtendedStyle & HLINK_NOTOOLTIP) == 0);
 	}
 
+	bool IsAutoCreateLinkFont() const
+	{
+		return ((m_dwExtendedStyle & HLINK_AUTOCREATELINKFONT) == HLINK_AUTOCREATELINKFONT);
+	}
+
+	bool IsSingleLine() const
+	{
+		return ((m_dwExtendedStyle & HLINK_SINGLELINE) == HLINK_SINGLELINE);
+	}
+
 	static int _xttoi(const TCHAR* nptr)
 	{
 #ifndef _ATL_MIN_CRT
@@ -1785,7 +1823,6 @@ public:
 #endif // _ATL_MIN_CRT
 	}
 };
-
 
 class CHyperLink : public CHyperLinkImpl<CHyperLink>
 {
@@ -2242,10 +2279,11 @@ public:
 	int m_cxyHeader;
 	TCHAR m_szTitle[m_cchTitle];
 	DWORD m_dwExtendedStyle;   // Pane container specific extended styles
+	HFONT m_hFont;
 
 
 // Constructor
-	CPaneContainerImpl() : m_cxyHeader(0), m_dwExtendedStyle(0)
+	CPaneContainerImpl() : m_cxyHeader(0), m_dwExtendedStyle(0), m_hFont(AtlGetDefaultGuiFont())
 	{
 		m_szTitle[0] = 0;
 	}
@@ -2391,6 +2429,8 @@ public:
 		MESSAGE_HANDLER(WM_CREATE, OnCreate)
 		MESSAGE_HANDLER(WM_SIZE, OnSize)
 		MESSAGE_HANDLER(WM_SETFOCUS, OnSetFocus)
+		MESSAGE_HANDLER(WM_GETFONT, OnGetFont)
+		MESSAGE_HANDLER(WM_SETFONT, OnSetFont)
 		MESSAGE_HANDLER(WM_ERASEBKGND, OnEraseBackground)
 		MESSAGE_HANDLER(WM_PAINT, OnPaint)
 #ifndef _WIN32_WCE
@@ -2423,6 +2463,24 @@ public:
 	{
 		if(m_wndClient.m_hWnd != NULL)
 			m_wndClient.SetFocus();
+		return 0;
+	}
+
+	LRESULT OnGetFont(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+	{
+		return (LRESULT)m_hFont;
+	}
+
+	LRESULT OnSetFont(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/)
+	{
+		m_hFont = (HFONT)wParam;
+
+		T* pT = static_cast<T*>(this);
+		pT->CalcSize();
+
+		if((BOOL)lParam != FALSE)
+			pT->UpdateLayout();
+
 		return 0;
 	}
 
@@ -2622,6 +2680,8 @@ public:
 	{
 		T* pT = static_cast<T*>(this);
 		CFontHandle font = pT->GetTitleFont();
+		if(font.IsNull())
+			font = (HFONT)::GetStockObject(SYSTEM_FONT);
 		LOGFONT lf = { 0 };
 		font.GetLogFont(lf);
 		if(IsVertical())
@@ -2638,7 +2698,7 @@ public:
 
 	HFONT GetTitleFont() const
 	{
-		return AtlGetDefaultGuiFont();
+		return GetFont();
 	}
 
 #ifndef _WIN32_WCE
@@ -4258,6 +4318,8 @@ public:
 		MESSAGE_HANDLER(WM_DESTROY, OnDestroy)
 		MESSAGE_HANDLER(WM_SIZE, OnSize)
 		MESSAGE_HANDLER(WM_SETFOCUS, OnSetFocus)
+		MESSAGE_HANDLER(WM_GETFONT, OnGetFont)
+		MESSAGE_HANDLER(WM_SETFONT, OnSetFont)
 		NOTIFY_HANDLER(m_nTabID, TCN_SELCHANGE, OnTabChanged)
 		NOTIFY_ID_HANDLER(m_nTabID, OnTabNotification)
 #ifndef _WIN32_WCE
@@ -4306,6 +4368,24 @@ public:
 	{
 		if(m_nActivePage != -1)
 			::SetFocus(GetPageHWND(m_nActivePage));
+		return 0;
+	}
+
+	LRESULT OnGetFont(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+	{
+		return m_tab.SendMessage(WM_GETFONT);
+	}
+
+	LRESULT OnSetFont(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/)
+	{
+		m_tab.SendMessage(WM_SETFONT, wParam, lParam);
+
+		T* pT = static_cast<T*>(this);
+		m_cyTabHeight = pT->CalcTabHeight();
+
+		if((BOOL)lParam != FALSE)
+			pT->UpdateLayout();
+
 		return 0;
 	}
 
@@ -4814,7 +4894,6 @@ public:
 		::SendMessage(GetParent(), WM_NOTIFY, GetDlgCtrlID(), (LPARAM)&cmi);
 	}
 };
-
 
 class CTabView : public CTabViewImpl<CTabView>
 {

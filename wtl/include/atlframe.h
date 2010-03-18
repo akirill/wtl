@@ -512,7 +512,7 @@ public:
 		// check if font is taller than our bitmaps
 		CFontHandle font = (HFONT)::SendMessage(hWnd, WM_GETFONT, 0, 0L);
 		if(font.IsNull())
-			font = AtlGetDefaultGuiFont();
+			font = (HFONT)::GetStockObject(SYSTEM_FONT);
 		LOGFONT lf = { 0 };
 		font.GetLogFont(lf);
 		WORD cyFontHeight = (WORD)abs(lf.lfHeight);
