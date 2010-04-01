@@ -3745,6 +3745,7 @@ public:
 	bool m_bActiveAsDefaultMenuItem:1;
 	bool m_bEmptyMenuItem:1;
 	bool m_bWindowsMenuItem:1;
+	bool m_bNoTabDrag:1;
 	// internal
 	bool m_bTabCapture:1;
 	bool m_bTabDrag:1;
@@ -3765,6 +3766,7 @@ public:
 			m_bActiveAsDefaultMenuItem(false), 
 			m_bEmptyMenuItem(false), 
 			m_bWindowsMenuItem(false), 
+			m_bNoTabDrag(false), 
 			m_bTabCapture(false), 
 			m_bTabDrag(false)
 	{
@@ -4426,7 +4428,7 @@ public:
 // Tab control message handlers
 	LRESULT OnTabLButtonDown(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& bHandled)
 	{
-		if(m_tab.GetItemCount() > 1)
+		if(!m_bNoTabDrag && (m_tab.GetItemCount() > 1))
 		{
 			m_bTabCapture = true;
 			m_tab.SetCapture();
