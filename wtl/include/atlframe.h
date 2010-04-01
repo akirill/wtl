@@ -376,17 +376,6 @@ class ATL_NO_VTABLE CFrameWindowImplBase : public ATL::CWindowImplBaseT< TBase, 
 public:
 	DECLARE_FRAME_WND_CLASS(NULL, 0)
 
-// Data members
-	HWND m_hWndToolBar;
-	HWND m_hWndStatusBar;
-	HWND m_hWndClient;
-
-	HACCEL m_hAccel;
-
-#ifdef _WIN32_WCE
-	HWND m_hWndCECommandBar;
-#endif // _WIN32_WCE
-
 #if (_WIN32_IE >= 0x0500) && !defined(_WIN32_WCE)
 	struct _ChevronMenuInfo
 	{
@@ -396,14 +385,25 @@ public:
 	};
 #endif // (_WIN32_IE >= 0x0500) && !defined(_WIN32_WCE)
 
+// Data members
+	HWND m_hWndToolBar;
+	HWND m_hWndStatusBar;
+	HWND m_hWndClient;
+
+#ifdef _WIN32_WCE
+	HWND m_hWndCECommandBar;
+#endif // _WIN32_WCE
+
+	HACCEL m_hAccel;
+
 // Constructor
 	CFrameWindowImplBase() : 
-#ifdef _WIN32_WCE
-		m_hWndCECommandBar(NULL),
-#endif // _WIN32_WCE
 		m_hWndToolBar(NULL), 
 		m_hWndStatusBar(NULL), 
 		m_hWndClient(NULL), 
+#ifdef _WIN32_WCE
+		m_hWndCECommandBar(NULL),
+#endif // _WIN32_WCE
 		m_hAccel(NULL)
 	{ }
 
@@ -814,10 +814,10 @@ public:
 		// resize toolbar
 		if(m_hWndToolBar != NULL && ((DWORD)::GetWindowLong(m_hWndToolBar, GWL_STYLE) & WS_VISIBLE))
 		{
-			if(bResizeBars)
+			if(bResizeBars != FALSE)
 			{
 				::SendMessage(m_hWndToolBar, WM_SIZE, 0, 0);
-				::InvalidateRect(m_hWndToolBar, NULL, FALSE);
+				::InvalidateRect(m_hWndToolBar, NULL, TRUE);
 			}
 			RECT rectTB = { 0 };
 			::GetWindowRect(m_hWndToolBar, &rectTB);
@@ -827,7 +827,7 @@ public:
 		// resize status bar
 		if(m_hWndStatusBar != NULL && ((DWORD)::GetWindowLong(m_hWndStatusBar, GWL_STYLE) & WS_VISIBLE))
 		{
-			if(bResizeBars)
+			if(bResizeBars != FALSE)
 				::SendMessage(m_hWndStatusBar, WM_SIZE, 0, 0);
 			RECT rectSB = { 0 };
 			::GetWindowRect(m_hWndStatusBar, &rectSB);
