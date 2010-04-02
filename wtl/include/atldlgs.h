@@ -853,7 +853,7 @@ public:
 			ATLVERIFY(ResizeFilenameBuffer(m_ofn.nMaxFile + nExtraChars));
 	}
 
-	// Helper for _ATM_MIN_CRT
+	// Helper for _ATL_MIN_CRT
 	static const TCHAR* _strrchr(const TCHAR* p, TCHAR ch)
 	{
 #ifndef _ATL_MIN_CRT
@@ -3109,13 +3109,13 @@ public:
 // CMemDlgTemplate - in-memory dialog template - DLGTEMPLATE or DLGTEMPLATEEX
 
 #if (_ATL_VER >= 0x800)
-typedef ATL::_DialogSplitHelper::DLGTEMPLATEEX DLGTEMPLATEEX;
-typedef ATL::_DialogSplitHelper::DLGITEMTEMPLATEEX DLGITEMTEMPLATEEX;
+  typedef ATL::_DialogSplitHelper::DLGTEMPLATEEX DLGTEMPLATEEX;
+  typedef ATL::_DialogSplitHelper::DLGITEMTEMPLATEEX DLGITEMTEMPLATEEX;
 #else // (_ATL_VER >= 0x800)
-typedef ATL::_DialogSizeHelper::_ATL_DLGTEMPLATEEX DLGTEMPLATEEX;
-#pragma pack(push, 4)
-struct DLGITEMTEMPLATEEX
-{
+  typedef ATL::_DialogSizeHelper::_ATL_DLGTEMPLATEEX DLGTEMPLATEEX;
+  #pragma pack(push, 4)
+  struct DLGITEMTEMPLATEEX
+  {
 	DWORD helpID;
 	DWORD exStyle;
 	DWORD style;
@@ -3124,8 +3124,8 @@ struct DLGITEMTEMPLATEEX
 	short cx;
 	short cy;
 	DWORD id;
-};
-#pragma pack(pop)
+  };
+  #pragma pack(pop)
 #endif // (_ATL_VER >= 0x800)
 
 
