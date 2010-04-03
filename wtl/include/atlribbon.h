@@ -14,40 +14,44 @@
 
 #pragma once
 
-#if _MSC_VER < 1500
+#ifndef __cplusplus
+	#error ATL requires C++ compilation (use a .cpp suffix)
+#endif
+
+#if (_MSC_VER < 1500)
 	#error atlribbon.h requires Visual C++ (or Express) 2008 compiler or over
-#elif !defined _UNICODE && !defined UNICODE
+#endif
+
+#ifndef __ATLAPP_H__
+	#error atlribbon.h requires atlapp.h to be included first
+#endif
+
+#ifndef _UNICODE
 	#error atlribbon.h requires the Unicode character set
 #endif
 
 #ifdef _WIN32_WCE
 	#error atlribbon.h is not supported on Windows CE
-#elif !defined NTDDI_WIN7 || (NTDDI_VERSION < NTDDI_WIN7)
-	#error atlribbon.h requires the Windows 7 SDK or over 
 #endif
 
-#ifndef _ATL_VER
-	#error atlribbon.h requires the Active template library (ATL)
-#elif _ATL_VER < 0x700
+#if !defined(NTDDI_WIN7) || (NTDDI_VERSION < NTDDI_WIN7)
+	#error atlribbon.h requires the Windows 7 SDK or over
+#endif
+
+#if (_ATL_VER < 0x700)
 	#include <shlwapi.h>
 	#pragma comment(lib, "shlwapi.lib")
 #endif
 
-#ifndef _WTL_VER
-	#error atlribbon.h requires the Windows Template Library (WTL)
-#elif _WTL_VER < 0x810
-	#error atlribbon.h requires WTL 8.1
-#else
-	#include <atlmisc.h>  // for RecentDocumentList classes
-	#include <atlframe.h> // for Frame and UpdateUI classes
-	#include <atlctrls.h> // for atlctrlw.h
-	#include <atlctrlw.h> // for CCommandBarCtrl
-#endif
+#include <atlmisc.h>    // for RecentDocumentList classes
+#include <atlframe.h>   // for Frame and UpdateUI classes
+#include <atlctrls.h>   // required for atlctrlw.h
+#include <atlctrlw.h>   // for CCommandBarCtrl
 
-#if !defined _WTL_USE_CSTRING && !defined __ATLSTR_H__
-#pragma warning(disable : 4530) // unwind semantics not enabled
-	#include <string>
-#pragma warning(default : 4530)
+#if !defined(_WTL_USE_CSTRING) && !defined(__ATLSTR_H__)
+  #pragma warning(disable : 4530)   // unwind semantics not enabled
+  #include <string>
+  #pragma warning(default : 4530)
 #endif
 
 #include <dwmapi.h>
@@ -57,7 +61,8 @@
 #include <UIRibbonPropertyHelpers.h>
 #pragma comment(lib, "propsys.lib")
 
-#include <Richedit.h> // for CHARFORMAT2
+#include <Richedit.h>   // for CHARFORMAT2
+
 
 ///////////////////////////////////////////////////////////////////////////////
 // Classes in this file:
@@ -65,7 +70,6 @@
 // CRibbonUpdateUI : Automatic mapping of ribbon UI elements
 //
 // RibbonUI::Text
-// RibbonUI::SimplePropertySet
 // RibbonUI::CharFormat
 // RibbonUI::ICtrl
 // RibbonUI::CtrlImpl
@@ -107,24 +111,24 @@
 // CRibbonPersist
 //
 // Global functions:
-//
-// RibbonUI::SetPropertyVal()
-// RibbonUI::GetImage()
+//   RibbonUI::SetPropertyVal()
+//   RibbonUI::GetImage()
+
 
 // Constants
 
 #ifndef RIBBONUI_MAX_TEXT
-	#define RIBBONUI_MAX_TEXT 128
+  #define RIBBONUI_MAX_TEXT 128
 #endif
 
-#define TWIPS_PER_POINT 20 // For font size
+#define TWIPS_PER_POINT 20   // For font size
 
-namespace WTL  
-{ 
+
+namespace WTL
+{
 
 ///////////////////////////////////////////////////////////////////////////////
-// CRibbonUpdateUI : Automatic mapping of ribbon UI elements 
-//
+// CRibbonUpdateUI : Automatic mapping of ribbon UI elements
 
 template <class T>
 class CRibbonUpdateUI : public CAutoUpdateUI<T>
@@ -133,7 +137,7 @@ public:
 	enum
 	{
 		UPDUI_RIBBON = 0x0080, 
-		UPDUI_PERSIST = 0x0020 
+		UPDUI_PERSIST = 0x0020
 	};
 
 	bool IsRibbonElement(const _AtlUpdateUIMap& UIMap)
@@ -144,8 +148,11 @@ public:
 	bool IsRibbonID(UINT nID)
 	{
 		for(int i = 0; i < m_arrUIMap.GetSize(); i++)
+		{
 			if(m_arrUIMap[i].m_nID == nID)
 				return IsRibbonElement(m_arrUIMap[i]);
+		}
+
 		return false;
 	}
 
@@ -167,20 +174,18 @@ public:
 			UIRemoveElement<UPDUI_PERSIST>(nID);
 	}
 
-// methods for Ribbon elements 
-
+// methods for Ribbon elements
 	BOOL UISetText(int nID, LPCWSTR sText, BOOL bForceUpdate = FALSE)
 	{
 		T* pT = static_cast<T*>(this);
 		BOOL bRes = CUpdateUIBase::UISetText(nID, sText, bForceUpdate);
-		if (pT->IsRibbonUI() && IsRibbonID(nID)) 
+		if (pT->IsRibbonUI() && IsRibbonID(nID))
 			bRes = SUCCEEDED(pT->InvalidateProperty(nID, UI_PKEY_Label));
 		return bRes;
 	}
 
 	BOOL UISetText(int nID, UINT uIdResource, BOOL bForceUpdate = FALSE)
 	{
-		T* pT = static_cast<T*>(this);
 		CTempBuffer<WCHAR> sText(RIBBONUI_MAX_TEXT);
 		return AtlLoadString(uIdResource, sText, RIBBONUI_MAX_TEXT) ? 
 			UISetText(nID, sText, bForceUpdate) :
@@ -193,29 +198,31 @@ public:
 		LPCTSTR sUI = CAutoUpdateUI::UIGetText(nID);
 		
 		// replace 'tab' by 'space' for RibbonUI elements
-		if (sUI && pT->IsRibbonUI() && IsRibbonID(nID) && wcschr(sUI, L'\t')) 
+		if (sUI && pT->IsRibbonUI() && IsRibbonID(nID) && wcschr(sUI, L'\t'))
 		{
-			static WCHAR sText[RIBBONUI_MAX_TEXT] = {0};
+			static WCHAR sText[RIBBONUI_MAX_TEXT] = { 0 };
 			wcscpy_s(sText, sUI);
 			*wcschr(sText, L'\t') = L' ';
 			return sText;
 		}
 		else
+		{
 			return sUI;
+		}
 	}
 
 	BOOL UIEnable(int nID, BOOL bEnable, BOOL bForceUpdate = FALSE)
 	{
 		T* pT = static_cast<T*>(this);
 		BOOL bRes = CUpdateUIBase::UIEnable(nID, bEnable, bForceUpdate);
-		if (pT->IsRibbonUI() && IsRibbonID(nID)) 
+		if (pT->IsRibbonUI() && IsRibbonID(nID))
 			bRes = SUCCEEDED(pT->SetProperty((WORD)nID, UI_PKEY_Enabled, bEnable));
 		return bRes;
 	}
 
 	BOOL UISetCheck(int nID, INT nCheck, BOOL bForceUpdate = FALSE)
 	{
-		if (!nCheck || (nCheck == 1)) 
+		if ((nCheck == 0) || (nCheck == 1))
 			return UISetCheck(nID, nCheck != 0, bForceUpdate);
 		else
 			return CUpdateUIBase::UISetCheck(nID, nCheck, bForceUpdate);
@@ -225,50 +232,46 @@ public:
 	{
 		T* pT = static_cast<T*>(this);
 		BOOL bRes = CUpdateUIBase::UISetCheck(nID, bCheck, bForceUpdate);
-		if (bRes && pT->IsRibbonUI() && IsRibbonID(nID)) 
+		if (bRes && pT->IsRibbonUI() && IsRibbonID(nID))
 			bRes = SUCCEEDED(pT->SetProperty((WORD)nID, UI_PKEY_BooleanValue, bCheck));
 		return bRes;
 	}
-
 };
 
+
 ///////////////////////////////////////////////////////////////////////////////
-// RibbonUI namespace 
+// RibbonUI namespace
 //
 
 namespace RibbonUI
 {
 
 // Minimal string allocation support for various PROPERTYKEY values
-
 #if defined(_WTL_USE_CSTRING) || defined(__ATLSTR_H__)
-
-	typedef _CSTRING_NS::CString Text;
-
+  typedef _CSTRING_NS::CString Text;
 #else
-
-	class Text : public std::wstring
+  class Text : public std::wstring
+  {
+  public:
+	Text(std::wstring& s) : std::wstring(s)
+	{ }
+	Text(LPCWSTR s) : std::wstring(s)
+	{ }
+	Text()
+	{ }
+	bool IsEmpty()
 	{
-	public:
-		Text(std::wstring& s) : std::wstring(s)
-		{}
-		Text(LPCWSTR s) : std::wstring(s)
-		{}
-		Text()
-		{}
-		bool IsEmpty()
-		{
-			return empty();
-		}
-		operator LPCWSTR()
-		{
-			return c_str();
-		}
-		Text& operator =(LPCWSTR s)
-		{
-			return static_cast<Text&>(std::wstring::operator =(s));
-		}
-	};
+		return empty();
+	}
+	operator LPCWSTR()
+	{
+		return c_str();
+	}
+	Text& operator =(LPCWSTR s)
+	{
+		return static_cast<Text&>(std::wstring::operator =(s));
+	}
+  };
 #endif
 
 // PROPERTYKEY enum and helpers
@@ -279,7 +282,7 @@ enum k_KEY
 	// text properties
 	k_LabelDescription = 2, k_Keytip = 3, k_Label = 4, k_TooltipDescription = 5, k_TooltipTitle = 6, 
 	// image properties
-	k_LargeImage = 7, k_LargeHighContrastImage = 8, k_SmallImage = 9,  k_SmallHighContrastImage = 10,
+	k_LargeImage = 7, k_LargeHighContrastImage = 8, k_SmallImage = 9, k_SmallHighContrastImage = 10,
 	// collection properties
 	k_ItemsSource = 101, k_Categories = 102, k_SelectedItem = 104,
 	// collection item properties
@@ -289,10 +292,10 @@ enum k_KEY
 	// spinner control properties
 	k_DecimalValue = 201, k_MaxValue = 203, k_MinValue, k_Increment, k_DecimalPlaces, k_FormatString, k_RepresentativeString = 208,
 	// font control properties
-	k_FontProperties = 300, k_FontProperties_Family, k_FontProperties_Size, k_FontProperties_Bold, k_FontProperties_Italic = 304,  
-	k_FontProperties_Underline = 305, k_FontProperties_Strikethrough, k_FontProperties_VerticalPositioning, k_FontProperties_ForegroundColor = 308,  
-	k_FontProperties_BackgroundColor = 309, k_FontProperties_ForegroundColorType, k_FontProperties_BackgroundColorType, k_FontProperties_ChangedProperties = 312,  
-	k_FontProperties_DeltaSize = 313,  
+	k_FontProperties = 300, k_FontProperties_Family, k_FontProperties_Size, k_FontProperties_Bold, k_FontProperties_Italic = 304, 
+	k_FontProperties_Underline = 305, k_FontProperties_Strikethrough, k_FontProperties_VerticalPositioning, k_FontProperties_ForegroundColor = 308, 
+	k_FontProperties_BackgroundColor = 309, k_FontProperties_ForegroundColorType, k_FontProperties_BackgroundColorType, k_FontProperties_ChangedProperties = 312, 
+	k_FontProperties_DeltaSize = 313, 
 	// recent items properties
 	k_RecentItems = 350, k_Pinned = 351,
 	// color control properties
@@ -366,7 +369,7 @@ inline HRESULT SetPropertyVal(REFPROPERTYKEY key, LPCWSTR val, PROPVARIANT* ppv)
 	return UIInitPropertyFromString(key, val, ppv);
 }
 
-// CharFormat helper struct for RibbonUI font control 
+// CharFormat helper struct for RibbonUI font control
 //
 struct CharFormat : CHARFORMAT2
 {
@@ -376,17 +379,20 @@ struct CharFormat : CHARFORMAT2
 		cbSize = sizeof CHARFORMAT2;
 		Reset();
 	}
+
 	// Copy constructor
 	CharFormat(const CharFormat& cf)
 	{
 		CopyMemory(this, &cf, sizeof CHARFORMAT2);
 	}
+
 	// Assign operator
-	CharFormat& operator =(const CharFormat& cf) 
+	CharFormat& operator =(const CharFormat& cf)
 	{
 		CopyMemory(this, &cf, sizeof CHARFORMAT2);
 		return (*this);
 	}
+
 	void Reset()
 	{
 		uValue = dwMask = dwEffects = 0;
@@ -395,13 +401,13 @@ struct CharFormat : CHARFORMAT2
 
 	void operator <<(IPropertyStore* pStore)
 	{
-		if (!pStore)
+		if (pStore == NULL)
 		{
 			ATLASSERT(FALSE);
 			return;
 		}
 
-		static void  (CharFormat::*Getk_[])(IPropertyStore*)  = 
+		static void (CharFormat::*Getk_[])(IPropertyStore*) = 
 		{
 			&CharFormat::Getk_Family, 
 			&CharFormat::Getk_FontProperties_Size, 
@@ -433,7 +439,7 @@ struct CharFormat : CHARFORMAT2
 
 	void operator >>(IPropertyStore* pStore)
 	{
-		if (!pStore)
+		if (pStore == NULL)
 		{
 			ATLASSERT(FALSE);
 			return;
@@ -462,8 +468,9 @@ private:
 			PropVariantToString(propvar, szFaceName, LF_FACESIZE);
 			if (*szFaceName)
 				dwMask |= CFM_FACE;
-	   }
+		}
 	}
+
 	void Getk_FontProperties_Size(IPropertyStore* pStore)
 	{
 		if (SUCCEEDED(pStore->GetValue(UI_PKEY_FontProperties_Size, &propvar)))
@@ -479,19 +486,21 @@ private:
 			}
 		}
 	}
+
 	template <DWORD t_dwMask, DWORD t_dwEffects, REFPROPERTYKEY key>
 	void Getk_MaskEffect(IPropertyStore* pStore)
 	{
 		if (SUCCEEDED(pStore->GetValue(key, &propvar)))
 		{
 			UIPropertyToUInt32(key, propvar, &uValue);
-			if ((UI_FONTPROPERTIES) uValue != UI_FONTPROPERTIES_NOTAVAILABLE)
+			if ((UI_FONTPROPERTIES)uValue != UI_FONTPROPERTIES_NOTAVAILABLE)
 			{
 				dwMask |= t_dwMask;
 				dwEffects |= ((UI_FONTPROPERTIES) uValue == UI_FONTPROPERTIES_SET) ? t_dwEffects : 0;
 			}
 		}	
 	}
+
 	void Getk_VerticalPositioning(IPropertyStore* pStore)
 	{
 		if (SUCCEEDED(pStore->GetValue(UI_PKEY_FontProperties_VerticalPositioning, &propvar)))
@@ -508,6 +517,7 @@ private:
 			}
 		}
 	}
+
 	template <DWORD t_dwMask, REFPROPERTYKEY key>
 	void Getk_Color(IPropertyStore* pStore)
 	{
@@ -523,6 +533,7 @@ private:
 				crBackColor = color;
 		}
 	}
+
 	template <DWORD t_dwMask, DWORD t_dwEffects, UI_SWATCHCOLORTYPE t_type, REFPROPERTYKEY key>
 	void Getk_ColorType(IPropertyStore* pStore)
 	{
@@ -542,31 +553,36 @@ private:
 	{
 		PROPVARIANT propvar;
 		UI_FONTPROPERTIES uProp = UI_FONTPROPERTIES_NOTAVAILABLE;
-		if (dwMask & dwMaskVal)
+		if ((dwMask & dwMaskVal) != 0)
 			uProp = dwEffects & dwEffectVal ? UI_FONTPROPERTIES_SET : UI_FONTPROPERTIES_NOTSET;
 		SetPropertyVal(key, uProp, &propvar);
 		pStore->SetValue(key, propvar);
 	}
+
 	void PutVerticalPos(IPropertyStore* pStore)
 	{
 		PROPVARIANT propvar;
 		UI_FONTVERTICALPOSITION uProp = UI_FONTVERTICALPOSITION_NOTAVAILABLE;
 
-		if (dwMask & CFE_SUBSCRIPT)
+		if ((dwMask & CFE_SUBSCRIPT) != 0)
+		{
 			if ((dwMask & CFM_SUBSCRIPT) && (dwEffects & CFE_SUBSCRIPT))
 				uProp = UI_FONTVERTICALPOSITION_SUBSCRIPT;
 			else
 				uProp = UI_FONTVERTICALPOSITION_SUPERSCRIPT;
-
-		else if (dwMask & CFM_OFFSET)
+		}
+		else if ((dwMask & CFM_OFFSET) != 0)
+		{
 			if (yOffset > 0)
 				uProp = UI_FONTVERTICALPOSITION_SUPERSCRIPT;
 			else if (yOffset < 0)
 				uProp = UI_FONTVERTICALPOSITION_SUBSCRIPT;
+		}
 
 		SetPropertyVal(UI_PKEY_FontProperties_VerticalPositioning, uProp, &propvar);
 		pStore->SetValue(UI_PKEY_FontProperties_VerticalPositioning, propvar);
 	}
+
 	void PutFace(IPropertyStore* pStore)
 	{
 		PROPVARIANT propvar;
@@ -574,22 +590,25 @@ private:
 			dwMask & CFM_FACE ? szFaceName : L"", &propvar);
 		pStore->SetValue(UI_PKEY_FontProperties_Family, propvar);
 	}
+
 	void PutSize(IPropertyStore* pStore)
 	{
 		PROPVARIANT propvar;
 		DECIMAL decVal;
 
-		if (dwMask & CFM_SIZE)
+		if ((dwMask & CFM_SIZE) != 0)
 			VarDecFromR8((DOUBLE)yHeight / TWIPS_PER_POINT, &decVal);
 		else
 			VarDecFromI4(0, &decVal);
+
 		SetPropertyVal(UI_PKEY_FontProperties_Size, &decVal, &propvar);
 		pStore->SetValue(UI_PKEY_FontProperties_Size, propvar);
 	}
+
 	void PutColor(IPropertyStore* pStore)
 	{
-		if (dwMask & CFM_COLOR) 
-			if (!(dwEffects & CFE_AUTOCOLOR))
+		if ((dwMask & CFM_COLOR) != 0)
+			if ((dwEffects & CFE_AUTOCOLOR) == 0)
 			{
 				SetPropertyVal(UI_PKEY_FontProperties_ForegroundColorType, UI_SWATCHCOLORTYPE_RGB, &propvar);
 				pStore->SetValue(UI_PKEY_FontProperties_ForegroundColorType, propvar);
@@ -597,30 +616,30 @@ private:
 				SetPropertyVal(UI_PKEY_FontProperties_ForegroundColor, crTextColor, &propvar);
 				pStore->SetValue(UI_PKEY_FontProperties_ForegroundColor, propvar);
 			}
-			else 
+			else
 			{
 				SetPropertyVal(UI_PKEY_FontProperties_ForegroundColorType, UI_SWATCHCOLORTYPE_AUTOMATIC, &propvar);
 				pStore->SetValue(UI_PKEY_FontProperties_ForegroundColorType, propvar);
 			}
 	}
+
 	void PutBackColor(IPropertyStore* pStore)
 	{
-		if ((dwMask & CFM_BACKCOLOR) && !(dwEffects & CFE_AUTOBACKCOLOR))
-			{
-				SetPropertyVal(UI_PKEY_FontProperties_BackgroundColorType, UI_SWATCHCOLORTYPE_RGB, &propvar);
-				pStore->SetValue(UI_PKEY_FontProperties_BackgroundColorType, propvar);
+		if (((dwMask & CFM_BACKCOLOR) != 0) && ((dwEffects & CFE_AUTOBACKCOLOR) == 0))
+		{
+			SetPropertyVal(UI_PKEY_FontProperties_BackgroundColorType, UI_SWATCHCOLORTYPE_RGB, &propvar);
+			pStore->SetValue(UI_PKEY_FontProperties_BackgroundColorType, propvar);
 				
-				SetPropertyVal(UI_PKEY_FontProperties_BackgroundColor, crBackColor, &propvar);
-				pStore->SetValue(UI_PKEY_FontProperties_BackgroundColor, propvar);
-			}
+			SetPropertyVal(UI_PKEY_FontProperties_BackgroundColor, crBackColor, &propvar);
+			pStore->SetValue(UI_PKEY_FontProperties_BackgroundColor, propvar);
+		}
 		else
 		{
 			SetPropertyVal(UI_PKEY_FontProperties_BackgroundColorType, UI_SWATCHCOLORTYPE_NOCOLOR, &propvar);
 			pStore->SetValue(UI_PKEY_FontProperties_BackgroundColorType, propvar);
 		}
 	}
-
-} ;
+};
 
 // IUIImage helper
 //
@@ -628,7 +647,7 @@ inline IUIImage* GetImage(HBITMAP hbm, UI_OWNERSHIP owner = UI_OWNERSHIP_TRANSFE
 {
 	ATLASSERT(hbm);
 	IUIImage* pIUII = NULL;
-	CComPtr<IUIImageFromBitmap> pIFB;
+	ATL::CComPtr<IUIImageFromBitmap> pIFB;
 
 	if SUCCEEDED(pIFB.CoCreateInstance(CLSID_UIRibbonImageFromBitmapFactory))
 		ATLVERIFY(SUCCEEDED(pIFB->CreateImage(hbm, owner, &pIUII)));
@@ -636,24 +655,24 @@ inline IUIImage* GetImage(HBITMAP hbm, UI_OWNERSHIP owner = UI_OWNERSHIP_TRANSFE
 	return pIUII;
 }
 
+
 ///////////////////////////////////////////////////////////////////////////////
 // Ribbon control classes
-///////////////////////////////////////////////////////////////////////////////
 
-// RibbonUI::ICtrl abstract interface of RibbonUI::CRibbonImpl and all RibbonUI control classes 
+// RibbonUI::ICtrl abstract interface of RibbonUI::CRibbonImpl and all RibbonUI control classes
 //
 struct ICtrl
 {
 	virtual HRESULT DoExecute(UINT nCmdID, UI_EXECUTIONVERB verb, 
-		const PROPERTYKEY* key, const PROPVARIANT* ppropvarValue,
-		IUISimplePropertySet* pCommandExecutionProperties) = 0;
+	                          const PROPERTYKEY* key, const PROPVARIANT* ppropvarValue,
+	                          IUISimplePropertySet* pCommandExecutionProperties) = 0;
 
 	virtual HRESULT DoUpdateProperty(UINT nCmdID, REFPROPERTYKEY key, 
-		const PROPVARIANT* ppropvarCurrentValue, PROPVARIANT* ppropvarNewValue) = 0;
+	                                 const PROPVARIANT* ppropvarCurrentValue, PROPVARIANT* ppropvarNewValue) = 0;
 };
 
 // RibbonUI::CtrlImpl base class for all ribbon controls
-// 
+//
 template <class T, UINT t_ID>
 class ATL_NO_VTABLE CtrlImpl : public ICtrl
 {
@@ -664,7 +683,7 @@ public:
 	typedef T WndRibbon;
 
 	CtrlImpl() : m_pWndRibbon(T::pWndRibbon)
-	{}
+	{ }
 
 	WndRibbon& GetWndRibbon()
 	{
@@ -722,34 +741,29 @@ public:
 	}
 
 	virtual HRESULT DoExecute(UINT nCmdID, UI_EXECUTIONVERB verb, 
-		const PROPERTYKEY* key, const PROPVARIANT* ppropvarValue,
-		IUISimplePropertySet* pCommandExecutionProperties)
+	                          const PROPERTYKEY* key, const PROPVARIANT* ppropvarValue,
+	                          IUISimplePropertySet* pCommandExecutionProperties)
 	{
-		nCmdID; ATLASSERT(nCmdID == t_ID);
-
-		return GetWndRibbon().DoExecute(nCmdID,
-			verb, key, ppropvarValue, pCommandExecutionProperties);
+		ATLASSERT(nCmdID == t_ID);
+		return GetWndRibbon().DoExecute(nCmdID, verb, key, ppropvarValue, pCommandExecutionProperties);
 	}
 
 	virtual HRESULT DoUpdateProperty(UINT nCmdID, REFPROPERTYKEY key, 
-		const PROPVARIANT* ppropvarCurrentValue, PROPVARIANT* ppropvarNewValue)
+	                                 const PROPVARIANT* ppropvarCurrentValue, PROPVARIANT* ppropvarNewValue)
 	{
-		nCmdID; ATLASSERT(nCmdID == t_ID);
+		ATLASSERT(nCmdID == t_ID);
 
-		const INT 
-			iMax = k_TooltipTitle - k_LabelDescription;
-		const INT 
-			iVal = k_(key) - k_LabelDescription;
+		const INT iMax = k_TooltipTitle - k_LabelDescription;
+		const INT iVal = k_(key) - k_LabelDescription;
 
 		return (iVal <= iMax) && (iVal >= 0) ?
 			OnGetText(key, ppropvarNewValue) :
-			GetWndRibbon().DoUpdateProperty(nCmdID,
-				key, ppropvarCurrentValue, ppropvarNewValue);
+			GetWndRibbon().DoUpdateProperty(nCmdID, key, ppropvarCurrentValue, ppropvarNewValue);
 	}
 };
 
 // CommandCtrlImpl base class for most ribbon controls
-// 
+//
 template <class T, UINT t_ID>
 class CommandCtrlImpl : public CtrlImpl<T, t_ID>
 {
@@ -782,7 +796,7 @@ public:
 	}
 
 	virtual HRESULT DoUpdateProperty(UINT nCmdID, REFPROPERTYKEY key, 
-		const PROPVARIANT* ppropvarCurrentValue, PROPVARIANT* ppropvarNewValue)
+	                                 const PROPVARIANT* ppropvarCurrentValue, PROPVARIANT* ppropvarNewValue)
 	{
 		ATLASSERT (nCmdID == GetID());
 
@@ -792,19 +806,18 @@ public:
 	}
 };
 
+
 ///////////////////////////////////////////////////////////////////////////////
 // Ribbon collection base classes
-///////////////////////////////////////////////////////////////////////////////
 
 // ItemProperty class: ribbon callback for each item in a collection
-// 
+//
 template <class TCollection>
-class ItemProperty
-	: public IUISimplePropertySet
+class ItemProperty : public IUISimplePropertySet
 {
 public:
 	ItemProperty(UINT i, TCollection* pCollection) : m_Index(i), m_pCollection(pCollection)
-	{}
+	{ }
 
 	const UINT m_Index;
 	TCollection* m_pCollection;
@@ -823,19 +836,20 @@ public:
 
 	STDMETHODIMP_(ULONG) Release()
 	{
-		return  1;
+		return 1;
 	}
 
 	STDMETHODIMP QueryInterface(REFIID iid, void** ppv)
 	{
-		if ((iid == __uuidof(IUnknown)) || 
-			(iid == __uuidof(IUISimplePropertySet)))
+		if ((iid == __uuidof(IUnknown)) || (iid == __uuidof(IUISimplePropertySet)))
 		{
 			*ppv = this;
 			return S_OK;
 		}
-		else 
+		else
+		{
 			return E_NOINTERFACE;
+		}
 	}
 };
 
@@ -862,14 +876,12 @@ public:
 
 // Data members
 	ItemProperty<TCollection>* m_apItems[t_size];
-
 };
 
-// CollectionImpl: handles categories and collecton resizing 
+// CollectionImpl: handles categories and collecton resizing
 //
 template <class TCtrl, size_t t_items, size_t t_categories>
-class CollectionImpl : 
-	public CollectionImplBase<CollectionImpl<TCtrl, t_items, t_categories>, t_items + t_categories>
+class CollectionImpl : public CollectionImplBase<CollectionImpl<TCtrl, t_items, t_categories>, t_items + t_categories>
 {
 	typedef CollectionImpl<TCtrl, t_items, t_categories> thisClass;
 public:
@@ -891,9 +903,7 @@ public:
 
 		m_auItemCat[uItem] = uCat;
 
-		return bUpdate ? 
-			InvalidateItems() : 
-			S_OK;
+		return bUpdate ? InvalidateItems() : S_OK;
 	}
 
 	HRESULT SetCategoryText(UINT uCat, LPCWSTR sText, bool bUpdate = false)
@@ -902,9 +912,7 @@ public:
 
 		m_asCatName[uCat] = sText;
 
-		return bUpdate ? 
-			InvalidateCategories() : 
-			S_OK;
+		return bUpdate ? InvalidateCategories() : S_OK;
 	}
 
 	HRESULT Resize(size_t size, bool bUpdate = false)
@@ -913,9 +921,7 @@ public:
 
 		m_size = size;
 
-		return bUpdate ? 
-			InvalidateItems() : 
-			S_OK;
+		return bUpdate ? InvalidateItems() : S_OK;
 	}
 
 // Implementation
@@ -934,7 +940,7 @@ public:
 		ATLASSERT(k_(key) == k_CategoryId);
 		UINT32 uCat = UI_COLLECTION_INVALIDINDEX;
 
-		if (t_categories)
+		if (t_categories != 0)
 		{
 			if (m_auItemCat[uItem] == UI_COLLECTION_INVALIDINDEX)
 			{
@@ -966,6 +972,7 @@ public:
 			break;
 		default:
 			ATLASSERT(FALSE);
+			break;
 		}
 
 		return hr;
@@ -982,54 +989,58 @@ public:
 	}
 
 	HRESULT DoUpdateProperty(UINT nCmdID, REFPROPERTYKEY key, 
-		const PROPVARIANT* ppropvarCurrentValue, PROPVARIANT* /*ppropvarNewValue*/)
+	                         const PROPVARIANT* ppropvarCurrentValue, PROPVARIANT* /*ppropvarNewValue*/)
 	{
-		nCmdID; ATLASSERT(nCmdID == TCtrl::GetID());
-		HRESULT hr = E_NOTIMPL;
+		ATLASSERT(nCmdID == TCtrl::GetID());
+		nCmdID;   // avoid level 4 warning
 
+		HRESULT hr = E_NOTIMPL;
 		switch (k_(key))
 		{
 		case k_ItemsSource:
 			{
-				CComQIPtr<IUICollection> pIUICollection(ppropvarCurrentValue->punkVal);
+				ATL::CComQIPtr<IUICollection> pIUICollection(ppropvarCurrentValue->punkVal);
 				ATLASSERT(pIUICollection);
 				hr = pIUICollection->Clear();
 				for (UINT i = 0; i < m_size; i++)
+				{
 					if FAILED(hr = pIUICollection->Add(m_apItems[i]))
 						break;
+				}
 				ATLASSERT(SUCCEEDED(hr));
 			}
 			break;
 		case k_Categories:
-			if (t_categories)
+			if (t_categories != 0)
 			{
-				CComQIPtr<IUICollection> pIUICategory(ppropvarCurrentValue->punkVal);
+				ATL::CComQIPtr<IUICollection> pIUICategory(ppropvarCurrentValue->punkVal);
 				ATLASSERT(pIUICategory.p);
 				hr = pIUICategory->Clear();
 				for (UINT i = t_items; i < t_items + t_categories; i++)
+				{
 					if FAILED(hr = pIUICategory->Add(m_apItems[i]))
 						break;
+				}
 				ATLASSERT(SUCCEEDED(hr));
 			}
 			break;
 		}
+
 		return hr;
 	}
-
 };
 
 // TextCollectionImpl: handles item labels and selection
 //
 template <class TCtrl, size_t t_items, size_t t_categories = 0>
-class TextCollectionImpl :
-	public CollectionImpl<TCtrl, t_items, t_categories>
+class TextCollectionImpl : public CollectionImpl<TCtrl, t_items, t_categories>
 {
 	typedef TextCollectionImpl<TCtrl, t_items, t_categories> thisClass;
 public:
 	typedef thisClass TextCollection;
 
 	TextCollectionImpl() : m_uSelected(UI_COLLECTION_INVALIDINDEX)
-	{}
+	{ }
 
 	Text m_asText[t_items];
 	UINT m_uSelected;
@@ -1041,9 +1052,7 @@ public:
 
 		m_asText[uItem] = sText;
 
-		return bUpdate ? 
-			InvalidateItems() : 
-			S_OK;
+		return bUpdate ? InvalidateItems() : S_OK;
 	}
 
 	UINT GetSelected()
@@ -1070,7 +1079,7 @@ public:
 
 		if (k_(key) == k_Label)
 		{
-  			if (m_asText[uItem].IsEmpty())
+			if (m_asText[uItem].IsEmpty())
 			{
 				TCtrl::WndRibbon& ribbon = static_cast<TCtrl*>(this)->GetWndRibbon();
 				m_asText[uItem] = ribbon.OnRibbonQueryItemText(TCtrl::GetID(), uItem);
@@ -1078,35 +1087,37 @@ public:
 			return SetPropertyVal(key, (LPCWSTR)m_asText[uItem], value);
 		}
 		else
+		{
 			return Collection::DoGetItem(uItem, key, value);
+		}
 	}
 
 	HRESULT DoUpdateProperty(UINT nCmdID, REFPROPERTYKEY key, 
-		const PROPVARIANT* ppropvarCurrentValue, PROPVARIANT* ppropvarNewValue)
+	                         const PROPVARIANT* ppropvarCurrentValue, PROPVARIANT* ppropvarNewValue)
 	{
-		nCmdID; ATLASSERT(nCmdID == TCtrl::GetID());
+		ATLASSERT(nCmdID == TCtrl::GetID());
 
 		if (k_(key) == k_SelectedItem)
 		{
 			TCtrl::WndRibbon& ribbon = static_cast<TCtrl*>(this)->GetWndRibbon();
 			UINT uSel = UI_COLLECTION_INVALIDINDEX;
 			if ((m_uSelected == UI_COLLECTION_INVALIDINDEX) &&
-				ribbon.OnRibbonQuerySelectedItem(TCtrl::GetID(), uSel))
+			    ribbon.OnRibbonQuerySelectedItem(TCtrl::GetID(), uSel))
 				m_uSelected = uSel;
 
 			return SetPropertyVal(key, m_uSelected, ppropvarNewValue);
 		}
 		else
-			return Collection::DoUpdateProperty(nCmdID, key, ppropvarCurrentValue,  ppropvarNewValue);
+		{
+			return Collection::DoUpdateProperty(nCmdID, key, ppropvarCurrentValue, ppropvarNewValue);
+		}
 	}
-
 };
 
 // ItemCollectionImpl: handles item image
 //
 template <class TCtrl, size_t t_items, size_t t_categories = 0>
-class ItemCollectionImpl :
-	public TextCollectionImpl<TCtrl, t_items, t_categories>
+class ItemCollectionImpl : public TextCollectionImpl<TCtrl, t_items, t_categories>
 {
 	typedef ItemCollectionImpl<TCtrl, t_items, t_categories> thisClass;
 public:
@@ -1126,19 +1137,17 @@ public:
 
 		m_aBitmap[uIndex] = hbm;
 
-		return bUpdate ? 
-			InvalidateItems() : 
-			S_OK;
+		return bUpdate ? InvalidateItems() : S_OK;
 	}
 
 // Implementation
-  	HRESULT DoGetItem(UINT uItem, REFPROPERTYKEY key, PROPVARIANT *value)
+	HRESULT DoGetItem(UINT uItem, REFPROPERTYKEY key, PROPVARIANT *value)
 	{
 		ATLASSERT(uItem < t_items);
 
 		if (k_(key) == k_ItemImage)
 		{
-			if (!m_aBitmap[uItem])
+			if (m_aBitmap[uItem].m_hBitmap == NULL)
 			{
 				TCtrl::WndRibbon& ribbon = static_cast<TCtrl*>(this)->GetWndRibbon();
 				m_aBitmap[uItem] = ribbon.OnRibbonQueryItemImage(TCtrl::GetID(), uItem);
@@ -1148,16 +1157,16 @@ public:
 				E_NOTIMPL;
 		}
 		else
+		{
 			return TextCollection::DoGetItem(uItem, key, value);
+		}
 	}
-
 };
 
 // ComboCollectionImpl: handles combo text
 //
 template <class TCtrl, size_t t_items, size_t t_categories = 0>
-class ComboCollectionImpl :
-	public ItemCollectionImpl<TCtrl, t_items, t_categories>
+class ComboCollectionImpl : public ItemCollectionImpl<TCtrl, t_items, t_categories>
 {
 	typedef ComboCollectionImpl<TCtrl, t_items, t_categories> thisClass;
 public:
@@ -1174,25 +1183,23 @@ public:
 
 	LPCWSTR GetComboText()
 	{
-		static WCHAR sCombo[RIBBONUI_MAX_TEXT] = {0};
+		static WCHAR sCombo[RIBBONUI_MAX_TEXT] = { 0 };
 		TCtrl::WndRibbon& ribbon = static_cast<TCtrl*>(this)->GetWndRibbon();
 		PROPVARIANT var;
 		if (ribbon.IsRibbonUI())
 		{
 			HRESULT hr = ribbon.GetIUIFrameworkPtr()->GetUICommandProperty(TCtrl::GetID(), UI_PKEY_StringValue, &var);
-			hr = PropVariantToString(var, sCombo, RIBBONUI_MAX_TEXT); 
+			hr = PropVariantToString(var, sCombo, RIBBONUI_MAX_TEXT);
 			return sCombo;
 		}
 		return NULL;
 	}
-
 };
 
 // CommandCollectionImpl: handles RibbonUI command collection controls
 //
 template <class TCtrl, size_t t_items, size_t t_categories = 0>
-class CommandCollectionImpl :
-	public CollectionImpl<TCtrl, t_items, t_categories>
+class CommandCollectionImpl : public CollectionImpl<TCtrl, t_items, t_categories>
 {
 	typedef CommandCollectionImpl<TCtrl, t_items, t_categories> thisClass;
 public:
@@ -1204,7 +1211,7 @@ public:
 		ZeroMemory(m_aCmdType, sizeof m_aCmdType);
 	}
 
-	UINT32  m_auCmd[t_items];
+	UINT32 m_auCmd[t_items];
 	BYTE m_aCmdType[t_items];
 
 	// Operations
@@ -1218,12 +1225,10 @@ public:
 		TCtrl::WndRibbon& ribbon = static_cast<TCtrl*>(this)->GetWndRibbon();
 
 		m_auCmd[uItem] = uCommandID;
-		if (uCommandID)
+		if (uCommandID != 0)
 			ribbon.UIAddRibbonElement(uCommandID);
 
-		return bUpdate ? 
-			InvalidateItems() : 
-			S_OK;
+		return bUpdate ? InvalidateItems() : S_OK;
 	}
 
 	HRESULT SetItemCommandType(UINT uItem, UI_COMMANDTYPE type, bool bUpdate = false)
@@ -1232,9 +1237,7 @@ public:
 
 		m_aCmdType[uItem] = (BYTE)type;
 
-		return bUpdate ? 
-			InvalidateItems() : 
-			S_OK;
+		return bUpdate ? InvalidateItems() : S_OK;
 	}
 
 // Implementation
@@ -1243,22 +1246,26 @@ public:
 		ATLASSERT(uItem < t_items);
 		TCtrl::WndRibbon& ribbon = static_cast<TCtrl*>(this)->GetWndRibbon();
 
+		HRESULT hr = E_FAIL;
 		switch (k_(key))
 		{
 		case k_CommandId:
-			if (!m_auCmd[uItem])
+			if (m_auCmd[uItem] == 0)
 				SetItemCommand(uItem, ribbon.OnRibbonQueryItemCommand(TCtrl::GetID(), uItem));
-			return SetPropertyVal(key, m_auCmd[uItem], value);
-
+			hr = SetPropertyVal(key, m_auCmd[uItem], value);
+			break;
 		case k_CommandType:
 			if (m_aCmdType[uItem] == UI_COMMANDTYPE_UNKNOWN)
 				SetItemCommandType(uItem, ribbon.OnRibbonQueryItemCommandType(TCtrl::GetID(), uItem));
-			return SetPropertyVal(key, UINT32(m_aCmdType[uItem]), value);
-
+			hr = SetPropertyVal(key, UINT32(m_aCmdType[uItem]), value);
+			break;
 		case k_CategoryId:
 		default:
-			return Collection::DoGetItem(uItem, key, value);
+			hr = Collection::DoGetItem(uItem, key, value);
+			break;
 		}
+
+		return hr;
 	}
 
 	HRESULT Select(UINT /*uItem*/, bool /*bUpdate*/ = false)
@@ -1266,18 +1273,16 @@ public:
 		ATLASSERT(FALSE);
 		return S_OK;
 	}
-
 };
 
 // SimpleCollectionImpl: collection class for ribbon simple collection controls
 //
 template <class TCtrl, size_t t_size, UI_COMMANDTYPE t_CommandType = UI_COMMANDTYPE_ACTION>
-class SimpleCollectionImpl :
-	public CollectionImplBase<SimpleCollectionImpl<TCtrl, t_size>, t_size>
+class SimpleCollectionImpl : public CollectionImplBase<SimpleCollectionImpl<TCtrl, t_size>, t_size>
 {
 	typedef SimpleCollectionImpl<TCtrl, t_size, t_CommandType> thisClass;
 public:
-	typedef CollectionImplBase<thisClass, t_size> CollectionBase; 
+	typedef CollectionImplBase<thisClass, t_size> CollectionBase;
 	typedef thisClass SimpleCollection;
 
 // Implementation
@@ -1287,7 +1292,6 @@ public:
 		TCtrl::WndRibbon& ribbon = static_cast<TCtrl*>(this)->GetWndRibbon();
 
 		HRESULT hr = E_NOTIMPL;
-
 		switch (k_(key))
 		{
 		case k_ItemImage:
@@ -1309,23 +1313,21 @@ public:
 			break;
 		default:
 			ATLASSERT(FALSE);
+			break;
 		}
 
 		return hr;
 	}
-
 };
+
 
 ///////////////////////////////////////////////////////////////////////////////
 // Ribbon collection control classes
-///////////////////////////////////////////////////////////////////////////////
 
 // CollectionCtrlImpl: specializable class for ribbon collection controls
 //
 template <class T, UINT t_ID, class TCollection>
-class CollectionCtrlImpl :
-	public CommandCtrlImpl<T, t_ID>,
-	public TCollection
+class CollectionCtrlImpl : public CommandCtrlImpl<T, t_ID>, public TCollection
 {
 	typedef CollectionCtrlImpl<T, t_ID, TCollection> thisClass;
 public:
@@ -1334,27 +1336,29 @@ public:
 
 	// Implementation
 	virtual HRESULT DoUpdateProperty(UINT nCmdID, REFPROPERTYKEY key, 
-		const PROPVARIANT* ppropvarCurrentValue, PROPVARIANT* ppropvarNewValue)
+	                                 const PROPVARIANT* ppropvarCurrentValue, PROPVARIANT* ppropvarNewValue)
 	{
-		nCmdID; ATLASSERT(nCmdID == GetID());
+		ATLASSERT(nCmdID == GetID());
 		ATLASSERT(ppropvarNewValue);
 
 		HRESULT hr = Collection::DoUpdateProperty(nCmdID, key, ppropvarCurrentValue, ppropvarNewValue);
 		if FAILED(hr)
 			hr = CommandCtrl::DoUpdateProperty(nCmdID, key, ppropvarCurrentValue, ppropvarNewValue);
+
 		return hr;
 	}
 
 	virtual HRESULT DoExecute(UINT nCmdID, UI_EXECUTIONVERB verb, 
-		const PROPERTYKEY* key, const PROPVARIANT* ppropvarValue,
-		IUISimplePropertySet* /*pCommandExecutionProperties*/)
+	                          const PROPERTYKEY* key, const PROPVARIANT* ppropvarValue,
+	                          IUISimplePropertySet* /*pCommandExecutionProperties*/)
 	{
-		nCmdID; ATLASSERT (nCmdID == GetID());
+		ATLASSERT (nCmdID == GetID());
+		nCmdID; // avoid level4 warning
 
-		if (!key) // gallery button pressed
+		if (key == NULL) // gallery button pressed
 		{
 			GetWndRibbon().OnRibbonItemSelected(GetID(), UI_EXECUTIONVERB_EXECUTE, UI_COLLECTION_INVALIDINDEX);
-			return S_OK; 
+			return S_OK;
 		}
 
 		ATLASSERT(k_(*key) == k_SelectedItem);
@@ -1365,20 +1369,19 @@ public:
 		hr = UIPropertyToUInt32(*key, *ppropvarValue, &uSel);
 
 		if (SUCCEEDED(hr))
+		{
 			if (GetWndRibbon().OnRibbonItemSelected(GetID(), verb, uSel))
 				TCollection::Select(uSel);
+		}
 
 		return hr;
 	}
-
 };
 
 // ToolbarGalleryCtrlImpl: base class for ribbon toolbar gallery controls
 //
 template <class T, UINT t_ID, UINT t_idTB, size_t t_size>
-class ToolbarGalleryCtrlImpl : 
-	public CollectionCtrlImpl<T, t_ID, 
-		CommandCollectionImpl<ToolbarGalleryCtrlImpl<T, t_ID, t_idTB, t_size>, t_size>>
+class ToolbarGalleryCtrlImpl : public CollectionCtrlImpl<T, t_ID, CommandCollectionImpl<ToolbarGalleryCtrlImpl<T, t_ID, t_idTB, t_size>, t_size>>
 {
 public:
 	ToolbarGalleryCtrlImpl()
@@ -1392,11 +1395,13 @@ public:
 		WORD* pItems = pData->items();
 		INT j = 0;
 		for (int i = 0; (i < pData->wItemCount) && (j < t_size); i++)
-			if (pItems[i])
+		{
+			if (pItems[i] != 0)
 			{
 				m_aCmdType[j] = UI_COMMANDTYPE_ACTION;
 				m_auCmd[j++] = pItems[i];
 			}
+		}
 
 		if (j < t_size)
 			Resize(j);
@@ -1408,7 +1413,6 @@ public:
 		ATLASSERT(m_auCmd[uItem]);
 
 		HRESULT hr = E_FAIL;
-
 		switch (k_(key))
 		{
 		case k_CommandId:
@@ -1422,11 +1426,11 @@ public:
 			break;
 		default:
 			ATLASSERT(FALSE);
+			break;
 		}
 
 		return hr;
 	}
-
 };
 
 
@@ -1434,15 +1438,15 @@ public:
 //
 template <class T, UINT t_ID, size_t t_size, UI_COMMANDTYPE t_CommandType = UI_COMMANDTYPE_ACTION>
 class SimpleCollectionCtrlImpl : 
-	public CommandCtrlImpl<T, t_ID>,
-	public SimpleCollectionImpl<SimpleCollectionCtrlImpl<T, t_ID, t_size, t_CommandType>, t_size, t_CommandType>
+		public CommandCtrlImpl<T, t_ID>,
+		public SimpleCollectionImpl<SimpleCollectionCtrlImpl<T, t_ID, t_size, t_CommandType>, t_size, t_CommandType>
 {
 	typedef SimpleCollectionCtrlImpl<T, t_ID, t_size, t_CommandType> thisClass;
 public:
 	typedef thisClass SimpleCollection;
 
 	SimpleCollectionCtrlImpl() : m_uSelected(0)
-	{}
+	{ }
 
 	UINT m_uSelected;
 
@@ -1459,46 +1463,50 @@ public:
 
 	// Implementation
 	virtual HRESULT DoUpdateProperty(UINT nCmdID, REFPROPERTYKEY key, 
-		const PROPVARIANT* ppropvarCurrentValue, PROPVARIANT* ppropvarNewValue)
+	                                 const PROPVARIANT* ppropvarCurrentValue, PROPVARIANT* ppropvarNewValue)
 	{
-		nCmdID; ATLASSERT(nCmdID == GetID());
-		ATLASSERT(ppropvarNewValue);
-		HRESULT hr = S_OK;
+		ATLASSERT(nCmdID == GetID());
+		ATLASSERT(ppropvarNewValue != NULL);
 
+		HRESULT hr = S_OK;
 		switch (k_(key))
 		{
 		case k_ItemsSource:
 			{
-				CComQIPtr<IUICollection> pIUICollection(ppropvarCurrentValue->punkVal);
+				ATL::CComQIPtr<IUICollection> pIUICollection(ppropvarCurrentValue->punkVal);
 				ATLASSERT(pIUICollection.p);
 				hr = pIUICollection->Clear();
 				for (UINT i = 0; i < t_size; i++)
+				{
 					if FAILED(hr = pIUICollection->Add(m_apItems[i]))
 						break;
+				}
 				ATLASSERT(SUCCEEDED(hr));
 			}
 			break;
 		case k_SelectedItem:
 			hr = SetPropertyVal(UI_PKEY_SelectedItem, m_uSelected, ppropvarNewValue);
 			break;
-		default: 
-			return CommandCtrlImpl::DoUpdateProperty(nCmdID, key, 
-				ppropvarCurrentValue, ppropvarNewValue);
+		default:
+			hr = CommandCtrlImpl::DoUpdateProperty(nCmdID, key, ppropvarCurrentValue, ppropvarNewValue);
+			break;
 		}
+
 		return hr;
 	}
 
 	virtual HRESULT DoExecute(UINT nCmdID, UI_EXECUTIONVERB verb, 
-		const PROPERTYKEY* key, const PROPVARIANT* ppropvarValue,
-		IUISimplePropertySet* /*pCommandExecutionProperties*/)
+	                          const PROPERTYKEY* key, const PROPVARIANT* ppropvarValue,
+	                          IUISimplePropertySet* /*pCommandExecutionProperties*/)
 	{
-		nCmdID; ATLASSERT (nCmdID == GetID());
+		ATLASSERT (nCmdID == GetID());
+		nCmdID;   // avoid level 4 warning
 		
 		HRESULT hr = S_OK;
-		if (!key) // gallery button pressed
+		if (key == NULL) // gallery button pressed
 		{
 			GetWndRibbon().OnRibbonItemSelected(GetID(), UI_EXECUTIONVERB_EXECUTE, UI_COLLECTION_INVALIDINDEX);
-			return hr; 
+			return hr;
 		}
 		ATLASSERT(k_(*key) == k_SelectedItem);
 		ATLASSERT(ppropvarValue);
@@ -1508,16 +1516,15 @@ public:
 
 		return hr;
 	}
-
 };
 
 // RecentItemsCtrlImpl
 //
 template <class T, UINT t_ID, class TDocList = CRecentDocumentList>
 class RecentItemsCtrlImpl : 
-	public CtrlImpl<T, t_ID>,
-	public CollectionImplBase<RecentItemsCtrlImpl<T, t_ID, TDocList>, TDocList::m_nMaxEntries_Max>,
-	public TDocList
+		public CtrlImpl<T, t_ID>,
+		public CollectionImplBase<RecentItemsCtrlImpl<T, t_ID, TDocList>, TDocList::m_nMaxEntries_Max>,
+		public TDocList
 {
 	typedef RecentItemsCtrlImpl<T, t_ID, TDocList> thisClass;
 public:
@@ -1530,7 +1537,6 @@ public:
 
 		LPCWSTR sPath = m_arrDocs[uItem].szDocName;
 		HRESULT hr = E_NOTIMPL;
-
 		switch (k_(key))
 		{
 		case k_Label:
@@ -1541,19 +1547,19 @@ public:
 			break;
 		default:
 			ATLASSERT(FALSE);
+			break;
 		}
 
 		return hr;
 	}
 
 	virtual HRESULT DoUpdateProperty(UINT nCmdID, REFPROPERTYKEY key, 
-		const PROPVARIANT* ppropvarCurrentValue, PROPVARIANT* ppropvarNewValue)
+	                                 const PROPVARIANT* ppropvarCurrentValue, PROPVARIANT* ppropvarNewValue)
 	{
-		nCmdID; ATLASSERT(nCmdID == GetID());
+		ATLASSERT(nCmdID == GetID());
 		ATLASSERT(ppropvarNewValue);
 
 		HRESULT hr = S_OK;
-
 		switch (k_(key))
 		{
 		case k_RecentItems:
@@ -1567,19 +1573,22 @@ public:
 				SafeArrayDestroy(psa);
 			}
 			break;
-		default: 
-			return CtrlImpl::DoUpdateProperty(nCmdID, key, 
-				ppropvarCurrentValue, ppropvarNewValue);
+		default:
+			hr = CtrlImpl::DoUpdateProperty(nCmdID, key, ppropvarCurrentValue, ppropvarNewValue);
+			break;
 		}
+
 		return hr;
 	}
 
 	virtual HRESULT DoExecute(UINT nCmdID, UI_EXECUTIONVERB verb, 
-		const PROPERTYKEY* key, const PROPVARIANT* ppropvarValue,
-		IUISimplePropertySet* /*pCommandExecutionProperties*/)
+	                          const PROPERTYKEY* key, const PROPVARIANT* ppropvarValue,
+	                          IUISimplePropertySet* /*pCommandExecutionProperties*/)
 	{
-		nCmdID; ATLASSERT(nCmdID == GetID());
-		verb; ATLASSERT(verb == UI_EXECUTIONVERB_EXECUTE);
+		ATLASSERT(nCmdID == GetID());
+		nCmdID;   // avoid level 4 warning
+		ATLASSERT(verb == UI_EXECUTIONVERB_EXECUTE);
+		verb;   // avoid level 4 warning
 		ATLASSERT((key) && (k_(*key) == k_SelectedItem));
 		ATLASSERT(ppropvarValue);
 
@@ -1590,35 +1599,35 @@ public:
 			ATLASSERT(uSel < (UINT)GetMaxEntries());
 			GetWndRibbon().DefCommandExecute(ID_FILE_MRU_FIRST + uSel);
 		}
+
 		return hr;
 	}
-
 };
+
 
 ///////////////////////////////////////////////////////////////////////////////
 // Ribbon stand-alone control classes
-///////////////////////////////////////////////////////////////////////////////
 
 // FontCtrlImpl
 //
 template <class T, UINT t_ID>
-class FontCtrlImpl : 
-	public CtrlImpl<T, t_ID>
+class FontCtrlImpl : public CtrlImpl<T, t_ID>
 {
 public:
 
-	CharFormat m_cf; 
+	CharFormat m_cf;
 
 // Implementation
 	virtual HRESULT DoExecute(UINT nCmdID, UI_EXECUTIONVERB verb, 
-		const PROPERTYKEY* key, const PROPVARIANT* ppropvarValue,
-		IUISimplePropertySet* pCommandExecutionProperties)
+	                          const PROPERTYKEY* key, const PROPVARIANT* ppropvarValue,
+	                          IUISimplePropertySet* pCommandExecutionProperties)
 	{
-		nCmdID; ATLASSERT (nCmdID == GetID());
-		key; ATLASSERT ((key) && (k_(*key) == k_FontProperties));
+		ATLASSERT (nCmdID == GetID());
+		nCmdID;   // avoid level 4 warning
+		ATLASSERT ((key) && (k_(*key) == k_FontProperties));
+		key;   // avoid level 4 warning
 
 		HRESULT hr = E_INVALIDARG;
-
 		switch (verb)
 		{
 			case UI_EXECUTIONVERB_PREVIEW:
@@ -1627,12 +1636,12 @@ public:
 				PROPVARIANT propvar;
 
 				if (SUCCEEDED(hr = pCommandExecutionProperties->GetValue(UI_PKEY_FontProperties_ChangedProperties, &propvar)))
-					m_cf << CComQIPtr<IPropertyStore>(propvar.punkVal);
+					m_cf << ATL::CComQIPtr<IPropertyStore>(propvar.punkVal);
 				break;
 
 			case UI_EXECUTIONVERB_CANCELPREVIEW:
 				ATLASSERT(ppropvarValue);
-				CComPtr<IPropertyStore> pStore;
+				ATL::CComPtr<IPropertyStore> pStore;
 
 				if (SUCCEEDED(hr = UIPropertyToInterface(UI_PKEY_FontProperties, *ppropvarValue, &pStore)))
 					m_cf << pStore;
@@ -1643,24 +1652,24 @@ public:
 			GetWndRibbon().OnRibbonFontCtrlExecute(GetID(), verb, &m_cf);
 		else
 			ATLASSERT(FALSE);
+
 		return hr;
 	}
 
 	virtual HRESULT DoUpdateProperty(UINT nCmdID, REFPROPERTYKEY key, 
-		const PROPVARIANT* ppropvarCurrentValue, PROPVARIANT* ppropvarNewValue)
+	                                 const PROPVARIANT* ppropvarCurrentValue, PROPVARIANT* ppropvarNewValue)
 	{
-		if ((k_(key)  == k_FontProperties) && 
-			(GetWndRibbon().OnRibbonQueryFont(t_ID, m_cf)))
+		if ((k_(key) == k_FontProperties) && (GetWndRibbon().OnRibbonQueryFont(t_ID, m_cf)))
 		{
-			CComQIPtr<IPropertyStore> pStore(ppropvarCurrentValue->punkVal);
+			ATL::CComQIPtr<IPropertyStore> pStore(ppropvarCurrentValue->punkVal);
 			m_cf >> pStore;
 			return SetPropertyVal(key, pStore.p, ppropvarNewValue);
 		}
-		else 
-			return CtrlImpl::DoUpdateProperty(nCmdID, key, 
-				ppropvarCurrentValue, ppropvarNewValue);
+		else
+		{
+			return CtrlImpl::DoUpdateProperty(nCmdID, key, ppropvarCurrentValue, ppropvarNewValue);
+		}
 	}
-
 };
 
 // ColorCtrlImpl
@@ -1670,9 +1679,9 @@ class ColorCtrlImpl : public CommandCtrlImpl<T, t_ID>
 {
 public:
 	ColorCtrlImpl() : m_colorType(UI_SWATCHCOLORTYPE_NOCOLOR), m_color(0x800080) /*MAGENTA*/
-	{}
+	{ }
 
-	COLORREF m_color; 
+	COLORREF m_color;
 	UINT32 m_colorType; // value in UI_SWATCHCOLORTYPE
 	Text m_sLabels[6]; // k_MoreColorsLabel to k_ThemeColorsCategoryLabel
 	ATL::CSimpleArray<COLORREF> m_aColors[2];
@@ -1684,26 +1693,20 @@ public:
 		if (m_colorType != UI_SWATCHCOLORTYPE_RGB)
 			SetColorType(UI_SWATCHCOLORTYPE_RGB, bUpdate);
 		m_color = color;
-		return bUpdate ? 
-			SetProperty(UI_PKEY_Color, color) : 
-			S_OK;
+		return bUpdate ? SetProperty(UI_PKEY_Color, color) : S_OK;
 	}
 
 	HRESULT SetColorType(UI_SWATCHCOLORTYPE type, bool bUpdate = false)
 	{
 		m_colorType = type;
-		return bUpdate ? 
-			SetProperty(UI_PKEY_ColorType, type) : 
-			S_OK;
+		return bUpdate ? SetProperty(UI_PKEY_ColorType, type) : S_OK;
 	}
 
 	HRESULT SetColorLabel(REFPROPERTYKEY key, LPCWSTR sLabel, bool bUpdate = false)
 	{
 		ATLASSERT((k_(key) >= k_ThemeColorsCategoryLabel) && (k_(key) <= k_MoreColorsLabel));
 		m_sLabels[k_(key) - k_ThemeColorsCategoryLabel] = sLabel;
-		return bUpdate ? 
-			SetProperty(key, sLabel) : 
-			S_OK;
+		return bUpdate ? SetProperty(key, sLabel) : S_OK;
 	}
 
 	HRESULT SetColorArray(REFPROPERTYKEY key, COLORREF* pColor, bool bUpdate = false)
@@ -1723,8 +1726,10 @@ public:
 			else
 				return E_INVALIDARG;
 		}
-		else 
+		else
+		{
 			return S_OK;
+		}
 	}
 
 	HRESULT SetColorTooltips(REFPROPERTYKEY key, LPCWSTR* ppsTT, bool bUpdate = false)
@@ -1744,17 +1749,21 @@ public:
 			else
 				return E_INVALIDARG;
 		}
-		else 
+		else
+		{
 			return S_OK;
+		}
 	}
 
 	// Implementation
 	virtual HRESULT DoExecute(UINT nCmdID, UI_EXECUTIONVERB verb, 
-		const PROPERTYKEY* key, const PROPVARIANT* ppropvarValue,
-		IUISimplePropertySet* pCommandExecutionProperties)
+	                          const PROPERTYKEY* key, const PROPVARIANT* ppropvarValue,
+	                          IUISimplePropertySet* pCommandExecutionProperties)
 	{
-		nCmdID; ATLASSERT (nCmdID == GetID());
-		key; ATLASSERT (key && (k_(*key) == k_ColorType));
+		ATLASSERT (nCmdID == GetID());
+		nCmdID;   // avoid level 4 warning
+		ATLASSERT (key && (k_(*key) == k_ColorType));
+		key;   // avoid level 4 warning
 		ATLASSERT (ppropvarValue);
 
 		HRESULT hr = PropVariantToUInt32(*ppropvarValue, &m_colorType);
@@ -1772,11 +1781,12 @@ public:
 			GetWndRibbon().OnRibbonColorCtrlExecute(GetID(), verb, (UI_SWATCHCOLORTYPE)m_colorType/*uType*/, m_color);
 		else
 			ATLASSERT(FALSE); // something was wrong
+
 		return hr;
 	}
 
 	virtual HRESULT DoUpdateProperty(UINT nCmdID, REFPROPERTYKEY key, 
-		const PROPVARIANT* ppropvarCurrentValue, PROPVARIANT* ppropvarNewValue)
+	                                 const PROPVARIANT* ppropvarCurrentValue, PROPVARIANT* ppropvarNewValue)
 	{
 		ATLASSERT (nCmdID == GetID());
 
@@ -1788,7 +1798,7 @@ public:
 			hr = SetPropertyVal(key, m_colorType, ppropvarNewValue);
 			break;
 		case k_Color:
-			if (m_color ==  0x800080) /*MAGENTA*/
+			if (m_color == 0x800080) /*MAGENTA*/
 				m_color = GetWndRibbon().OnRibbonQueryColor(GetID());
 			hr = SetPropertyVal(key, m_color, ppropvarNewValue);
 			break;
@@ -1824,7 +1834,7 @@ public:
 		case k_StandardColorsTooltips:
 			{
 				const INT ic = k_(key) - k_ThemeColorsTooltips;
-				if (!m_aTooltips[ic].GetSize())
+				if (m_aTooltips[ic].GetSize() == 0)
 					if (LPCWSTR* ppsTT = GetWndRibbon().OnRibbonQueryColorTooltips(GetID(), key))
 						SetColorTooltips(key, ppsTT);
 				if (INT iMax = m_aTooltips[ic].GetSize())
@@ -1832,12 +1842,12 @@ public:
 			}
 			break;
 		default:
-			return CommandCtrlImpl::DoUpdateProperty(nCmdID, key, 
-				ppropvarCurrentValue, ppropvarNewValue);
+			hr = CommandCtrlImpl::DoUpdateProperty(nCmdID, key, ppropvarCurrentValue, ppropvarNewValue);
+			break;
 		}
+
 		return hr;
 	}
-
 };
 
 // SpinnerCtrlImpl
@@ -1856,9 +1866,8 @@ public:
 	V m_Values[5];
 		// k_DecimalValue = 201, k_MaxValue = 203, k_MinValue, k_Increment, k_DecimalPlaces
 		
-	Text 
-		m_FormatString,
-		m_RepresentativeString;
+	Text m_FormatString;
+	Text m_RepresentativeString;
 
 	// Operations
 	HRESULT SetDecimalPlaces(V vPlaces, bool bUpdate = false)
@@ -1910,6 +1919,7 @@ public:
 		default:
 			return CtrlImpl::SetText(key, sText, bUpdate);
 		}
+
 		return bUpdate ?
 			GetWndRibbon().InvalidateProperty(GetID(), key) :
 			S_OK;
@@ -1923,6 +1933,7 @@ public:
 		m_Values[iVal] = val;
 
 		if (bUpdate)
+		{
 			if(k_(key) == k_DecimalValue)
 			{
 				DECIMAL decVal;
@@ -1930,9 +1941,14 @@ public:
 				return SetProperty(key, &decVal);
 			}
 			else
+			{
 				return GetWndRibbon().InvalidateProperty(GetID(), key);
+			}
+		}
 		else
+		{
 			return S_OK;
+		}
 	}
 
 	HRESULT QueryValue(REFPROPERTYKEY key, LONG* plVal)
@@ -1954,7 +1970,9 @@ public:
 		QueryValue(key, m_Values + iVal);
 
 		if (k_(key) == k_DecimalPlaces)
+		{
 			return SetPropertyVal(key, m_Values[iVal], ppv);
+		}
 		else
 		{
 			DECIMAL decVal;
@@ -1971,30 +1989,32 @@ public:
 	}
 
 	virtual HRESULT DoExecute(UINT nCmdID, UI_EXECUTIONVERB verb, 
-		const PROPERTYKEY* key, const PROPVARIANT* ppropvarValue,
-		IUISimplePropertySet* /*pCommandExecutionProperties*/)
+	                          const PROPERTYKEY* key, const PROPVARIANT* ppropvarValue,
+	                          IUISimplePropertySet* /*pCommandExecutionProperties*/)
 	{
-		nCmdID; ATLASSERT (nCmdID == GetID());
-		key; ATLASSERT (key && (k_(*key) == k_DecimalValue));
-		verb; ATLASSERT (verb == UI_EXECUTIONVERB_EXECUTE);
+		ATLASSERT (nCmdID == GetID());
+		nCmdID;   // avoid level 4 warning
+		ATLASSERT (key && (k_(*key) == k_DecimalValue));
+		key;   // avoid level 4 warning
+		ATLASSERT (verb == UI_EXECUTIONVERB_EXECUTE);
+		verb;   // avoid level 4 warning
 
 		DECIMAL decVal;
 
 		HRESULT hr = UIPropertyToDecimal(UI_PKEY_DecimalValue, *ppropvarValue, &decVal);
 		hr = InitVal(m_Values[0], &decVal);
-		 
+
 		GetWndRibbon().OnRibbonSpinnerCtrlExecute(GetID(), &m_Values[0]);
 
 		return hr;
 	}
 
 	virtual HRESULT DoUpdateProperty(UINT nCmdID, REFPROPERTYKEY key, 
-		const PROPVARIANT* ppropvarCurrentValue, PROPVARIANT* ppropvarNewValue)
+	                                 const PROPVARIANT* ppropvarCurrentValue, PROPVARIANT* ppropvarNewValue)
 	{
 		ATLASSERT (nCmdID == GetID());
 
 		HRESULT hr = E_NOTIMPL;
-
 		switch (k_(key))
 		{
 		case k_DecimalPlaces:
@@ -2002,7 +2022,8 @@ public:
 		case k_Increment:
 		case k_MaxValue:
 		case k_MinValue:
-			return OnGetValue(key, ppropvarNewValue);
+			hr = OnGetValue(key, ppropvarNewValue);
+			break;
 		case k_FormatString:
 			if (m_FormatString.IsEmpty())
 				return OnGetText(key, m_FormatString, ppropvarNewValue);
@@ -2012,9 +2033,8 @@ public:
 				return OnGetText(key, m_RepresentativeString, ppropvarNewValue);
 			break;
 		default:
-			return CtrlImpl::DoUpdateProperty(nCmdID, key, 
-				ppropvarCurrentValue, ppropvarNewValue);
-
+			hr = CtrlImpl::DoUpdateProperty(nCmdID, key, ppropvarCurrentValue, ppropvarNewValue);
+			break;
 		}
 
 		return hr;
@@ -2040,17 +2060,16 @@ public:
 	{
 		return ::VarR8FromDec(pDecimal, &val);
 	}
-
 };
 
 // CRibbonImpl Ribbon implementation class
 //
 template <class T>
-class CRibbonImpl :
-	public CRibbonUpdateUI<T>,
-	public ICtrl,
-	public IUIApplication,
-	public IUICommandHandler
+class CRibbonImpl : 
+		public CRibbonUpdateUI<T>,
+		public ICtrl,
+		public IUIApplication,
+		public IUICommandHandler
 {
 	typedef CRibbonImpl<T> thisClass;
 public:
@@ -2080,7 +2099,7 @@ public:
 	{
 		::GlobalFree(m_hgRibbonSettings);
 		m_pIUIFramework.Release();
-   		::CoUninitialize();
+		::CoUninitialize();
 	}
 
 	ICtrl& GetRibbonCtrl(UINT)
@@ -2088,7 +2107,7 @@ public:
 		return static_cast<ICtrl&>(*this);
 	}
 
-	CComPtr<IUIFramework> m_pIUIFramework;
+	ATL::CComPtr<IUIFramework> m_pIUIFramework;
 	HGLOBAL m_hgRibbonSettings;
 	bool m_bRibbonUI;
 
@@ -2106,7 +2125,7 @@ public:
 	I* GetRibbonViewPtr(UINT32 uID)
 	{
 		ATLASSERT(m_pIUIFramework);
-		CComPtr<I> pI;
+		ATL::CComPtr<I> pI;
 		return m_pIUIFramework->GetView(uID, __uuidof(I), (void**) &pI) == S_OK ?
 			pI : 
 			NULL;
@@ -2128,7 +2147,7 @@ public:
 		ATLASSERT(IsRibbonUI());
 
 		UINT32 cy = 0;
-		if (CComPtr<IUIRibbon> pIUIRibbon = GetRibbonPtr())
+		if (ATL::CComPtr<IUIRibbon> pIUIRibbon = GetRibbonPtr())
 			pIUIRibbon->GetHeight(&cy);
 		return cy;
 	}
@@ -2139,9 +2158,9 @@ public:
 		ATLASSERT(GetIUIFrameworkPtr() && !IsRibbonUI());
 		ATLASSERT(pT->IsWindow());
 
-		HRESULT hr = m_pIUIFramework->Initialize(pT->m_hWnd, this); 
+		HRESULT hr = m_pIUIFramework->Initialize(pT->m_hWnd, this);
 
-		if (hr == S_OK) 
+		if (hr == S_OK)
 			hr = m_pIUIFramework->LoadUI(ModuleHelper::GetResourceInstance(), sResName);
 			
 		return hr;
@@ -2162,13 +2181,14 @@ public:
 		ATLASSERT(pIStream);
 
 		HRESULT hr = E_FAIL;
-		if (CComPtr<IUIRibbon> pIUIRibbon = GetRibbonPtr())
+		if (ATL::CComPtr<IUIRibbon> pIUIRibbon = GetRibbonPtr())
 		{
-			const LARGE_INTEGER li0 = {0};
+			const LARGE_INTEGER li0 = { 0 };
 			pIStream->Seek(li0, STREAM_SEEK_SET, NULL);
-			hr =  pIUIRibbon->SaveSettingsToStream(pIStream);
+			hr = pIUIRibbon->SaveSettingsToStream(pIStream);
 			pIStream->Commit(STGC_DEFAULT);
 		}
+
 		return hr;
 	}
 
@@ -2178,18 +2198,19 @@ public:
 		ATLASSERT(pIStream);
 
 		HRESULT hr = E_FAIL;
-		if (CComPtr<IUIRibbon> pIUIRibbon = GetRibbonPtr())
+		if (ATL::CComPtr<IUIRibbon> pIUIRibbon = GetRibbonPtr())
 		{
-			const LARGE_INTEGER li0 = {0};
+			const LARGE_INTEGER li0 = { 0 };
 			pIStream->Seek(li0, STREAM_SEEK_SET, NULL);
 			hr = pIUIRibbon->LoadSettingsFromStream(pIStream);
 		}
+
 		return hr;
 	}
 
 	void ResetRibbonSettings()
 	{
-		if (m_hgRibbonSettings)
+		if (m_hgRibbonSettings != NULL)
 		{
 			::GlobalFree(m_hgRibbonSettings);
 			m_hgRibbonSettings = NULL;
@@ -2202,16 +2223,17 @@ public:
 		ATLASSERT(static_cast<T*>(this)->IsWindow());
 
 		HRESULT hr = E_FAIL;
-		CComPtr<IStream> pIStream;
+		ATL::CComPtr<IStream> pIStream;
 
 		if SUCCEEDED(hr = ::CreateStreamOnHGlobal(m_hgRibbonSettings, FALSE, &pIStream))
 			hr = *this >> pIStream;
 
-		if (SUCCEEDED(hr) && !m_hgRibbonSettings)
+		if (SUCCEEDED(hr) && (m_hgRibbonSettings == NULL))
 			hr = ::GetHGlobalFromStream(pIStream, &m_hgRibbonSettings);
 
 		if FAILED(hr)
 			ResetRibbonSettings();
+
 		return hr;
 	}
 
@@ -2222,13 +2244,14 @@ public:
 		ATLASSERT(static_cast<T*>(this)->IsWindow());
 
 		HRESULT hr = E_FAIL;
-		CComPtr<IStream> pIStream;
+		ATL::CComPtr<IStream> pIStream;
 
 		if SUCCEEDED(hr = ::CreateStreamOnHGlobal(m_hgRibbonSettings, FALSE, &pIStream))
 			hr = *this << pIStream;
 
 		if FAILED(hr)
 			ResetRibbonSettings();
+
 		return hr;
 	}
 
@@ -2240,13 +2263,14 @@ public:
 
 		UINT32 uDock = 0;
 		PROPVARIANT propvar;
-		CComQIPtr<IPropertyStore>pIPS(GetRibbonPtr());
+		ATL::CComQIPtr<IPropertyStore>pIPS(GetRibbonPtr());
 
-		if (pIPS && SUCCEEDED(pIPS->GetValue(UI_PKEY_QuickAccessToolbarDock, &propvar)) &&
+		if ((pIPS != NULL) && SUCCEEDED(pIPS->GetValue(UI_PKEY_QuickAccessToolbarDock, &propvar)) &&
 			SUCCEEDED(UIPropertyToUInt32(UI_PKEY_QuickAccessToolbarDock, propvar, &uDock)))
 				;
 		else
 			ATLASSERT(FALSE); // something was wrong
+
 		return (UI_CONTROLDOCK)uDock;
 	}
 
@@ -2258,8 +2282,8 @@ public:
 		PROPVARIANT propvar;
 		ATLVERIFY(SUCCEEDED(SetPropertyVal(UI_PKEY_QuickAccessToolbarDock, dockState, &propvar)));
 
-		CComQIPtr<IPropertyStore>pIPS(GetRibbonPtr());
-		if (pIPS && SUCCEEDED(pIPS->SetValue(UI_PKEY_QuickAccessToolbarDock, propvar)))
+		ATL::CComQIPtr<IPropertyStore>pIPS(GetRibbonPtr());
+		if ((pIPS != NULL) && SUCCEEDED(pIPS->SetValue(UI_PKEY_QuickAccessToolbarDock, propvar)))
 		{
 			pIPS->Commit();
 			return true;
@@ -2277,9 +2301,9 @@ public:
 		ATLASSERT((k_(key) == k_Viewable) || (k_(key) == k_Minimized));
 
 		PROPVARIANT propvar;
-		CComQIPtr<IPropertyStore>pIPS(GetRibbonPtr());
+		ATL::CComQIPtr<IPropertyStore>pIPS(GetRibbonPtr());
 
-		if (pIPS && SUCCEEDED(pIPS->GetValue(key, &propvar)))
+		if ((pIPS != NULL) && SUCCEEDED(pIPS->GetValue(key, &propvar)))
 		{
 			BOOL bState= FALSE;
 			if SUCCEEDED(UIPropertyToBoolean(key, propvar, &bState))
@@ -2299,9 +2323,9 @@ public:
 		PROPVARIANT propvar;
 		ATLVERIFY(SUCCEEDED(SetPropertyVal(key, bState, &propvar)));
 
-		CComQIPtr<IPropertyStore>pIPS(GetRibbonPtr());
+		ATL::CComQIPtr<IPropertyStore>pIPS(GetRibbonPtr());
 
-		if (pIPS && SUCCEEDED(pIPS->SetValue(key, propvar)))
+		if ((pIPS != NULL) && SUCCEEDED(pIPS->SetValue(key, propvar)))
 		{
 			pIPS->Commit();
 			return true;
@@ -2339,9 +2363,9 @@ public:
 		ATLASSERT((k_(key) >= k_GlobalBackgroundColor) && (k_(key) <= k_GlobalTextColor));
 
 		PROPVARIANT propvar;
-		CComQIPtr<IPropertyStore>pIPS(GetIUIFrameworkPtr());
+		ATL::CComQIPtr<IPropertyStore>pIPS(GetIUIFrameworkPtr());
 
-		if (pIPS && SUCCEEDED(pIPS->GetValue(key, &propvar)))
+		if ((pIPS != NULL) && SUCCEEDED(pIPS->GetValue(key, &propvar)))
 		{
 			UINT32 color = 0;
 			if SUCCEEDED(UIPropertyToUInt32(key, propvar, &color))
@@ -2361,9 +2385,9 @@ public:
 		PROPVARIANT propvar;
 		ATLVERIFY(SUCCEEDED(SetPropertyVal(key, color, &propvar)));
 
-		CComQIPtr<IPropertyStore>pIPS(GetIUIFrameworkPtr());
+		ATL::CComQIPtr<IPropertyStore>pIPS(GetIUIFrameworkPtr());
 
-		if (pIPS && SUCCEEDED(pIPS->SetValue(key, propvar)))
+		if ((pIPS != NULL) && SUCCEEDED(pIPS->SetValue(key, propvar)))
 		{
 			pIPS->Commit();
 			return true;
@@ -2387,10 +2411,10 @@ public:
 
 		PROPVARIANT propvar;
 		if (IsRibbonUI() && 
-			SUCCEEDED(GetIUIFrameworkPtr()->GetUICommandProperty(uID, UI_PKEY_ContextAvailable, &propvar)))
+		    SUCCEEDED(GetIUIFrameworkPtr()->GetUICommandProperty(uID, UI_PKEY_ContextAvailable, &propvar)))
 		{
 			UINT uav;
-			if SUCCEEDED(PropVariantToUInt32(propvar, &uav))
+			if (SUCCEEDED(PropVariantToUInt32(propvar, &uav)))
 			{
 				CUpdateUIBase::UIEnable(uID, uav != UI_CONTEXTAVAILABILITY_NOTAVAILABLE);
 				CUpdateUIBase::UISetCheck(uID, uav == UI_CONTEXTAVAILABILITY_ACTIVE);
@@ -2412,7 +2436,7 @@ public:
 // Ribbon context menu
 	bool HasRibbonMenu(UINT32 uID)
 	{
-		CComPtr<IUIContextualUI> pI = GetMenuPtr(uID);
+		ATL::CComPtr<IUIContextualUI> pI = GetMenuPtr(uID);
 		return pI != NULL;
 	}
 
@@ -2421,7 +2445,7 @@ public:
 		ATLASSERT(HasRibbonMenu(uID));
 
 		return IsRibbonUI() ?
-			CComPtr<IUIContextualUI>(GetMenuPtr(uID))->ShowAtLocation(x, y) :
+			ATL::CComPtr<IUIContextualUI>(GetMenuPtr(uID))->ShowAtLocation(x, y) :
 			E_FAIL;
 	}
 
@@ -2431,7 +2455,7 @@ public:
 	}
 
 // Overrideables
-	HBITMAP OnRibbonQueryImage(UINT nCmdID, REFPROPERTYKEY key)
+	HBITMAP OnRibbonQueryImage(UINT nCmdID, REFPROPERTYKEY /*key*/)
 	{
 		return DefRibbonQueryImage(nCmdID);
 	}
@@ -2449,12 +2473,11 @@ public:
 	UI_CONTEXTAVAILABILITY OnRibbonQueryTabAvail(UINT nCmdID)
 	{
 		DWORD dwState = UIGetState(nCmdID);
-		return 
-			(dwState & UPDUI_DISABLED) == UPDUI_DISABLED ? 
-				UI_CONTEXTAVAILABILITY_NOTAVAILABLE :
-				(dwState & UPDUI_CHECKED) == UPDUI_CHECKED ? 
-					UI_CONTEXTAVAILABILITY_ACTIVE : 
-					UI_CONTEXTAVAILABILITY_AVAILABLE;
+		return ((dwState & UPDUI_DISABLED) == UPDUI_DISABLED) ? 
+			UI_CONTEXTAVAILABILITY_NOTAVAILABLE :
+			(((dwState & UPDUI_CHECKED) == UPDUI_CHECKED) ? 
+				UI_CONTEXTAVAILABILITY_ACTIVE : 
+				UI_CONTEXTAVAILABILITY_AVAILABLE);
 	}
 
 	LPCWSTR OnRibbonQueryComboText(UINT32 /*uCtrlID*/)
@@ -2519,7 +2542,7 @@ public:
 
 	COLORREF OnRibbonQueryColor(UINT /*nCmdID*/)
 	{
-		return 0x800080; /*MAGENTA*/ 
+		return 0x800080; /*MAGENTA*/
 	}
 
 	LPCWSTR OnRibbonQueryColorLabel(UINT /*nCmdID*/, REFPROPERTYKEY /*key*/)
@@ -2569,7 +2592,6 @@ public:
 	}
 
 // Default implementations
-
 	HBITMAP DefRibbonQueryImage(UINT nCmdID)
 	{
 		return AtlLoadBitmapImage(nCmdID, LR_CREATEDIBSECTION);
@@ -2578,21 +2600,26 @@ public:
 	bool DefRibbonQueryState(UINT nCmdID, REFPROPERTYKEY key)
 	{
 		DWORD dwState = UIGetState(nCmdID);
+		bool bRet = false;
 		switch (k_(key))
 		{
 		case k_BooleanValue:
-			return (dwState & UPDUI_CHECKED) == UPDUI_CHECKED;
+			bRet = (dwState & UPDUI_CHECKED) == UPDUI_CHECKED;
+			break;
 		case k_Enabled:
-			return (dwState & UPDUI_DISABLED) != UPDUI_DISABLED;
+			bRet = (dwState & UPDUI_DISABLED) != UPDUI_DISABLED;
+			break;
 		default:
 			ATLASSERT(FALSE);
-			return false;
+			break;
 		}
+
+		return bRet;
 	}
 
 	LPCTSTR DefRibbonQueryText(UINT nCmdID, REFPROPERTYKEY key)
 	{
-		static WCHAR sText[RIBBONUI_MAX_TEXT] = {0}; 
+		static WCHAR sText[RIBBONUI_MAX_TEXT] = { 0 };
 
 		if (k_(key) == k_Label)
 			 return UIGetText(nCmdID);
@@ -2605,14 +2632,13 @@ public:
 			case k_Keytip:
 				if (PWCHAR pAmp = wcschr(sText, L'&'))
 					pTitle = pAmp;
-				if (pTitle)
+				if (pTitle != NULL)
 					*(pTitle + 2) = NULL; // fall through
 			case k_TooltipTitle:
 				return pTitle ? ++pTitle : NULL;
-
 			case k_TooltipDescription:
 			case k_LabelDescription:
-				if (pTitle)
+				if (pTitle != NULL)
 					*pTitle = NULL;
 				return sText;
 			}
@@ -2640,17 +2666,19 @@ public:
 	{
 		switch(uType)
 		{
-		  case UI_SWATCHCOLORTYPE_RGB:
-			  break;
-		  case UI_SWATCHCOLORTYPE_AUTOMATIC:
-			  color = ::GetSysColor(COLOR_WINDOWTEXT);
-			  break;
-		  case UI_SWATCHCOLORTYPE_NOCOLOR:
-			  color = ::GetSysColor(COLOR_WINDOW);
-			  break;
-		  default:
-			  ATLASSERT(FALSE);
+		case UI_SWATCHCOLORTYPE_RGB:
+			break;
+		case UI_SWATCHCOLORTYPE_AUTOMATIC:
+			color = ::GetSysColor(COLOR_WINDOWTEXT);
+			break;
+		case UI_SWATCHCOLORTYPE_NOCOLOR:
+			color = ::GetSysColor(COLOR_WINDOW);
+			break;
+		default:
+			ATLASSERT(FALSE);
+			break;
 		}
+
 		DefCommandExecute(MAKELONG(uCtrlID, verb), color);
 	}
 
@@ -2660,7 +2688,6 @@ public:
 	}
 
 // Elements setting helpers
-
 	HRESULT InvalidateCtrl(UINT32 nID)
 	{
 		return IsRibbonUI() ?
@@ -2688,7 +2715,9 @@ public:
 			return E_INVALIDARG;
 		}
 		else
+		{
 			return E_FAIL;
+		}
 	}
 
 	template <>
@@ -2700,15 +2729,14 @@ public:
 	}
 
 // Interfaces
-
 	// IUIApplication
-	STDMETHODIMP OnViewChanged(UINT32, UI_VIEWTYPE, IUnknown*, UI_VIEWVERB verb, INT32)  
+	STDMETHODIMP OnViewChanged(UINT32, UI_VIEWTYPE, IUnknown*, UI_VIEWVERB verb, INT32)
 	{
 		switch (verb)
 		{			
 		case UI_VIEWVERB_CREATE:
 			m_bRibbonUI = true;
-			if (m_hgRibbonSettings)
+			if (m_hgRibbonSettings != NULL)
 				RestoreRibbonSettings();
 			break;
 		case UI_VIEWVERB_SIZE:
@@ -2719,10 +2747,11 @@ public:
 			m_bRibbonUI = false;
 			break;
 		}
+
 		return S_OK;
 	}
 
-	STDMETHODIMP OnCreateUICommand(UINT32 nCmdID, UI_COMMANDTYPE /*typeID*/, IUICommandHandler** ppCommandHandler) 
+	STDMETHODIMP OnCreateUICommand(UINT32 nCmdID, UI_COMMANDTYPE /*typeID*/, IUICommandHandler** ppCommandHandler)
 	{
 		UIAddRibbonElement(nCmdID);
 		*ppCommandHandler = this;
@@ -2731,8 +2760,8 @@ public:
 
 	STDMETHODIMP OnDestroyUICommand(UINT32 nCmdID, UI_COMMANDTYPE, IUICommandHandler*)
 	{
-		UIRemoveRibbonElement(nCmdID); 
-		return S_OK; 
+		UIRemoveRibbonElement(nCmdID);
+		return S_OK;
 	}
 
 	// IUICommandHandler
@@ -2743,18 +2772,14 @@ public:
 		IUISimplePropertySet* pCommandExecutionProperties)
 	{
 		T* pT =static_cast<T*>(this);
-		return pT->GetRibbonCtrl(nCmdID).DoExecute(nCmdID, 
-			verb, key, ppropvarValue, pCommandExecutionProperties);	
+		return pT->GetRibbonCtrl(nCmdID).DoExecute(nCmdID, verb, key, ppropvarValue, pCommandExecutionProperties);	
 	}
 
-	STDMETHODIMP UpdateProperty(UINT nCmdID, 
-		REFPROPERTYKEY key, 
-		const PROPVARIANT* ppropvarCurrentValue, 
-		PROPVARIANT* ppropvarNewValue)
+	STDMETHODIMP UpdateProperty(UINT nCmdID, REFPROPERTYKEY key, 
+	                            const PROPVARIANT* ppropvarCurrentValue, PROPVARIANT* ppropvarNewValue)
 	{
 		T* pT =static_cast<T*>(this);
-		return  pT->GetRibbonCtrl(nCmdID).DoUpdateProperty(nCmdID, 
-			key, ppropvarCurrentValue, ppropvarNewValue);	
+		return pT->GetRibbonCtrl(nCmdID).DoUpdateProperty(nCmdID, key, ppropvarCurrentValue, ppropvarNewValue);	
 	}
 
 #ifdef _DEBUG
@@ -2777,19 +2802,22 @@ public:
 
 	STDMETHODIMP QueryInterface(REFIID iid, void** ppv)
 	{
-		if (!ppv)
+		if (ppv == NULL)
+		{
 			return E_POINTER;
+		}
 		else if ((iid == __uuidof(IUnknown)) ||
-			(iid == __uuidof(IUICommandHandler)) ||
-			(iid == __uuidof(IUIApplication)))
+		         (iid == __uuidof(IUICommandHandler)) ||
+		         (iid == __uuidof(IUIApplication)))
 		{
 			*ppv = this;
 			AddRef();
 			return S_OK;
-	   }
-		else 
+		}
+		else
+		{
 			return E_NOINTERFACE;
-
+		}
 	}
 
 	LONG m_cRef;
@@ -2798,13 +2826,13 @@ public:
 	STDMETHODIMP QueryInterface(REFIID iid, void** ppv)
 	{
 		if ((iid == __uuidof(IUnknown)) ||
-			(iid == __uuidof(IUICommandHandler)) ||
-			(iid == __uuidof(IUIApplication)))
+		    (iid == __uuidof(IUICommandHandler)) ||
+		    (iid == __uuidof(IUIApplication)))
 		{
 			*ppv = this;
 			return S_OK;
 		}
-		return E_NOINTERFACE ;
+		return E_NOINTERFACE;
 	}
 	ULONG STDMETHODCALLTYPE AddRef()
 	{
@@ -2817,24 +2845,25 @@ public:
 #endif
 
 // CRibbonImpl ICtrl implementation
-//
 	virtual HRESULT DoExecute(UINT nCmdID, UI_EXECUTIONVERB verb, 
-		const PROPERTYKEY* key, const PROPVARIANT* ppropvarValue,
-		IUISimplePropertySet* /*pCommandExecutionProperties*/)
+	                          const PROPERTYKEY* key, const PROPVARIANT* ppropvarValue,
+	                          IUISimplePropertySet* /*pCommandExecutionProperties*/)
 	{
-		if (key)
+		if (key != NULL)
 		{
 			if(k_(*key) != k_BooleanValue)
 			{
 				ATLTRACE(L"Control ID %d is not handled\n", nCmdID);
 				return E_NOTIMPL;
 			}
-			BOOL bChecked;
+			BOOL bChecked = FALSE;
 			ATLVERIFY(SUCCEEDED(PropVariantToBoolean(*ppropvarValue, &bChecked)));
 			CUpdateUIBase::UISetCheck(nCmdID, bChecked);
 		}
 
-		verb;ATLASSERT(verb == UI_EXECUTIONVERB_EXECUTE);
+		ATLASSERT(verb == UI_EXECUTIONVERB_EXECUTE);
+		verb;   // avoid level 4 warning
+
 		static_cast<T*>(this)->OnRibbonCommandExecute(nCmdID);
 		
 		return S_OK;
@@ -2845,7 +2874,6 @@ public:
 	{
 		T* pT = static_cast<T*>(this);
 		HRESULT hr = E_NOTIMPL;
-
 		switch (k_(key))
 		{
 		case k_LargeImage:
@@ -2869,74 +2897,62 @@ public:
 			break;
 		case k_ContextAvailable:
 			hr = SetPropertyVal(key, pT->OnRibbonQueryTabAvail(nCmdID), ppropvarNewValue);
+			break;
 		}
 
 		return hr;
 	}
 
 // CRibbonImpl::CRibbonXXXCtrl specialized classes
-
 	 //CRibbonComboCtrl
 	template <UINT t_ID, size_t t_items, size_t t_categories = 0>
-	class CRibbonComboCtrl : 
-		public CollectionCtrlImpl<T, t_ID, 
-			ComboCollectionImpl<CRibbonComboCtrl<t_ID, t_items, t_categories>, t_items, t_categories>>
+	class CRibbonComboCtrl : public CollectionCtrlImpl<T, t_ID, ComboCollectionImpl<CRibbonComboCtrl<t_ID, t_items, t_categories>, t_items, t_categories>>
 	{
 	public:
 		CRibbonComboCtrl()
-		{}
+		{ }
 	};
 
 	// CRibbonItemGalleryCtrl
 	template <UINT t_ID, size_t t_items, size_t t_categories = 0>
-	class CRibbonItemGalleryCtrl : 
-		public CollectionCtrlImpl<T, t_ID, 
-			ItemCollectionImpl<CRibbonItemGalleryCtrl<t_ID, t_items, t_categories>, 
-			t_items, t_categories>>
+	class CRibbonItemGalleryCtrl : public CollectionCtrlImpl<T, t_ID, ItemCollectionImpl<CRibbonItemGalleryCtrl<t_ID, t_items, t_categories>, t_items, t_categories>>
 	{
 	public:
 		CRibbonItemGalleryCtrl()
-		{}
+		{ }
 	};
 
 	// CRibbonCommandGalleryCtrl
 	template <UINT t_ID, size_t t_items, size_t t_categories = 0>
-	class CRibbonCommandGalleryCtrl : 
-		public CollectionCtrlImpl<T, t_ID, 
-			CommandCollectionImpl<CRibbonCommandGalleryCtrl<t_ID, t_items, t_categories>, 
-			t_items, t_categories>>
+	class CRibbonCommandGalleryCtrl : public CollectionCtrlImpl<T, t_ID, CommandCollectionImpl<CRibbonCommandGalleryCtrl<t_ID, t_items, t_categories>, t_items, t_categories>>
 	{
 	public:
 		CRibbonCommandGalleryCtrl()
-		{}
+		{ }
 	};
 
 	// CRibbonToolbarGalleryCtrl
 	template <UINT t_ID, UINT t_idTB, size_t t_size>
-	class CRibbonToolbarGalleryCtrl : 
-		public ToolbarGalleryCtrlImpl<T, t_ID, t_idTB, t_size>
-	{};
+	class CRibbonToolbarGalleryCtrl : public ToolbarGalleryCtrlImpl<T, t_ID, t_idTB, t_size>
+	{ };
 
 	// CRibbonSimpleComboCtrl
 	template <UINT t_ID, size_t t_size>
-	class CRibbonSimpleComboCtrl : 
-		public SimpleCollectionCtrlImpl<T, t_ID, t_size>
-	{};
+	class CRibbonSimpleComboCtrl : public SimpleCollectionCtrlImpl<T, t_ID, t_size>
+	{ };
 
 	// CRibbonSimpleGalleryCtrl
 	template <UINT t_ID, size_t t_size, UI_COMMANDTYPE t_CommandType = UI_COMMANDTYPE_ACTION>
-	class CRibbonSimpleGalleryCtrl : 
-		public SimpleCollectionCtrlImpl<T, t_ID, t_size, t_CommandType>
-	{};
+	class CRibbonSimpleGalleryCtrl : public SimpleCollectionCtrlImpl<T, t_ID, t_size, t_CommandType>
+	{ };
 
 	//CRibbonRecentItemsCtrl
 	template <UINT t_ID, class TDocList = CRecentDocumentList>
-	class CRibbonRecentItemsCtrl : 
-		public RecentItemsCtrlImpl<T, t_ID, TDocList>
+	class CRibbonRecentItemsCtrl : public RecentItemsCtrlImpl<T, t_ID, TDocList>
 	{
 	public:
 		CRibbonRecentItemsCtrl()
-		{}
+		{ }
 	};
 
 	// CRibbonColorCtrl
@@ -2945,7 +2961,7 @@ public:
 	{
 	public:
 		CRibbonColorCtrl()
-		{}
+		{ }
 	};
 
 	 //CRibbonFontCtrl
@@ -2954,7 +2970,7 @@ public:
 	{
 	public:
 		CRibbonFontCtrl()
-		{}
+		{ }
 	};
 
 	// CRibbonSpinnerCtrl
@@ -2963,7 +2979,7 @@ public:
 	{
 	public:
 		CRibbonSpinnerCtrl()
-		{}
+		{ }
 	};
 
 	// CRibbonFloatSpinnerCtrl
@@ -2983,20 +2999,19 @@ public:
 	{
 	public:
 		CRibbonCommandCtrl()
-		{}
+		{ }
 	};
 
-// Control classes access to T instance (re)initialized in constructor)
+// Control classes access to T instance (re-initialized in constructor)
 	static T* pWndRibbon;
-
-}; 
+};
 
 template <class T>
-__declspec(selectany) T* CRibbonImpl<T>::pWndRibbon; 
+__declspec(selectany) T* CRibbonImpl<T>::pWndRibbon;
 
 // Control map element
 #pragma warning (disable : 4510 610) // missing default constructor
-typedef struct 
+typedef struct
 {
 	UINT uID;
 	ICtrl& ctrl;
@@ -3007,31 +3022,28 @@ typedef struct
 
 
 ///////////////////////////////////////////////////////////////////////////////
-// RibbonUI Control map 
+// RibbonUI Control map
 
 // Control map macros
+#define BEGIN_RIBBON_CONTROL_MAP(theClass) \
+	RibbonUI::ICtrl& GetRibbonCtrl(UINT id) \
+	{ \
+		RibbonUI::_ribbonCtrl _ctrls[] = \
+		{
 
-	#define BEGIN_RIBBON_CONTROL_MAP(theClass) \
-		RibbonUI::ICtrl& GetRibbonCtrl(UINT id) \
-		{ \
-			RibbonUI::_ribbonCtrl _ctrls[] = \
-			{ 
+#define RIBBON_CONTROL(member) {member.GetID(), static_cast<RibbonUI::ICtrl&>(member)},
 
-	#define RIBBON_CONTROL(member) {member.GetID(), static_cast<RibbonUI::ICtrl&>(member)},
+#define END_RIBBON_CONTROL_MAP() \
+		{0, *this} \
+	}; \
+	int i = 0; \
+	for(; i < _countof(_ctrls) - 1; i++) \
+		if (_ctrls[i].uID == id) \
+			break; \
+	return _ctrls[i].ctrl; \
+}
 
-	#define END_RIBBON_CONTROL_MAP() \
-			{0, *this} \
-		}; \
-		int i = 0; \
-		for(; i < _countof(_ctrls) - 1; i++) \
-			if (_ctrls[i].uID == id) \
-				break; \
-		return _ctrls[i].ctrl; \
-	}
-
-///////////////////////////////////////////////////////////////////////////////
-//Ribbon controls message map macros and handler prototypes
-
+// Control message map macros
 #define RIBBON_GALLERY_CONTROL_HANDLER(id, func) \
 	if(uMsg == WM_COMMAND && id == LOWORD(wParam)) \
 	{ \
@@ -3082,33 +3094,31 @@ typedef struct
 
 // Handler prototypes
 /*
-LRESULT OnRibbonGalleryCtrl(UI_EXECUTIONVERB verb, WORD wID, UINT uSel, BOOL& bHandled);
-LRESULT OnRibbonComboCtrl(UI_EXECUTIONVERB verb, WORD wID, UINT uSel, BOOL& bHandled);
-LRESULT OnRibbonFontCtrl(UI_EXECUTIONVERB verb, WORD wID, CHARFORMAT2* pcf, BOOL& bHandled);
-LRESULT OnRibbonColorCtrl(UI_EXECUTIONVERB verb, WORD wID, COLORREF color, BOOL& bHandled);
-LRESULT OnRibbonSpinnerCtrl(WORD wID, LONG lVal, BOOL& bHandled);
-LRESULT OnRibbonFloatSpinnerCtrl(WORD wID, DOUBLE* pdVal, BOOL& bHandled);
+	LRESULT OnRibbonGalleryCtrl(UI_EXECUTIONVERB verb, WORD wID, UINT uSel, BOOL& bHandled);
+	LRESULT OnRibbonComboCtrl(UI_EXECUTIONVERB verb, WORD wID, UINT uSel, BOOL& bHandled);
+	LRESULT OnRibbonFontCtrl(UI_EXECUTIONVERB verb, WORD wID, CHARFORMAT2* pcf, BOOL& bHandled);
+	LRESULT OnRibbonColorCtrl(UI_EXECUTIONVERB verb, WORD wID, COLORREF color, BOOL& bHandled);
+	LRESULT OnRibbonSpinnerCtrl(WORD wID, LONG lVal, BOOL& bHandled);
+	LRESULT OnRibbonFloatSpinnerCtrl(WORD wID, DOUBLE* pdVal, BOOL& bHandled);
 */
+
 
 ///////////////////////////////////////////////////////////////////////////////
 // Ribbon frame classes
-///////////////////////////////////////////////////////////////////////////////
 
 // CRibbonFrameWindowImplBase
 //
 template <class T, class TFrameImpl>
-class ATL_NO_VTABLE CRibbonFrameWindowImplBase : 
-	public TFrameImpl,
-	public RibbonUI::CRibbonImpl<T>
+class ATL_NO_VTABLE CRibbonFrameWindowImplBase : public TFrameImpl, public RibbonUI::CRibbonImpl<T>
 {
 	typedef TFrameImpl baseFrame;
 	bool m_bUseCommandBarBitmaps;
 	bool m_bWin7Fix;
-public:
 
+public:
 // Construction
 	CRibbonFrameWindowImplBase(bool bUseCommandBarBitmaps = true) : 
-	  m_bUseCommandBarBitmaps(bUseCommandBarBitmaps), m_bWin7Fix(false)
+			m_bUseCommandBarBitmaps(bUseCommandBarBitmaps), m_bWin7Fix(false)
 	{
 		__if_not_exists(T::m_CmdBar)
 		{
@@ -3119,22 +3129,22 @@ public:
 // Win7 Aero fix helpers
 	void ResetFrame()
 	{
-		const MARGINS margins = {0};
+		const MARGINS margins = { 0 };
 		::DwmExtendFrameIntoClientArea(m_hWnd, &margins);
 	}
 
 	INT CalcWin7Fix()
 	{
 		ResetFrame();
-		RECT rc = {0};
+		RECT rc = { 0 };
 		::AdjustWindowRectEx(&rc, T::GetWndStyle(0), GetMenu() != NULL, T::GetWndExStyle(0));
 		return -rc.top;
 	}
 
 	bool NeedWin7Fix()
 	{
-	   BOOL bComp = FALSE;
-	   return m_bWin7Fix && RunTimeHelper::IsWin7() && SUCCEEDED(DwmIsCompositionEnabled(&bComp)) && bComp;
+		BOOL bComp = FALSE;
+		return m_bWin7Fix && RunTimeHelper::IsWin7() && SUCCEEDED(DwmIsCompositionEnabled(&bComp)) && bComp;
 	}
 
 // Operations
@@ -3146,6 +3156,7 @@ public:
 		}
 		__if_not_exists(T::m_CmdBar)
 		{
+			bUse;   // avoid level 4 warning
 			return false;
 		}
 	}
@@ -3160,7 +3171,9 @@ public:
 		if (IsRibbonUI() == bShow)
 			return bShow;
 
-		SetRedraw(FALSE);
+		bool bVisible = (IsWindowVisible() != FALSE);
+		if(bVisible)
+			SetRedraw(FALSE);
 
 		if (bShow && ::IsWindow(m_hWndToolBar))
 		{
@@ -3170,7 +3183,7 @@ public:
 
 		m_bWin7Fix = !bShow;
 
-		HRESULT hr = bShow ?  CreateRibbon(sResName) :  DestroyRibbon();
+		HRESULT hr = bShow ? CreateRibbon(sResName) : DestroyRibbon();
 
 		m_bWin7Fix = SUCCEEDED(hr) && !bShow;
 
@@ -3188,21 +3201,25 @@ public:
 
 		UpdateLayout();
 
-		SetRedraw(TRUE);
-		RedrawWindow(NULL, NULL, RDW_FRAME | RDW_INVALIDATE | RDW_UPDATENOW | RDW_ALLCHILDREN);
+		if(bVisible)
+			SetRedraw(TRUE);
+
+		RedrawWindow(NULL, NULL, RDW_FRAME | RDW_ERASE | RDW_INVALIDATE | RDW_UPDATENOW | RDW_ALLCHILDREN);
 
 		return SUCCEEDED(hr) ? bShow : !bShow;
 	}
 
-// Overrideable
-	HBITMAP OnRibbonQueryImage(UINT nCmdID, REFPROPERTYKEY key) 
+// Overrideables
+	HBITMAP OnRibbonQueryImage(UINT nCmdID, REFPROPERTYKEY key)
 	{
-		if ((key == UI_PKEY_SmallImage) && m_bUseCommandBarBitmaps) 
+		if ((key == UI_PKEY_SmallImage) && m_bUseCommandBarBitmaps)
+		{
 			if (HBITMAP hbm = GetCommandBarBitmap(nCmdID))
 				return hbm;
+		}
 
-		return DefRibbonQueryImage(nCmdID); 
-	} 
+		return DefRibbonQueryImage(nCmdID);
+	}
 
 	BEGIN_MSG_MAP(CRibbonFrameWindowImplBase)
 		if (!IsRibbonUI() && NeedWin7Fix())
@@ -3228,8 +3245,10 @@ public:
 			break;
 		default:
 			DefWindowProc();
+			break;
 		}
-		return 1; // handled 
+
+		return 1; // handled
 	}
 
 	LRESULT OnSize(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& bHandled)
@@ -3237,7 +3256,8 @@ public:
 		if (wParam != SIZE_MINIMIZED)
 			SetWindowPos(NULL, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
 
-		return bHandled = FALSE;
+		bHandled = FALSE;
+		return 1;
 	}
 
 	LRESULT OnActivate(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& bHandled)
@@ -3245,7 +3265,8 @@ public:
 		if(wParam != WA_INACTIVE)
 			SetWindowPos(NULL, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
 
-		return bHandled = FALSE;
+		bHandled = FALSE;
+		return 1;
 	}
 
 	LRESULT OnNCCalcSize(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/)
@@ -3263,7 +3284,7 @@ public:
 		return lRet;
 	}
 
-// Override
+// Overrides
 	void UpdateLayout(BOOL bResizeBars = TRUE)
 	{
 		RECT rect = { 0 };
@@ -3275,10 +3296,12 @@ public:
 			if (INT iHeight = GetRibbonHeight())
 				rect.top += iHeight;
 			else if (!RunTimeHelper::IsWin7() || (SUCCEEDED(::DwmIsCompositionEnabled(&bComp)) && bComp))
-				PostMessage(WM_SIZE); 
+				PostMessage(WM_SIZE);
 		}
 		else if (!IsRibbonUI() && NeedWin7Fix())
+		{
 			ResetFrame();
+		}
 
 		// position bars and offset their dimensions
 		UpdateBarsPosition(rect, bResizeBars);
@@ -3298,32 +3321,32 @@ public:
 			ATLASSERT(RunTimeHelper::IsVista());
 			T* pT =static_cast<T*>(this);
 			int nIndex = pT->m_CmdBar.m_arrCommand.Find((WORD&)nCmdID);
-			return nIndex == -1 ? NULL : pT->m_CmdBar.m_arrVistaBitmap[nIndex];
+			return (nIndex == -1) ? NULL : pT->m_CmdBar.m_arrVistaBitmap[nIndex];
 		}
 		__if_not_exists (T::m_CmdBar)
 		{
+			nCmdID;   // avoid level 4 warning
 			return NULL;
 		}
 	}
-
 };
+
 // CRibbonFrameWindowImpl
 //
 template <class T, class TBase = ATL::CWindow, class TWinTraits = ATL::CFrameWinTraits>
-class ATL_NO_VTABLE CRibbonFrameWindowImpl : 
-	public CRibbonFrameWindowImplBase<T, CFrameWindowImpl<T, TBase, TWinTraits>>
-{};
+class ATL_NO_VTABLE CRibbonFrameWindowImpl : public CRibbonFrameWindowImplBase<T, CFrameWindowImpl<T, TBase, TWinTraits>>
+{ };
 
 // CRibbonMDIFrameWindowImpl
 //
 template <class T, class TBase = CMDIWindow, class TWinTraits = ATL::CFrameWinTraits>
-class ATL_NO_VTABLE CRibbonMDIFrameWindowImpl : 
-	public CRibbonFrameWindowImplBase<T, CMDIFrameWindowImpl<T, TBase, TWinTraits>>
-{};
+class ATL_NO_VTABLE CRibbonMDIFrameWindowImpl : public CRibbonFrameWindowImplBase<T, CMDIFrameWindowImpl<T, TBase, TWinTraits>>
+{ };
+
 
 ///////////////////////////////////////////////////////////////////////////////
-
 // CRibbonPersist helper for RibbonUI persistency
+
 class CRibbonPersist
 {
 public:
@@ -3349,15 +3372,19 @@ public:
 		if(lRet != ERROR_SUCCESS)
 			return lRet;
 
-		if (hgSettings)
+		if (hgSettings != NULL)
+		{
 			if (LPBYTE pVal = (LPBYTE)::GlobalLock(hgSettings))
 			{
 				lRet = ::RegSetValueEx(key, L"Settings", 0, REG_BINARY, pVal, (LONG)::GlobalSize(hgSettings));
 				::GlobalUnlock(hgSettings);
 			}
-			else 
+			else
+			{
 				lRet = GetLastError();
-	   
+			}
+		}
+
 		return lRet;
 	}
 
@@ -3385,32 +3412,36 @@ public:
 		lRet = ::RegQueryValueEx(key, L"Settings", 0, &dwType, NULL, &dwSize);
 		if (lRet == ERROR_SUCCESS)
 		{
-			ATLASSERT(dwType == REG_BINARY); 
+			ATLASSERT(dwType == REG_BINARY);
 			ATLASSERT(dwSize != 0);
 			
 			hgSettings = ::GlobalAlloc(GHND, dwSize);
-			if (hgSettings)
+			if (hgSettings != NULL)
+			{
 				if (LPBYTE pData = (LPBYTE)::GlobalLock(hgSettings))
+				{
 					lRet = ::RegQueryValueEx(key, L"Settings", 0, &dwType, pData, &dwSize);
-				else 
+				}
+				else
 				{
 					lRet = GetLastError();
 					::GlobalFree(hgSettings);
 					hgSettings = NULL;
 				}
+			}
 			else
+			{
 				lRet = GetLastError();
+			}
 		}
 		return lRet;
 	}
 
 	LONG Delete()
 	{
-		return  m_Key.DeleteSubKey(L"Ribbon");
+		return m_Key.DeleteSubKey(L"Ribbon");
 	}
-
 };
-
 
 } // namespace WTL
 
