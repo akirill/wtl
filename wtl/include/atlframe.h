@@ -2910,9 +2910,9 @@ public:
 	}
 };
 
+
 ///////////////////////////////////////////////////////////////////////////////
-// CAutoUpdateUI : Automatic mapping of UI elements 
-//
+// CAutoUpdateUI : Automatic mapping of UI elements
 
 template <class T>
 class CAutoUpdateUI : public CDynamicUpdateUI<T>
@@ -2921,8 +2921,10 @@ public:
 	LPCTSTR UIGetText(int nID)
 	{
 		for(int i = 0; i < m_arrUIMap.GetSize(); i++)
+		{
 			if(m_arrUIMap[i].m_nID == nID)
  				return m_arrUIData[i].m_lpstrText;
+		}
 
 		return NULL;
 	}
@@ -2933,12 +2935,14 @@ public:
 	{
 		// check for existing UI map element
 		for(int i = 0; i < m_arrUIMap.GetSize(); i++)
+		{
 			if(m_arrUIMap[i].m_nID == nID)
 			{
 				// set requested type
 				m_arrUIMap[i].m_wType |= t_wType;
 				return true;
 			}
+		}
 
 		// Add element to UI map with requested type
 		return UIAddUpdateElement((WORD)nID, t_wType);
@@ -2948,6 +2952,7 @@ public:
 	bool UIRemoveElement(UINT nID)
 	{
 		for(int i = 0; i < m_arrUIMap.GetSize(); i++)
+		{
 			if(m_arrUIMap[i].m_nID == nID) // matching UI map element
 			{
 				WORD wType = m_arrUIMap[i].m_wType & ~t_wType;
@@ -2956,41 +2961,49 @@ public:
 					m_arrUIMap[i].m_wType = wType; // keep other types
 					return true;
 				}
-				else 
+				else
+				{
 					return UIRemoveUpdateElement((WORD)nID);
+				}
 			}
+		}
+
 		return false;
 	}
 
 // Menu
-	bool UIAddMenu(HMENU hm, bool bSetText = false)
+	bool UIAddMenu(HMENU hMenu, bool bSetText = false)
 	{
 #if defined(_WIN32_WCE) && (_ATL_VER >= 0x0800)
 		using ATL::GetMenuString;
 #endif
-		ATLASSERT(::IsMenu(hm));
+		ATLASSERT(::IsMenu(hMenu));
 		MENUITEMINFO mii = {sizeof(MENUITEMINFO), MIIM_TYPE | MIIM_ID | MIIM_SUBMENU};
 
 		// Complete the UI map
-		for (INT uItem = 0; CMenuHandle(hm).GetMenuItemInfo(uItem, TRUE, &mii); uItem++)
+		for (INT uItem = 0; CMenuHandle(hMenu).GetMenuItemInfo(uItem, TRUE, &mii); uItem++)
+		{
 			if(mii.hSubMenu)
+			{
 				// Add submenu to UI map
 				UIAddMenu(mii.hSubMenu, bSetText);
+			}
 			else if (mii.wID)
 			{
-				// Add element to UI map 
+				// Add element to UI map
 				UIAddElement<UPDUI_MENUPOPUP>(mii.wID);
 #if !defined(_WIN32_WCE) || (_ATL_VER >= 0x0800)
 				if (bSetText)
 				{
-					TCHAR sText[64];
-					if (GetMenuString(hm, uItem, sText, 64, MF_BYPOSITION))
+					TCHAR sText[64] = { 0 };
+					if (GetMenuString(hMenu, uItem, sText, 64, MF_BYPOSITION))
 						UISetText(mii.wID, sText);
 				}
 #else
 				bSetText;
 #endif // !defined(_WIN32_WCE) || (_ATL_VER >= 0x0800)
 			}
+		}
 
 		return true;
 	}
@@ -3004,11 +3017,10 @@ public:
 
 // ToolBar
 #ifndef BTNS_SEP
-	#define BTNS_SEP TBSTYLE_SEP
+  #define BTNS_SEP TBSTYLE_SEP
 #endif // BTNS_SEP compatibility
 
-#if !defined (_WIN32_WCE) || (defined(_AUTOUI_CE_TOOLBAR) && defined(TBIF_BYINDEX))
-	
+#if !defined(_WIN32_WCE) || (defined(_AUTOUI_CE_TOOLBAR) && defined(TBIF_BYINDEX))
 	bool UIAddToolBar(HWND hWndToolBar)
 	{
 		ATLASSERT(::IsWindow(hWndToolBar));
@@ -3016,17 +3028,18 @@ public:
 
 		// Add toolbar buttons
 		for (int uItem = 0; ::SendMessage(hWndToolBar, TB_GETBUTTONINFO, uItem, (LPARAM)&tbbi) != -1; uItem++)
+		{
 			if (tbbi.fsStyle ^ BTNS_SEP)
 				UIAddElement<UPDUI_TOOLBAR>(tbbi.idCommand);
+		}
 
 		// Add embedded controls if any
 		if (::GetWindow(hWndToolBar, GW_CHILD))
 			UIAddChildWindowContainer(hWndToolBar);
 
-		return CUpdateUIBase::UIAddToolBar(hWndToolBar) == TRUE;
+		return (CUpdateUIBase::UIAddToolBar(hWndToolBar) != FALSE);
 	}
-
-#endif // !defined (_WIN32_WCE) || (defined(_AUTOUI_CE_TOOLBAR) && defined(TBIF_BYINDEX))
+#endif // !defined(_WIN32_WCE) || (defined(_AUTOUI_CE_TOOLBAR) && defined(TBIF_BYINDEX))
 
 // Container
 	bool UIAddChildWindowContainer(HWND hWnd)
@@ -3035,10 +3048,12 @@ public:
 
 		// Add children controls if any
 		for (ATL::CWindow wCtl = ::GetWindow(hWnd, GW_CHILD); wCtl.IsWindow(); wCtl = wCtl.GetWindow(GW_HWNDNEXT))
+		{
 			if (int id = wCtl.GetDlgCtrlID())
 				UIAddElement<UPDUI_CHILDWINDOW>(id);
+		}
 
-		return CUpdateUIBase::UIAddChildWindowContainer(hWnd) == TRUE;
+		return (CUpdateUIBase::UIAddChildWindowContainer(hWnd) != FALSE);
 	}
 
 // StatusBar
@@ -3047,17 +3062,21 @@ public:
 		if(!(m_wDirtyType & UPDUI_STATUSBAR) && !bForceUpdate)
 			return TRUE;
 
-		for(int i = 0; i < m_arrUIMap.GetSize(); i++) 
+		for(int i = 0; i < m_arrUIMap.GetSize(); i++)
+		{
 			for(int e = 0; e < m_UIElements.GetSize(); e++)
+			{
 				if((m_UIElements[e].m_wType == UPDUI_STATUSBAR) && 
-					(m_arrUIMap[i].m_wType & UPDUI_STATUSBAR) && 
-					(m_arrUIData[i].m_wState & UPDUI_STATUSBAR))
+				   (m_arrUIMap[i].m_wType & UPDUI_STATUSBAR) && 
+				   (m_arrUIData[i].m_wState & UPDUI_STATUSBAR))
 				{
 					UIUpdateStatusBarElement(m_arrUIMap[i].m_nID, &m_arrUIData[i], m_UIElements[e].m_hWnd);
 					m_arrUIData[i].m_wState &= ~UPDUI_STATUSBAR;
 					if(m_arrUIData[i].m_wState & UPDUI_TEXT)
 						m_arrUIData[i].m_wState &= ~UPDUI_TEXT;
 				}
+			}
+		}
 
 		m_wDirtyType &= ~UPDUI_STATUSBAR;
 		return TRUE;
@@ -3071,7 +3090,7 @@ public:
 		for (int iPane = 0; iPane < nPanes; iPane++)
 			UIAddElement<UPDUI_STATUSBAR>(ID_DEFAULT_PANE + iPane);
 
-		return CUpdateUIBase::UIAddStatusBar(hWndStatusBar) == TRUE;
+		return (CUpdateUIBase::UIAddStatusBar(hWndStatusBar) != FALSE);
 	}
 
 // UI Map used if derived class has none

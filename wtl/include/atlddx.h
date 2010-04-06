@@ -143,9 +143,7 @@ namespace WTL
 	}
 
 // DDX support for Tab, Combo, ListBox and ListView selection index
-//
 // Note: ListView selection DDX support requires atlctrls.h included first
-
 #define DDX_INDEX(CtrlClass, nID, var) \
 	if(nCtlID == (UINT)-1 || nCtlID == nID) \
 	{ \
@@ -153,10 +151,10 @@ namespace WTL
 		return FALSE; \
 	}
 
-#define DDX_TAB_INDEX(nID, var) DDX_INDEX(WTL::CTabCtrl, nID, var) 
-#define DDX_COMBO_INDEX(nID, var) DDX_INDEX(WTL::CComboBox, nID, var) 
-#define DDX_LISTBOX_INDEX(nID, var) DDX_INDEX(WTL::CListBox, nID, var) 
-#define DDX_LISTVIEW_INDEX(nID, var) DDX_INDEX(WTL::CListViewCtrl, nID, var) 
+#define DDX_TAB_INDEX(nID, var)      DDX_INDEX(WTL::CTabCtrl, nID, var)
+#define DDX_COMBO_INDEX(nID, var)    DDX_INDEX(WTL::CComboBox, nID, var)
+#define DDX_LISTBOX_INDEX(nID, var)  DDX_INDEX(WTL::CListBox, nID, var)
+#define DDX_LISTVIEW_INDEX(nID, var) DDX_INDEX(WTL::CListViewCtrl, nID, var)
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -618,8 +616,6 @@ public:
 	}
 
 // DDX support for Tab, Combo, ListBox and ListView selection index
-//
-
 	template <class TCtrl>
 	INT _getSel(TCtrl& tCtrl)
 	{
@@ -633,7 +629,6 @@ public:
 	}
 
 #ifdef __ATLCTRLS_H__
-
 	// ListViewCtrl specialization
 	template <>
 	INT _getSel(CListViewCtrl& tCtrl)
@@ -646,30 +641,23 @@ public:
 	{
 		return tCtrl.SelectItem(iSel);
 	}
-
 #endif // __ATLCTRLS_H__
 
-public:
 	template <class TCtrl>
-	BOOL DDX_Index(UINT nID, 
-		 INT& nVal, 
-		 BOOL bSave, 
-		 BOOL bValidate = FALSE, 
-		 INT nMin = 0, 
-		 INT nMax = 0)
+	BOOL DDX_Index(UINT nID, INT& nVal, BOOL bSave, BOOL bValidate = FALSE, INT nMin = 0, INT nMax = 0)
 	{
-        T* pT = static_cast<T*>(this);
-        BOOL bSuccess = TRUE;
+		T* pT = static_cast<T*>(this);
+		BOOL bSuccess = TRUE;
 
-        TCtrl ctrl(pT->GetDlgItem(nID));
+		TCtrl ctrl(pT->GetDlgItem(nID));
 
 		if(bSave)
 		{
-            bSuccess = _getSel(ctrl) != -1;
+			bSuccess = (_getSel(ctrl) != -1) ? TRUE : FALSE;
 		}
 		else
 		{
-			ATLASSERT(!bValidate || nVal >= nMin && nVal <= nMax);
+			ATLASSERT((bValidate == FALSE) || ((nVal >= nMin) && (nVal <= nMax)));
 			bSuccess = _setSel(ctrl, nVal);
 		}
 			
@@ -680,18 +668,18 @@ public:
 		else if(bSave && bValidate)	// validation
 		{
 			ATLASSERT(nMin != nMax);
-			if(nVal < nMin || nVal > nMax)
+			if((nVal < nMin) || (nVal > nMax))
 			{
-                _XData data = {ddxDataInt};
-                _XIntData id = {nVal, nMin, nMax};
+				_XData data = { ddxDataInt };
+				_XIntData id = { nVal, nMin, nMax };
 				data.intData = id;
 
-                pT->OnDataValidateError(nID, bSave, data);
+				pT->OnDataValidateError(nID, bSave, data);
 				bSuccess = FALSE;
 			}
 		}
 		return bSuccess;
-	}  
+	}
 
 // Overrideables
 	void OnDataExchangeError(UINT nCtrlID, BOOL /*bSave*/)

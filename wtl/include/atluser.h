@@ -1204,6 +1204,7 @@ public:
 	}
 };
 
+
 ///////////////////////////////////////////////////////////////////////////////
 // Toolbar resource descriptor
 
@@ -1388,8 +1389,6 @@ inline bool AtlLoadString(UINT uID, BSTR& bstrText)
 
 	return (bstrText != NULL) ? true : false;
 }
-
-
 
 }; // namespace WTL
 

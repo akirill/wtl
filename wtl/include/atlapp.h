@@ -601,7 +601,6 @@ namespace RunTimeHelper
 				PFN_IsThemeActive pfnIsThemeActive = (PFN_IsThemeActive)::GetProcAddress(hThemeDLL, "IsThemeActive");
 				ATLASSERT(pfnIsThemeActive != NULL);
 				bRet = (pfnIsThemeActive != NULL) && (pfnIsThemeActive() != FALSE);
-
 				if(bRet)
 				{
 					typedef BOOL (STDAPICALLTYPE *PFN_IsAppThemed)();
@@ -628,23 +627,28 @@ namespace RunTimeHelper
 	{
 		static INT iRibbonUI = -1;
 
-#if defined NTDDI_WIN7 && (NTDDI_VERSION >= NTDDI_WIN7)
+#if defined(NTDDI_WIN7) && (NTDDI_VERSION >= NTDDI_WIN7)
 		if (iRibbonUI == -1)
-			if (HMODULE hRibbonDLL = ::LoadLibrary(_T("propsys.dll"))) 
+		{
+			HMODULE hRibbonDLL = ::LoadLibrary(_T("propsys.dll"));
+			if (hRibbonDLL != NULL)
 			{
-				const GUID CLSID_UIRibbonFramework = {0x926749fa, 0x2615, 0x4987, {0x88, 0x45, 0xc3, 0x3e, 0x65, 0xf2, 0xb9, 0x57}};
+				const GUID CLSID_UIRibbonFramework = { 0x926749fa, 0x2615, 0x4987, { 0x88, 0x45, 0xc3, 0x3e, 0x65, 0xf2, 0xb9, 0x57 } };
+				// block - create instance
 				{
 					ATL::CComPtr<IUnknown> pIUIFramework;
-					iRibbonUI = 
-						SUCCEEDED(pIUIFramework.CoCreateInstance(CLSID_UIRibbonFramework)) ? 1 : 0;
+					iRibbonUI = SUCCEEDED(pIUIFramework.CoCreateInstance(CLSID_UIRibbonFramework)) ? 1 : 0;
 				}
 				::FreeLibrary(hRibbonDLL);
 			}
 			else
+			{
 				iRibbonUI = 0;
-#endif // defined NTDDI_WIN7 && (NTDDI_VERSION >= NTDDI_WIN7)
+			}
+		}
+#endif // defined(NTDDI_WIN7) && (NTDDI_VERSION >= NTDDI_WIN7)
 
-		return iRibbonUI == 1;
+		return (iRibbonUI == 1);
 	}
 
 #endif // !_WIN32_WCE
