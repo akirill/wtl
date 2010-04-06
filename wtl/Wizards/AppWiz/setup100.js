@@ -9,7 +9,7 @@
 // the terms of this license. You must not remove this notice, or
 // any other, from this software.
 
-// Setup program for the WTL App Wizard for VC++ 9.0 (Orcas)
+// Setup program for the WTL App Wizard for VC++ 10.0 (VS2010)
 
 main();
 
@@ -69,15 +69,15 @@ function main()
 
 	try
 	{
-		var strVC9Key = "HKLM\\Software\\Microsoft\\VisualStudio\\10.0\\Setup\\VC\\ProductDir";
-		strValue = WSShell.RegRead(strVC9Key);
+		var strVCKey = "HKLM\\Software\\Microsoft\\VisualStudio\\10.0\\Setup\\VC\\ProductDir";
+		strValue = WSShell.RegRead(strVCKey);
 	}
 	catch(e)
 	{
 		try
 		{
-			var strVC9Key_x64 = "HKLM\\Software\\Wow6432Node\\Microsoft\\VisualStudio\\10.0\\Setup\\VC\\ProductDir";
-			strValue = WSShell.RegRead(strVC9Key_x64);
+			var strVCKey_x64 = "HKLM\\Software\\Wow6432Node\\Microsoft\\VisualStudio\\10.0\\Setup\\VC\\ProductDir";
+			strValue = WSShell.RegRead(strVCKey_x64);
 		}
 		catch(e)
 		{

@@ -152,15 +152,15 @@ public:
 	LRESULT OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 	{
 [!if WTL_RIBBON_DUAL_UI]
-		bool bRibbonUI = RunTimeHelper::IsRibbonUIAvailable(); 
-		if (bRibbonUI) 
-		   UIAddMenu(GetMenu(), true); 
+		bool bRibbonUI = RunTimeHelper::IsRibbonUIAvailable();
+		if (bRibbonUI)
+			UIAddMenu(GetMenu(), true);
 		else
 			CMenuHandle(GetMenu()).DeleteMenu(ID_VIEW_RIBBON, MF_BYCOMMAND);
 
 [!else]
 [!if WTL_RIBBON_SINGLE_UI]
-		UIAddMenu(GetMenu(), true); 
+		UIAddMenu(GetMenu(), true);
 [!endif]
 [!endif]
 [!if WTL_USE_RIBBON && !WTL_USE_CMDBAR]
@@ -293,11 +293,11 @@ public:
 
 [!if WTL_USE_RIBBON]
 [!if WTL_RIBBON_SINGLE_UI]
-		ShowRibbonUI(true); 
+		ShowRibbonUI(true);
 
 [!else]
-		ShowRibbonUI(bRibbonUI); 
-		UISetCheck(ID_VIEW_RIBBON, bRibbonUI); 
+		ShowRibbonUI(bRibbonUI);
+		UISetCheck(ID_VIEW_RIBBON, bRibbonUI);
 
 [!endif]
 [!endif]
@@ -478,16 +478,16 @@ public:
 	LRESULT OnViewRibbon(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 [!else]
 
-	LRESULT OnViewRibbon(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/) 
-	{ 
+	LRESULT OnViewRibbon(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+	{
 		ShowRibbonUI(!IsRibbonUI());
-		UISetCheck(ID_VIEW_RIBBON, IsRibbonUI()); 
+		UISetCheck(ID_VIEW_RIBBON, IsRibbonUI());
 [!if !WTL_USE_CMDBAR]
 		if (!IsRibbonUI())
 			SetMenu(AtlLoadMenu(IDR_MAINFRAME));
 [!endif]
-		return 0; 
-	} 
+		return 0;
+	}
 [!endif]
 [!endif]
 [!if WTL_USE_CPP_FILES]

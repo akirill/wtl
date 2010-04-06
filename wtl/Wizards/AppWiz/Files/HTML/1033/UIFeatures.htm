@@ -211,12 +211,12 @@
 															</DIV>
 															<BR>
 															<INPUT CLASS="CheckBoxA" TYPE="checkbox" ID="WTL_USE_TOOLBAR" ACCESSKEY="T" TITLE="Application uses a toolbar." value="ON" NAME="WTL_USE_TOOLBAR" onClick="OnUseToolbar();">
-														<DIV CLASS="itemTextCheckboxB" ID="WTL_USE_TOOLBAR_DIV" TITLE="Application uses a toolbar.">
-															<LABEL FOR="WTL_USE_TOOLBAR" TITLE="Application uses a toolbar." ID="WTL_USE_TOOLBAR_LABEL">
-																<U>T</U>oolbar</LABEL>
-														</DIV>
-														<BR>
-														<INPUT CLASS="CheckBoxA" TYPE="checkbox" ID="WTL_USE_REBAR" ACCESSKEY="R" TITLE="Application uses a rebar." value="ON" NAME="WTL_USE_REBAR" onClick="OnUseRebar();">
+															<DIV CLASS="itemTextCheckboxB" ID="WTL_USE_TOOLBAR_DIV" TITLE="Application uses a toolbar.">
+																<LABEL FOR="WTL_USE_TOOLBAR" TITLE="Application uses a toolbar." ID="WTL_USE_TOOLBAR_LABEL">
+																	<U>T</U>oolbar</LABEL>
+															</DIV>
+															<BR>
+															<INPUT CLASS="CheckBoxA" TYPE="checkbox" ID="WTL_USE_REBAR" ACCESSKEY="R" TITLE="Application uses a rebar." value="ON" NAME="WTL_USE_REBAR" onClick="OnUseRebar();">
 															<DIV CLASS="itemTextCheckboxB" ID="WTL_USE_REBAR_DIV" TITLE="Application uses a rebar.">
 																<LABEL FOR="WTL_USE_REBAR" TITLE="Application uses a rebar." ID="WTL_USE_REBAR_LABEL">
 																	<U>R</U>ebar</LABEL>
@@ -433,7 +433,7 @@ function OnInit()
 			WTL_USE_VIEW.checked = window.external.FindSymbol("WTL_USE_VIEW");
 		}
 
-		WTL_USE_RIBBON_LABEL.disabled = WTL_USE_RIBBON.disabled = WTL_USE_RIBBON.disabled = window.external.FindSymbol("WTL_APPTYPE_MDI");
+		WTL_USE_RIBBON_LABEL.disabled = WTL_USE_RIBBON.disabled = window.external.FindSymbol("WTL_APPTYPE_MDI");
 		WTL_USE_TOOLBAR.disabled = false;
 		WTL_USE_REBAR.disabled = false;
 		WTL_USE_CMDBAR.disabled = false;
@@ -471,7 +471,7 @@ function OnUseRibbon()
 {
     if (WTL_USE_RIBBON.checked) 
     {
-        window.external.AddSymbol("WTL_USE_UNICODE", true)
+		window.external.AddSymbol("WTL_USE_UNICODE", true)
 //		WTL_USE_CMDBAR.checked = true;
 //		WTL_USE_CMDBAR.disabled = true;
 //		WTL_USE_CMDBAR_LABEL.disabled = true;
@@ -496,8 +496,9 @@ function OnUseRebar()
 		WTL_USE_CMDBAR.checked = false;
 		WTL_USE_CMDBAR.disabled = true;
 		WTL_USE_CMDBAR_LABEL.disabled = true;
-    }
-    OnUseRibbon();
+	}
+
+	OnUseRibbon();
 }
 
 function OnUseView()

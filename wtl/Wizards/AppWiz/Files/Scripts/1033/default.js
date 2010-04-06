@@ -60,12 +60,12 @@ function OnFinish(selProj, selObj)
 		}
 
 		// Set app type symbols
-		if (wizard.FindSymbol("WTL_APPTYPE_SDI") || wizard.FindSymbol("WTL_APPTYPE_MTSDI") ||
-			wizard.FindSymbol("WTL_APPTYPE_TABVIEW") || wizard.FindSymbol("WTL_APPTYPE_EXPLORER"))
+		if (wizard.FindSymbol("WTL_APPTYPE_SDI") || wizard.FindSymbol("WTL_APPTYPE_MTSDI") || 
+		    wizard.FindSymbol("WTL_APPTYPE_TABVIEW") || wizard.FindSymbol("WTL_APPTYPE_EXPLORER"))
 		{
 			if (wizard.FindSymbol("WTL_USE_RIBBON"))
 				wizard.AddSymbol("WTL_FRAME_BASE_CLASS","CRibbonFrameWindowImpl");
-			else 
+			else
 				wizard.AddSymbol("WTL_FRAME_BASE_CLASS","CFrameWindowImpl");
 		}
 		else if(wizard.FindSymbol("WTL_APPTYPE_MDI"))
@@ -90,24 +90,25 @@ function OnFinish(selProj, selObj)
 			wizard.AddSymbol("WTL_USE_VIEW", false);
 		}
 
-		if (wizard.FindSymbol("WTL_USE_RIBBON")) 
+		if (wizard.FindSymbol("WTL_USE_RIBBON"))
 		{
-			if (wizard.FindSymbol("WTL_USE_TOOLBAR")) 
+			if (wizard.FindSymbol("WTL_USE_TOOLBAR"))
 			{
 				wizard.AddSymbol("WTL_RIBBON_DUAL_UI", true);
 				wizard.AddSymbol("WTL_RIBBON_SINGLE_UI", false);
 			}
-			else {
+			else
+			{
 				wizard.AddSymbol("WTL_RIBBON_DUAL_UI", false);
 				wizard.AddSymbol("WTL_RIBBON_SINGLE_UI", true);
 			}
 		}
-		else 
+		else
 		{
 			wizard.AddSymbol("WTL_RIBBON_DUAL_UI", false);
 			wizard.AddSymbol("WTL_RIBBON_SINGLE_UI", false);
 		}
-		
+
 		// Set view symbols
 		if(wizard.FindSymbol("WTL_USE_VIEW"))
 		{
@@ -371,7 +372,7 @@ function AddConfigurations(proj, strProjectName)
 				LinkTool.LinkIncremental = linkIncrementalNo;
 			}
 
-			if (wizard.FindSymbol("WTL_USE_RIBBON")) 
+			if (wizard.FindSymbol("WTL_USE_RIBBON"))
 			{
 				LinkTool.DelayLoadDLLs = "propsys.dll;dwmapi.dll";
 			}
@@ -447,9 +448,9 @@ function AddRibbonSettings(proj)
 		for(nCntr = 0; nCntr < nNumConfigs; nCntr++)
 		{
 			var config = fRibbon.FileConfigurations(astrConfigName[nCntr]);
-			config.Tool.Description = "Compiling Ribbon.xml"
-			config.Tool.CommandLine = "uicc Ribbon.xml Ribbon.bml /header:Ribbon.h /res:Ribbon.rc"
-			config.Tool.Outputs = "Ribbon.bml;Ribbon.rc;Ribbon.h"
+			config.Tool.Description = "Compiling Ribbon.xml";
+			config.Tool.CommandLine = "uicc Ribbon.xml Ribbon.bml /header:Ribbon.h /res:Ribbon.rc";
+			config.Tool.Outputs = "Ribbon.bml;Ribbon.rc;Ribbon.h";
 		}
 	}
 	catch(e)

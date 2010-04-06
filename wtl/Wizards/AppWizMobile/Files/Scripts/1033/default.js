@@ -1,3 +1,4 @@
+ 
 // Windows Template Library - WTL version 8.1
 // Copyright (C) Microsoft Corporation. All rights reserved.
 //
@@ -47,9 +48,9 @@ function OnFinish(selProj, selObj)
 			wizard.AddSymbol("WTL_APPWND_FILE", strFrameFile);
 			wizard.AddSymbol("WTL_APPWND_CLASS", strFrameClass);
 			wizard.AddSymbol("WTL_FRAME_CLASS",strFrameClass);
-		    // Set view symbols
-		    if(wizard.FindSymbol("WTL_USE_VIEW"))
-		        SetViewSymbols(strBaseName);
+			// Set view symbols
+			if(wizard.FindSymbol("WTL_USE_VIEW"))
+				SetViewSymbols(strBaseName);
 		}
 		else if(wizard.FindSymbol("WTL_APPTYPE_DLG"))
 		{
@@ -60,10 +61,12 @@ function OnFinish(selProj, selObj)
 			
 			var BaseClassName = "CAppStdDialogImpl";
 			if(wizard.FindSymbol("WTL_APP_DLG_ORIENT_AWARE"))
-			    if(wizard.FindSymbol("WTL_APP_DLG_RESIZE"))
+			{
+				if(wizard.FindSymbol("WTL_APP_DLG_RESIZE"))
 					BaseClassName = "CAppStdDialogResizeImpl";
-			    else if(wizard.FindSymbol("WTL_APP_DLG_ORIENT"))
+				else if(wizard.FindSymbol("WTL_APP_DLG_ORIENT"))
 					BaseClassName = "CAppStdOrientedDialogImpl";
+			}
 					
 			if(wizard.FindSymbol("WTL_ENABLE_AX"))
 				BaseClassName = BaseClassName.replace("Std", "StdAx");
@@ -79,7 +82,7 @@ function OnFinish(selProj, selObj)
 
 		// this call must occur before we create the project, because otherwise the templates are already generated.
 		SetDeviceSymbolsForPlatforms();
-        if(wizard.FindSymbol("POCKETPC2003_UI_MODEL") && wizard.FindSymbol("SMARTPHONE2003_UI_MODEL"))
+		if(wizard.FindSymbol("POCKETPC2003_UI_MODEL") && wizard.FindSymbol("SMARTPHONE2003_UI_MODEL"))
 			wizard.AddSymbol("DUAL_UI_MODEL", true);
 		
 		// Create project and configurations
@@ -87,10 +90,10 @@ function OnFinish(selProj, selObj)
 		AddConfigurations(selProj, strProjectName);
 		AddFilters(selProj);
 
-        // Create the project's Templates.inf file 
-        var InfFile = CreateInfFile(); // common.js
-        
-        // Add the files in Templates.inf to the project.
+		// Create the project's Templates.inf file
+		var InfFile = CreateInfFile(); // common.js
+
+		// Add the files in Templates.inf to the project.
 		AddFilesToCustomProj(selProj, strProjectName, strProjectPath, InfFile);
 
 		SetCommonPchSettings(selProj);
@@ -437,7 +440,7 @@ function GetTargetName(strName, strProjectName)
 		{
 			strTarget = wizard.FindSymbol("WTL_APPWND_FILE") +'.cpp';
 		}
-		else if(strName == 'view.h') 
+		else if(strName == 'view.h')
 		{
 			strTarget = wizard.FindSymbol("WTL_VIEW_FILE") + '.h';
 		}
@@ -449,12 +452,12 @@ function GetTargetName(strName, strProjectName)
 		{
 			strTarget = strResPath + strName;
 		}
-		else 
+		else
 		{
 			strTarget = strName;
 		}
 
-		return strTarget; 
+		return strTarget;
 	}
 	catch(e)
 	{
@@ -499,8 +502,10 @@ function AddFilesToCustomProj(proj, strProjectName, strProjectPath, InfFile)
 					}
 					proj.Object.AddFile(strFile);
 				}
-				else 
+				else
+				{
 					SplitResourceFile(proj, strTemplate, strFile);
+				}
 			}
 		}
 		strTextStream.Close();
@@ -524,12 +529,12 @@ function AddPlatformFile(proj, strTemplate, PlatFormFile)
 
 function SplitResourceFile(proj, strTemplate, strFile)
 {
-    var dotPos = strFile.lastIndexOf(".");
-    var fileExt = strFile.substring(dotPos, strFile.length);
-    var fileName = strFile.substr(0, dotPos);
+	var dotPos = strFile.lastIndexOf(".");
+	var fileExt = strFile.substring(dotPos, strFile.length);
+	var fileName = strFile.substr(0, dotPos);
 
-    var ppcFile = fileName + "ppc" + fileExt;
-    var spFile = fileName + "sp" + fileExt;
+	var ppcFile = fileName + "ppc" + fileExt;
+	var spFile = fileName + "sp" + fileExt;
 	
 	if(wizard.FindSymbol("POCKETPC2003_UI_MODEL"))
 		AddPlatformFile(proj, strTemplate, ppcFile);
@@ -547,7 +552,9 @@ function SplitResourceFile(proj, strTemplate, strFile)
 		wizard.AddSymbol("DUAL_UI_MODEL", true);
 	}
 	else
+	{
 		SetPlatformsCode(wizard.FindSymbol("POCKETPC2003_UI_MODEL") ? ppcFile : spFile);
+	}
 }
 
 /******************************************************************************
@@ -594,7 +601,7 @@ function SplitCode(cppPath)
 			var FnFullName = ClassName + "::" + FnName;
 			FnDef = FnDef.replace(FnName, FnFullName);
 			FnDef = FnDef.replace(/^\t(?:\s*virtual\s+)*/, "");
-			FnBody = FnBody.replace(/^\t/mg, ""); 
+			FnBody = FnBody.replace(/^\t/mg, "");
 			
 			tscpp.Write(FnDef);
 			tscpp.Write(FnBody);
@@ -614,44 +621,48 @@ function SplitCode(cppPath)
 
 
 /******************************************************************************
-	Description: Process the platform dependant code depending on the project
-				 selected platforms:
-									//?ppc or //?sp
-									Platform dependant code
-									//?sp or //?ppc Optional alternative
-									Optional alternate platform code
-									//?end
-		FileName: Path name to a file
+Description: Process the platform dependant code depending on the project
+             selected platforms:
+                            //?ppc or //?sp
+                            Platform dependant code
+                            //?sp or //?ppc Optional alternative
+                            Optional alternate platform code
+                            //?end
+	FileName: Path name to a file
 ******************************************************************************/
 
 function SetPlatformsCode(FileName)
 {
-    var fso = new ActiveXObject("Scripting.FileSystemObject");
-    var f = fso.GetFile(FileName);
+	var fso = new ActiveXObject("Scripting.FileSystemObject");
+	var f = fso.GetFile(FileName);
 	var ts = f.OpenAsTextStream();
 	var text = ts.ReadAll();
 	ts.Close();
 	
-    var PlatformPattern = /(?:\r\n)?(^\/{2}\?(?:ppc|sp)\r\n)(?:^.*\r\n)+?(\/{2}\?(?:ppc|sp)\r\n)?(?:^.*\r\n)*?(^\/{2}\?end\r\n)/m
-    var ppcPattern = /^\/{2}\?ppc\r\n/m   
-    var spPattern  = /^\/{2}\?sp\r\n/m  
-    var endPattern =/^\/{2}\?end\r\n/m 
-     
+	var PlatformPattern = /(?:\r\n)?(^\/{2}\?(?:ppc|sp)\r\n)(?:^.*\r\n)+?(\/{2}\?(?:ppc|sp)\r\n)?(?:^.*\r\n)*?(^\/{2}\?end\r\n)/m
+	var ppcPattern = /^\/{2}\?ppc\r\n/m   
+	var spPattern  = /^\/{2}\?sp\r\n/m  
+	var endPattern =/^\/{2}\?end\r\n/m 
+
 	var PlatformInfo = text.match(PlatformPattern);
 	while (PlatformInfo != null)
 	{
 		var PlatformText = PlatformInfo[0];
 		var type;
 		if(RegExp.$2.length)
+		{
 			if(RegExp.$1 == "//?ppc\r\n")
 				type = "ppcDual";
 			else
 				type = "spDual";
+		}
 		else
+		{
 			if(RegExp.$1 == "//?ppc\r\n")
 				type = "ppcSingle";
 			else
 				type = "spSingle";
+		}
 				
 		if(wizard.FindSymbol("DUAL_UI_MODEL"))
 		{
@@ -671,6 +682,7 @@ function SetPlatformsCode(FileName)
 			PlatformText = PlatformText.replace("//?end", "#endif");
 		}
 		else if(wizard.FindSymbol("POCKETPC2003_UI_MODEL"))
+		{
 			switch (type)
 			{
 			case "ppcDual":
@@ -684,7 +696,9 @@ function SetPlatformsCode(FileName)
 			case "spSingle":
 				PlatformText = "";
 			}
+		}
 		else // if(wizard.FindSymbol("SMARTPHONE2003_UI_MODEL"))
+		{
 			switch (type)
 			{
 			case "spDual":
@@ -698,135 +712,147 @@ function SetPlatformsCode(FileName)
 			case "ppcSingle":
 				PlatformText = "";
 			}
+		}
 		text = text.replace(PlatformInfo[0], PlatformText);
 		PlatformInfo = text.match(PlatformPattern);
 	}
-    ts = fso.CreateTextFile(FileName);
-    ts.Write(text);
-    ts.Close();
+	ts = fso.CreateTextFile(FileName);
+	ts.Write(text);
+	ts.Close();
 }
 
 function SetViewSymbols(strBaseName)
 {
-    var strViewClass;
-    
-    if(wizard.FindSymbol("WTL_USE_VIEW"))
-    {
-        var strViewFile = strBaseName + "View";
-        wizard.AddSymbol("WTL_VIEW_FILE", strViewFile);
+	var strViewClass;
 
-        strViewClass = "C" + strViewFile;
-    }
-    
-    wizard.AddSymbol("WTL_VIEWTYPE_GENERIC", false);
-    wizard.AddSymbol("WTL_VIEWTYPE_AX", false);
-    wizard.AddSymbol("WTL_VIEWTYPE_FORM", false);
-    wizard.AddSymbol("WTL_VIEWTYPE_PROPSHEET", false);
-    var strView = wizard.FindSymbol("WTL_COMBO_VIEW_TYPE");
-    switch(strView)
-    {
-    case "WTL_VIEWTYPE_FORM":
-	    wizard.AddSymbol("WTL_USE_VIEW_CLASS", true);
-	    wizard.AddSymbol("WTL_VIEWTYPE_FORM", true);
-	    if(wizard.FindSymbol("WTL_ENABLE_AX") && wizard.FindSymbol("WTL_HOST_AX"))
-		    wizard.AddSymbol("WTL_VIEW_BASE_CLASS", "CAxDialogImpl");
-	    else
-		    wizard.AddSymbol("WTL_VIEW_BASE_CLASS", "CDialogImpl");
-	    break;
-    case "WTL_VIEWTYPE_PROPSHEET":
-	    wizard.AddSymbol("WTL_USE_VIEW_CLASS", true);
-	    wizard.AddSymbol("WTL_VIEWTYPE_PROPSHEET", true);
-	    wizard.AddSymbol("WTL_VIEW_BASE_CLASS", "CPropertySheetImpl");
-	    if(wizard.FindSymbol("WTL_ENABLE_AX") && wizard.FindSymbol("WTL_HOST_AX"))
-		    wizard.AddSymbol("WTL_PROPPAGE_BASE_CLASS", "CAxPropertyPageImpl");
-	    else
-		    wizard.AddSymbol("WTL_PROPPAGE_BASE_CLASS", "CPropertyPageImpl");
-	    break;
-    case "WTL_VIEWTYPE_AX":
-	    wizard.AddSymbol("WTL_HOST_AX", true);
+	if(wizard.FindSymbol("WTL_USE_VIEW"))
+	{
+		var strViewFile = strBaseName + "View";
+		wizard.AddSymbol("WTL_VIEW_FILE", strViewFile);
+
+		strViewClass = "C" + strViewFile;
+	}
+
+	wizard.AddSymbol("WTL_VIEWTYPE_GENERIC", false);
+	wizard.AddSymbol("WTL_VIEWTYPE_AX", false);
+	wizard.AddSymbol("WTL_VIEWTYPE_FORM", false);
+	wizard.AddSymbol("WTL_VIEWTYPE_PROPSHEET", false);
+	var strView = wizard.FindSymbol("WTL_COMBO_VIEW_TYPE");
+	switch(strView)
+	{
+	case "WTL_VIEWTYPE_FORM":
+		wizard.AddSymbol("WTL_USE_VIEW_CLASS", true);
+		wizard.AddSymbol("WTL_VIEWTYPE_FORM", true);
+		if(wizard.FindSymbol("WTL_ENABLE_AX") && wizard.FindSymbol("WTL_HOST_AX"))
+			wizard.AddSymbol("WTL_VIEW_BASE_CLASS", "CAxDialogImpl");
+		else
+			wizard.AddSymbol("WTL_VIEW_BASE_CLASS", "CDialogImpl");
+		break;
+	case "WTL_VIEWTYPE_PROPSHEET":
+		wizard.AddSymbol("WTL_USE_VIEW_CLASS", true);
+		wizard.AddSymbol("WTL_VIEWTYPE_PROPSHEET", true);
+		wizard.AddSymbol("WTL_VIEW_BASE_CLASS", "CPropertySheetImpl");
+		if(wizard.FindSymbol("WTL_ENABLE_AX") && wizard.FindSymbol("WTL_HOST_AX"))
+			wizard.AddSymbol("WTL_PROPPAGE_BASE_CLASS", "CAxPropertyPageImpl");
+		else
+			wizard.AddSymbol("WTL_PROPPAGE_BASE_CLASS", "CPropertyPageImpl");
+		break;
+	case "WTL_VIEWTYPE_AX":
+		wizard.AddSymbol("WTL_HOST_AX", true);
 		wizard.AddSymbol("WTL_VIEWTYPE_AX", true);
-       if(wizard.FindSymbol("WTL_USE_VIEW_CLASS"))
-        {
+		if(wizard.FindSymbol("WTL_USE_VIEW_CLASS"))
 			wizard.AddSymbol("WTL_VIEW_BASE", "CAxWindow");
+		else
+			strViewClass = "CAxWindow";
+		break;
+	case "WTL_VIEWTYPE_EDIT":
+		wizard.AddSymbol("WTL_VIEW_STYLES", "WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_HSCROLL | WS_VSCROLL | ES_AUTOHSCROLL | ES_AUTOVSCROLL | ES_MULTILINE | ES_NOHIDESEL");
+		if(wizard.FindSymbol("WTL_USE_VIEW_CLASS"))
+		{
+			wizard.AddSymbol("WTL_VIEWTYPE_EDIT", true);
+			wizard.AddSymbol("WTL_VIEW_BASE", "CEdit");
 		}
-	    else 
-	        strViewClass = "CAxWindow"
-	    break;
-    case "WTL_VIEWTYPE_EDIT":
-        wizard.AddSymbol("WTL_VIEW_STYLES", "WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_HSCROLL | WS_VSCROLL | ES_AUTOHSCROLL | ES_AUTOVSCROLL | ES_MULTILINE | ES_NOHIDESEL");
-        if(wizard.FindSymbol("WTL_USE_VIEW_CLASS"))
-        {
-	        wizard.AddSymbol("WTL_VIEWTYPE_EDIT", true);
-	        wizard.AddSymbol("WTL_VIEW_BASE", "CEdit");
-	    }
-	    else 
-	        strViewClass = "CEdit"
-	    break;
-    case "WTL_VIEWTYPE_LISTVIEW":
-        wizard.AddSymbol("WTL_VIEW_STYLES", "WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | LVS_REPORT | LVS_SHOWSELALWAYS");
-        if(wizard.FindSymbol("WTL_USE_VIEW_CLASS"))
-        {
-	        wizard.AddSymbol("WTL_VIEWTYPE_LISTVIEW", true);
-	        wizard.AddSymbol("WTL_VIEW_BASE", "CListViewCtrl");
-	    }
-	    else 
-	        strViewClass = "CListViewCtrl"
-	    break;
-    case "WTL_VIEWTYPE_TREEVIEW":
-        wizard.AddSymbol("WTL_VIEW_STYLES", "WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | TVS_HASLINES | TVS_LINESATROOT | TVS_SHOWSELALWAYS");
-        if(wizard.FindSymbol("WTL_USE_VIEW_CLASS"))
-        {
-	        wizard.AddSymbol("WTL_VIEWTYPE_TREEVIEW", true);
-	        wizard.AddSymbol("WTL_VIEW_BASE", "CTreeViewCtrl");
-	    }
-	    else 
-	        strViewClass = "CTreeViewCtrl"
-	    break;
-    case "WTL_VIEWTYPE_HTML":
-	    wizard.AddSymbol("WTL_VIEW_STYLES", "WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN  | HS_CONTEXTMENU");
-        if(wizard.FindSymbol("WTL_USE_VIEW_CLASS"))
-        {
-	    wizard.AddSymbol("WTL_VIEWTYPE_HTML", true);
-	    wizard.AddSymbol("WTL_VIEW_BASE", "CHtmlCtrl");
-	    }
-	    else 
-	        strViewClass = "CHtmlCtrl"
-	    break;
-    case "WTL_VIEWTYPE_INKX":
-	    wizard.AddSymbol("WTL_VIEW_STYLES", "WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN  | IS_BOTTOMVOICEBAR");
-        if(wizard.FindSymbol("WTL_USE_VIEW_CLASS"))
-        {
-	    wizard.AddSymbol("WTL_VIEWTYPE_INKX", true);
-	    wizard.AddSymbol("WTL_VIEW_BASE", "CInkXCtrl");
-	    }
-	    else 
-	        strViewClass = "CInkXCtrl"
-	    break;
-    case "WTL_VIEWTYPE_RICHINK":
-	    wizard.AddSymbol("WTL_VIEW_STYLES", "WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN  | IS_BOTTOMVOICEBAR");
-        if(wizard.FindSymbol("WTL_USE_VIEW_CLASS"))
-        {
-	    wizard.AddSymbol("WTL_VIEWTYPE_RICHINK", true);
-	    wizard.AddSymbol("WTL_VIEW_BASE", "CRichInkCtrl");
-	    }
-	    else 
-	        strViewClass = "CRichInkCtrl"
-	    break;
-    default:
-	    wizard.AddSymbol("WTL_USE_VIEW_CLASS", true);
-	    wizard.AddSymbol("WTL_VIEWTYPE_GENERIC", true);
-	    
-        if(wizard.FindSymbol("WTL_VIEW_SCROLL"))
-            if(wizard.FindSymbol("WTL_VIEW_ZOOM"))
-	            wizard.AddSymbol("WTL_SCROLL_CLASS", "CZoomScrollImpl");
-	        else
-	            wizard.AddSymbol("WTL_SCROLL_CLASS", "CScrollImpl");
-	            
-	    break;
-    }
+		else
+		{
+			strViewClass = "CEdit";
+		}
+		break;
+	case "WTL_VIEWTYPE_LISTVIEW":
+		wizard.AddSymbol("WTL_VIEW_STYLES", "WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | LVS_REPORT | LVS_SHOWSELALWAYS");
+		if(wizard.FindSymbol("WTL_USE_VIEW_CLASS"))
+		{
+			wizard.AddSymbol("WTL_VIEWTYPE_LISTVIEW", true);
+			wizard.AddSymbol("WTL_VIEW_BASE", "CListViewCtrl");
+		}
+		else
+		{
+			strViewClass = "CListViewCtrl";
+		}
+		break;
+	case "WTL_VIEWTYPE_TREEVIEW":
+		wizard.AddSymbol("WTL_VIEW_STYLES", "WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | TVS_HASLINES | TVS_LINESATROOT | TVS_SHOWSELALWAYS");
+		if(wizard.FindSymbol("WTL_USE_VIEW_CLASS"))
+		{
+			wizard.AddSymbol("WTL_VIEWTYPE_TREEVIEW", true);
+			wizard.AddSymbol("WTL_VIEW_BASE", "CTreeViewCtrl");
+		}
+		else
+		{
+			strViewClass = "CTreeViewCtrl";
+		}
+		break;
+	case "WTL_VIEWTYPE_HTML":
+		wizard.AddSymbol("WTL_VIEW_STYLES", "WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN  | HS_CONTEXTMENU");
+		if(wizard.FindSymbol("WTL_USE_VIEW_CLASS"))
+		{
+			wizard.AddSymbol("WTL_VIEWTYPE_HTML", true);
+			wizard.AddSymbol("WTL_VIEW_BASE", "CHtmlCtrl");
+		}
+		else
+		{
+			strViewClass = "CHtmlCtrl";
+		}
+		break;
+	case "WTL_VIEWTYPE_INKX":
+		wizard.AddSymbol("WTL_VIEW_STYLES", "WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN  | IS_BOTTOMVOICEBAR");
+		if(wizard.FindSymbol("WTL_USE_VIEW_CLASS"))
+		{
+			wizard.AddSymbol("WTL_VIEWTYPE_INKX", true);
+			wizard.AddSymbol("WTL_VIEW_BASE", "CInkXCtrl");
+		}
+		else
+		{
+			strViewClass = "CInkXCtrl";
+		}
+		break;
+	case "WTL_VIEWTYPE_RICHINK":
+		wizard.AddSymbol("WTL_VIEW_STYLES", "WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN  | IS_BOTTOMVOICEBAR");
+		if(wizard.FindSymbol("WTL_USE_VIEW_CLASS"))
+		{
+			wizard.AddSymbol("WTL_VIEWTYPE_RICHINK", true);
+			wizard.AddSymbol("WTL_VIEW_BASE", "CRichInkCtrl");
+		}
+		else
+		{
+			strViewClass = "CRichInkCtrl";
+		}
+		break;
+	default:
+		wizard.AddSymbol("WTL_USE_VIEW_CLASS", true);
+		wizard.AddSymbol("WTL_VIEWTYPE_GENERIC", true);
 
-    wizard.AddSymbol("WTL_VIEW_CLASS", strViewClass);
-    
+		if(wizard.FindSymbol("WTL_VIEW_SCROLL"))
+		{
+			if(wizard.FindSymbol("WTL_VIEW_ZOOM"))
+				wizard.AddSymbol("WTL_SCROLL_CLASS", "CZoomScrollImpl");
+			else
+				wizard.AddSymbol("WTL_SCROLL_CLASS", "CScrollImpl");
+		}
+
+		break;
+	}
+
+	wizard.AddSymbol("WTL_VIEW_CLASS", strViewClass);
 }
 
 function SetWtlDeviceResourceConfigurations(selProj)
@@ -859,7 +885,7 @@ function SetWtlDeviceResourceConfigurations(selProj)
 				var platformName = cfg.Platform.Name;
 				var symbol = ProjWiz.GetBaseNativePlatformProperty(platformName, "UISymbol");
 				var CLTool = cfg.Tools("VCCLCompilerTool");
-			    CLTool.PreprocessorDefinitions += ";" + symbol;
+				CLTool.PreprocessorDefinitions += ";" + symbol;
 				if (symbol == "POCKETPC2003_UI_MODEL")
 				{
 					if (fileName == projectName + "ppc.rc")
@@ -913,4 +939,3 @@ function SetWtlDeviceResourceConfigurations(selProj)
 	}
 	return true;
 }
-

@@ -399,20 +399,22 @@ function Next(document, linkto)
 
 function OnFinish(document)
 {
-    WTL_USE_UNICODE.disabled = false;
+	WTL_USE_UNICODE.disabled = false;
 	OnWizFinish(document);
 }
 
 function OnInit() 
 {
-    if (window.external.FindSymbol("WTL_USE_RIBBON")) 
-    {
-        WTL_USE_UNICODE.checked = true;
-        WTL_USE_UNICODE.disabled = true;
-    }
-    else
-        WTL_USE_UNICODE.disabled = false;
-        
+	if (window.external.FindSymbol("WTL_USE_RIBBON")) 
+	{
+		WTL_USE_UNICODE.checked = true;
+		WTL_USE_UNICODE.disabled = true;
+	}
+	else
+	{
+		WTL_USE_UNICODE.disabled = false;
+	}
+
 	OnAppType();
 }
 
