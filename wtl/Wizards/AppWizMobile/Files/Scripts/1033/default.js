@@ -1,4 +1,3 @@
- 
 // Windows Template Library - WTL version 8.1
 // Copyright (C) Microsoft Corporation. All rights reserved.
 //

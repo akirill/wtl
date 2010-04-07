@@ -223,11 +223,12 @@ function CreateCustomProject(strProjectName, strProjectPath)
 	try
 	{
 		var strProjTemplatePath = wizard.FindSymbol('PROJECT_TEMPLATE_PATH');
-        var wizVersion = wizard.FindSymbol('WIZARD_VERSION')
-        if (wizVersion < 10)
-            strProjTemplate = strProjTemplatePath + '\\default.vcproj';
-        else
-		    strProjTemplate = strProjTemplatePath + '\\default.vcxproj';
+		var strProjTemplate = '';
+		var WizardVersion = wizard.FindSymbol('WIZARD_VERSION');
+		if(WizardVersion >= 10.0)
+			strProjTemplate = strProjTemplatePath + '\\default.vcxproj';
+		else
+			strProjTemplate = strProjTemplatePath + '\\default.vcproj';
 
 		var Solution = dte.Solution;
 		var strSolutionName = "";
@@ -243,7 +244,10 @@ function CreateCustomProject(strProjectName, strProjectPath)
 		}
 
 		var strProjectNameWithExt = '';
-		strProjectNameWithExt = strProjectName + '.vcproj';
+		if(WizardVersion >= 10.0)
+			strProjectNameWithExt = strProjectName + '.vcxproj';
+		else
+			strProjectNameWithExt = strProjectName + '.vcproj';
 
 		var oTarget = wizard.FindSymbol("TARGET");
 		var prj;
@@ -538,7 +542,6 @@ function GetTargetName(strName, strProjectName)
 		else if(strName == 'toolbar.bmp')
 		{
 			strTarget = strResPath + strName;
-
 		}
 
 		return strTarget; 

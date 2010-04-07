@@ -469,18 +469,8 @@ function OnUseToolbar()
 
 function OnUseRibbon() 
 {
-    if (WTL_USE_RIBBON.checked) 
-    {
+	if (WTL_USE_RIBBON.checked) 
 		window.external.AddSymbol("WTL_USE_UNICODE", true)
-//		WTL_USE_CMDBAR.checked = true;
-//		WTL_USE_CMDBAR.disabled = true;
-//		WTL_USE_CMDBAR_LABEL.disabled = true;
-	}
-//	else
-//	{
-//		WTL_USE_CMDBAR.disabled = false;
-//		WTL_USE_CMDBAR_LABEL.disabled = false;
-//	}
 }
 
 function OnUseRebar() 
