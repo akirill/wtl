@@ -643,7 +643,7 @@ private:
 
 // IUIImage helper
 //
-inline IUIImage* GetImage(HBITMAP hbm, UI_OWNERSHIP owner = UI_OWNERSHIP_TRANSFER)
+inline IUIImage* GetImage(HBITMAP hbm, UI_OWNERSHIP owner = UI_OWNERSHIP_COPY/*UI_OWNERSHIP_TRANSFER*/)
 {
 	ATLASSERT(hbm);
 	IUIImage* pIUII = NULL;
@@ -2168,10 +2168,14 @@ public:
 
 	HRESULT DestroyRibbon()
 	{
+		T* pT = static_cast<T*>(this);
 		ATLASSERT(GetIUIFrameworkPtr() && IsRibbonUI());
-		ATLASSERT(static_cast<T*>(this)->IsWindow());
+		ATLASSERT(pT->IsWindow());
 
-		return m_pIUIFramework->Destroy();
+		HRESULT hRes = m_pIUIFramework->Destroy();
+		if (!RunTimeHelper::IsWin7())
+			pT->SetWindowRgn(NULL, TRUE); // Vista Basic bug workaround
+		return hRes;
 	}
 
 // Ribbon persistency
@@ -2267,11 +2271,10 @@ public:
 
 		if ((pIPS != NULL) && SUCCEEDED(pIPS->GetValue(UI_PKEY_QuickAccessToolbarDock, &propvar)) &&
 			SUCCEEDED(UIPropertyToUInt32(UI_PKEY_QuickAccessToolbarDock, propvar, &uDock)))
-				;
-		else
-			ATLASSERT(FALSE); // something was wrong
+				return (UI_CONTROLDOCK)uDock;
 
-		return (UI_CONTROLDOCK)uDock;
+		ATLASSERT(FALSE); // something was wrong
+		return (UI_CONTROLDOCK)0;
 	}
 
 	bool SetQATDock(UI_CONTROLDOCK dockState)
@@ -2751,9 +2754,11 @@ public:
 		return S_OK;
 	}
 
-	STDMETHODIMP OnCreateUICommand(UINT32 nCmdID, UI_COMMANDTYPE /*typeID*/, IUICommandHandler** ppCommandHandler)
+	STDMETHODIMP OnCreateUICommand(UINT32 nCmdID, UI_COMMANDTYPE typeID, IUICommandHandler** ppCommandHandler)
 	{
 		UIAddRibbonElement(nCmdID);
+		if (typeID == UI_COMMANDTYPE_CONTEXT)
+			CUpdateUIBase::UIEnable(nCmdID, false);
 		*ppCommandHandler = this;
 		return S_OK;
 	}
@@ -2792,7 +2797,7 @@ public:
 	STDMETHODIMP_(ULONG) Release()
 	{
 		LONG cRef = InterlockedDecrement(&m_cRef);
-		if (cRef == 0)
+		if (cRef == 0) // NoOp for breakpoint
 		{
 			cRef = 0;
 		}
@@ -3192,14 +3197,14 @@ public:
 			if(::IsWindow(m_hWndToolBar) && !bShow)
 			{
 				::ShowWindow(m_hWndToolBar, SW_SHOWNA);
+				UpdateLayout(); 
 			}
 			else if (bShow)
 			{
+				PostMessage(WM_SIZE); 
 				SetRibbonModes(imodes);
 			}
 		}
-
-		UpdateLayout();
 
 		if(bVisible)
 			SetRedraw(TRUE);
@@ -3292,11 +3297,7 @@ public:
 
 		if (IsRibbonUI() && !IsRibbonHidden())
 		{
-			BOOL bComp = FALSE;
-			if (INT iHeight = GetRibbonHeight())
-				rect.top += iHeight;
-			else if (!RunTimeHelper::IsWin7() || (SUCCEEDED(::DwmIsCompositionEnabled(&bComp)) && bComp))
-				PostMessage(WM_SIZE);
+			rect.top += GetRibbonHeight(); 
 		}
 		else if (!IsRibbonUI() && NeedWin7Fix())
 		{
