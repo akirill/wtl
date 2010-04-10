@@ -336,7 +336,9 @@ inline HRESULT SetPropertyVal(REFPROPERTYKEY key, DOUBLE val, PROPVARIANT* ppv)
 
 inline HRESULT SetPropertyVal(REFPROPERTYKEY key, IUIImage* val, PROPVARIANT* ppv)
 {
-	return UIInitPropertyFromImage(key, val, ppv);
+	HRESULT hr = UIInitPropertyFromImage(key, val, ppv);
+	ATLVERIFY(val->Release() == 1);
+	return hr;
 }
 
 inline HRESULT SetPropertyVal(REFPROPERTYKEY key, IUnknown* val, PROPVARIANT* ppv)
@@ -643,7 +645,7 @@ private:
 
 // IUIImage helper
 //
-inline IUIImage* GetImage(HBITMAP hbm, UI_OWNERSHIP owner = UI_OWNERSHIP_COPY/*UI_OWNERSHIP_TRANSFER*/)
+inline IUIImage* GetImage(HBITMAP hbm, UI_OWNERSHIP owner)
 {
 	ATLASSERT(hbm);
 	IUIImage* pIUII = NULL;
@@ -790,9 +792,9 @@ public:
 		if (m_hbm[iImage].IsNull())
 			m_hbm[iImage] = GetWndRibbon().OnRibbonQueryImage(GetID(), key);
 
-		return m_hbm[iImage] ?
-			SetPropertyVal(key, GetImage(m_hbm[iImage]), ppv) :
-			E_NOTIMPL;
+		return m_hbm[iImage].IsNull() ?
+			E_NOTIMPL :
+			SetPropertyVal(key, GetImage(m_hbm[iImage], UI_OWNERSHIP_COPY), ppv);
 	}
 
 	virtual HRESULT DoUpdateProperty(UINT nCmdID, REFPROPERTYKEY key, 
@@ -1147,14 +1149,14 @@ public:
 
 		if (k_(key) == k_ItemImage)
 		{
-			if (m_aBitmap[uItem].m_hBitmap == NULL)
+			if (m_aBitmap[uItem].IsNull())
 			{
 				TCtrl::WndRibbon& ribbon = static_cast<TCtrl*>(this)->GetWndRibbon();
 				m_aBitmap[uItem] = ribbon.OnRibbonQueryItemImage(TCtrl::GetID(), uItem);
 			}
-			return m_aBitmap[uItem] ?
-				SetPropertyVal(key, GetImage(m_aBitmap[uItem]), value) :
-				E_NOTIMPL;
+			return m_aBitmap[uItem].IsNull() ?
+				E_NOTIMPL :
+				SetPropertyVal(key, GetImage(m_aBitmap[uItem], UI_OWNERSHIP_COPY), value);
 		}
 		else
 		{
@@ -1296,7 +1298,7 @@ public:
 		{
 		case k_ItemImage:
 			if (HBITMAP hbm = ribbon.DefRibbonQueryItemImage(TCtrl::GetID(), uItem))
-				hr = SetPropertyVal(key, GetImage(hbm), value);
+				hr = SetPropertyVal(key, GetImage(hbm, UI_OWNERSHIP_TRANSFER), value);
 			break;
 		case k_Label:
 			if (LPCWSTR sText = ribbon.DefRibbonQueryItemText(TCtrl::GetID(), uItem))
@@ -2886,7 +2888,7 @@ public:
 		case k_SmallImage:
 		case k_SmallHighContrastImage:
 			if (HBITMAP hbm = pT->OnRibbonQueryImage(nCmdID, key))
-				hr = SetPropertyVal(key, GetImage(hbm), ppropvarNewValue);
+				hr = SetPropertyVal(key, GetImage(hbm, UI_OWNERSHIP_TRANSFER), ppropvarNewValue);
 			break;
 		case k_Label:
 		case k_Keytip:
@@ -3177,7 +3179,7 @@ public:
 			return bShow;
 
 		bool bVisible = (IsWindowVisible() != FALSE);
-		if(bVisible)
+		if(bVisible && !bShow)
 			SetRedraw(FALSE);
 
 		if (bShow && ::IsWindow(m_hWndToolBar))
@@ -3206,10 +3208,11 @@ public:
 			}
 		}
 
-		if(bVisible)
+		if(bVisible && !bShow)
+		{
 			SetRedraw(TRUE);
-
-		RedrawWindow(NULL, NULL, RDW_FRAME | RDW_ERASE | RDW_INVALIDATE | RDW_UPDATENOW | RDW_ALLCHILDREN);
+			RedrawWindow(NULL, NULL, RDW_FRAME | RDW_ERASE | RDW_INVALIDATE | RDW_UPDATENOW | RDW_ALLCHILDREN);
+		}
 
 		return SUCCEEDED(hr) ? bShow : !bShow;
 	}
@@ -3220,7 +3223,7 @@ public:
 		if ((key == UI_PKEY_SmallImage) && m_bUseCommandBarBitmaps)
 		{
 			if (HBITMAP hbm = GetCommandBarBitmap(nCmdID))
-				return hbm;
+				return (HBITMAP)::CopyImage(hbm, IMAGE_BITMAP, 0, 0, LR_CREATEDIBSECTION);
 		}
 
 		return DefRibbonQueryImage(nCmdID);
