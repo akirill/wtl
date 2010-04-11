@@ -38,7 +38,7 @@
 	#error atlribbon.h requires the Windows 7 SDK or over
 #endif
 
-#if (_ATL_VER < 0x700)
+#if (_ATL_VER < 0x0700)
 	#include <shlwapi.h>
 	#pragma comment(lib, "shlwapi.lib")
 #endif
@@ -3361,26 +3361,27 @@ public:
 		ATLASSERT(m_Key.m_hKey);
 	}
 
-	ATL::CRegKey m_Key;
+	CRegKeyEx m_Key;
 
 	LONG Save(bool bRibbonUI, HGLOBAL hgSettings = NULL)
 	{
-		ATL::CRegKey key;
+		CRegKeyEx key;
 		const DWORD dwUI = bRibbonUI;
 
 		LONG lRet = key.Create(m_Key, L"Ribbon");
 		if(lRet != ERROR_SUCCESS)
 			return lRet;
 		
-		lRet = ::RegSetValueEx(key, L"UI", 0, REG_DWORD, (LPBYTE)&dwUI, sizeof DWORD);
+		lRet = key.SetDWORDValue(L"UI", dwUI);
 		if(lRet != ERROR_SUCCESS)
 			return lRet;
 
 		if (hgSettings != NULL)
 		{
-			if (LPBYTE pVal = (LPBYTE)::GlobalLock(hgSettings))
+			LPBYTE pVal = (LPBYTE)::GlobalLock(hgSettings);
+			if (pVal != NULL)
 			{
-				lRet = ::RegSetValueEx(key, L"Settings", 0, REG_BINARY, pVal, (LONG)::GlobalSize(hgSettings));
+				lRet = key.SetBinaryValue(L"Settings", pVal, ::GlobalSize(hgSettings));
 				::GlobalUnlock(hgSettings);
 			}
 			else
@@ -3396,35 +3397,32 @@ public:
 	{
 		ATLASSERT(hgSettings == NULL);
 
-		ATL::CRegKey key;
+		CRegKeyEx key;
 
 		LONG lRet = key.Open(m_Key, L"Ribbon");
 		if(lRet != ERROR_SUCCESS)
 			return lRet;
 		
-		DWORD dwType = REG_DWORD;
-		DWORD dwSize = sizeof DWORD;
 		DWORD dwUI = 0xffff;
-
-		lRet = ::RegQueryValueEx(key, L"UI", 0, &dwType, (LPBYTE)&dwUI, &dwSize);
+		lRet = key.QueryDWORDValue(L"UI", dwUI);
 		if(lRet == ERROR_SUCCESS)
 			bRibbonUI = dwUI == 1;
 		else
 			return lRet;
 
-		dwSize = 0;
-		lRet = ::RegQueryValueEx(key, L"Settings", 0, &dwType, NULL, &dwSize);
+		ULONG ulSize = 0;
+		lRet = key.QueryBinaryValue(L"Settings", NULL, &ulSize);
 		if (lRet == ERROR_SUCCESS)
 		{
-			ATLASSERT(dwType == REG_BINARY);
-			ATLASSERT(dwSize != 0);
+			ATLASSERT(ulSize != 0);
 			
-			hgSettings = ::GlobalAlloc(GHND, dwSize);
+			hgSettings = ::GlobalAlloc(GHND, ulSize);
 			if (hgSettings != NULL)
 			{
-				if (LPBYTE pData = (LPBYTE)::GlobalLock(hgSettings))
+				LPBYTE pData = (LPBYTE)::GlobalLock(hgSettings);
+				if (pData != NULL)
 				{
-					lRet = ::RegQueryValueEx(key, L"Settings", 0, &dwType, pData, &dwSize);
+					lRet = key.QueryBinaryValue(L"Settings", pData, &ulSize);
 				}
 				else
 				{

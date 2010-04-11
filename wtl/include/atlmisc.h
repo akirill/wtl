@@ -3050,8 +3050,8 @@ public:
 	BOOL ReadFromRegistry(LPCTSTR lpstrRegKey)
 	{
 		T* pT = static_cast<T*>(this);
-		ATL::CRegKey rkParent;
-		ATL::CRegKey rk;
+		CRegKeyEx rkParent;
+		CRegKeyEx rk;
 
 		LONG lRet = rkParent.Open(HKEY_CURRENT_USER, lpstrRegKey);
 		if(lRet != ERROR_SUCCESS)
@@ -3061,11 +3061,7 @@ public:
 			return FALSE;
 
 		DWORD dwRet = 0;
-#if (_ATL_VER >= 0x0700)
 		lRet = rk.QueryDWORDValue(pT->GetRegCountName(), dwRet);
-#else
-		lRet = rk.QueryValue(dwRet, pT->GetRegCountName());
-#endif
 		if(lRet != ERROR_SUCCESS)
 			return FALSE;
 		SetMaxEntries(dwRet);
@@ -3079,13 +3075,8 @@ public:
 		{
 			TCHAR szBuff[m_cchItemNameLen] = { 0 };
 			SecureHelper::wsprintf_x(szBuff, m_cchItemNameLen, pT->GetRegItemName(), nItem);
-#if (_ATL_VER >= 0x0700)
 			ULONG ulCount = t_cchItemLen;
 			lRet = rk.QueryStringValue(szBuff, szRetString, &ulCount);
-#else
-			DWORD dwCount = t_cchItemLen * sizeof(TCHAR);
-			lRet = rk.QueryValue(szRetString, szBuff, &dwCount);
-#endif
 			if(lRet == ERROR_SUCCESS)
 			{
 				SecureHelper::strcpy_x(de.szDocName, _countof(de.szDocName), szRetString);
@@ -3103,8 +3094,8 @@ public:
 	{
 		T* pT = static_cast<T*>(this);
 		pT;   // avoid level 4 warning
-		ATL::CRegKey rkParent;
-		ATL::CRegKey rk;
+		CRegKeyEx rkParent;
+		CRegKeyEx rk;
 
 		LONG lRet = rkParent.Create(HKEY_CURRENT_USER, lpstrRegKey);
 		if(lRet != ERROR_SUCCESS)
@@ -3113,11 +3104,7 @@ public:
 		if(lRet != ERROR_SUCCESS)
 			return FALSE;
 
-#if (_ATL_VER >= 0x0700)
 		lRet = rk.SetDWORDValue(pT->GetRegCountName(), m_nMaxEntries);
-#else
-		lRet = rk.SetValue(m_nMaxEntries, pT->GetRegCountName());
-#endif
 		ATLASSERT(lRet == ERROR_SUCCESS);
 
 		// set new values
@@ -3128,11 +3115,7 @@ public:
 			SecureHelper::wsprintf_x(szBuff, m_cchItemNameLen, pT->GetRegItemName(), nItem);
 			TCHAR szDocName[t_cchItemLen] = { 0 };
 			GetFromList(t_nFirstID + nItem - 1, szDocName, t_cchItemLen);
-#if (_ATL_VER >= 0x0700)
 			lRet = rk.SetStringValue(szBuff, szDocName);
-#else
-			lRet = rk.SetValue(szDocName, szBuff);
-#endif
 			ATLASSERT(lRet == ERROR_SUCCESS);
 		}
 

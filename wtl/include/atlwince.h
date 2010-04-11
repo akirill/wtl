@@ -896,7 +896,7 @@ public:
 class CAppInfoBase
 {
 public:
-	ATL::CRegKey m_Key;
+	CRegKeyEx m_Key;
 
 	CAppInfoBase(ATL::_U_STRINGorID sAppKey)
 	{
@@ -907,46 +907,30 @@ public:
 	template <class V>
 	LONG Save(V& val, ATL::_U_STRINGorID sName)
 	{
-		return ::RegSetValueEx(m_Key, sName.m_lpstr, 0, REG_BINARY, (LPBYTE)&val, sizeof(V));
+		return m_Key.SetBinaryValue(sName.m_lpstr, &val, sizeof(V));
 	}
 
 	template <class V>
 	LONG Save(int nb, V& val0, ATL::_U_STRINGorID sName)
 	{
-		return ::RegSetValueEx(m_Key, sName.m_lpstr, 0, REG_BINARY, (LPBYTE)&val0, nb * sizeof(V));
+		return m_Key.SetBinaryValue(sName.m_lpstr, &val0, nb * sizeof(V));
 	}
 
 	template <class V>
 	LONG Restore(V& val, ATL::_U_STRINGorID sName)
 	{
-		DWORD valtype;
-		DWORD bufSize = sizeof(V);
-		return ::RegQueryValueEx(m_Key, sName.m_lpstr, 0, &valtype, (LPBYTE)&val, &bufSize);
+		ULONG bufSize = sizeof(V);
+		return m_Key.QueryBinaryValue(sName.m_lpstr, &val, &bufSize);
 	}
 
 	template <class V>
 	LONG Restore(int nb, V& val0, ATL::_U_STRINGorID sName)
 	{
-		DWORD valtype;
-		DWORD bufSize = nb * sizeof(V);
-		return ::RegQueryValueEx(m_Key, sName.m_lpstr, 0, &valtype, (LPBYTE)&val0, &bufSize);
+		ULONG bufSize = nb * sizeof(V);
+		return m_Key.QueryBinaryValue(sName.m_lpstr, &val0, &bufSize);
 	}
 
 #if defined(_WTL_USE_CSTRING) || defined(__ATLSTR_H__)
-#if (_ATL_VER < 0x0800)
-	LONG Save(_CSTRING_NS::CString& sval, ATL::_U_STRINGorID sName)
-	{
-		return m_Key.SetValue(sval, sName.m_lpstr);
-	}
-
-	LONG Restore(_CSTRING_NS::CString& sval, ATL::_U_STRINGorID sName)
-	{
-		DWORD size = MAX_PATH;
-		LONG res = m_Key.QueryValue(sval.GetBuffer(size), sName.m_lpstr, &size);
-		sval.ReleaseBuffer();
-		return res;
-	}
-#else // !(_ATL_VER < 0x0800)
 	LONG Save(_CSTRING_NS::CString& sval, ATL::_U_STRINGorID sName)
 	{
 		return m_Key.SetStringValue(sName.m_lpstr, sval);
@@ -959,22 +943,10 @@ public:
 		sval.ReleaseBuffer();
 		return res;
 	}
-#endif // !(_ATL_VER < 0x0800)
 #else
   #pragma message("Warning: CAppInfoBase compiles without CString support. Do not use CString in Save or Restore.")
 #endif // defined(_WTL_USE_CSTRING) || defined(__ATLSTR_H__)
 	
-#if (_ATL_VER < 0x0800)
-	LONG Save(LPCTSTR sval, ATL::_U_STRINGorID sName)
-	{
-		return m_Key.SetValue(sval, sName.m_lpstr);
-	}
-
-	LONG Restore(LPTSTR sval, ATL::_U_STRINGorID sName, DWORD *plength)
-	{
-		return m_Key.QueryValue(sval, sName.m_lpstr, plength);
-	}
-#else // !(_ATL_VER < 0x0800)
 	LONG Save(LPCTSTR sval, ATL::_U_STRINGorID sName)
 	{
 		return m_Key.SetStringValue(sName.m_lpstr, sval);
@@ -984,7 +956,6 @@ public:
 	{
 		return m_Key.QueryStringValue(sName.m_lpstr, sval, plength);
 	}
-#endif // !(_ATL_VER < 0x0800)
 	
 	LONG Delete(ATL::_U_STRINGorID sName)
 	{

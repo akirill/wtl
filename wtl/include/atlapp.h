@@ -84,6 +84,8 @@
 // CAppModule
 // CServerAppModule
 //
+// CRegKeyEx
+//
 // Global functions:
 //   AtlGetDefaultGuiFont()
 //   AtlCreateBoldFont()
@@ -1610,6 +1612,261 @@ public:
 	}
 #endif // (_ATL_VER < 0x0700)
 };
+
+
+///////////////////////////////////////////////////////////////////////////////
+// CRegKeyEx - adds type-specific methods to ATL3 CRegKey
+
+#if (_ATL_VER < 0x0700)
+
+class CRegKeyEx : public ATL::CRegKey
+{
+public:
+// Constructors and operators
+	CRegKeyEx(HKEY hKey = NULL)
+	{
+		m_hKey = hKey;
+	}
+
+	CRegKeyEx(CRegKeyEx& key)
+	{
+		Attach(key.Detach());
+	}
+
+	CRegKeyEx& operator =(CRegKeyEx& key)
+	{
+		Close();
+		Attach(key.Detach());
+		return *this;
+	}
+
+// Methods
+	LONG SetValue(LPCTSTR pszValueName, DWORD dwType, const void* pValue, ULONG nBytes)
+	{
+		ATLASSERT(m_hKey != NULL);
+		return ::RegSetValueEx(m_hKey, pszValueName, NULL, dwType, static_cast<const BYTE*>(pValue), nBytes);
+	}
+
+	LONG SetGUIDValue(LPCTSTR pszValueName, REFGUID guidValue)
+	{
+		ATLASSERT(m_hKey != NULL);
+
+		OLECHAR szGUID[64] = { 0 };
+		::StringFromGUID2(guidValue, szGUID, 64);
+
+		USES_CONVERSION;
+		LPCTSTR lpstr = OLE2CT(szGUID);
+#ifndef _UNICODE
+		if(lpstr == NULL) 
+			return E_OUTOFMEMORY;
+#endif	
+		return SetStringValue(pszValueName, lpstr);
+	}
+
+	LONG SetBinaryValue(LPCTSTR pszValueName, const void* pValue, ULONG nBytes)
+	{
+		ATLASSERT(m_hKey != NULL);
+		return ::RegSetValueEx(m_hKey, pszValueName, NULL, REG_BINARY, reinterpret_cast<const BYTE*>(pValue), nBytes);
+	}
+
+	LONG SetDWORDValue(LPCTSTR pszValueName, DWORD dwValue)
+	{
+		ATLASSERT(m_hKey != NULL);
+		return ::RegSetValueEx(m_hKey, pszValueName, NULL, REG_DWORD, reinterpret_cast<const BYTE*>(&dwValue), sizeof(DWORD));
+	}
+
+#ifndef _WIN32_WCE
+	LONG SetQWORDValue(LPCTSTR pszValueName, ULONGLONG qwValue)
+	{
+		ATLASSERT(m_hKey != NULL);
+		return ::RegSetValueEx(m_hKey, pszValueName, NULL, REG_QWORD, reinterpret_cast<const BYTE*>(&qwValue), sizeof(ULONGLONG));
+	}
+#endif
+
+	LONG SetStringValue(LPCTSTR pszValueName, LPCTSTR pszValue, DWORD dwType = REG_SZ)
+	{
+		ATLASSERT(m_hKey != NULL);
+		if(pszValue == NULL)
+		{
+			ATLASSERT(FALSE);
+			return ERROR_INVALID_DATA;
+		}
+		ATLASSERT((dwType == REG_SZ) || (dwType == REG_EXPAND_SZ));
+
+		return ::RegSetValueEx(m_hKey, pszValueName, NULL, dwType, reinterpret_cast<const BYTE*>(pszValue), (lstrlen(pszValue) + 1) * sizeof(TCHAR));
+	}
+
+	LONG SetMultiStringValue(LPCTSTR pszValueName, LPCTSTR pszValue)
+	{
+		ATLASSERT(m_hKey != NULL);
+		if(pszValue == NULL)
+		{
+			ATLASSERT(FALSE);
+			return ERROR_INVALID_DATA;
+		}
+
+		ULONG nBytes = 0;
+		ULONG nLength = 0;
+		LPCTSTR pszTemp = pszValue;
+		do
+		{
+			nLength = lstrlen(pszTemp) + 1;
+			pszTemp += nLength;
+			nBytes += nLength * sizeof(TCHAR);
+		} while (nLength != 1);
+
+		return ::RegSetValueEx(m_hKey, pszValueName, NULL, REG_MULTI_SZ, reinterpret_cast<const BYTE*>(pszValue), nBytes);
+	}
+
+	LONG QueryValue(LPCTSTR pszValueName, DWORD* pdwType, void* pData, ULONG* pnBytes)
+	{
+		ATLASSERT(m_hKey != NULL);
+		return ::RegQueryValueEx(m_hKey, pszValueName, NULL, pdwType, static_cast<LPBYTE>(pData), pnBytes);
+	}
+
+	LONG QueryGUIDValue(LPCTSTR pszValueName, GUID& guidValue)
+	{
+		ATLASSERT(m_hKey != NULL);
+
+		guidValue = GUID_NULL;
+
+		TCHAR szGUID[64] = { 0 };
+		ULONG nCount = 64;
+		LONG lRes = QueryStringValue(pszValueName, szGUID, &nCount);
+
+		if (lRes != ERROR_SUCCESS)
+			return lRes;
+
+		if(szGUID[0] != _T('{'))
+			return ERROR_INVALID_DATA;
+
+		USES_CONVERSION;
+		LPOLESTR lpstr = T2OLE(szGUID);
+#ifndef _UNICODE
+		if(lpstr == NULL) 
+			return E_OUTOFMEMORY;
+#endif	
+		
+		HRESULT hr = ::CLSIDFromString(lpstr, &guidValue);
+		if (FAILED(hr))
+			return ERROR_INVALID_DATA;
+
+		return ERROR_SUCCESS;
+	}
+
+	LONG QueryBinaryValue(LPCTSTR pszValueName, void* pValue, ULONG* pnBytes)
+	{
+		ATLASSERT(pnBytes != NULL);
+		ATLASSERT(m_hKey != NULL);
+
+		DWORD dwType = 0;
+		LONG lRes = ::RegQueryValueEx(m_hKey, pszValueName, NULL, &dwType, reinterpret_cast<LPBYTE>(pValue), pnBytes);
+		if (lRes != ERROR_SUCCESS)
+			return lRes;
+		if (dwType != REG_BINARY)
+			return ERROR_INVALID_DATA;
+
+		return ERROR_SUCCESS;
+	}
+
+	LONG QueryDWORDValue(LPCTSTR pszValueName, DWORD& dwValue)
+	{
+		ATLASSERT(m_hKey != NULL);
+
+		ULONG nBytes = sizeof(DWORD);
+		DWORD dwType = 0;
+		LONG lRes = ::RegQueryValueEx(m_hKey, pszValueName, NULL, &dwType, reinterpret_cast<LPBYTE>(&dwValue), &nBytes);
+		if (lRes != ERROR_SUCCESS)
+			return lRes;
+		if (dwType != REG_DWORD)
+			return ERROR_INVALID_DATA;
+
+		return ERROR_SUCCESS;
+	}
+
+	LONG QueryQWORDValue(LPCTSTR pszValueName, ULONGLONG& qwValue)
+	{
+		ATLASSERT(m_hKey != NULL);
+
+		ULONG nBytes = sizeof(ULONGLONG);
+		DWORD dwType = 0;
+		LONG lRes = ::RegQueryValueEx(m_hKey, pszValueName, NULL, &dwType, reinterpret_cast<LPBYTE>(&qwValue), &nBytes);
+		if (lRes != ERROR_SUCCESS)
+			return lRes;
+		if (dwType != REG_QWORD)
+			return ERROR_INVALID_DATA;
+
+		return ERROR_SUCCESS;
+	}
+
+	LONG QueryStringValue(LPCTSTR pszValueName, LPTSTR pszValue, ULONG* pnChars)
+	{
+		ATLASSERT(m_hKey != NULL);
+		ATLASSERT(pnChars != NULL);
+
+		ULONG nBytes = (*pnChars) * sizeof(TCHAR);
+		DWORD dwType = 0;
+		*pnChars = 0;
+		LONG lRes = ::RegQueryValueEx(m_hKey, pszValueName, NULL, &dwType, reinterpret_cast<LPBYTE>(pszValue), &nBytes);
+	
+		if (lRes != ERROR_SUCCESS)
+		{
+			return lRes;
+		}
+
+		if(dwType != REG_SZ && dwType != REG_EXPAND_SZ)
+		{
+			return ERROR_INVALID_DATA;
+		}
+
+		if (pszValue != NULL)
+		{
+			if(nBytes != 0)
+			{
+				if ((nBytes % sizeof(TCHAR) != 0) || (pszValue[nBytes / sizeof(TCHAR) -1] != 0))
+					return ERROR_INVALID_DATA;
+			}
+			else
+			{
+				pszValue[0] = _T('\0');
+			}
+		}
+
+		*pnChars = nBytes / sizeof(TCHAR);
+
+		return ERROR_SUCCESS;
+	}
+
+	LONG QueryMultiStringValue(LPCTSTR pszValueName, LPTSTR pszValue, ULONG* pnChars)
+	{
+		ATLASSERT(m_hKey != NULL);
+		ATLASSERT(pnChars != NULL);
+
+		if (pszValue != NULL && *pnChars < 2)
+			return ERROR_INSUFFICIENT_BUFFER;
+		
+		ULONG nBytes = (*pnChars) * sizeof(TCHAR);
+		DWORD dwType = 0;
+		*pnChars = 0;
+		LONG lRes = ::RegQueryValueEx(m_hKey, pszValueName, NULL, &dwType, reinterpret_cast<LPBYTE>(pszValue), &nBytes);
+		if (lRes != ERROR_SUCCESS)
+			return lRes;
+		if (dwType != REG_MULTI_SZ)
+			return ERROR_INVALID_DATA;
+		if (pszValue != NULL && (nBytes % sizeof(TCHAR) != 0 || nBytes / sizeof(TCHAR) < 1 || pszValue[nBytes / sizeof(TCHAR) - 1] != 0 || ((nBytes / sizeof(TCHAR)) > 1 && pszValue[nBytes / sizeof(TCHAR) - 2] != 0)))
+			return ERROR_INVALID_DATA;
+
+		*pnChars = nBytes / sizeof(TCHAR);
+
+		return ERROR_SUCCESS;
+	}
+};
+
+#else // !(_ATL_VER < 0x0700)
+
+typedef ATL::CRegKey CRegKeyEx;
+
+#endif // !(_ATL_VER < 0x0700)
 
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -1455,20 +1455,15 @@ public:
 		// set link colors
 		if(m_bPaintLabel)
 		{
-			ATL::CRegKey rk;
+			CRegKeyEx rk;
 			LONG lRet = rk.Open(HKEY_CURRENT_USER, _T("Software\\Microsoft\\Internet Explorer\\Settings"));
-			if(lRet == 0)
+			if(lRet == ERROR_SUCCESS)
 			{
 				const int cchValue = 12;
 				TCHAR szValue[cchValue] = { 0 };
-#if (_ATL_VER >= 0x0700)
 				ULONG ulCount = cchValue;
 				lRet = rk.QueryStringValue(_T("Anchor Color"), szValue, &ulCount);
-#else
-				DWORD dwCount = cchValue * sizeof(TCHAR);
-				lRet = rk.QueryValue(szValue, _T("Anchor Color"), &dwCount);
-#endif
-				if(lRet == 0)
+				if(lRet == ERROR_SUCCESS)
 				{
 					COLORREF clr = pT->_ParseColorString(szValue);
 					ATLASSERT(clr != CLR_INVALID);
@@ -1476,14 +1471,9 @@ public:
 						m_clrLink = clr;
 				}
 
-#if (_ATL_VER >= 0x0700)
 				ulCount = cchValue;
 				lRet = rk.QueryStringValue(_T("Anchor Color Visited"), szValue, &ulCount);
-#else
-				dwCount = cchValue * sizeof(TCHAR);
-				lRet = rk.QueryValue(szValue, _T("Anchor Color Visited"), &dwCount);
-#endif
-				if(lRet == 0)
+				if(lRet == ERROR_SUCCESS)
 				{
 					COLORREF clr = pT->_ParseColorString(szValue);
 					ATLASSERT(clr != CLR_INVALID);

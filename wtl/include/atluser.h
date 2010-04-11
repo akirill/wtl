@@ -418,7 +418,7 @@ public:
 	}
 #endif // !_ATL_NO_COM
 
-#elif _ATL_VER >= 0x800
+#elif (_ATL_VER >= 0x0800)
 	int GetMenuItemCount() const
 	{
 		ATLASSERT(::IsMenu(m_hMenu));
@@ -448,7 +448,7 @@ public:
 		ATLASSERT(::IsMenu(m_hMenu));
 		return ATL::GetMenuString(m_hMenu, nIDItem, NULL, 0, nFlags);
 	}
-#endif // _ATL_VER >= 0x800
+#endif // (_ATL_VER >= 0x0800)
 
 #if defined(_WTL_USE_CSTRING) || defined(__ATLSTR_H__)
 	int GetMenuString(UINT nIDItem, _CSTRING_NS::CString& strText, UINT nFlags) const
