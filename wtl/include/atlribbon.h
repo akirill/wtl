@@ -14,28 +14,24 @@
 
 #pragma once
 
-#ifndef __cplusplus
-	#error ATL requires C++ compilation (use a .cpp suffix)
-#endif
-
 #if (_MSC_VER < 1500)
-	#error atlribbon.h requires Visual C++ (or Express) 2008 compiler or over
-#endif
-
-#ifndef __ATLAPP_H__
-	#error atlribbon.h requires atlapp.h to be included first
+	#error atlribbon.h requires Visual C++ 2008 compiler or higher
 #endif
 
 #ifndef _UNICODE
 	#error atlribbon.h requires the Unicode character set
 #endif
 
+#if !defined(NTDDI_WIN7) || (NTDDI_VERSION < NTDDI_WIN7)
+	#error atlribbon.h requires the Windows 7 SDK or higher
+#endif
+
 #ifdef _WIN32_WCE
 	#error atlribbon.h is not supported on Windows CE
 #endif
 
-#if !defined(NTDDI_WIN7) || (NTDDI_VERSION < NTDDI_WIN7)
-	#error atlribbon.h requires the Windows 7 SDK or over
+#ifndef __ATLAPP_H__
+	#error atlribbon.h requires atlapp.h to be included first
 #endif
 
 #if (_ATL_VER < 0x0700)

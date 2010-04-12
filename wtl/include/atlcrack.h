@@ -14,6 +14,10 @@
 
 #pragma once
 
+#ifndef __ATLAPP_H__
+	#error atlcrack.h requires atlapp.h to be included first
+#endif
+
 
 ///////////////////////////////////////////////////////////////////////////////
 // Message map macro for cracked handlers

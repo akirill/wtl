@@ -15,7 +15,7 @@
 #pragma once
 
 #ifndef __cplusplus
-	#error ATL requires C++ compilation (use a .cpp suffix)
+	#error WTL requires C++ compilation (use a .cpp suffix)
 #endif
 
 #ifndef __ATLBASE_H__
@@ -34,11 +34,15 @@
 
 #ifdef _ATL_NO_COMMODULE
 	#error WTL requires that _ATL_NO_COMMODULE is not defined
-#endif // _ATL_NO_COMMODULE
+#endif
+
+#if (_ATL_VER >= 0x0900) && defined(_ATL_MIN_CRT)
+	#error _ATL_MIN_CRT is not supported with ATL 9.0 and higher
+#endif
 
 #if defined(_WIN32_WCE) && defined(_ATL_MIN_CRT)
 	#pragma message("Warning: WTL for Windows CE doesn't use _ATL_MIN_CRT")
-#endif // defined(_WIN32_WCE) && defined(_ATL_MIN_CRT)
+#endif
 
 #include <limits.h>
 #if !defined(_ATL_MIN_CRT) && defined(_MT) && !defined(_WIN32_WCE)
@@ -51,8 +55,8 @@
 
 #include <commctrl.h>
 #ifndef _WIN32_WCE
-#pragma comment(lib, "comctl32.lib")
-#endif // !_WIN32_WCE
+  #pragma comment(lib, "comctl32.lib")
+#endif
 
 #ifndef _WIN32_WCE
   #include "atlres.h"

@@ -14,20 +14,12 @@
 
 #pragma once
 
-#ifndef __cplusplus
-	#error ATL requires C++ compilation (use a .cpp suffix)
-#endif
-
 #ifndef __ATLAPP_H__
 	#error atlctrls.h requires atlapp.h to be included first
 #endif
 
 #ifndef __ATLWIN_H__
 	#error atlctrls.h requires atlwin.h to be included first
-#endif
-
-#if (_WIN32_IE < 0x0300)
-	#error atlctrls.h requires IE Version 3.0 or higher
 #endif
 
 #ifndef _WIN32_WCE

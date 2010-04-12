@@ -14,10 +14,6 @@
 
 #pragma once
 
-#ifndef __cplusplus
-	#error ATL requires C++ compilation (use a .cpp suffix)
-#endif
-
 #ifndef __ATLAPP_H__
 	#error atlwince.h requires atlapp.h to be included first
 #endif
@@ -28,7 +24,9 @@
 
 #ifndef _WIN32_WCE
 	#error atlwince.h compiles under Windows CE only
-#elif (_WIN32_WCE < 300)
+#endif
+
+#if (_WIN32_WCE < 300)
 	#error atlwince.h requires Windows CE 3.0 or higher.
 #endif
 
