@@ -115,7 +115,7 @@ BEGIN
     END
     POPUP "&Help"
     BEGIN
-        MENUITEM "&About BmpView...",           ID_APP_ABOUT
+        MENUITEM "&About BmpView",              ID_APP_ABOUT
     END
 END
 

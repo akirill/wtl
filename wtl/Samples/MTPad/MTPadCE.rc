@@ -151,7 +151,7 @@ BEGIN
     END
     POPUP "&Help"
     BEGIN
-        MENUITEM "&About MTPad...",             ID_APP_ABOUT
+        MENUITEM "&About MTPad",                ID_APP_ABOUT
     END
 END
 

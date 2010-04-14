@@ -108,7 +108,7 @@ BEGIN
     END
     POPUP "&Help"
     BEGIN
-        MENUITEM "&About Aero...",              ID_APP_ABOUT
+        MENUITEM "&About Aero",                 ID_APP_ABOUT
     END
 END
 

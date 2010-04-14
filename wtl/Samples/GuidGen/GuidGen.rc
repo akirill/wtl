@@ -177,7 +177,7 @@ STRINGTABLE DISCARDABLE
 BEGIN
     IDP_ERR_CREATE_GUID     "Unable to create new GUID."
     IDP_ERR_OPEN_CLIP       "Clipboard is busy. Unable to copy result to clipboard."
-    IDS_ABOUTBOX            "&About Create GUID..."
+    IDS_ABOUTBOX            "&About Create GUID"
 END
 
 #endif    // English (U.S.) resources

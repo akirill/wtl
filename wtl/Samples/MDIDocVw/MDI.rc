@@ -141,7 +141,7 @@ BEGIN
     END
     POPUP "&Help"
     BEGIN
-        MENUITEM "&About MDI...",               ID_APP_ABOUT
+        MENUITEM "&About MDI",                  ID_APP_ABOUT
     END
 END
 
@@ -176,7 +176,7 @@ BEGIN
     END
     POPUP "&Help"
     BEGIN
-        MENUITEM "&About MDI...",               ID_APP_ABOUT
+        MENUITEM "&About MDI",                  ID_APP_ABOUT
     END
 END
 
@@ -196,7 +196,7 @@ BEGIN
     END
     POPUP "&Help"
     BEGIN
-        MENUITEM "&About MDI...",               ID_APP_ABOUT
+        MENUITEM "&About MDI",                  ID_APP_ABOUT
     END
 END
 
