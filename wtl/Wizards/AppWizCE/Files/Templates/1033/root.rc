@@ -116,7 +116,7 @@ BEGIN
 [!endif]
     POPUP "&Help"
     BEGIN
-        MENUITEM "&About [!output PROJECT_NAME]...",              ID_APP_ABOUT
+        MENUITEM "&About [!output PROJECT_NAME]",              ID_APP_ABOUT
     END
 END
 [!else]
@@ -125,23 +125,23 @@ BEGIN
     POPUP "Menu"
     BEGIN
 [!if WTL_USE_STATUSBAR]
-        MENUITEM "View status bar",		ID_VIEW_STATUS_BAR    
+        MENUITEM "View status bar",             ID_VIEW_STATUS_BAR    
 [!endif]
-        MENUITEM "New",					ID_FILE_NEW
-        MENUITEM "Open",				ID_FILE_OPEN
-        MENUITEM "Save",				ID_FILE_SAVE
-        MENUITEM "Save As",				ID_FILE_SAVE_AS
+        MENUITEM "New",                         ID_FILE_NEW
+        MENUITEM "Open",                        ID_FILE_OPEN
+        MENUITEM "Save",                        ID_FILE_SAVE
+        MENUITEM "Save As",                     ID_FILE_SAVE_AS
         MENUITEM SEPARATOR
         POPUP "Edit"
         BEGIN
-            MENUITEM "Undo",			ID_EDIT_UNDO
+            MENUITEM "Undo",                    ID_EDIT_UNDO
             MENUITEM SEPARATOR
-            MENUITEM "Cut",				ID_EDIT_CUT
-            MENUITEM "Copy",			ID_EDIT_COPY
-            MENUITEM "Paste",			ID_EDIT_PASTE
+            MENUITEM "Cut",                     ID_EDIT_CUT
+            MENUITEM "Copy",                    ID_EDIT_COPY
+            MENUITEM "Paste",                   ID_EDIT_PASTE
         END
-        MENUITEM "About [!output PROJECT_NAME]", ID_APP_ABOUT
-        MENUITEM "Exit",				ID_APP_EXIT
+        MENUITEM "About [!output PROJECT_NAME]",   ID_APP_ABOUT
+        MENUITEM "Exit",                        ID_APP_EXIT
     END
 END
 
@@ -183,7 +183,7 @@ FONT 8, "MS Shell Dlg"
 BEGIN
     DEFPUSHBUTTON   "OK",IDOK,130,7,50,14
     PUSHBUTTON      "Cancel",IDCANCEL,130,24,50,14
-    PUSHBUTTON      "&About...",ID_APP_ABOUT,130,77,50,14
+    PUSHBUTTON      "&About",ID_APP_ABOUT,130,77,50,14
 END
 
 [!endif]
@@ -207,7 +207,7 @@ FONT 8, "MS Shell Dlg"
 BEGIN
     DEFPUSHBUTTON   "OK",IDOK,79,7,50,14
     PUSHBUTTON      "Cancel",IDCANCEL,79,24,50,14
-    PUSHBUTTON      "&About...",ID_APP_ABOUT,79,77,50,14
+    PUSHBUTTON      "&About",ID_APP_ABOUT,79,77,50,14
 END
 [!endif]
 

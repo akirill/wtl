@@ -87,12 +87,12 @@ BEGIN
         MENUITEM "Full screen",            ID_VIEW_FULLSCREEN    
 [!endif]
 [!if WTL_USE_STATUSBAR]
-        MENUITEM "Show status bar",            ID_VIEW_STATUS_BAR    
+        MENUITEM "Show status bar",        ID_VIEW_STATUS_BAR    
 [!endif]
-        MENUITEM "New",                ID_FILE_NEW
-        MENUITEM "Open",            ID_FILE_OPEN
-        MENUITEM "Save",               ID_FILE_SAVE
-        MENUITEM "Save As",                 ID_FILE_SAVE_AS
+        MENUITEM "New",                    ID_FILE_NEW
+        MENUITEM "Open",                   ID_FILE_OPEN
+        MENUITEM "Save",                   ID_FILE_SAVE
+        MENUITEM "Save As",                ID_FILE_SAVE_AS
         MENUITEM SEPARATOR
         POPUP "Edit"
         BEGIN
@@ -138,7 +138,7 @@ STYLE WS_POPUP | DS_CENTER
 CAPTION "[!output PROJECT_NAME]"
 FONT 8, "MS Shell Dlg"
 BEGIN
-    PUSHBUTTON      "&About...",ID_APP_ABOUT,99,144,50,14
+    PUSHBUTTON      "&About",ID_APP_ABOUT,99,144,50,14
     CTEXT           "TODO: Place your controls on this dialog.",IDC_INFOSTATIC,7,7,142,131,WS_BORDER
 END
 [!if WTL_APP_DLG_ORIENT]
@@ -148,7 +148,7 @@ STYLE WS_POPUP | DS_CENTER
 CAPTION "[!output PROJECT_NAME]"
 FONT 8, "MS Shell Dlg"
 BEGIN
-    PUSHBUTTON      "&About...",ID_APP_ABOUT,153,92,50,14
+    PUSHBUTTON      "&About",ID_APP_ABOUT,153,92,50,14
     CTEXT           "TODO: Place your controls on this dialog.",IDC_INFOSTATIC,7,7,141,99,WS_BORDER
 END
 [!endif]

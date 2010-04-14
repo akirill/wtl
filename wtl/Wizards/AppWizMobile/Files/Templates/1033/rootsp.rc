@@ -57,26 +57,26 @@ BEGIN
     POPUP "Menu"
     BEGIN
 [!if WTL_FULLSCREEN]
-        MENUITEM "Full screen",			ID_VIEW_FULLSCREEN    
+        MENUITEM "Full screen",                 ID_VIEW_FULLSCREEN    
 [!endif]
 [!if WTL_USE_STATUSBAR]
-        MENUITEM "Show status bar",		ID_VIEW_STATUS_BAR    
+        MENUITEM "Show status bar",             ID_VIEW_STATUS_BAR    
 [!endif]
-        MENUITEM "New",					ID_FILE_NEW
-        MENUITEM "Open",				ID_FILE_OPEN
-        MENUITEM "Save",				ID_FILE_SAVE
-        MENUITEM "Save As",				ID_FILE_SAVE_AS
+        MENUITEM "New",                         ID_FILE_NEW
+        MENUITEM "Open",                        ID_FILE_OPEN
+        MENUITEM "Save",                        ID_FILE_SAVE
+        MENUITEM "Save As",                     ID_FILE_SAVE_AS
         MENUITEM SEPARATOR
         POPUP "Edit"
         BEGIN
-            MENUITEM "Undo",			ID_EDIT_UNDO
+            MENUITEM "Undo",                    ID_EDIT_UNDO
             MENUITEM SEPARATOR
-            MENUITEM "Cut",				ID_EDIT_CUT
-            MENUITEM "Copy",			ID_EDIT_COPY
-            MENUITEM "Paste",			ID_EDIT_PASTE
+            MENUITEM "Cut",                     ID_EDIT_CUT
+            MENUITEM "Copy",                    ID_EDIT_COPY
+            MENUITEM "Paste",                   ID_EDIT_PASTE
         END
-        MENUITEM "About [!output PROJECT_NAME]",		ID_APP_ABOUT
-        MENUITEM "Exit",				ID_APP_EXIT
+        MENUITEM "About [!output PROJECT_NAME]",     ID_APP_ABOUT
+        MENUITEM "Exit",                        ID_APP_EXIT
     END
 END
 
@@ -111,7 +111,7 @@ STYLE WS_POPUP | DS_CENTER
 CAPTION "[!output PROJECT_NAME]"
 FONT 9, "Nina"
 BEGIN
-    PUSHBUTTON      "&About...",ID_APP_ABOUT,56,82,50,14
+    PUSHBUTTON      "&About",ID_APP_ABOUT,56,82,50,14
     CTEXT           "TODO: Place your controls on this dialog.",IDC_INFOSTATIC,7,7,99,72,WS_BORDER
 END
 [!endif]
