@@ -2100,6 +2100,11 @@ public:
 		{
 			void* m_lpData;
 			LPTSTR m_lpstrText;
+			struct
+			{
+				WORD m_nIDFirst;
+				WORD m_nIDLast;
+			};
 		};
 
 		bool operator ==(const _AtlUpdateUIData& e) const
@@ -2208,7 +2213,12 @@ public:
 		while(pMap->m_nID != (WORD)-1)
 		{
 			if(pMap->m_wType & UPDUI_MENUPOPUP)
+			{
 				UIUpdateMenuBarElement(pMap->m_nID, pUIData, hMenu);
+
+				if((pUIData->m_wState & UPDUI_RADIO) != 0)
+					::CheckMenuRadioItem(hMenu, pUIData->m_nIDFirst, pUIData->m_nIDLast, pMap->m_nID, MF_BYCOMMAND);
+			}
 			pMap++;
 			pUIData++;
 		}
@@ -2362,6 +2372,46 @@ public:
 
 				break;   // found
 			}
+		}
+
+		return TRUE;
+	}
+
+	// for menu items
+	BOOL UISetRadioMenuItem(int nID, int nIDFirst, int nIDLast, BOOL bForceUpdate = FALSE)
+	{
+		const _AtlUpdateUIMap* pMap = m_pUIMap;
+		_AtlUpdateUIData* pUIData = m_pUIData;
+		if(pUIData == NULL)
+			return FALSE;
+
+		for( ; pMap->m_nID != (WORD)-1; pMap++, pUIData++)
+		{
+			if(nID == (int)pMap->m_nID)
+			{
+				pUIData->m_wState |= pMap->m_wType;
+				pUIData->m_wState |= UPDUI_RADIO;
+				pUIData->m_nIDFirst = (WORD)nIDFirst;
+				pUIData->m_nIDLast = (WORD)nIDLast;
+
+				if(bForceUpdate)
+					pUIData->m_wState |= pMap->m_wType;
+				if(pUIData->m_wState & pMap->m_wType)
+					m_wDirtyType |= pMap->m_wType;
+			}
+			else if(pMap->m_nID >= nIDFirst && pMap->m_nID <= nIDLast)
+			{
+				if(pUIData->m_wState & UPDUI_RADIO)
+				{
+					pUIData->m_wState &= ~pMap->m_wType;
+					pUIData->m_wState &= ~UPDUI_RADIO;
+					pUIData->m_nIDFirst = 0;
+					pUIData->m_nIDLast = 0;
+				}
+			}
+
+			if(pMap->m_nID == nIDLast)
+				break;
 		}
 
 		return TRUE;
