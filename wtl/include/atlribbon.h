@@ -2306,9 +2306,9 @@ public:
 
 		if ((pIPS != NULL) && SUCCEEDED(pIPS->GetValue(key, &propvar)))
 		{
-			BOOL bState= FALSE;
+			BOOL bState = FALSE;
 			if SUCCEEDED(UIPropertyToBoolean(key, propvar, &bState))
-				return bState == TRUE;
+				return (bState != FALSE);
 		}
 
 		ATLASSERT(FALSE); // something was wrong

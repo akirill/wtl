@@ -893,7 +893,7 @@ public:
 			}
 		}
 
-		return (pT->m_bShadowBufferNeeded == TRUE);
+		return (pT->m_bShadowBufferNeeded != FALSE);
 	}
 };
 

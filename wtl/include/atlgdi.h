@@ -3683,7 +3683,7 @@ struct DIBINFO16 // a BITMAPINFO with 2 additional color bitfields
 		DWORD dw[3] = DIBINFO16_BITFIELDS ;
 
 		bmiHeader = bmih;
-		memcpy(bmiColors, dw, 3 * sizeof(DWORD));
+		SecureHelper::memcpy_x(bmiColors, sizeof(bmiColors), dw, 3 * sizeof(DWORD));
 	}
 };
 
@@ -3747,18 +3747,21 @@ inline int AtlGetDibNumColors(LPBITMAPINFOHEADER pbmih)
 
 inline HBITMAP AtlGetDibBitmap(LPBITMAPINFO pbmi)
 {
-	HBITMAP hbm = NULL;
 	CDC dc(NULL);
-	void * pBits = NULL;
+	void* pBits = NULL;
 
 	LPBYTE pDibBits = (LPBYTE)pbmi + sizeof(BITMAPINFOHEADER) + AtlGetDibColorTableSize(&pbmi->bmiHeader) * sizeof(RGBQUAD);
-	if (hbm = CreateDIBSection(dc, pbmi, DIB_RGB_COLORS, &pBits, NULL, NULL)) 
-		memcpy(pBits, pDibBits, pbmi->bmiHeader.biSizeImage);
+	HBITMAP hbm = CreateDIBSection(dc, pbmi, DIB_RGB_COLORS, &pBits, NULL, NULL);
+	if (hbm != NULL)
+	{
+		int cbBits = pbmi->bmiHeader.biWidth * pbmi->bmiHeader.biHeight * pbmi->bmiHeader.biBitCount / 8;
+		SecureHelper::memcpy_x(pBits, cbBits, pDibBits, pbmi->bmiHeader.biSizeImage);
+	}
 
 	return hbm;
 }
 	
-inline HBITMAP AtlCopyBitmap(HBITMAP hbm , SIZE sizeDst, bool bAsBitmap = false)
+inline HBITMAP AtlCopyBitmap(HBITMAP hbm, SIZE sizeDst, bool bAsBitmap = false)
 {
 	CDC hdcSrc = CreateCompatibleDC(NULL);
 	CDC hdcDst = CreateCompatibleDC(NULL);
@@ -3823,13 +3826,13 @@ inline HLOCAL AtlCreatePackedDib16(HBITMAP hbm, SIZE size)
 		}
 	}
 
-	if((bOK == TRUE) && (AtlIsDib16(&ds.dsBmih) == TRUE) && (ds.dsBm.bmBits != NULL))
+	if((bOK != FALSE) && (AtlIsDib16(&ds.dsBmih) != FALSE) && (ds.dsBm.bmBits != NULL))
 	{
 		pDib = (LPBYTE)LocalAlloc(LMEM_ZEROINIT, sizeof(DIBINFO16) + ds.dsBmih.biSizeImage);
 		if (pDib != NULL)
 		{
-			memcpy(pDib , &ds.dsBmih, sizeof(DIBINFO16));
-			memcpy(pDib + sizeof(DIBINFO16), ds.dsBm.bmBits, ds.dsBmih.biSizeImage);
+			SecureHelper::memcpy_x(pDib, sizeof(DIBINFO16) + ds.dsBmih.biSizeImage, &ds.dsBmih, sizeof(DIBINFO16));
+			SecureHelper::memcpy_x(pDib + sizeof(DIBINFO16), ds.dsBmih.biSizeImage, ds.dsBm.bmBits, ds.dsBmih.biSizeImage);
 		}
 	}
 
@@ -3843,9 +3846,10 @@ inline bool AtlSetClipboardDib16(HBITMAP hbm, SIZE size, HWND hWnd)
 {
 	ATLASSERT(::IsWindow(hWnd));
 	BOOL bOK = OpenClipboard(hWnd);
-	if (bOK == TRUE)
+	if (bOK != FALSE)
 	{
-		if ((bOK = EmptyClipboard()) == TRUE)
+		bOK = EmptyClipboard();
+		if (bOK != FALSE)
 		{
 			HLOCAL hDib = AtlCreatePackedDib16(hbm, size);
 			if (hDib != NULL)
@@ -3862,14 +3866,14 @@ inline bool AtlSetClipboardDib16(HBITMAP hbm, SIZE size, HWND hWnd)
 		CloseClipboard();
 	}
 
-	return bOK == TRUE;
+	return (bOK != FALSE);
 }
 
 inline HBITMAP AtlGetClipboardDib(HWND hWnd)
 {
-	ATLASSERT(::IsWindow(hWnd) == TRUE);
+	ATLASSERT(::IsWindow(hWnd) != FALSE);
 	HBITMAP hbm = NULL;
-	if  (OpenClipboard(hWnd) == TRUE)
+	if  (OpenClipboard(hWnd) != FALSE)
 	{
 		LPBITMAPINFO pbmi = (LPBITMAPINFO)GetClipboardData(CF_DIB);
 		if (pbmi != NULL)
