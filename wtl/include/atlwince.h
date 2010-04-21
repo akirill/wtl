@@ -2479,7 +2479,7 @@ public:
 		::ZeroMemory(&m_dlc, sizeof(DOCLISTCREATE));
 		::ZeroMemory(m_szPath, sizeof(m_szPath));
 		if(pszFolder != NULL)
-			::lstrcpyn(m_szPath, pszFolder, MAX_PATH - 1);
+			SecureHelper::strncpy_x(m_szPath, MAX_PATH, pszFolder, MAX_PATH - 1);
 		m_dlc.dwStructSize = sizeof(DOCLISTCREATE);
 		m_dlc.hwndParent = hWndParent;
 		m_dlc.pszFolder = m_szPath;
@@ -2771,13 +2771,14 @@ public:
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
 		ATLASSERT(pstrTipText);
-		ATLASSERT(lstrlen(pstrTipText)<= 253);
+		ATLASSERT(lstrlen(pstrTipText) <= 253);
 		CTempBuffer<TCHAR, _WTL_STACK_ALLOC_THRESHOLD> buff;
-		LPTSTR pstr = buff.Allocate(lstrlen(pstrTipText) + 3);
+		int cchLen = lstrlen(pstrTipText) + 3;
+		LPTSTR pstr = buff.Allocate(cchLen);
 		if(pstr == NULL)
 			return FALSE;
-		::lstrcpy(pstr, _T("~~"));
-		::lstrcat(pstr, pstrTipText);
+		SecureHelper::strcpy_x(pstr, cchLen, _T("~~"));
+		SecureHelper::strcat_x(pstr, cchLen, pstrTipText);
 		return SetWindowText(pstr);
 	}
 };
@@ -2822,13 +2823,14 @@ public:
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
 		ATLASSERT(pstrTipText);
-		ATLASSERT(lstrlen(pstrTipText)<= 253);
+		ATLASSERT(lstrlen(pstrTipText) <= 253);
 		CTempBuffer<TCHAR, _WTL_STACK_ALLOC_THRESHOLD> buff;
-		LPTSTR pstr = buff.Allocate(lstrlen(pstrTipText) + 3);
+		int cchLen = lstrlen(pstrTipText) + 3;
+		LPTSTR pstr = buff.Allocate(cchLen);
 		if(pstr == NULL)
 			return FALSE;
-		::lstrcpy(pstr, _T("~~"));
-		::lstrcat(pstr, pstrTipText);
+		SecureHelper::strcpy_x(pstr, cchLen, _T("~~"));
+		SecureHelper::strcat_x(pstr, cchLen, pstrTipText);
 		return SetWindowText(pstr);
 	}
 };
