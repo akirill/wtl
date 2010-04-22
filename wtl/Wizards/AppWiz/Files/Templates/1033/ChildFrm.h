@@ -13,6 +13,10 @@ public:
 	[!output WTL_VIEW_CLASS] m_view;
 
 [!endif]
+[!if WTL_VIEWTYPE_LISTBOX || WTL_VIEWTYPE_EDIT || WTL_VIEWTYPE_RICHEDIT]
+	CFont m_font;
+
+[!endif]
 [!if WTL_USE_CPP_FILES]
 	virtual void OnFinalMessage(HWND /*hWnd*/);
 [!else]
@@ -49,8 +53,9 @@ public:
 		m_hWndClient = m_view.Create(m_hWnd, rcDefault, _T("http://www.microsoft.com"), [!output WTL_VIEW_STYLES], [!output WTL_VIEW_EX_STYLES]);
 [!else]
 		m_hWndClient = m_view.Create(m_hWnd, rcDefault, NULL, [!output WTL_VIEW_STYLES], [!output WTL_VIEW_EX_STYLES]);
-[!if WTL_VIEWTYPE_LISTBOX || WTL_VIEWTYPE_EDIT || WTL_VIEWTYPE_LISTVIEW || WTL_VIEWTYPE_TREEVIEW || WTL_VIEWTYPE_RICHEDIT]
-		m_view.SetFont(AtlGetDefaultGuiFont());
+[!if WTL_VIEWTYPE_LISTBOX || WTL_VIEWTYPE_EDIT || WTL_VIEWTYPE_RICHEDIT]
+		m_font = AtlCreateControlFont();
+		m_view.SetFont(m_font);
 [!endif]
 [!if WTL_VIEWTYPE_SCROLL]
 		// replace with appropriate values for the app

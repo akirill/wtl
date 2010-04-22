@@ -792,16 +792,17 @@ public:
 	bool m_bVisited:1;
 	bool m_bHover:1;
 	bool m_bInternalLinkFont:1;
+	bool m_bInternalNormalFont:1;
 
 
 // Constructor/Destructor
 	CHyperLinkImpl(DWORD dwExtendedStyle = HLINK_UNDERLINED) : 
 			m_lpstrLabel(NULL), m_lpstrHyperLink(NULL),
-			m_hCursor(NULL), m_hFontLink(NULL), m_hFontNormal(AtlGetDefaultGuiFont()),
+			m_hCursor(NULL), m_hFontLink(NULL), m_hFontNormal(NULL),
 			m_clrLink(RGB(0, 0, 255)), m_clrVisited(RGB(128, 0, 128)),
 			m_dwExtendedStyle(dwExtendedStyle),
 			m_bPaintLabel(true), m_bVisited(false),
-			m_bHover(false), m_bInternalLinkFont(false)
+			m_bHover(false), m_bInternalLinkFont(false), m_bInternalNormalFont(false)
 	{
 		::SetRectEmpty(&m_rcLink);
 	}
@@ -810,8 +811,6 @@ public:
 	{
 		delete [] m_lpstrLabel;
 		delete [] m_lpstrHyperLink;
-		if(m_bInternalLinkFont && m_hFontLink != NULL)
-			::DeleteObject(m_hFontLink);
 #if (WINVER < 0x0500) && !defined(_WIN32_WCE)
 		// It was created, not loaded, so we have to destroy it
 		if(m_hCursor != NULL)
@@ -912,7 +911,7 @@ public:
 
 	void SetLinkFont(HFONT hFont)
 	{
-		if(m_bInternalLinkFont && m_hFontLink != NULL)
+		if(m_bInternalLinkFont)
 		{
 			::DeleteObject(m_hFontLink);
 			m_bInternalLinkFont = false;
@@ -1057,6 +1056,8 @@ public:
 	{
 		ATLASSERT(m_hWnd == NULL);
 		ATLASSERT(::IsWindow(hWnd));
+		if(m_hFontNormal == NULL)
+			m_hFontNormal = (HFONT)::SendMessage(hWnd, WM_GETFONT, 0, 0L);
 #if (_MSC_VER >= 1300)
 		BOOL bRet = ATL::CWindowImpl< T, TBase, TWinTraits>::SubclassWindow(hWnd);
 #else // !(_MSC_VER >= 1300)
@@ -1108,7 +1109,7 @@ public:
 
 	void CreateLinkFontFromNormal()
 	{
-		if(m_bInternalLinkFont && m_hFontLink != NULL)
+		if(m_bInternalLinkFont)
 		{
 			::DeleteObject(m_hFontLink);
 			m_bInternalLinkFont = false;
@@ -1173,6 +1174,21 @@ public:
 			m_tip.DestroyWindow();
 			m_tip.m_hWnd = NULL;
 		}
+
+		if(m_bInternalLinkFont)
+		{
+			::DeleteObject(m_hFontLink);
+			m_hFontLink = NULL;
+			m_bInternalLinkFont = false;
+		}
+
+		if(m_bInternalNormalFont)
+		{
+			::DeleteObject(m_hFontNormal);
+			m_hFontNormal = NULL;
+			m_bInternalNormalFont = false;
+		}
+
 		bHandled = FALSE;
 		return 1;
 	}
@@ -1341,9 +1357,17 @@ public:
 
 	LRESULT OnSetFont(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/)
 	{
+		if(m_bInternalNormalFont)
+		{
+			::DeleteObject(m_hFontNormal);
+			m_bInternalNormalFont = false;
+		}
+
+		bool bCreateLinkFont = m_bInternalLinkFont;
+
 		m_hFontNormal = (HFONT)wParam;
 
-		if(IsAutoCreateLinkFont())
+		if(bCreateLinkFont || IsAutoCreateLinkFont())
 			CreateLinkFontFromNormal();
 
 		T* pT = static_cast<T*>(this);
@@ -1407,9 +1431,18 @@ public:
 #endif
 		ATLASSERT(m_hCursor != NULL);
 
-		// set font
-		if(m_bPaintLabel && (m_hFontLink == NULL))
-			CreateLinkFontFromNormal();
+		// set fonts
+		if(m_bPaintLabel)
+		{
+			if(m_hFontNormal == NULL)
+			{
+				m_hFontNormal = AtlCreateControlFont();
+				m_bInternalNormalFont = true;
+			}
+
+			if(m_hFontLink == NULL)
+				CreateLinkFontFromNormal();
+		}
 
 #ifndef _WIN32_WCE
 		// create a tool tip
@@ -1423,11 +1456,9 @@ public:
 			int nLen = GetWindowTextLength();
 			if(nLen > 0)
 			{
-				CTempBuffer<TCHAR, _WTL_STACK_ALLOC_THRESHOLD> buff;
-				LPTSTR lpstrText = buff.Allocate(nLen + 1);
-				ATLASSERT(lpstrText != NULL);
-				if((lpstrText != NULL) && (GetWindowText(lpstrText, nLen + 1) > 0))
-					SetLabel(lpstrText);
+				ATLTRY(m_lpstrLabel = new TCHAR[nLen + 1]);
+				if(m_lpstrLabel != NULL)
+					ATLVERIFY(GetWindowText(m_lpstrLabel, nLen + 1) > 0);
 			}
 		}
 
@@ -2266,10 +2297,11 @@ public:
 	TCHAR m_szTitle[m_cchTitle];
 	DWORD m_dwExtendedStyle;   // Pane container specific extended styles
 	HFONT m_hFont;
+	bool m_bInternalFont;
 
 
 // Constructor
-	CPaneContainerImpl() : m_cxyHeader(0), m_dwExtendedStyle(0), m_hFont(AtlGetDefaultGuiFont())
+	CPaneContainerImpl() : m_cxyHeader(0), m_dwExtendedStyle(0), m_hFont(NULL), m_bInternalFont(false)
 	{
 		m_szTitle[0] = 0;
 	}
@@ -2413,6 +2445,7 @@ public:
 // Message map and handlers
 	BEGIN_MSG_MAP(CPaneContainerImpl)
 		MESSAGE_HANDLER(WM_CREATE, OnCreate)
+		MESSAGE_HANDLER(WM_DESTROY, OnDestroy)
 		MESSAGE_HANDLER(WM_SIZE, OnSize)
 		MESSAGE_HANDLER(WM_SETFOCUS, OnSetFocus)
 		MESSAGE_HANDLER(WM_GETFONT, OnGetFont)
@@ -2429,11 +2462,29 @@ public:
 
 	LRESULT OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 	{
+		if(m_hFont == NULL)
+		{
+			m_hFont = AtlCreateControlFont();
+			m_bInternalFont = true;
+		}
+
 		T* pT = static_cast<T*>(this);
 		pT->CalcSize();
 
 		if((m_dwExtendedStyle & PANECNT_NOCLOSEBUTTON) == 0)
 			pT->CreateCloseButton();
+
+		return 0;
+	}
+
+	LRESULT OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+	{
+		if(m_bInternalFont)
+		{
+			::DeleteObject(m_hFont);
+			m_hFont = NULL;
+			m_bInternalFont = false;
+		}
 
 		return 0;
 	}
@@ -2459,6 +2510,12 @@ public:
 
 	LRESULT OnSetFont(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/)
 	{
+		if(m_bInternalFont)
+		{
+			::DeleteObject(m_hFont);
+			m_bInternalFont = false;
+		}
+
 		m_hFont = (HFONT)wParam;
 
 		T* pT = static_cast<T*>(this);
@@ -2684,7 +2741,7 @@ public:
 
 	HFONT GetTitleFont() const
 	{
-		return GetFont();
+		return m_hFont;
 	}
 
 #ifndef _WIN32_WCE
@@ -3735,6 +3792,7 @@ public:
 	// internal
 	bool m_bTabCapture:1;
 	bool m_bTabDrag:1;
+	bool m_bInternalFont:1;
 
 // Constructor/destructor
 	CTabViewImpl() :
@@ -3754,7 +3812,8 @@ public:
 			m_bWindowsMenuItem(false), 
 			m_bNoTabDrag(false), 
 			m_bTabCapture(false), 
-			m_bTabDrag(false)
+			m_bTabDrag(false), 
+			m_bInternalFont(false)
 	{
 		m_ptStartDrag.x = 0;
 		m_ptStartDrag.y = 0;
@@ -4342,6 +4401,14 @@ public:
 				il.Destroy();
 		}
 
+		if(m_bInternalFont)
+		{
+			HFONT hFont = m_tab.GetFont();
+			m_tab.SetFont(NULL, FALSE);
+			::DeleteObject(hFont);
+			m_bInternalFont = false;
+		}
+
 		return 0;
 	}
 
@@ -4366,6 +4433,14 @@ public:
 
 	LRESULT OnSetFont(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/)
 	{
+		if(m_bInternalFont)
+		{
+			HFONT hFont = m_tab.GetFont();
+			m_tab.SetFont(NULL, FALSE);
+			::DeleteObject(hFont);
+			m_bInternalFont = false;
+		}
+
 		m_tab.SendMessage(WM_SETFONT, wParam, lParam);
 
 		T* pT = static_cast<T*>(this);
@@ -4631,7 +4706,8 @@ public:
 		if(m_tab.m_hWnd == NULL)
 			return false;
 
-		m_tab.SetFont(AtlGetDefaultGuiFont());
+		m_tab.SetFont(AtlCreateControlFont());
+		m_bInternalFont = true;
 
 		m_tab.SetItemExtra(sizeof(TABVIEWPAGE));
 

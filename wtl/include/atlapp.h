@@ -92,6 +92,7 @@
 //
 // Global functions:
 //   AtlGetDefaultGuiFont()
+//   AtlCreateControlFont()
 //   AtlCreateBoldFont()
 //   AtlInitCommonControls()
 
@@ -500,7 +501,7 @@ inline bool AtlIsOldWindows()
 	return (!bRet || !((ovi.dwMajorVersion >= 5) || (ovi.dwMajorVersion == 4 && ovi.dwMinorVersion >= 90)));
 }
 
-// default GUI font helper
+// Default GUI font helper - "MS Shell Dlg" stock font
 inline HFONT AtlGetDefaultGuiFont()
 {
 #ifndef _WIN32_WCE
@@ -510,24 +511,39 @@ inline HFONT AtlGetDefaultGuiFont()
 #endif // _WIN32_WCE
 }
 
-// bold font helper (NOTE: Caller owns the font, and should destroy it when done using it)
+// Control font helper - default font for controls not in a dialog
+// (NOTE: Caller owns the font, and should destroy it when it's no longer needed)
+inline HFONT AtlCreateControlFont()
+{
+#ifndef _WIN32_WCE
+	LOGFONT lf = { 0 };
+	ATLVERIFY(::SystemParametersInfo(SPI_GETICONTITLELOGFONT, sizeof(LOGFONT), &lf, 0) != FALSE);
+	HFONT hFont = ::CreateFontIndirect(&lf);
+	ATLASSERT(hFont != NULL);
+	return hFont;
+#else // CE specific
+	return (HFONT)::GetStockObject(SYSTEM_FONT);
+#endif // _WIN32_WCE
+}
+
+// Bold font helper
+// (NOTE: Caller owns the font, and should destroy it when it's no longer needed)
 inline HFONT AtlCreateBoldFont(HFONT hFont = NULL)
 {
-	if(hFont == NULL)
-		hFont = AtlGetDefaultGuiFont();
-	ATLASSERT(hFont != NULL);
-	HFONT hFontBold = NULL;
 	LOGFONT lf = { 0 };
-	if(::GetObject(hFont, sizeof(LOGFONT), &lf) == sizeof(LOGFONT))
-	{
-		lf.lfWeight = FW_BOLD;
-		hFontBold =  ::CreateFontIndirect(&lf);
-		ATLASSERT(hFontBold != NULL);
-	}
+#ifndef _WIN32_WCE
+	if(hFont == NULL)
+		ATLVERIFY(::SystemParametersInfo(SPI_GETICONTITLELOGFONT, sizeof(LOGFONT), &lf, 0) != FALSE);
 	else
-	{
-		ATLASSERT(FALSE);
-	}
+		ATLVERIFY(::GetObject(hFont, sizeof(LOGFONT), &lf) == sizeof(LOGFONT));
+#else // CE specific
+	if(hFont == NULL)
+		hFont = (HFONT)::GetStockObject(SYSTEM_FONT);
+	ATLVERIFY(::GetObject(hFont, sizeof(LOGFONT), &lf) == sizeof(LOGFONT));
+#endif // _WIN32_WCE
+	lf.lfWeight = FW_BOLD;
+	HFONT hFontBold =  ::CreateFontIndirect(&lf);
+	ATLASSERT(hFontBold != NULL);
 	return hFontBold;
 }
 
