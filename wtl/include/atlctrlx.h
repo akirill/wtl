@@ -2464,7 +2464,22 @@ public:
 	{
 		if(m_hFont == NULL)
 		{
-			m_hFont = AtlCreateControlFont();
+			// The same as AtlCreateControlFont() for horizontal pane
+#ifndef _WIN32_WCE
+			LOGFONT lf = { 0 };
+			ATLVERIFY(::SystemParametersInfo(SPI_GETICONTITLELOGFONT, sizeof(LOGFONT), &lf, 0) != FALSE);
+			if(IsVertical())
+				lf.lfEscapement = 900;   // 90 degrees
+			m_hFont = ::CreateFontIndirect(&lf);
+#else // CE specific
+			m_hFont = (HFONT)::GetStockObject(SYSTEM_FONT);
+			if(IsVertical())
+			{
+				CLogFont lf(m_hFont);
+				lf.lfEscapement = 900;   // 90 degrees
+				m_hFont = ::CreateFontIndirect(&lf);
+			}
+#endif // _WIN32_WCE
 			m_bInternalFont = true;
 		}
 
@@ -2776,23 +2791,42 @@ public:
 		}
 		dc.FillRect(&rect, COLOR_3DFACE);
 
-		if(!IsVertical())   // draw title only for horizontal pane container
+		// draw title text
+		dc.SetTextColor(::GetSysColor(COLOR_WINDOWTEXT));
+		dc.SetBkMode(TRANSPARENT);
+		T* pT = static_cast<T*>(this);
+		HFONT hFontOld = dc.SelectFont(pT->GetTitleFont());
+#ifdef _WIN32_WCE
+		const UINT DT_END_ELLIPSIS = 0;
+#endif // _WIN32_WCE
+
+		if(IsVertical())
 		{
-			dc.SetTextColor(::GetSysColor(COLOR_WINDOWTEXT));
-			dc.SetBkMode(TRANSPARENT);
-			T* pT = static_cast<T*>(this);
-			HFONT hFontOld = dc.SelectFont(pT->GetTitleFont());
+			rect.top += m_cxyTextOffset;
+			rect.bottom -= m_cxyTextOffset;
+			if(m_tb.m_hWnd != NULL)
+				rect.top += m_cxToolBar;;
+
+			RECT rcCalc = { rect.left, rect.bottom, rect.right, rect.top };
+			int cxFont = dc.DrawText(m_szTitle, -1, &rcCalc, DT_TOP | DT_SINGLELINE | DT_END_ELLIPSIS | DT_CALCRECT);
+			RECT rcText = { 0 };
+			rcText.left = (rect.right - rect.left - cxFont) / 2;
+			rcText.right = rcText.left + (rect.bottom - rect.top);
+			rcText.top = rect.bottom;
+			rcText.bottom = rect.top;
+			dc.DrawText(m_szTitle, -1, &rcText, DT_TOP | DT_SINGLELINE | DT_END_ELLIPSIS);
+		}
+		else
+		{
 			rect.left += m_cxyTextOffset;
 			rect.right -= m_cxyTextOffset;
 			if(m_tb.m_hWnd != NULL)
 				rect.right -= m_cxToolBar;;
-#ifndef _WIN32_WCE
+
 			dc.DrawText(m_szTitle, -1, &rect, DT_LEFT | DT_SINGLELINE | DT_VCENTER | DT_END_ELLIPSIS);
-#else // CE specific
-			dc.DrawText(m_szTitle, -1, &rect, DT_LEFT | DT_SINGLELINE | DT_VCENTER);
-#endif // _WIN32_WCE
-			dc.SelectFont(hFontOld);
 		}
+
+		dc.SelectFont(hFontOld);
 	}
 
 	// called only if pane is empty
