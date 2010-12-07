@@ -649,7 +649,8 @@ public:
 
 		if(bSave)
 		{
-			bSuccess = (_getSel(ctrl) != -1) ? TRUE : FALSE;
+			nVal = _getSel(ctrl);
+			bSuccess = (nVal != -1) ? TRUE : FALSE;
 		}
 		else
 		{
