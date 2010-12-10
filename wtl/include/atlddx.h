@@ -142,10 +142,7 @@ namespace WTL
 // Note: ListView selection DDX support requires atlctrls.h included first
 #define DDX_INDEX(CtrlClass, nID, var) \
 	if(nCtlID == (UINT)-1 || nCtlID == nID) \
-	{ \
-		if(!DDX_Index<CtrlClass>(nID, var, bSaveAndValidate)) \
-		return FALSE; \
-	}
+		DDX_Index<CtrlClass>(nID, var, bSaveAndValidate);
 
 #define DDX_TAB_INDEX(nID, var)      DDX_INDEX(WTL::CTabCtrl, nID, var)
 #define DDX_COMBO_INDEX(nID, var)    DDX_INDEX(WTL::CComboBox, nID, var)
@@ -619,9 +616,13 @@ public:
 	}
 
 	template <class TCtrl>
-	BOOL _setSel(TCtrl& tCtrl, INT iSel)
+	void _setSel(TCtrl& tCtrl, INT iSel)
 	{
-		return tCtrl.SetCurSel(iSel) == iSel;
+		if (iSel < 0)
+		{
+			tCtrl.SetCurSel(-1);
+		}
+		else tCtrl.SetCurSel(iSel);
 	}
 
 #ifdef __ATLCTRLS_H__
@@ -633,49 +634,31 @@ public:
 	}
 
 	template <>
-	BOOL _setSel(CListViewCtrl& tCtrl, INT iSel)
+	void _setSel(CListViewCtrl& tCtrl, INT iSel)
 	{
-		return tCtrl.SelectItem(iSel);
+		if (iSel < 0)
+		{
+			tCtrl.SetItemState(-1, 0, LVIS_SELECTED);
+		}
+		else tCtrl.SelectItem(iSel);
 	}
 #endif // __ATLCTRLS_H__
 
 	template <class TCtrl>
-	BOOL DDX_Index(UINT nID, INT& nVal, BOOL bSave, BOOL bValidate = FALSE, INT nMin = 0, INT nMax = 0)
+	void DDX_Index(UINT nID, INT& nVal, BOOL bSave)
 	{
 		T* pT = static_cast<T*>(this);
-		BOOL bSuccess = TRUE;
 
 		TCtrl ctrl(pT->GetDlgItem(nID));
 
 		if(bSave)
 		{
 			nVal = _getSel(ctrl);
-			bSuccess = (nVal != -1) ? TRUE : FALSE;
 		}
 		else
 		{
-			ATLASSERT((bValidate == FALSE) || ((nVal >= nMin) && (nVal <= nMax)));
-			bSuccess = _setSel(ctrl, nVal);
+			_setSel(ctrl, nVal);
 		}
-			
-		if(!bSuccess)
-		{
-			pT->OnDataExchangeError(nID, bSave);
-		}
-		else if(bSave && bValidate)	// validation
-		{
-			ATLASSERT(nMin != nMax);
-			if((nVal < nMin) || (nVal > nMax))
-			{
-				_XData data = { ddxDataInt };
-				_XIntData id = { nVal, nMin, nMax };
-				data.intData = id;
-
-				pT->OnDataValidateError(nID, bSave, data);
-				bSuccess = FALSE;
-			}
-		}
-		return bSuccess;
 	}
 
 // Overrideables
